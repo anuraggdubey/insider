@@ -21,17 +21,17 @@ Built solo for **Solana Blitz v10** (MagicBlock, theme: _Entertainment Finance_)
 
 ## MagicBlock features used
 
-| Feature                              | What it does in Insider                                                              | Code                          | Status  |
-| ------------------------------------ | ------------------------------------------------------------------------------------ | ----------------------------- | ------- |
-| **Ephemeral Rollup (ER)** (required) | Delegates round, market and player accounts; 10 ms, zero-fee trades and ticks        | `programs/insider`            | planned |
-| **VRF**                              | Picks the Insider, seeds the hidden price path                                       | `programs/insider`            | planned |
-| **Private ER (PER, TEE)**            | Hides the price tape, positions and balances from everyone but the permitted wallets | `programs/insider`            | planned |
-| **Magic Router**                     | Routes transactions to base layer or ER automatically on the client                  | `app/lib`                     | planned |
-| **Session keys**                     | Wallet-free play: no popup per trade                                                 | `programs/insider`, `app/lib` | planned |
-| **Cranks**                           | Scheduled price ticks inside the rollup                                              | `programs/insider`            | planned |
-| **SOAR** (stretch)                   | Onchain "best detective" leaderboard                                                 | `app`                         | planned |
+| Feature                              | What it does in Insider                                                              | Code                          | Status                                                        |
+| ------------------------------------ | ------------------------------------------------------------------------------------ | ----------------------------- | ------------------------------------------------------------- |
+| **Ephemeral Rollup (ER)** (required) | Delegates round, market and player accounts; 10 ms, zero-fee trades and ticks        | `programs/insider`            | in progress (delegate, commit, undelegate verified on devnet) |
+| **VRF**                              | Picks the Insider, seeds the hidden price path                                       | `programs/insider`            | planned                                                       |
+| **Private ER (PER, TEE)**            | Hides the price tape, positions and balances from everyone but the permitted wallets | `programs/insider`            | planned                                                       |
+| **Magic Router**                     | Routes transactions to base layer or ER automatically on the client                  | `app/lib`                     | planned                                                       |
+| **Session keys**                     | Wallet-free play: no popup per trade                                                 | `programs/insider`, `app/lib` | planned                                                       |
+| **Cranks**                           | Scheduled price ticks inside the rollup                                              | `programs/insider`            | planned                                                       |
+| **SOAR** (stretch)                   | Onchain "best detective" leaderboard                                                 | `app`                         | planned                                                       |
 
-Explorer proofs (delegation, VRF request, private-state transactions) will be linked here once deployed.
+Explorer proofs: the Ephemeral Rollup round trip (delegate, 5 rollup transactions, commit, undelegate, state back on the base layer) is recorded in [docs/proofs](docs/proofs/README.md). VRF and private-state proofs will be added when built.
 
 ## Why onchain
 
@@ -42,7 +42,7 @@ Explorer proofs (delegation, VRF request, private-state transactions) will be li
 
 ## Tech stack
 
-- **Onchain:** Rust, Anchor, `ephemeral-rollups-sdk` (features: `anchor`, `vrf`, `access-control`)
+- **Onchain:** Rust, Anchor, `ephemeral-rollups-sdk` 0.18 (features: `anchor`, `vrf`, `access-control`)
 - **Frontend and backend:** Next.js (App Router), TypeScript, Tailwind CSS, Framer Motion
 - **Client SDKs:** `@solana/kit`, `@magicblock-labs/ephemeral-rollups-kit`, Wallet Standard
 - **AI players:** TypeScript agent service with persona-driven LLM calls and real keypairs

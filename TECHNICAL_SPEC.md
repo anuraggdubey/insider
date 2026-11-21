@@ -15,7 +15,7 @@ Version 0.1 (design). Items marked **[verify]** depend on MagicBlock behaviour t
 | Layer                    | Choice                                                  | Notes                                                                     |
 | ------------------------ | ------------------------------------------------------- | ------------------------------------------------------------------------- |
 | Program                  | Rust + Anchor                                           | Anchor 1.0.x as pinned by MagicBlock docs [verify exact version at setup] |
-| MagicBlock SDK (program) | `ephemeral-rollups-sdk` >= 0.14.2                       | Features: `anchor`, `vrf`, `access-control`                               |
+| MagicBlock SDK (program) | `ephemeral-rollups-sdk` 0.18.0 (pinned)                 | Features: `anchor`, `vrf`, `access-control`                               |
 | Frontend / full stack    | Next.js (App Router), TypeScript                        | API routes for chat, bot control, round indexing                          |
 | Styling and motion       | Tailwind CSS, Framer Motion                             | Neon trading-floor UI, reveal animation                                   |
 | Charts                   | Lightweight canvas or `lightweight-charts`              | Live candles and price line                                               |
@@ -271,4 +271,4 @@ Cut order if time runs short: SOAR, cranks (use keeper), replay page, agent pers
 2. Exact TEE authorization flow for reading a private account from the browser and from an agent.
 3. Cranks availability on the TEE validator for periodic `tick`.
 4. Maximum number of delegated accounts per round and compute limits for settlement.
-5. Anchor version compatibility with `ephemeral-rollups-sdk` >= 0.14.2.
+5. Validator lines: public devnet ERs and the TEE run validator 1.x, which needs SDK 0.18.x; SDK 0.20.x works only with validator 2.0 (devnet-us) and its `#[vrf]` macro does not compile. Re-check before any SDK upgrade.
