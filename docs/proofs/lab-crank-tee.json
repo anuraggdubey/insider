@@ -1,0 +1,78 @@
+{
+  "experiment": "lab-crank-tee",
+  "network": "devnet",
+  "program": {
+    "id": "5TbtvduZEmNWbnr7wfvB9A9TobbxSB96e1xYcr6NnSDQ",
+    "url": "https://explorer.solana.com/address/5TbtvduZEmNWbnr7wfvB9A9TobbxSB96e1xYcr6NnSDQ?cluster=devnet"
+  },
+  "facts": {
+    "lab": "6Yvbc3kWpwK6sZJEyGoMQYSWT6v6WkcqJWqqx8nH6tRs",
+    "endpoint": "https://devnet-tee.magicblock.app/",
+    "finiteTask": {
+      "expected": 6,
+      "observed": 6,
+      "timeline": [
+        {
+          "atMs": 569,
+          "ticks": 1
+        },
+        {
+          "atMs": 1160,
+          "ticks": 2
+        },
+        {
+          "atMs": 1741,
+          "ticks": 4
+        },
+        {
+          "atMs": 2319,
+          "ticks": 5
+        },
+        {
+          "atMs": 2904,
+          "ticks": 6
+        }
+      ]
+    },
+    "directTickCall": "rejected: Simulation failed. \nMessage: transaction verification error: Error processing Instruction 0: custom ",
+    "cancel": {
+      "supported": false,
+      "error": "Simulation failed. Message: transaction verification error: Transaction loads a writable account that cannot be written. Catch the `SendTransactionError` and ca",
+      "ticksGrewBeforeCancel": true,
+      "ticksAfterCancelSettled": 354,
+      "ticksFourSecondsLater": 354,
+      "stopped": true
+    },
+    "ticksOnBase": 354
+  },
+  "steps": [
+    {
+      "step": "lab_delegate",
+      "layer": "base",
+      "signature": "dfGsaSVN35gcskLLmTEbaHFHZiQt14f239LnbQVrDSAKXgZsoSCkN9MMvsstkyPPMH6p388Jvgbz1B5RWpHR1je",
+      "url": "https://explorer.solana.com/tx/dfGsaSVN35gcskLLmTEbaHFHZiQt14f239LnbQVrDSAKXgZsoSCkN9MMvsstkyPPMH6p388Jvgbz1B5RWpHR1je?cluster=devnet",
+      "ms": 793
+    },
+    {
+      "step": "lab_schedule_tick task 281113661 (6x 500ms)",
+      "layer": "TEE",
+      "signature": "2g5rXCTfDCvrcqSMEFE73mD4t6wGZhCVwBQvYmvfMC9He2ZEmAgZszhrhScxqo2vjMm1wxBMUQANsaM1hc57RFy6",
+      "url": "https://explorer.solana.com/tx/2g5rXCTfDCvrcqSMEFE73mD4t6wGZhCVwBQvYmvfMC9He2ZEmAgZszhrhScxqo2vjMm1wxBMUQANsaM1hc57RFy6?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app",
+      "ms": 430
+    },
+    {
+      "step": "lab_schedule_tick task 281113662 (10x 300ms)",
+      "layer": "TEE",
+      "signature": "3trqHc3B35QDPnBXhHE41NVZwWMBMpsF7knDjUFxrW1Sb9BLEE5oB38N512ayNNRKfnJzKjjnZGCvxVhckmJJdip",
+      "url": "https://explorer.solana.com/tx/3trqHc3B35QDPnBXhHE41NVZwWMBMpsF7knDjUFxrW1Sb9BLEE5oB38N512ayNNRKfnJzKjjnZGCvxVhckmJJdip?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app",
+      "ms": 356
+    },
+    {
+      "step": "lab_undelegate",
+      "layer": "TEE",
+      "signature": "3L5AamQEBVMSreg2rjhgkwpX4BdW5n587WoAwcuVovAm5yKeKKay8pskLrS2c7Y4RiDt1WZ3fbrsE4y997Xv9NFU",
+      "url": "https://explorer.solana.com/tx/3L5AamQEBVMSreg2rjhgkwpX4BdW5n587WoAwcuVovAm5yKeKKay8pskLrS2c7Y4RiDt1WZ3fbrsE4y997Xv9NFU?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app",
+      "ms": 377
+    }
+  ]
+}

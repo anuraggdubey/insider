@@ -1,0 +1,95 @@
+{
+  "experiment": "lab-slots-tee-3-at20",
+  "network": "devnet",
+  "program": {
+    "id": "5TbtvduZEmNWbnr7wfvB9A9TobbxSB96e1xYcr6NnSDQ",
+    "url": "https://explorer.solana.com/address/5TbtvduZEmNWbnr7wfvB9A9TobbxSB96e1xYcr6NnSDQ?cluster=devnet"
+  },
+  "facts": {
+    "slots": 3,
+    "validator": "tee MTEWGuqxUpYZGFJQcp8tLN7x5v9BSeoFHYWQQ3n3xzo",
+    "delegatesPerTransaction": {
+      "maxThatFit": 3,
+      "txLimitBytes": 1232
+    },
+    "delegateComputeUnits x3": 178413,
+    "endpoint": "https://devnet-tee.magicblock.app",
+    "bumpAll": {
+      "accounts": 3,
+      "computeUnits": 7656,
+      "latenciesMs": [
+        649,
+        281,
+        427,
+        288,
+        283
+      ]
+    },
+    "settleAllComputeUnits": 36427,
+    "allSettledOnBaseAfterMs": 1303,
+    "countsOnBase": [
+      5,
+      5,
+      5
+    ],
+    "allCountsEqual5": true
+  },
+  "steps": [
+    {
+      "step": "slot_init x3",
+      "layer": "base",
+      "signature": "4QGV7XEhcasmmrbH9MoKG8P323psmX1m6sor6mN2YWUBifGkXK3EamxzyKxm6ysADgBD1SLsuTxtZ2uVCkrgvDWt",
+      "url": "https://explorer.solana.com/tx/4QGV7XEhcasmmrbH9MoKG8P323psmX1m6sor6mN2YWUBifGkXK3EamxzyKxm6ysADgBD1SLsuTxtZ2uVCkrgvDWt?cluster=devnet",
+      "ms": 803
+    },
+    {
+      "step": "slot_delegate x3",
+      "layer": "base",
+      "signature": "2DVrDNffb9W4MQmJw9zepUWgVMPhoL5EcwfPSPG9c9VcsdNeQiynpLSufZGbyeUpa7KbBETeBY1iTLTswYNw8cSZ",
+      "url": "https://explorer.solana.com/tx/2DVrDNffb9W4MQmJw9zepUWgVMPhoL5EcwfPSPG9c9VcsdNeQiynpLSufZGbyeUpa7KbBETeBY1iTLTswYNw8cSZ?cluster=devnet",
+      "ms": 679
+    },
+    {
+      "step": "slot_bump_all x3 #1",
+      "layer": "TEE",
+      "signature": "2JMniit3bXbEgQCWDB56biQuGbNRDW4PZR2hyVfdH3bh5yxyMJ7tojwiube3mygkcHGFDs6fKtmds188tizXRAbC",
+      "url": "https://explorer.solana.com/tx/2JMniit3bXbEgQCWDB56biQuGbNRDW4PZR2hyVfdH3bh5yxyMJ7tojwiube3mygkcHGFDs6fKtmds188tizXRAbC?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app",
+      "ms": 583
+    },
+    {
+      "step": "slot_bump_all x3 #2",
+      "layer": "TEE",
+      "signature": "5abHzBvd3U6gVP2xemaP1yaiNhB7HGfXyfbYZX9J9wFk1mzDen1Bgg7CXDcEbR8WMp8e3Va3uFHSHskcdDkihLS7",
+      "url": "https://explorer.solana.com/tx/5abHzBvd3U6gVP2xemaP1yaiNhB7HGfXyfbYZX9J9wFk1mzDen1Bgg7CXDcEbR8WMp8e3Va3uFHSHskcdDkihLS7?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app",
+      "ms": 213
+    },
+    {
+      "step": "slot_bump_all x3 #3",
+      "layer": "TEE",
+      "signature": "4KGuREAxGW9YWHUfjqtiMtisyDPnjUZsm5bJFGXZsXPvhfvdvMseUWu1G2fW3JRSPxGiMagkyaBgBheVtT3P9n4a",
+      "url": "https://explorer.solana.com/tx/4KGuREAxGW9YWHUfjqtiMtisyDPnjUZsm5bJFGXZsXPvhfvdvMseUWu1G2fW3JRSPxGiMagkyaBgBheVtT3P9n4a?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app",
+      "ms": 218
+    },
+    {
+      "step": "slot_bump_all x3 #4",
+      "layer": "TEE",
+      "signature": "4dJnhy1aFCKEdqezfjvam6v97yJaN71qLmzgGg8DSasZJiDhmjQmu6KPXGPve68MjtN7nh6xkEAv4E8Za82Q7CKZ",
+      "url": "https://explorer.solana.com/tx/4dJnhy1aFCKEdqezfjvam6v97yJaN71qLmzgGg8DSasZJiDhmjQmu6KPXGPve68MjtN7nh6xkEAv4E8Za82Q7CKZ?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app",
+      "ms": 221
+    },
+    {
+      "step": "slot_bump_all x3 #5",
+      "layer": "TEE",
+      "signature": "4EwHTKMU32bLiJTGoKqbo3XkP5NjUsjYBKDzKcSsLVNEKvR1eB6a1dCf8DcZFf1jzs9kFT6C2fdo4awaTpkE4nNE",
+      "url": "https://explorer.solana.com/tx/4EwHTKMU32bLiJTGoKqbo3XkP5NjUsjYBKDzKcSsLVNEKvR1eB6a1dCf8DcZFf1jzs9kFT6C2fdo4awaTpkE4nNE?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app",
+      "ms": 217
+    },
+    {
+      "step": "slot_settle_all x3",
+      "layer": "TEE",
+      "signature": "4S9YwQRcqjzwCXFp6Kw6eDSGUyimvXmpx7bUirdwuagCtPFTxKGVqx9wu4ma5G6NAVmHkwGQKydrKgqs5rdoYomY",
+      "url": "https://explorer.solana.com/tx/4S9YwQRcqjzwCXFp6Kw6eDSGUyimvXmpx7bUirdwuagCtPFTxKGVqx9wu4ma5G6NAVmHkwGQKydrKgqs5rdoYomY?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app",
+      "ms": 157
+    }
+  ]
+}

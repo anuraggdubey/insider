@@ -67,6 +67,43 @@ pub mod insider {
         lab_pick_callback::handler(ctx, randomness)
     }
 
+    pub fn lab_tick(ctx: Context<LabTick>) -> Result<()> {
+        lab_tick::handler(ctx)
+    }
+
+    pub fn lab_schedule_tick<'info>(
+        ctx: Context<'info, LabScheduleTick<'info>>,
+        task_id: i64,
+        interval_millis: i64,
+        iterations: i64,
+    ) -> Result<()> {
+        lab_schedule_tick::schedule_handler(ctx, task_id, interval_millis, iterations)
+    }
+
+    pub fn lab_cancel_tick<'info>(
+        ctx: Context<'info, LabCancelTick<'info>>,
+        task_id: i64,
+    ) -> Result<()> {
+        lab_schedule_tick::cancel_handler(ctx, task_id)
+    }
+
+    // Phase 2 slots: many accounts delegated, updated and settled together.
+    pub fn slot_init(ctx: Context<SlotInit>, index: u8) -> Result<()> {
+        slot_batch::init_handler(ctx, index)
+    }
+
+    pub fn slot_delegate(ctx: Context<SlotDelegate>, index: u8) -> Result<()> {
+        slot_batch::delegate_handler(ctx, index)
+    }
+
+    pub fn slot_bump_all<'info>(ctx: Context<'info, SlotBumpAll<'info>>) -> Result<()> {
+        slot_batch::bump_all_handler(ctx)
+    }
+
+    pub fn slot_settle_all<'info>(ctx: Context<'info, SlotSettleAll<'info>>) -> Result<()> {
+        slot_batch::settle_all_handler(ctx)
+    }
+
     pub fn lab_cancel_roll(ctx: Context<LabCancelRoll>) -> Result<()> {
         lab_cancel_roll::handler(ctx)
     }

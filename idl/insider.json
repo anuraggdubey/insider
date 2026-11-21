@@ -48,6 +48,41 @@
       "args": []
     },
     {
+      "name": "lab_cancel_tick",
+      "discriminator": [
+        158,
+        228,
+        66,
+        19,
+        224,
+        249,
+        43,
+        16
+      ],
+      "accounts": [
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "task_context",
+          "writable": true,
+          "address": "TaskContext11111111111111111111111111111111"
+        },
+        {
+          "name": "magic_program",
+          "address": "Magic11111111111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "task_id",
+          "type": "i64"
+        }
+      ]
+    },
+    {
       "name": "lab_close_permission",
       "discriminator": [
         166,
@@ -853,6 +888,88 @@
       ]
     },
     {
+      "name": "lab_schedule_tick",
+      "discriminator": [
+        218,
+        12,
+        185,
+        24,
+        222,
+        251,
+        245,
+        210
+      ],
+      "accounts": [
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "lab",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  108,
+                  97,
+                  98
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "authority"
+              }
+            ]
+          }
+        },
+        {
+          "name": "magic_program",
+          "address": "Magic11111111111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "task_id",
+          "type": "i64"
+        },
+        {
+          "name": "interval_millis",
+          "type": "i64"
+        },
+        {
+          "name": "iterations",
+          "type": "i64"
+        }
+      ]
+    },
+    {
+      "name": "lab_tick",
+      "discriminator": [
+        81,
+        129,
+        1,
+        212,
+        159,
+        202,
+        128,
+        211
+      ],
+      "accounts": [
+        {
+          "name": "lab",
+          "writable": true
+        },
+        {
+          "name": "crank_signer",
+          "signer": true
+        }
+      ],
+      "args": []
+    },
+    {
       "name": "lab_undelegate",
       "discriminator": [
         209,
@@ -1110,6 +1227,263 @@
           }
         }
       ]
+    },
+    {
+      "name": "slot_bump_all",
+      "discriminator": [
+        27,
+        76,
+        67,
+        18,
+        5,
+        150,
+        5,
+        141
+      ],
+      "accounts": [
+        {
+          "name": "authority",
+          "signer": true
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "slot_delegate",
+      "discriminator": [
+        177,
+        172,
+        89,
+        37,
+        109,
+        41,
+        158,
+        198
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "buffer_slot",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  117,
+                  102,
+                  102,
+                  101,
+                  114
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "slot"
+              }
+            ],
+            "program": {
+              "kind": "const",
+              "value": [
+                66,
+                63,
+                78,
+                15,
+                253,
+                38,
+                178,
+                18,
+                48,
+                234,
+                70,
+                177,
+                15,
+                177,
+                88,
+                44,
+                19,
+                214,
+                196,
+                206,
+                3,
+                213,
+                82,
+                45,
+                218,
+                31,
+                2,
+                84,
+                2,
+                142,
+                241,
+                139
+              ]
+            }
+          }
+        },
+        {
+          "name": "delegation_record_slot",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  100,
+                  101,
+                  108,
+                  101,
+                  103,
+                  97,
+                  116,
+                  105,
+                  111,
+                  110
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "slot"
+              }
+            ],
+            "program": {
+              "kind": "account",
+              "path": "delegation_program"
+            }
+          }
+        },
+        {
+          "name": "delegation_metadata_slot",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  100,
+                  101,
+                  108,
+                  101,
+                  103,
+                  97,
+                  116,
+                  105,
+                  111,
+                  110,
+                  45,
+                  109,
+                  101,
+                  116,
+                  97,
+                  100,
+                  97,
+                  116,
+                  97
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "slot"
+              }
+            ],
+            "program": {
+              "kind": "account",
+              "path": "delegation_program"
+            }
+          }
+        },
+        {
+          "name": "slot",
+          "writable": true
+        },
+        {
+          "name": "owner_program",
+          "address": "5TbtvduZEmNWbnr7wfvB9A9TobbxSB96e1xYcr6NnSDQ"
+        },
+        {
+          "name": "delegation_program",
+          "address": "DELeGGvXpWV2fqJUhqcF5ZSYMS4JTLjteaAMARRSaeSh"
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "index",
+          "type": "u8"
+        }
+      ]
+    },
+    {
+      "name": "slot_init",
+      "discriminator": [
+        139,
+        31,
+        166,
+        154,
+        150,
+        161,
+        138,
+        73
+      ],
+      "accounts": [
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "slot",
+          "writable": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "index",
+          "type": "u8"
+        }
+      ]
+    },
+    {
+      "name": "slot_settle_all",
+      "discriminator": [
+        178,
+        246,
+        173,
+        27,
+        49,
+        208,
+        170,
+        107
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "magic_program",
+          "address": "Magic11111111111111111111111111111111111111"
+        },
+        {
+          "name": "magic_context",
+          "writable": true,
+          "address": "MagicContext1111111111111111111111111111111"
+        }
+      ],
+      "args": []
     },
     {
       "name": "spike_commit",
@@ -1509,6 +1883,19 @@
       ]
     },
     {
+      "name": "Slot",
+      "discriminator": [
+        140,
+        54,
+        3,
+        187,
+        53,
+        189,
+        250,
+        230
+      ]
+    },
+    {
       "name": "Spike",
       "discriminator": [
         242,
@@ -1630,6 +2017,34 @@
           {
             "name": "pubkey",
             "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Slot",
+      "docs": [
+        "Phase 2 slot: one of many small accounts used to measure how many delegated accounts a single",
+        "transaction can delegate, update and settle. Removed once the game accounts exist."
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "authority",
+            "type": "pubkey"
+          },
+          {
+            "name": "index",
+            "type": "u8"
+          },
+          {
+            "name": "count",
+            "type": "u64"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
           }
         ]
       }

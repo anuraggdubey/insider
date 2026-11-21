@@ -67,6 +67,8 @@ type SendOptions = {
   layer: Step["layer"];
   /** Endpoint used for the explorer link of ER and TEE transactions. */
   erUrl?: string;
+  /** Extra signers besides the payer. */
+  signers?: Keypair[];
 };
 
 /** Signs, sends and confirms a transaction on any connection, recording it in the run. */
@@ -74,12 +76,12 @@ export async function send(
   connection: Connection,
   payer: Keypair,
   tx: Transaction,
-  { run, step, layer, erUrl }: SendOptions,
+  { run, step, layer, erUrl, signers = [] }: SendOptions,
 ): Promise<string> {
   tx.feePayer = payer.publicKey;
   tx.recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
   const started = performance.now();
-  const signature = await sendAndConfirmTransaction(connection, tx, [payer], {
+  const signature = await sendAndConfirmTransaction(connection, tx, [payer, ...signers], {
     commitment: "confirmed",
   });
   const ms = Math.round(performance.now() - started);

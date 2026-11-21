@@ -1,0 +1,83 @@
+{
+  "experiment": "lab-crank-er",
+  "network": "devnet",
+  "program": {
+    "id": "5TbtvduZEmNWbnr7wfvB9A9TobbxSB96e1xYcr6NnSDQ",
+    "url": "https://explorer.solana.com/address/5TbtvduZEmNWbnr7wfvB9A9TobbxSB96e1xYcr6NnSDQ?cluster=devnet"
+  },
+  "facts": {
+    "lab": "6Yvbc3kWpwK6sZJEyGoMQYSWT6v6WkcqJWqqx8nH6tRs",
+    "endpoint": "https://devnet-as.magicblock.app/",
+    "finiteTask": {
+      "expected": 6,
+      "observed": 6,
+      "timeline": [
+        {
+          "atMs": 676,
+          "ticks": 1
+        },
+        {
+          "atMs": 1246,
+          "ticks": 2
+        },
+        {
+          "atMs": 1823,
+          "ticks": 3
+        },
+        {
+          "atMs": 2393,
+          "ticks": 5
+        },
+        {
+          "atMs": 2966,
+          "ticks": 6
+        }
+      ]
+    },
+    "directTickCall": "rejected: Simulation failed. \nMessage: transaction verification error: Error processing Instruction 0: custom ",
+    "cancel": {
+      "ticksGrewBeforeCancel": true,
+      "ticksAfterCancelSettled": 12,
+      "ticksFourSecondsLater": 12,
+      "stopped": true
+    },
+    "ticksOnBase": 12
+  },
+  "steps": [
+    {
+      "step": "lab_delegate",
+      "layer": "base",
+      "signature": "4rbe799qPUtBW4NTxqzXK9Kdg4CjXgtDgDTbw42SKjpRDzxYsCUaCFwQtp5ZrJHtibCosiaegwH8PJR959HZWhuL",
+      "url": "https://explorer.solana.com/tx/4rbe799qPUtBW4NTxqzXK9Kdg4CjXgtDgDTbw42SKjpRDzxYsCUaCFwQtp5ZrJHtibCosiaegwH8PJR959HZWhuL?cluster=devnet",
+      "ms": 802
+    },
+    {
+      "step": "lab_schedule_tick task 280925157 (6x 500ms)",
+      "layer": "ER",
+      "signature": "3Ct7Dc2m4x18onN1szxMzzB5yEWDyAhYySv6P18EKL74foERQHDmJSyCLu7d62CQRY6BvvQsWpEREtG1brcm2Evm",
+      "url": "https://explorer.solana.com/tx/3Ct7Dc2m4x18onN1szxMzzB5yEWDyAhYySv6P18EKL74foERQHDmJSyCLu7d62CQRY6BvvQsWpEREtG1brcm2Evm?cluster=custom&customUrl=https%3A%2F%2Fdevnet-as.magicblock.app",
+      "ms": 411
+    },
+    {
+      "step": "lab_schedule_tick task 280925158 (500x 300ms)",
+      "layer": "ER",
+      "signature": "3nBRj7dz87QkZZrkacCbcJSGVVJCLGfV8HbAxuYFdPbhBNEXWUwejkrHSPyrkVGzkSmDQxg4hEyDKigpYtijphoj",
+      "url": "https://explorer.solana.com/tx/3nBRj7dz87QkZZrkacCbcJSGVVJCLGfV8HbAxuYFdPbhBNEXWUwejkrHSPyrkVGzkSmDQxg4hEyDKigpYtijphoj?cluster=custom&customUrl=https%3A%2F%2Fdevnet-as.magicblock.app",
+      "ms": 381
+    },
+    {
+      "step": "lab_cancel_tick task 280925158",
+      "layer": "ER",
+      "signature": "5nD72X9e6YJa4DeFmvxAEWdFiDXF45YFhACqJvKiSs5w28Zz4A4tfW5nd451TgEhsZ5urWp96ExQb4aqCTzBNM48",
+      "url": "https://explorer.solana.com/tx/5nD72X9e6YJa4DeFmvxAEWdFiDXF45YFhACqJvKiSs5w28Zz4A4tfW5nd451TgEhsZ5urWp96ExQb4aqCTzBNM48?cluster=custom&customUrl=https%3A%2F%2Fdevnet-as.magicblock.app",
+      "ms": 340
+    },
+    {
+      "step": "lab_undelegate",
+      "layer": "ER",
+      "signature": "aqcbLsmrTDuvFs5JXE87nBvBg1CQCkiJUfMcW18UAesZmPHqtTwFhjb4ggu4wT6wH9fHnB9uD9zvhAzX7jryt2J",
+      "url": "https://explorer.solana.com/tx/aqcbLsmrTDuvFs5JXE87nBvBg1CQCkiJUfMcW18UAesZmPHqtTwFhjb4ggu4wT6wH9fHnB9uD9zvhAzX7jryt2J?cluster=custom&customUrl=https%3A%2F%2Fdevnet-as.magicblock.app",
+      "ms": 366
+    }
+  ]
+}

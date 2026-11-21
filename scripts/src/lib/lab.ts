@@ -54,7 +54,7 @@ export function labContext(run: Run): LabCtx {
   };
 }
 
-async function connect(ctx: LabCtx, endpointUrl: string): Promise<Session> {
+export async function connectEndpoint(ctx: LabCtx, endpointUrl: string): Promise<Session> {
   const endpoint = endpointUrl.replace(/\/$/, "");
   const isTee = endpoint.includes("tee");
   const url = isTee ? (await teeAuthUrl(endpoint, ctx.payer)).url : endpoint;
@@ -116,7 +116,7 @@ export async function resetLab(ctx: LabCtx) {
     const status = await getDelegationStatus(config.routerUrl, lab);
     if (!status.fqdn) throw new Error("lab is delegated but the router returned no endpoint");
     console.log(`lab is still delegated to ${status.fqdn}; undelegating first`);
-    await undelegateLab(ctx, await connect(ctx, status.fqdn), "lab_undelegate (cleanup)");
+    await undelegateLab(ctx, await connectEndpoint(ctx, status.fqdn), "lab_undelegate (cleanup)");
     info = await base.getAccountInfo(lab);
   }
 
@@ -151,7 +151,7 @@ export async function delegateLab(ctx: LabCtx, kind: ValidatorKind): Promise<Ses
     return s.isDelegated && s.fqdn ? s : undefined;
   });
   ctx.run.note("endpoint", status.fqdn);
-  return connect(ctx, status.fqdn!);
+  return connectEndpoint(ctx, status.fqdn!);
 }
 
 export async function readLab(connection: Connection, programClient: Program, lab: PublicKey) {
