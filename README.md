@@ -94,19 +94,18 @@ transaction index is in [docs/proofs](docs/proofs/README.md).
 - **Bots:** TypeScript service, one real keypair per bot, deterministic strategies
 - **AI Desk:** Anthropic API for analyst Calls and live commentary
 
-Design: [TECHNICAL_SPEC.md](TECHNICAL_SPEC.md). Product: [PROJECT_INFO.md](PROJECT_INFO.md). Who
-builds what: [STEPS.md](STEPS.md).
+Design: [docs/TECHNICAL_SPEC.md](docs/TECHNICAL_SPEC.md). Product:
+[docs/PROJECT_INFO.md](docs/PROJECT_INFO.md). Who builds what: [docs/STEPS.md](docs/STEPS.md).
 
 ## Repository layout
 
 ```
-programs/insider/   Anchor program: table, mempool, vAMM, leaks, desk, math, VRF, PER, cranks
-sdk/                Typed TypeScript client (accounts, instructions, TEE auth)
-app/                Next.js app (trading floor, ghost orders, Leak cards, Desk, X-ray)
-bots/               Bot players, AI analysts and commentary
-tests/              Integration tests
-scripts/            Deploy, setup, gates, simulate-round, proof index
-docs/               Phase 2 findings, gate results and devnet proofs
+programs/   Rust workspace: the Anchor program (insider/), Anchor.toml, generated IDL
+sdk/        Typed TypeScript client (accounts, instructions, TEE auth)
+app/        Next.js app (trading floor, ghost orders, Leak cards, Desk, X-ray)
+bots/       Bot players, AI analysts, commentary and the operator
+scripts/    Gates, table setup, simulate-round, proof index
+docs/       Product, technical spec, build plan, Phase 2 findings and devnet proofs
 ```
 
 ## Quick start

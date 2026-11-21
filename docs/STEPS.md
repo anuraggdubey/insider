@@ -34,17 +34,36 @@ the other person's list.
 
 ---
 
+## 1.1 Repository layout (clean and minimal)
+
+```
+README.md  LICENSE  package.json  pnpm-workspace.yaml  pnpm-lock.yaml  .env.example  .gitignore
+.github/    CI workflow
+app/        Next.js app (Misbah)
+bots/       bot service, AI analysts, operator (Anurag)
+scripts/    gates, setup, simulate-round, proof index; scripts/test (Anurag)
+programs/   Rust workspace: Cargo.toml, Anchor.toml, rust-toolchain.toml, insider/ (the program), idl/
+docs/       PROJECT_INFO, TECHNICAL_SPEC, STEPS, Phase 2 findings, proofs
+sdk/        typed client (added by Misbah, task B-SDK-1)
+```
+
+Everything tool-specific lives inside a folder: the Rust files are in `programs/` (run Rust commands
+through the `pnpm program:*` scripts, which `cd programs` for you), the Prettier config is inside
+`package.json`, and the plan and specs are in `docs/`.
+
+---
+
 ## 2. Ground rules
 
 1. **One owner per file area** (section 5). Don't edit the other person's area. Ask in chat, or open
    a small PR for them.
 2. **Contracts first.** The streams share three things: the **engine API** (Rust function
-   signatures, handoff H-API), the **IDL** (`idl/insider.json`) and the **SDK** (`sdk/`). Changing
+   signatures, handoff H-API), the **IDL** (`programs/idl/insider.json`) and the **SDK** (`sdk/`). Changing
    any of them means telling the other person before pushing.
 3. **Small commits, rebase before push.** `git pull --rebase origin main`, then push. One finished
    feature per commit with a clear message. **No `Co-Authored-By` or "Generated with" trailers.**
 4. **Say it before you rewrite a shared doc.** We both rewrote the same four docs once already.
-5. **Run CI locally first:** `pnpm format:check && pnpm lint && pnpm typecheck && pnpm test && cargo test -p insider`.
+5. **Run CI locally first:** `pnpm format:check && pnpm lint && pnpm typecheck && pnpm test && pnpm program:test`.
 6. **No fakes.** The UI reads the real devnet table through `sdk/`. Typed fixtures are for
    component development only and are removed from live pages at handoff H3.
 7. **No workarounds.** If a gate fails, the feature is cut from code and docs (spec section 4).
@@ -69,9 +88,9 @@ Delete after porting the patterns listed in 3.3:
 | Lab instructions   | `src/instructions/lab_init.rs`, `lab_delegate.rs`, `lab_request_roll.rs`, `lab_roll_callback.rs`, `lab_cancel_roll.rs`, `lab_permission.rs`, `lab_request_pick.rs`, `lab_pick_callback.rs`, `lab_tick.rs`, `lab_schedule_tick.rs`, `lab_commit.rs`, `lab_undelegate.rs`       |
 | Slot instructions  | `src/instructions/slot_batch.rs`                                                                                                                                                                                                                                              |
 | Old state          | `src/state/spike.rs`, `src/state/lab.rs`, `src/state/slot.rs`                                                                                                                                                                                                                 |
-| Old tests          | `tests/spike.rs`, `tests/lab.rs`                                                                                                                                                                                                                                              |
+| Old tests          | `programs/insider/tests/spike.rs`, `lab.rs`                                                                                                                                                                                                                                   |
 | Registry lines     | the `spike_*`, `lab_*`, `slot_*` entries in `src/lib.rs`, `src/instructions.rs`, `src/state.rs`; the constants `SPIKE_SEED`, `LAB_SEED`, `LAB_MAX_CANDIDATES`, `LAB_MAX_PERMISSION_MEMBERS`, `SLOT_SEED`; the error variants `RollPending`, `NoRollPending`, `TooManyMembers` |
-| Generated          | the contents of `idl/insider.json` (regenerated for the new program)                                                                                                                                                                                                          |
+| Generated          | the contents of `programs/idl/insider.json` (regenerated for the new program)                                                                                                                                                                                                 |
 | Identity           | the old program ID `5TbtvduZEmNWbnr7wfvB9A9TobbxSB96e1xYcr6NnSDQ` in `Anchor.toml`, `declare_id!`, `.env.example` (the old keypair file stays in `.keys/`; the old program stays deployed on devnet)                                                                          |
 
 **Keep** `src/constants.rs` entries `CRANK_PROGRAM_ID` and `TASK_CONTEXT_ID`, and `rust-toolchain.toml`,
@@ -87,9 +106,10 @@ Delete after porting the patterns listed in 3.3:
 | Starter content                | the default Next.js page body in `app/src/app/page.tsx` and the starter styles in `app/src/app/globals.css` (replaced by the design system) |
 | Placeholder                    | `bots/src/index.ts` (replaced by the real service)                                                                                          |
 
-**Move, don't delete:** `scripts/src/lib/{config,client,rpc,tee,explorer}.ts` move into `sdk/` (task
-B-SDK-1). **Keep:** `scripts/src/build-proof-index.ts`, `scripts/check-setup.ts`,
-`tests/setup.test.ts` (updated), `docs/proofs/*`, `docs/phase-2-findings.md`.
+**Move, don't delete:** `scripts/src/lib/{config,rpc,tee,explorer}.ts` move into `sdk/` (task B-SDK-1).
+`client.ts` was removed with the lab scripts; restore it from the tag when building the SDK. **Keep:**
+`scripts/src/build-proof-index.ts`, `scripts/check-setup.ts`, `scripts/test/setup.test.ts` (updated),
+`docs/proofs/*`, `docs/phase-2-findings.md`.
 
 ### 3.3 Port before deleting (knowledge we keep)
 
@@ -175,7 +195,7 @@ cd insider
 pnpm install                      # installs every workspace package
 cp .env.example .env              # then fill values (4.3)
 pnpm tsx scripts/check-setup.ts   # all lines must be "ok"
-cargo check -p insider            # first run downloads and compiles for a few minutes
+pnpm program:check                # first run downloads and compiles for a few minutes
 pnpm dev                          # app on http://localhost:3000
 ```
 
@@ -234,7 +254,7 @@ rebase before every push.
 | `engine/`       | calls `engine::step` from `tick`                                                                                              | `engine/step.rs` (the pure per-tick function: maturity, arbitrage, drops, auctions, liquidation, phases) |
 | `state/`        | `table.rs`, `seat.rs`, `tape.rs`, `calls.rs`, `season.rs`                                                                     | `market.rs`, `mempool.rs`, `future.rs`, `board.rs`, `leak_vault.rs`, `xray.rs`                           |
 | `instructions/` | `setup.rs`, `round_seed.rs`, `tick.rs`, `cranks.rs`, `seats.rs`, `epoch.rs`, `recovery.rs`, `desk.rs`, `cup.rs`, `session.rs` | `orders.rs`, `leaks.rs`, `licenses.rs`, `finish_round.rs`                                                |
-| `tests/`        | `tests/lifecycle.rs`, `tests/desk.rs`                                                                                         | `tests/engine.rs`, `tests/leaks.rs`, `tests/economics.rs`                                                |
+| `tests/`        | `insider/tests/lifecycle.rs`, `insider/tests/desk.rs`                                                                         | `tests/engine.rs`, `tests/leaks.rs`, `tests/economics.rs`                                                |
 
 ### 5.2 TypeScript and app
 
@@ -271,7 +291,7 @@ Proof and Watch screens. Anurag's UI work is scheduled after that (Blocks 3-4).
 | **H0**    | A to B  | Gate results (G0 mempool yes or no, G3 funding, G7 sessions) and the new program ID                                                  | End of Block 0           |
 | **H-API** | B to A  | **Engine API**: `math/` and `engine/step.rs` function signatures and the `state/` structs B owns (stubs with `todo!()` are fine)     | First 4 hours of Block 1 |
 | **H1**    | B to A  | **SDK v0**: connection, TEE auth, send helper, account decode from the IDL, instruction builders (A needs this for bots and scripts) | Mid Block 1              |
-| **H2**    | both    | Fresh `idl/insider.json` after each program milestone                                                                                | Each milestone           |
+| **H2**    | both    | Fresh `programs/idl/insider.json` after each program milestone                                                                       | Each milestone           |
 | **H3**    | A to B  | **Live devnet table** with bots: URL and setup transcript                                                                            | End of Block 2           |
 | **H4**    | B to A  | UI findings from the first live round                                                                                                | S3                       |
 | **H5**    | A to B  | Desk, license and cup instructions in the IDL                                                                                        | Mid Block 3              |
@@ -317,20 +337,21 @@ instruction each in a throwaway `gates` module, deleted once the gate passes.
 ## 8. Anurag's work (108 h)
 
 Light on PC load: scripts, gates, bots, hosting and screens. His Rust is mostly instruction wiring.
-While editing Rust, use `cargo check -p insider` and `cargo test -p insider`; only run
+While editing Rust, use `pnpm program:check` and `pnpm program:test`; only run
 `pnpm program:build` (release) before a deploy.
 
 ### Block 0: Reset and gates (13 h)
 
-- [ ] **A-0.1 Tag and reset (2 h).** `git tag phase-2-lab && git push origin phase-2-lab`. Create
-      the new program keypair `.keys/insider-v1-program-keypair.json`, get its address, update
-      `Anchor.toml`, `declare_id!`, `.env.example`. Delete everything in section 3.1 and 3.2 after
-      porting 3.3. Make `cargo check -p insider` pass with an empty program. **Announce the new program
-      ID** (handoff H0). _Done when:_ CI is green and the repo has no `lab_*`, `spike_*`, `slot_*`.
-- [ ] **A-0.2 Remove unused packages (0.5 h).** Run the commands in 3.4, commit the lockfile, tell
-      Misbah to `pnpm install`.
-- [ ] **A-0.3 Update scripts (0.5 h).** Remove the old root scripts, add `gates`, `fund`,
-      `setup-table`, `simulate-round` placeholders in `package.json`.
+- [x] **A-0.1 Tag and reset (2 h).** _Done:_ tag `phase-2-lab` pushed, all lab, spike and slot code
+      deleted (sections 3.1-3.2), the program is an empty placeholder that passes `pnpm program:check`,
+      the repo root was cleaned up (section 1.1), and the stale `leak-exchange-v1` branch was deleted.
+      **Still open (needs a funded wallet):** create the new program keypair
+      `.keys/insider-v1-program-keypair.json`, replace the old ID in `programs/Anchor.toml`, `declare_id!`
+      and `.env.example`, and **announce the new program ID** (handoff H0).
+- [x] **A-0.2 Remove unused packages (0.5 h).** _Done:_ the packages in 3.4 are removed and the lockfile is
+      committed. Misbah: run `pnpm install`.
+- [x] **A-0.3 Update scripts (0.5 h).** _Done:_ old root scripts removed, `program:*` scripts now run from
+      `programs/`. Still to add as the work arrives: `gates`, `fund`, `setup-table`, `simulate-round`.
 - [ ] **A-0.4 Gates G0-G10 (8 h).** One script per gate as in section 7, one row each in
       `docs/gates.md`, results written into the spec. Install packages from 4.1 as each gate passes.
 - [ ] **A-0.5 `pnpm gates` runner (1 h).** Prints a pass or cut table.
@@ -418,14 +439,16 @@ Block totals: 13 + 20 + 21 + 30 + 21 + 3 = **108 h**.
 ## 9. Misbah's work (105 h)
 
 Needs the full toolchain (4.2). The Rust share is the market engine, which is mostly pure functions
-that are easy to unit-test. Use `cargo test -p insider --test engine` for a fast loop.
+that are easy to unit-test. Use `cd programs && cargo test -p insider --test engine` for a fast loop.
 
 ### Block 0: Foundation (14 h)
 
 - [ ] **B-0.1 Machine setup (2 h).** Everything in 4.2, then `pnpm tsx scripts/check-setup.ts` all
-      `ok`, `cargo check -p insider`, `pnpm dev` shows the starter page.
+      `ok`, `pnpm program:check`, `pnpm dev` shows the starter page.
 - [ ] **B-SDK-1 SDK skeleton (3 h).** Create `sdk/` (4.4). Move `config`, `client`, `rpc`, `tee`,
-      `explorer` from `scripts/src/lib`. Export typed `connection`, `teeAuth`, `send`. Add Vitest tests.
+      `explorer` from `scripts/src/lib`, and restore the send helper and program factory from the tag
+      (`git show phase-2-lab:scripts/src/lib/client.ts`). Export typed `connection`, `teeAuth`, `send`.
+      Add Vitest tests.
 - [ ] **B-0.2 Design system (5 h).** `app/src/components/ui`: tokens (dark terminal, cold blue for
       sealed, hot amber for opened, rarity colours grey/cyan/magenta, mono numerals), type scale,
       spacing, motion rules, `prefers-reduced-motion`. Wire Tailwind, replace the starter styles.
@@ -580,9 +603,9 @@ pnpm install
 pnpm dev                                   # app
 pnpm program:build && pnpm program:idl     # release build and IDL (only before a deploy)
 pnpm program:deploy                        # Anurag
-cargo check -p insider                     # fast check while editing Rust
-cargo test -p insider                      # all program tests
-cargo test -p insider --test economics -- --nocapture   # E1 table
+pnpm program:check                         # fast check while editing Rust
+pnpm program:test                          # all program tests
+(cd programs && cargo test -p insider --test economics -- --nocapture)   # E1 table
 pnpm gates                                 # gate runner
 pnpm simulate-round                        # full devnet round
 pnpm bots                                  # bot service
