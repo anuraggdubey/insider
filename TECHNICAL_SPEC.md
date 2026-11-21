@@ -1,276 +1,390 @@
-# Insider: Technical Specification
+# INSIDER: Technical Specification
 
-Version 0.1 (design). Items marked **[verify]** depend on MagicBlock behaviour that must be confirmed with a small prototype before relying on it.
+Version 0.2 (design, Leak market). Items marked **[verify]** depend on MagicBlock behaviour that
+hasn't been confirmed with a prototype yet. Each one has a named fallback.
 
 ## 1. Goals and principles
 
-1. **ER is the core.** All live game state (round, market, players, trades) runs inside an Ephemeral Rollup. Base layer is used only for delegation, escrow and final settlement.
-2. **Everything claimed is real.** No mocked ER, VRF or PER paths. Every feature has code, a test and an explorer transaction.
-3. **Hidden state is enforced by the protocol.** The Insider's information advantage comes from Private ER access control, not from server-side secrecy.
-4. **Demo-able at any time.** A full round must run from one command or one click, with AI agents filling seats.
-5. **Small surface.** One asset, one mode, one program.
+1. **The table never leaves the rollup.** Table, market, seats and the Leak board are delegated
+   once and play continuous rounds inside the TEE rollup. The base layer is used for setup,
+   periodic season commits and stake-mode money only.
+2. **Privacy only where it carries weight.** Two things are private: the future price path and
+   sealed Leak contents. Everything else (prices, positions, ownership, who opened what) is public,
+   because public behaviour is what makes the game social.
+3. **Read access is the asset.** Owning a Leak means being on its permission's member list.
+   Transfers and opens are permission updates, not off-chain bookkeeping.
+4. **Everything claimed is real.** No mocked ER, VRF or PER paths. Every feature has code, a test
+   and a devnet transaction.
+5. **One-click play.** A browser key claims a pre-delegated seat inside the rollup. No wallet, no
+   base-layer transaction, no deposit.
+6. **Small surface.** One table, one asset, one program.
 
 ## 2. Technology stack
 
-| Layer                    | Choice                                                  | Notes                                                                     |
-| ------------------------ | ------------------------------------------------------- | ------------------------------------------------------------------------- |
-| Program                  | Rust + Anchor                                           | Anchor 1.0.x as pinned by MagicBlock docs [verify exact version at setup] |
-| MagicBlock SDK (program) | `ephemeral-rollups-sdk` 0.18.0 (pinned)                 | Features: `anchor`, `vrf`, `access-control`                               |
-| Frontend / full stack    | Next.js (App Router), TypeScript                        | API routes for chat, bot control, round indexing                          |
-| Styling and motion       | Tailwind CSS, Framer Motion                             | Neon trading-floor UI, reveal animation                                   |
-| Charts                   | Lightweight canvas or `lightweight-charts`              | Live candles and price line                                               |
-| Client SDK               | `@solana/kit`, `@magicblock-labs/ephemeral-rollups-kit` | `Connection.create` against the Magic Router                              |
-| Wallets                  | Wallet Standard (Phantom, Backpack, Solflare)           | Plus in-browser session key                                               |
-| Agents                   | TypeScript service, LLM API                             | One keypair per agent, persona prompts                                    |
-| Realtime                 | ER websocket subscriptions + SSE for chat               | No separate DB required for MVP                                           |
-| Tests                    | Anchor tests (TypeScript), local ER stack / Surfpool    | MagicBlock "Run Ephemeral Rollups Locally"                                |
-| Video                    | HyperFrames / Remotion + ffmpeg                         | See PROJECT_INFO.md                                                       |
+| Layer                    | Choice                                                  | Notes                                                 |
+| ------------------------ | ------------------------------------------------------- | ----------------------------------------------------- |
+| Program                  | Rust + Anchor                                           | Anchor CLI 1.2.2                                      |
+| MagicBlock SDK (program) | `ephemeral-rollups-sdk` 0.18.0 (pinned)                 | Features `anchor`, `vrf`, `access-control`            |
+| Frontend                 | Next.js (App Router), TypeScript                        | Read `app/AGENTS.md`; this Next version differs       |
+| Styling and motion       | Tailwind CSS, Framer Motion                             | Leak cards, crack-open, X-ray replay                  |
+| Charts                   | `lightweight-charts`                                    | Price line plus Leak horizon markers                  |
+| Client SDK               | `@solana/kit`, `@magicblock-labs/ephemeral-rollups-kit` | Magic Router connection, TEE auth token               |
+| Keys                     | In-browser burner keypair (localStorage)                | Optional Wallet Standard link for stake mode          |
+| Bots                     | TypeScript service, one keypair per bot                 | Deterministic strategies, same instructions as humans |
+| Tests                    | LiteSVM (Rust) for program logic; devnet scripts for ER | Existing `programs/insider/tests`                     |
 
-Toolchain versions from MagicBlock docs (reference): Solana 3.1.9, Rust 1.89.0, Anchor 1.0.2, Node 24.x. Already present on the dev machine: Solana CLI, Rust, Node, ffmpeg. Anchor to be confirmed at setup.
+Pinned versions and environment notes from Phase 2: public devnet ERs and the TEE run validator
+1.x, so the SDK stays on 0.18.x. On 0.20 the `#[vrf]` macro doesn't compile.
 
 ## 3. Architecture
 
 ```
-                 +---------------------------+
-   Browser  ---> | Next.js app (UI + API)    |
- (wallet +       |  - lobby, game, reveal    |
-  session key)   |  - chat (SSE)             |
-      |          +------------+--------------+
-      |                       |
-      | tx (via Magic Router) | agent control / round index
-      v                       v
-+------------------+   +----------------------+
-| Magic Router     |   | Agent service (Node) |
-| devnet-router    |   |  personas + LLM      |
-+--------+---------+   |  agent keypairs      |
-         |             +----------+-----------+
-   base layer / ER                |
-         |                        |
-+--------v------------------------v-----------+
-|  Solana devnet (base)   |  MagicBlock ER    |
-|  - escrow vault         |  + TEE (PER)      |
-|  - delegation program   |  - Round, Market  |
-|  - settlement           |  - PriceTape (priv)|
-|                         |  - Players, Votes |
-+-------------------------+-------------------+
+  Browser (burner key)                        Bot service (Node)
+  - trading floor UI                          - 5 strategy bots, own keypairs
+  - TEE auth token per key                    - keeper fallback for drops / ticks
+        |                                              |
+        |  rollup txs (Magic Router / TEE RPC)          |
+        v                                              v
+ +--------------------------------------------------------------+
+ |  MagicBlock TEE rollup (devnet-tee)                           |
+ |   public : Table, Market, Board, Seats[8], XrayLog            |
+ |   private: Future (no reader), LeakVault[6] (owner only)      |
+ |   VRF    : round seed, Leak drops (ephemeral oracle queue)    |
+ |   Cranks : 500 ms tick                                        |
+ +-------------------------------+------------------------------+
+                                 | periodic commit (Season, Table)
+                                 v
+ +--------------------------------------------------------------+
+ |  Solana devnet: program, delegation, Season leaderboard,      |
+ |  stake-mode vault (P1, Ephemeral SPL / Private Payments)      |
+ +--------------------------------------------------------------+
 ```
 
-Flow: accounts are created and funded on the base layer, delegated to a **TEE validator**, played inside the ER, then committed and undelegated for settlement.
-
-## 4. MagicBlock integration
-
-| Feature         | Used for                        | Mechanism                                                                                                                                                                                                                                   |
-| --------------- | ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Delegation / ER | Live round state                | `#[ephemeral]`, `#[delegate]` macros, `delegate_*` CPI, `commit_and_undelegate` via `MagicIntentBundleBuilder`                                                                                                                              |
-| Private ER      | Price tape, positions, balances | Delegate to the TEE validator; `EphemeralPermission` accounts created on the ER via `CreateEphemeralPermissionCpi` / updated via `UpdateEphemeralPermissionCpi` with `Member` flags (`TX_LOGS_FLAG`, `TX_MESSAGE_FLAG`, `TX_BALANCES_FLAG`) |
-| VRF             | Insider selection, tape seed    | `create_request_scoped_randomness_ix` with `#[vrf]` context and a `#[vrf_callback]` consume instruction; oracle queue from `vrf::consts` (delegated ephemeral queue when requested inside the rollup; verified)                             |
-| Magic Router    | Client routing                  | `Connection.create("https://devnet-router.magicblock.app", "wss://devnet-router.magicblock.app")`                                                                                                                                           |
-| Session keys    | Wallet-free trading             | Program-level session authority (section 8)                                                                                                                                                                                                 |
-| Cranks          | Scheduled price ticks           | MagicBlock cranks with finite iterations (cancel is unavailable on the TEE); fallback is a keeper loop in the agent service                                                                                                                 |
-| SOAR (stretch)  | Detective leaderboard           | SOAR leaderboard + achievements                                                                                                                                                                                                             |
-
-Known endpoints and programs (devnet, from MagicBlock docs):
+Endpoints and programs (devnet):
 
 - Router: `https://devnet-router.magicblock.app`
 - TEE validator: `devnet-tee.magicblock.app`, identity `MTEWGuqxUpYZGFJQcp8tLN7x5v9BSeoFHYWQQ3n3xzo`
-- Permission Program: `ACLseoPoyC3cBqoUtkbjZ4aDrkurZW86v19pXz2XQnp1`
-- Delegation Program: `DELeGGvXpWV2fqJUhqcF5ZSYMS4JTLjteaAMARRSaeSh`
+- Permission program: `ACLseoPoyC3cBqoUtkbjZ4aDrkurZW86v19pXz2XQnp1`
+- Delegation program: `DELeGGvXpWV2fqJUhqcF5ZSYMS4JTLjteaAMARRSaeSh`
+- Ephemeral VRF queue (in rollup): `5hBR571xnXppuCPveTrctfTU7tJLSN94nq7kv7FRK5Tc`
+- Program: `5TbtvduZEmNWbnr7wfvB9A9TobbxSB96e1xYcr6NnSDQ`
+
+## 4. MagicBlock integration, and what Phase 2 already proved
+
+| Need in INSIDER                                  | Mechanism                                                                 | Proven by (devnet)                   |
+| ------------------------------------------------ | ------------------------------------------------------------------------- | ------------------------------------ |
+| Delegate about 20 table accounts once            | `#[delegate]`, 6 delegates per tx, 1.4M CU limit                          | `pnpm lab:slots` (E)                 |
+| VRF inside the TEE                               | `create_request_scoped_randomness_ix` + `#[vrf_callback]`, const identity | `pnpm lab:vrf --validator tee` (A)   |
+| Account readable by nobody / only chosen wallets | `CreateEphemeralPermissionCpi`, `is_private = true`, member flags         | `pnpm lab:per` (B)                   |
+| Callback rewrites who can read, atomically       | `UpdateEphemeralPermissionCpi` from the VRF callback                      | `pnpm lab:pick` (C)                  |
+| Member add takes effect immediately              | Permission update, then a read with the TEE token                         | `pnpm lab:per` (B)                   |
+| Scheduled ticks                                  | Crank schedule, finite iterations (cancel unavailable on TEE)             | `pnpm lab:crank --validator tee` (D) |
+| Commit state to base without leaving the rollup  | `commit` intent (max 8 accounts per intent)                               | `pnpm spike`, `pnpm lab:slots`       |
+
+New for the Leak market, not yet verified:
+
+1. **[verify] Private permission with zero members.** _Fallback:_ the only member is a keyless
+   PDA `["nobody"]`. No private key exists for it, so nobody can produce the TEE login signature.
+2. **[verify] A browser key that holds no SOL can sign rollup transactions.** ER transactions cost 0. _Fallback:_ `/api/faucet` sends the burner devnet dust once, or a relayer acts as fee payer.
+3. **[verify] A crank-invoked instruction can CPI a VRF request.** _Fallback:_ the bot service
+   calls the permissionless `request_drop` when `Board.next_drop_tick` is reached. The program
+   rejects early calls.
+4. **[verify] Commit limits.** Without a delegated fee payer an account can commit 10 times.
+   _Plan:_ commit the season every 5 rounds and register a delegated fee payer plus
+   `magic_fee_vault` before the demo.
 
 ## 5. Onchain program (`programs/insider`)
 
 ### 5.1 Accounts
 
-| Account               | Seeds                          | Layer during play | Visibility                            | Fields (summary)                                                                                           |
-| --------------------- | ------------------------------ | ----------------- | ------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
-| `Config`              | `["config"]`                   | base              | public                                | admin, stake mint, params (durations, bankroll, max position %)                                            |
-| `Round`               | `["round", round_id]`          | ER (TEE)          | public                                | id, phase, start_ts, trade_end_ts, vote_end_ts, player_count, stake, pot, insider_revealed (Option), tally |
-| `Market`              | `["market", round_id]`         | ER (TEE)          | public                                | tick index, current_price, last_update_ts, spread params                                                   |
-| `PriceTape`           | `["tape", round_id]`           | ER (TEE)          | **private: Insider only**             | seed, precomputed price array (fixed length), lookahead window                                             |
-| `Player`              | `["player", round_id, wallet]` | ER (TEE)          | action times public, balances private | wallet, session_authority, seat, cash, position, equity, last_action_ts, voted_for                         |
-| `Role`                | `["role", round_id]`           | ER (TEE)          | **private** until reveal              | insider_seat / wallet                                                                                      |
-| `Vault`               | `["vault", round_id]`          | base              | public                                | escrowed stake tokens                                                                                      |
-| `EphemeralPermission` | managed by Permission Program  | ER                | n/a                                   | members + flags per private account                                                                        |
+All accounts are created on the base layer at setup, delegated once to the TEE validator, and
+reused every round. Sizes are fixed, so there's no realloc inside the rollup.
 
-Only a minimal public surface is exposed: who acted and when, the current price, phase and timers.
+| Account     | Seeds                        | Visibility                    | Fields (summary)                                                                                                 |
+| ----------- | ---------------------------- | ----------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| `Table`     | `["table", table_id]`        | public                        | authority, round_id, phase (`Seeding`/`Live`/`Xray`), round_start_tick, tick, params, vrf_pending                |
+| `Market`    | `["market", table]`          | public                        | price (fixed-point 1e6), tick, `history: [u32; 180]` (past ticks only)                                           |
+| `Future`    | `["future", table]`          | **private, no reader**        | round_id, seed, `path: [u32; 200]` (full round plus a horizon margin)                                            |
+| `Board`     | `["board", table]`           | public                        | `headers: [LeakHeader; 6]`, next_drop_tick, drop_counter                                                         |
+| `LeakVault` | `["leak", table, slot]`      | **private, owner after open** | leak_id, kind, payload (kind-specific, 16 bytes)                                                                 |
+| `Seat`      | `["seat", table, index]`     | public                        | owner (burner pubkey), persona/name, is_bot, cash, position, entry, leak_spend, last_action_tick, last_seen_tick |
+| `XrayLog`   | `["xray", table]`            | public                        | per-round ring of revealed Leaks: id, kind, payload, buyer seat, price, opened_tick, flips                       |
+| `Season`    | `["season", table]`          | public (committed to base)    | `top: [(owner, score); 20]`, rounds_played                                                                       |
+| `Stake`     | `["stake", table, round_id]` | base (P1)                     | buy-ins and payout status, used with Ephemeral SPL                                                               |
+
+`LeakHeader` (public): `leak_id`, `kind`, `rarity`, `horizon_ticks`, `target_tick`, `expiry_tick`,
+`state` (`Empty`/`Auction`/`Owned`/`Listed`/`Opened`/`Expired`), `auction_start_tick`,
+`start_price`, `floor_price`, `owner_seat`, `ask`, `flips`, `opened_tick`.
+
+Total: 1 + 1 + 1 + 1 + 6 + 8 + 1 + 1 = **20 delegated accounts** (4 delegation transactions).
+Permissions: 7 (`Future` + 6 vaults).
 
 ### 5.2 Instructions
 
-| Instruction         | Layer        | Purpose                                                                                                                                   |
-| ------------------- | ------------ | ----------------------------------------------------------------------------------------------------------------------------------------- |
-| `initialize_config` | base         | One-time config                                                                                                                           |
-| `create_round`      | base         | Create `Round`, `Market`, `PriceTape`, `Vault`; set params                                                                                |
-| `join_round`        | base         | Player stakes into vault, creates `Player`; AI agents use the same path                                                                   |
-| `delegate_round`    | base         | Delegate Round, Market, PriceTape, Players, Role to the TEE validator when lobby is full or timer ends                                    |
-| `init_permissions`  | ER           | Create `EphemeralPermission` for private accounts (PDA signs via seeds)                                                                   |
-| `request_roles`     | ER           | Request VRF randomness (caller seed = round id)                                                                                           |
-| `callback_roles`    | ER           | VRF callback: pick Insider seat, generate `PriceTape` from randomness, then set permission so only the Insider's wallet can read the tape |
-| `tick`              | ER           | Advance market using the tape: `Market.current_price = tape[tick]`; called by crank or keeper                                             |
-| `trade`             | ER           | Buy / sell / flatten; executes at current price with spread; enforces max position and phase; signed by wallet or session key             |
-| `open_vote`         | ER           | Move to vote phase after trading ends                                                                                                     |
-| `cast_vote`         | ER           | One vote per player; cannot vote for self                                                                                                 |
-| `reveal`            | ER           | Make tape, role and positions public (update permissions to public)                                                                       |
-| `settle`            | ER then base | Compute payouts; `commit_and_undelegate`; base-layer `claim_payouts` pays from vault                                                      |
-| `claim_payouts`     | base         | Transfer payout to each player from the vault                                                                                             |
-| `set_session_key`   | base or ER   | Authorize a browser session key for a player (section 8)                                                                                  |
+| Instruction                   | Layer     | Signer                      | Purpose                                                                                               |
+| ----------------------------- | --------- | --------------------------- | ----------------------------------------------------------------------------------------------------- |
+| `init_table`                  | base      | authority                   | Create Table, Market, Future, Board, XrayLog, Season                                                  |
+| `init_slots`                  | base      | authority                   | Create Seats (8) and LeakVaults (6), in batches                                                       |
+| `delegate_table`              | base      | authority                   | Delegate a batch of up to 6 accounts to the TEE validator                                             |
+| `init_permissions`            | ER        | authority                   | Create private permissions for Future and each LeakVault (no reader / `nobody` PDA)                   |
+| `schedule_ticks`              | ER        | authority                   | Crank `tick` every 500 ms for N iterations (finite; re-armed by the keeper)                           |
+| `request_round_seed`          | ER        | anyone, when `Xray` is over | VRF request; sets `vrf_pending`                                                                       |
+| `round_seed_callback`         | ER        | VRF program only            | Fill `Future.path` from the randomness; phase → `Live`                                                |
+| `tick`                        | ER        | crank signer (or keeper)    | Advance price from `Future`; step auctions; expire Leaks; at round end force-close and phase → `Xray` |
+| `request_drop`                | ER        | anyone, at `next_drop_tick` | VRF request for the next Leak; allocates a free slot                                                  |
+| `drop_callback`               | ER        | VRF program only            | Roll kind, rarity and horizon; compute payload from `Future`; write the vault; header → `Auction`     |
+| `claim_seat`                  | ER        | burner key                  | Take a free or idle-bot seat; reset chips if new                                                      |
+| `trade`                       | ER        | seat owner                  | Set target position (long/short/flat, size ≤ 50% of bankroll); fills at price ± spread                |
+| `bid`                         | ER        | seat owner                  | Buy an `Auction` Leak at the current Dutch price                                                      |
+| `open_leak`                   | ER        | seat owner                  | Permission update: members = [owner key]; header → `Opened` (can't be resold)                         |
+| `list_leak`                   | ER        | seat owner                  | Re-list an `Owned` (sealed) Leak at an ask price                                                      |
+| `buy_listed`                  | ER        | seat owner                  | Pay the ask to the seller seat; ownership moves; still sealed                                         |
+| `finish_round`                | ER        | anyone, in `Xray`           | Copy every Leak payload into `XrayLog`; clear vault members; score into `Season`; reset seats         |
+| `commit_season`               | ER        | anyone, every 5 rounds      | Commit Season and Table to base (≤ 8 accounts per intent)                                             |
+| `stake_join` / `stake_payout` | base + ER | player / anyone             | **P1.** Buy-in and top-3 payout via Ephemeral SPL tokens, private visibility                          |
+| `teardown`                    | ER        | authority                   | Make permissions public, close them, commit and undelegate in batches of ≤ 8                          |
 
-### 5.3 Round state machine
+The authority has no instruction that writes `Future`, a Leak payload, prices or scores.
+
+### 5.3 State machine (per round, about 100 s)
 
 ```
-Lobby -> RoleDraw -> Trading -> Voting -> Reveal -> Settled
+Seeding --(round_seed_callback)--> Live --(tick == 180)--> Xray --(finish_round + 20 ticks)--> Seeding
 ```
 
-Transitions are time-based (`Clock`) and enforced by each instruction's phase check. Any player or keeper can call the next-phase instruction once its timer has expired.
+- **Live:** 180 ticks × 500 ms = 90 s. A drop every 20 ticks (ticks 10, 30, ..., 170: 9 drops).
+- **Xray:** 20 ticks (10 s). No trades. The UI animates the replay from `XrayLog`.
+- A stalled VRF callback goes back to the previous phase through `cancel_vrf` after 10 ticks
+  (the pattern from `lab_cancel_roll`).
 
-### 5.4 Market and price tape
+### 5.4 Price path generator
 
-- At role callback, the VRF output seeds a deterministic generator that fills `PriceTape` with N ticks (for example 1 tick per 500 ms for 120 s = 240 ticks).
-- Generator: random walk with volatility regimes plus 2 to 3 scripted "event shocks" (+/- 3 to 8 percent over a few ticks) at random times, so there is always at least one movable event for the Insider.
-- `Market.current_price` is public and follows the tape tick by tick. The Insider can read `PriceTape` (private) and therefore sees the next 10 to 15 seconds.
-- Trades execute at `current_price` with a small spread and a size-based slippage term, so trading is not free and size is a visible risk.
-- Price scale is integer fixed-point (for example 1e6) to avoid floats.
+- Input: the 32-byte VRF output. A `xorshift128+` PRNG, integer only, fixed-point 1e6, `u32`
+  prices around 100.000000.
+- Random walk with two volatility regimes, switching at a random tick.
+- **2-4 shocks per round** of ±3-8% over 3-6 ticks at random ticks after 20, so Shockwave and
+  Summit Leaks always have something to find.
+- Clamped to [50, 200]. 200 entries, so horizons near the round end never read past the path.
+- Pure function in `math.rs`, unit-tested: deterministic per seed, bounded, shock count in range.
 
-### 5.5 Trading rules
+### 5.5 Leaks
 
-- Starting virtual bankroll: 1,000 chips per player (same for all).
-- One asset, long or short, position limited to a fraction of bankroll (default 50 percent) to keep the Insider from being trivially all-in.
-- Equity = cash + position marked to market.
-- At trading end, positions are force-closed at the last price.
+**Drop roll** (`drop_callback`, from the randomness):
 
-### 5.6 Voting and settlement math
+| Rarity | Weight | Kinds      | Start price | Floor | Auction length |
+| ------ | ------ | ---------- | ----------- | ----- | -------------- |
+| Common | 70%    | Pin, Drift | 150         | 10    | 16 ticks (8 s) |
+| Rare   | 25%    | Shockwave  | 300         | 30    | 16 ticks       |
+| Epic   | 5%     | Summit     | 500         | 60    | 16 ticks       |
 
-Let `E_i` be final equity of player `i`, `B` the starting bankroll, `S` the stake, `N` players, pot `P = N * S`.
+Price at tick `t` = `start − (start − floor) × (t − auction_start) / 16`. An unsold Leak at the
+floor expires.
 
-1. If the Insider is **not caught** (plurality of votes does not name the Insider, ties count as not caught): payout share is proportional to equity, `payout_i = P * E_i / sum(E)`.
-2. If the Insider **is caught**: Insider equity is capped to `B` (profit forfeited). Forfeited profit `F = max(0, E_insider - B)` is added to a bonus pool split equally among players who voted for the Insider. All others are paid `P * E_i / sum(E')` where `E'` is equity after capping, then bonus pool is added to correct voters.
-3. Dust is rounded to the last player; total payouts always equal the pot (asserted in tests).
+**Payloads** (computed by the program from `Future.path` at drop time, so a Leak is always true):
 
-Edge cases: a player who never votes counts as a wrong vote; disconnected players keep their last position and are force-closed at the end; a round with fewer than 3 active players is cancelled and refunds are claimable.
+| Kind        | Horizon window             | Payload                                          |
+| ----------- | -------------------------- | ------------------------------------------------ |
+| `Pin`       | target = now + 10-30 ticks | `price_at_target`                                |
+| `Drift`     | now → now + 20-40 ticks    | `direction` (up/down), `bucket` (<1%, 1-3%, >3%) |
+| `Shockwave` | now → now + 40 ticks       | `has_shock`, `shock_tick`, `sign`                |
+| `Summit`    | now → now + 60 ticks       | `max_price`, `max_tick`, `min_price`, `min_tick` |
+
+`expiry_tick` = the window end. After expiry the Leak is worthless and its slot frees at round end.
+
+**Ownership rules**
+
+- `Auction` → `bid` → `Owned` (sealed; still no reader).
+- `Owned` → `list_leak` → `Listed` → `buy_listed` → `Owned` by the buyer. Chips go seller to buyer.
+  The flip counter increments.
+- `Owned` → `open_leak` → `Opened`: the permission's members become exactly `[owner key]`. Opened
+  Leaks can't be listed, because the content has been seen.
+- A Leak that was never opened has never had a reader. That's the "sealed" guarantee, enforced
+  by the permission history and visible on the explorer.
+- A seat may hold at most 2 unopened Leaks (prevents hoarding).
+
+### 5.6 Trading
+
+- 1,000 chips per seat per round. One asset. Position is a signed size in units, with notional
+  capped at 50% of starting bankroll.
+- `trade` sets a **target position**, so one instruction handles long, short, flip and flat.
+- Fill price = current price ± 0.1% spread. No slippage term (keeps the math simple and
+  readable).
+- Equity = cash + position × price. Positions force-close at tick 180.
+- Round score = equity − 1,000 (Leak spend is already out of cash; flip income is in cash).
+
+### 5.7 Seats and burner keys
+
+- 8 seats. 5 are held by bots by default. `claim_seat` lets a human take a free seat, or replace
+  the bot seat idle longest. That bot moves to spectating until a seat frees up.
+- A seat is idle when `last_seen_tick` is more than 60 ticks old. The client sends a heartbeat by
+  trading or calling `ping` (no-op).
+- Display names come from a fixed adjective + animal list, picked by hashing the key (no free
+  text onchain).
+
+### 5.8 Season and stakes
+
+- `finish_round` folds round scores into `Season.top` (top 20 by cumulative score, keyed by
+  owner key).
+- `commit_season` commits `Season` and `Table` to base every 5 rounds (commit limit, section 4).
+- **Stake mode (P1):** a devnet test mint. Players deposit into an Ephemeral SPL eATA. The round
+  pot pays the top 3 (50/30/20) with **private** visibility through the Private Payments API. If
+  it slips, chips-only mode is the shipped product and the README says so.
 
 ## 6. Private state design (PER)
 
-Goal: only the Insider can read the future tape; positions and balances stay private until reveal; public sees who acted and when.
+| Account         | Readers during play                   | How it changes                                                           |
+| --------------- | ------------------------------------- | ------------------------------------------------------------------------ |
+| `Future`        | nobody (no member / `nobody` PDA)     | Written only by `round_seed_callback`; read only by program instructions |
+| `LeakVault`     | nobody while sealed; owner after open | `open_leak` → `UpdateEphemeralPermissionCpi` members = [owner]           |
+| everything else | public                                | n/a                                                                      |
 
-- All private accounts are delegated to the TEE validator. Accounts without a permission are public, so permissions are created immediately after delegation (`init_permissions`).
-- `PriceTape`: permission `is_private = true`, members = empty at creation, then **updated in `callback_roles` to the Insider's wallet** with log/message/balance flags.
-- `Role`: private, members = empty (program-only) until `reveal`.
-- `Player` (positions, cash): private with the owner as the only member; a public subset of "who acted and when" is exposed through `Round`/`Market` event fields (for example a ring buffer of `(seat, ts)` pairs), not through the private account.
-- `reveal`: updates permissions to `is_private = false` so the explorer and the UI can show the full replay.
-- RPC reads of private accounts require an authorization token from the TEE RPC; the frontend obtains it per wallet. [verify exact token flow in the PER authorization docs]
+- The program reads private accounts freely during execution inside the TEE. Permissions gate
+  **RPC reads**, not program access (verified in Phase 2: the VRF callback read and wrote a
+  private account).
+- `finish_round` copies payloads into the public `XrayLog` and resets each vault's members to
+  none. It never flips a permission back from public to private, which avoids an unverified
+  transition.
+- Clients read an opened Leak with the TEE login challenge (`scripts/src/lib/tee.ts`): sign the
+  challenge with the burner key, then call `getAccountInfo(LeakVault)` with the token.
+- **The two-browser test** (demo and integration test): browser A opens a Leak and reads it;
+  browser B (and an anonymous RPC call) gets "account not returned".
 
-**Honest trust model:** privacy relies on the TEE (Intel TDX). Agent keypairs are held by the agent service, so an agent playing the Insider role is trusted not to leak to other agents; this is stated in the README.
+**Trust model, stated plainly:** privacy relies on MagicBlock's TEE (Intel TDX). Bot keys sit in
+the bot service, which can only read Leaks its bots own. Seats, positions and trades are public by
+design.
 
-## 7. VRF flow
+## 7. VRF flows
 
-1. `request_roles` calls `create_request_scoped_randomness_ix` with `caller_seed = round_id`, callback discriminator `callback_roles`, and the accounts the callback needs (Round, PriceTape, Role, permission accounts).
-2. Oracle returns randomness and the VRF program calls `callback_roles` (guarded by `#[vrf_callback]` so only the VRF program can invoke it).
-3. `callback_roles` derives: Insider seat = `random_u8_with_range` over player count; tape seed = the 32-byte randomness.
-4. The request and callback transactions are the explorer proof for "VRF used".
+1. **Round seed.** `request_round_seed` → `round_seed_callback(randomness)` fills `Future.path`.
+   One request per round.
+2. **Leak drop.** `request_drop` → `drop_callback(randomness)` picks rarity, kind and horizon, then
+   computes the payload. Nine requests per round.
+3. Both callbacks declare the scoped VRF identity account with a compile-time constant (the
+   Phase 2 fix for the 270k CU `const fn` cost on SDK 0.18).
+4. Both have a `cancel_*` path after a timeout. A late callback for a cancelled request is
+   rejected (`request_id` check).
 
-## 8. Session keys
+## 8. Cranks and keepers
 
-- A player signs once on the base layer to register a browser-generated ephemeral keypair as `Player.session_authority` with an expiry slot.
-- `trade` and `cast_vote` accept either the wallet or a valid, unexpired session authority.
-- Result: no wallet popup per trade. Agents use their own keypairs directly.
+- `schedule_ticks` arms a finite crank (for example 7,200 iterations = 1 hour). Cancel doesn't
+  work on the TEE (Phase 2 D), so the keeper re-arms before the task runs out.
+- `tick` is idempotent per tick index and only accepts the crank signer PDA or the keeper key.
+- The bot service runs a keeper that calls `tick`, `request_drop`, `request_round_seed` and
+  `finish_round` when they're due and the crank hasn't done it. Every one of these is
+  permissionless and time-gated, so the keeper has no special power.
 
-## 9. Token and stakes
+## 9. Off-chain components
 
-- MVP: stake is a devnet SPL test token minted by the project (shown as "USDC (devnet test)"). Real USDC is out of scope.
-- Escrow in the `Vault` PDA on the base layer; payouts via `claim_payouts` after settlement.
-- Fee: none for MVP.
+### 9.1 App (`app/`)
 
-## 10. Off-chain components
+| Route         | Screen                                                                                                              |
+| ------------- | ------------------------------------------------------------------------------------------------------------------- |
+| `/`           | Landing: the sealed card hero, one-sentence pitch, **Play** button, live table preview                              |
+| `/table`      | Trading floor: chart with Leak markers, seat rail, Leak board (auction cards), trade panel, activity feed, my Leaks |
+| `/table/xray` | X-ray replay of the last round (also shown inline during `Xray`)                                                    |
+| `/proof`      | Live links: program, delegation, the latest VRF and permission transactions, the two-browser test                   |
 
-### 10.1 Next.js app (`app/`)
+Client modules in `app/src/lib/`: `connection.ts` (Magic Router + TEE RPC), `program.ts` (typed
+client from `idl/insider.json`), `burner.ts` (key create/store), `tee-auth.ts` (token cache per
+key), `table.ts` (websocket subscriptions to Table, Market, Board, Seats).
 
-Routes and screens:
+UI requirements: price updates at 2 Hz without layout jitter; optimistic trade state; the
+crack-open animation; a 16:9 recording mode; `prefers-reduced-motion` support.
 
-- `/` Landing and "Play a round" button
-- `/lobby` Seats, stake, agent fill, countdown
-- `/round/[id]` Live game: chart, action feed, chat, trade panel, vote modal, reveal
-- `/replay/[id]` Shareable replay of a finished round
-- API routes: `/api/chat` (SSE), `/api/agents` (control), `/api/rounds` (index from chain), `/api/tee-auth` (TEE token helper)
+API routes: `/api/faucet` (only if [verify] 2 needs it), `/api/health` (keeper and crank status).
 
-UI requirements: neon trading floor, big mono numerals, price chart with smooth tick animation, phase timer, caption-friendly layout (good for screen recording), reduced-motion support.
+### 9.2 Bots (`bots/`)
 
-### 10.2 Agent service (`bots/`)
+| Persona     | Strategy                                                                            |
+| ----------- | ----------------------------------------------------------------------------------- |
+| **Whale**   | Buys Rare and Epic early at high prices, opens them, trades max size on the content |
+| **Sniper**  | Bids on Commons near the floor, opens them, takes small precise trades              |
+| **Flipper** | Buys sealed at the mid price, lists at +40%, opens only if unsold after 6 ticks     |
+| **Copycat** | Never buys. Mirrors whoever opened a Leak most recently, 1-2 ticks later            |
+| **Degen**   | Random trades on momentum, occasionally buys a Leak and never opens it              |
 
-- N agent keypairs funded with devnet SOL and test tokens.
-- Loop per agent: read public state, decide action, submit `trade`, post chat lines, cast vote.
-- Personas: Nova (paranoid, accuses early), Rook (smug, trades big), Echo (quiet, low volume), plus more later. Each has a system prompt, a trade policy and a chat style.
-- Insider agent policy: read the private tape through its own permission and trade with a randomised "cover" pattern so it is catchable but not trivial.
-- Cost and latency controls: at most one LLM call per agent per 15 seconds, short outputs, scripted fallback lines if the API fails.
-- Agents use exactly the same instructions as humans (no privileged path), which keeps the "real, not simulated" claim true.
+- Each bot has its own keypair and TEE token, and reads only vaults it opened.
+- The loop subscribes to public accounts, decides, and sends one transaction at most every 2
+  ticks.
+- A small per-decision random delay keeps bots from looking mechanical, and jitter in sizes
+  makes them beatable.
 
-### 10.3 Chat
-
-Chat is off-chain (SSE). Stretch: commit a hash of the final transcript onchain at settlement.
-
-## 11. Repository layout
+## 10. Repository layout
 
 ```
 insider/
-  programs/insider/        Anchor program
-  app/                     Next.js app
-  bots/                    Agent service
-  tests/                   Anchor + integration tests
-  scripts/                 deploy, delegate, simulate-round
-  video/                   Demo film (HyperFrames/Remotion)
-  README.md
-  PROJECT_INFO.md
-  TECHNICAL_SPEC.md
+  programs/insider/   Anchor program: table, market, leaks, math, VRF, PER, cranks
+  app/                Next.js app
+  bots/               Bot strategies and keeper
+  scripts/            setup-table, simulate-round, proof index, Phase 2 lab scripts
+  tests/              Integration tests
+  idl/                Generated IDL
+  docs/               Phase 2 findings and devnet proofs
 ```
 
-## 12. Testing plan
+The Phase 2 `spike_*`, `lab_*` and `slot_*` instructions stay until the table instructions replace
+them, then move behind a `lab` cargo feature so the proofs stay reproducible.
 
-- **Program unit tests:** payout math (property test: payouts sum to pot), phase gating, vote rules, position limits.
-- **Integration (local ER stack or Surfpool):** full round with 5 players, delegate, VRF, trade, vote, settle.
-- **Devnet smoke test:** scripted round that prints explorer links for each MagicBlock feature.
-- **Privacy test:** a non-Insider wallet attempts to read `PriceTape` and is refused; Insider succeeds (verified on devnet by `pnpm lab:pick`).
-- **Agent dry run:** headless round with 5 agents, no humans, for demo recording.
+## 11. Testing plan
 
-## 13. Deployment
+- **Unit (LiteSVM / `cargo test`):** price generator (deterministic, bounded, shock count); Leak
+  payload correctness against the path for every kind; Dutch price curve; trade fills and equity;
+  phase gating; ownership transitions (can't list an opened Leak; can't bid on a Leak you own;
+  hoard limit); round score sums; `tick` idempotence; only the VRF program can call the callbacks.
+- **Devnet script `pnpm simulate-round`:** setup → seed → 9 drops → bids, flips, opens → trades →
+  Xray → commit. Prints every explorer link and feeds `docs/proofs`.
+- **Privacy test:** the opener reads the vault; a second key and an anonymous call can't; sealed
+  vaults are unreadable to everyone, including the authority.
+- **Bot soak:** five bots, no humans, for 30 minutes: no stuck phase, no failed VRF, crank re-armed.
 
-- Program on Solana devnet (program ID recorded in README).
-- App on Vercel (or similar); agent service on a small always-on host (Railway / Fly / Render) so a judge can always find a lobby filled.
-- Env vars in `.env` (never committed); `.env.example` committed.
+## 12. Deployment
 
-## 14. Security and fairness notes
+- Program on Solana devnet (ID above). The table is set up once by `scripts/setup-table.ts`.
+- App on Vercel. The bot service and keeper on an always-on host (Railway/Fly), so the table is
+  live whenever a judge opens the link.
+- A dedicated devnet RPC for base reads (the public RPC rate-limits, Phase 2 notes).
+- Secrets live only in `.env` and host env vars. `.env.example` is committed.
 
-- `#[vrf_callback]` on the callback, otherwise anyone could spoof randomness.
-- All phase and authority checks use `Clock` and PDA seeds; no admin override of outcomes.
-- Session keys are scoped to `trade` and `cast_vote` and expire.
-- Integer math only; checked arithmetic everywhere.
-- Known limitations (documented, not hidden): TEE trust, agent-held keys, devnet test token, off-chain chat.
+## 13. Security and fairness
 
-## 15. Proof checklist for reviewers (to fill with links)
+- `#[vrf_callback]` plus a `request_id` match on both callbacks.
+- No authority write path to `Future`, payloads, prices or scores.
+- All mutating instructions check phase and tick, so late bids, trades after the round, and early
+  drops are all rejected.
+- Checked integer arithmetic only. No floats.
+- Seat actions require the seat owner's signature. Crank-only instructions check the crank signer
+  PDA.
+- Known limitations, documented: TEE trust; bot keys held by the service; devnet test token;
+  synthetic asset by design.
+
+## 14. Proof checklist for reviewers (to fill with links)
 
 - [ ] Program ID on devnet
-- [ ] Delegation transaction to the TEE validator
-- [ ] VRF request and callback transactions
-- [ ] Permission create / update transactions
-- [ ] Settlement and payout transactions
+- [ ] Table delegation transactions to the TEE validator
+- [ ] Round seed VRF request and callback
+- [ ] Leak drop VRF request and callback
+- [ ] `open_leak` permission update, and a failed read from a second key
+- [ ] Rollup trades and bids (sample)
+- [ ] Season commit to base
+- [ ] (P1) Private payout transaction
 - [ ] Live app URL and a recorded round
 
-## 16. Milestones (deadline Nov 27, 9:00 AM EST = 14:00 UTC = 19:30 IST)
+## 15. Scope and cut order (deadline Nov 27, 9:00 AM EST = 14:00 UTC)
 
-| Day    | Goal                                                                                  |
-| ------ | ------------------------------------------------------------------------------------- |
-| Nov 21 | Docs, repo, scaffold, toolchain; **minimal ER delegation on devnet (explorer proof)** |
-| Nov 22 | Program: config, round, join, delegate, VRF role draw                                 |
-| Nov 23 | Program: tape, market tick, trade, private permissions; privacy test                  |
-| Nov 24 | Program: vote, reveal, settle, payouts; Next.js lobby and game UI                     |
-| Nov 25 | Agents, chat, reveal animation, UI polish                                             |
-| Nov 26 | Record real rounds; build and render the video; deploy                                |
-| Nov 27 | README proofs, submission form, buffer (submit well before 19:30 IST)                 |
+| Priority | Scope                                                                                                                                                     |
+| -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **P0**   | Table/Market/Future/Seats; round seed VRF; tick; trade; Leak drop VRF; Dutch bid; open (permission); Xray; burner seats; 3 bots; trading-floor UI; deploy |
+| **P1**   | Flip (list / buy_listed); 5 bots; `/proof` page; season commit; X-ray animation polish                                                                    |
+| **P2**   | Stake mode with Private Payments; SOAR; LLM flavour text for bots; mobile layout                                                                          |
 
-Cut order if time runs short: SOAR, cranks (use keeper), replay page, agent personas beyond three.
+Cut from the bottom up. Never cut the two-browser privacy test or the X-ray, because the demo
+depends on them.
 
-## 17. Answers from Phase 2 (verified on devnet)
-
-Full write-up: [docs/phase-2-findings.md](docs/phase-2-findings.md). Proofs: [docs/proofs](docs/proofs/README.md).
-
-1. **VRF inside the TEE rollup, then a permission update in the same flow:** works. The callback picks the reader and rewrites the permission in one transaction (about 0.4 s end to end). The callback must declare the scoped VRF identity as a compile-time constant on SDK 0.18.
-2. **Reading a private account:** sign the TEE login challenge and use the returned token on the RPC URL. Any permission member can read; others get nothing. Revocation is immediate.
-3. **Cranks on the TEE:** scheduling and ticking work; cancel does not (no task context account), so schedule finite tasks.
-4. **Accounts per round:** 6 delegate instructions per transaction, one update instruction for 11 accounts (26k CU), and at most 9 accounts per settle intent. Settle in batches of 8 or fewer.
-5. **Validator lines:** public devnet ERs and the TEE run validator 1.x, which needs SDK 0.18.x. SDK 0.20.x works only with validator 2.0 (devnet-us) and its `#[vrf]` macro does not compile. Re-check before any SDK upgrade.
+| Day    | Goal                                                                         |
+| ------ | ---------------------------------------------------------------------------- |
+| Nov 22 | Docs pivot; `math.rs` with unit tests; table accounts; seed VRF; tick; trade |
+| Nov 23 | Leaks: drop VRF, payloads, auction, open, flip; `simulate-round` on devnet   |
+| Nov 24 | App: trading floor, Leak cards, crack-open, X-ray; burner seats              |
+| Nov 25 | Bots and keeper deployed; app deployed; soak test; fix                       |
+| Nov 26 | Record rounds; video; README proofs                                          |
+| Nov 27 | Submit by 08:00 UTC (6 h buffer); post the X clip                            |

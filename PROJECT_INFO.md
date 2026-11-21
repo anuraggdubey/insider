@@ -1,106 +1,183 @@
-# Insider: Project Information
+# INSIDER: Project Information
 
 ## One-line pitch
 
-Among Us for the market, fully onchain: one hidden Insider sees the future price, everyone else trades blind and tries to catch them.
+A real-time market where you trade the future: sealed, perishable Leaks about the price, which
+only their owner can read. The TEE enforces that.
+
+## Taglines
+
+- "Buy the future. Sealed."
+- "On Solana you can own a token. Here you can own a secret."
+- "Alpha expires."
 
 ## The idea in plain words
 
-Every round of Insider is a short, loud, social game built on a live market.
+Finance runs on information asymmetry. Somebody knows something first, and everyone else pays
+for it. INSIDER turns that into a game you can play in 90 seconds.
 
-- 5 to 8 players (humans and AI agents) put in the same stake.
-- One player is secretly chosen as **the Insider** and can see where the price is going 10-15 seconds ahead.
-- Everyone trades one synthetic asset for about two minutes. Nobody can see anyone else's side, size or balance, only _who_ traded and _when_.
-- Then everyone argues, and votes on who the Insider is.
-- The reveal shows the hidden price tape and every trade, and the pot pays out.
-
-The fun is the same as Among Us or Werewolf: reading behaviour. "Why did they sell right before the crash?"
+- A table trades one synthetic asset. Its price path for the round is **already written** by
+  verifiable randomness and sealed inside a Private Ephemeral Rollup. No one can read it.
+- Every ten seconds the program cuts a **Leak** from that hidden future: one true fact, such as
+  the exact price twelve seconds from now, or whether a crash starts within twenty seconds.
+- The Leak is sold **sealed** in a falling-price auction. The label and rarity are public. The
+  contents aren't.
+- The owner can **open** it (they become its only reader) or **flip** it sealed to another
+  player. Because it's sealed, the buyer knows nobody has read it.
+- Leaks **expire**. A Leak about second 40 is worth nothing at second 41.
+- At the end of the round, the **X-ray** replays every Leak on the chart next to the trades it
+  caused.
 
 ## Why this is Entertainment Finance
 
-MagicBlock's thesis is that games are becoming markets and markets are becoming entertainment: apps where you trade, compete and win assets you own, with game mechanics on top. Insider takes that literally. The market _is_ the game board, the stakes are real, and the drama comes from information asymmetry, which is what finance is built on.
+MagicBlock describes Entertainment Finance as apps where you trade, collect, compete and win
+assets you actually own, with game mechanics on top. Their examples are trading games
+(BananaZone), skill games with prizes (Slimecoin) and packs you open (Jungle Fun). INSIDER combines
+all three in one loop:
 
-## Why it is different
+| Entertainment Finance element | INSIDER                                                              |
+| ----------------------------- | -------------------------------------------------------------------- |
+| Packs you open and collect    | Sealed Leaks with rarities, opened with a reveal animation           |
+| Trading game                  | A live long/short market at 500 ms ticks with zero fees              |
+| Skill with real stakes        | Auction timing, reading other players, a PnL leaderboard, stake mode |
+| Assets you own                | The Leak itself: ownership is the TEE's permission list              |
 
-Most entries in this space are variations on "hidden-information card game" (Liar's Dice, poker), roguelikes with prizes, or prediction markets. Insider differs in four ways:
+## Why it stands out
 
-1. **Social deduction over a live market.** The deduction signal is trading behaviour, not cards.
-2. **Mixed lobby of humans and LLM-powered agents.** AI players have personalities (paranoid, smug, quiet) and argue in chat. This makes every round fun even with one human, and solves the empty-lobby problem.
-3. **Real hidden state.** The Insider's edge is enforced by Private Ephemeral Rollup access control, so privacy is a protocol feature rather than a UI trick.
-4. **Built to be watched.** A neon trading-floor spectator view, a dramatic reveal and shareable round replays.
+Three of the last four Blitz winners in v9 used privacy, and all of them used it to **hide
+state**: fog-of-war battle royales and a private order book. Hidden-information card games,
+prediction markets and social deduction are also common entries. INSIDER is none of these:
 
-## Roles
+1. **Privacy as property, not fog.** The asset is read access. Buying, flipping and opening are
+   permission updates enforced by Intel TDX hardware, not database rows.
+2. **A new asset type: verifiable, sealed, perishable information.** The program generates the
+   Leak from the hidden future, so it's guaranteed true. It hasn't been read, and it rots on a
+   timer. We haven't seen this primitive in an onchain game before.
+3. **Emergent social play without assigned roles.** Ownership is public. When a bot opens an
+   Epic Leak and goes short two seconds later, the whole table sees it. Players copy-trade, fade,
+   and bluff, and you can buy a Leak just to make others think you know something.
+4. **Solo-playable by design.** Five bot strategies (Whale, Sniper, Flipper, Copycat, Degen) trade
+   under the same rules and read only Leaks they own. A judge can play a full round in under a
+   minute without finding other humans.
+5. **Built to be watched.** Leak drops on the chart, an auction counting down, a crack-open
+   animation, and the X-ray replay at the end.
 
-- **Insider (1 per round).** Sees the price tape ahead of time. Wants to profit without being caught.
-- **Trader (everyone else).** Trades blind, hunts for the Insider, wants both profit and a correct vote.
-- **Spectator.** Watches a round live (price, action feed, chat) without playing.
+## Players and roles
+
+There are no assigned roles. Everyone has the same rules and different information.
+
+- **Player (human).** Browser key, 1,000 chips per round, one seat.
+- **Bot.** Same instructions, its own keypair, a fixed strategy and a persona name.
+- **Spectator.** Watches the table live without a seat.
+
+## Leak types
+
+| Leak          | Rarity | What the owner learns                                         | Horizon |
+| ------------- | ------ | ------------------------------------------------------------- | ------- |
+| **Pin**       | Common | The exact price at a future tick                              | 5-15 s  |
+| **Drift**     | Common | Up or down over the next window, plus a magnitude bucket      | 10-20 s |
+| **Shockwave** | Rare   | Whether a shock of at least 3% starts in the window, and when | 20 s    |
+| **Summit**    | Epic   | The highest and lowest price in the window, and their ticks   | 30 s    |
+
+VRF picks each drop's type, rarity and horizon. The label (type, rarity, horizon, expiry tick)
+is public. The contents are sealed.
 
 ## Round flow
 
-| Phase      | Duration                  | What happens                                                                    |
-| ---------- | ------------------------- | ------------------------------------------------------------------------------- |
-| Lobby      | until full or timer       | Players join and stake; AI agents fill empty seats                              |
-| Role draw  | instant                   | VRF picks the Insider and seeds the price path                                  |
-| Trading    | ~120 s                    | Real-time trades; price ticks continuously; actions appear as "Player 3 traded" |
-| Discussion | overlaps trading and vote | Chat between humans and agents                                                  |
-| Vote       | ~30 s                     | Each player votes for the suspected Insider                                     |
-| Reveal     | ~10 s                     | Tape, positions and votes become public                                         |
-| Settlement | instant                   | Payouts distributed from the escrowed pot                                       |
+| Phase | Duration | What happens                                                              |
+| ----- | -------- | ------------------------------------------------------------------------- |
+| Seed  | ~1 s     | VRF writes the hidden price path for the round                            |
+| Live  | 90 s     | 500 ms ticks; a Leak drops every 10 s (9 per round); trading and auctions |
+| X-ray | 10 s     | Positions force-closed, every Leak revealed on the chart, scores posted   |
+| Next  | instant  | The table rolls straight into the next round (always live)                |
 
-## Scoring in one paragraph
+## Scoring
 
-Everyone starts a round with the same virtual bankroll. Final equity decides each player's share of the pot. If the Insider is caught (vote majority names them), their profit is forfeited and split among the players who voted correctly. If they escape, they keep their profit. Details and exact formulas are in [TECHNICAL_SPEC.md](TECHNICAL_SPEC.md).
+- Everyone starts a round with 1,000 chips.
+- Leak purchases cost chips. Flip sales earn chips from the buyer.
+- At round end, positions close at the last price.
+- **Round score = final equity − 1,000.** The season leaderboard sums round scores.
+- **Stake mode (P1):** a fixed buy-in in a devnet test token; the top 3 by round score split the
+  pot, and payouts are sent with MagicBlock Private Payments.
 
 ## Example round (for the demo)
 
-1. Five seats: two humans, three agents (Nova the paranoid, Rook the smug, Echo the quiet).
-2. VRF picks Echo as Insider. Price is flat; Echo sees a drop coming.
-3. At 0:42 Echo goes short. At 0:52 the price crashes. The feed only says "Echo traded at 0:42".
-4. Chat: "Echo moved 10 seconds before the crash. Suspicious." Echo: "I was bored."
-5. Vote: 3 of 5 name Echo. Reveal: Echo's tape view replays against the trades, and the payout lands.
+1. 0:00. Price 100.00, flat. You sit with Whale, Sniper, Flipper and Copycat.
+2. 0:10. A **Rare Shockwave** drops at 300 chips and falls 15 chips per tick. Sniper takes it at 180.
+3. 0:14. Sniper flips it, still sealed, for 260. Whale buys. The feed shows: _"Whale bought a
+   sealed Shockwave from Sniper."_
+4. 0:15. Whale opens it. A second later Whale shorts the maximum size. Copycat follows.
+5. 0:21. You fade them and go long. 0:24: the shock is real, the price drops 6%, and you're
+   down.
+6. 0:30. A **Common Pin** drops. You buy it cheap and open it: _"Price at 0:42 = 97.80"_. You go
+   long and close at 0:42.
+7. X-ray. The chart replays all nine Leaks, who held them, when each was opened, and the trade
+   that followed. Whale tops the round, you finish second, and Sniper profited without opening
+   anything.
 
 ## Strategy for winning the hackathon
 
-- **Demo-first.** The demo video is the main lever for both judges and X reach. It is produced from the real running app, with motion graphics around it (see the demo plan below).
-- **Built for AI-assisted screening.** Judging increasingly starts with automated review that checks claims against the code and asks whether integrations are real or simulated. So the README states only what is built, maps every MagicBlock feature to code and explorer transactions, and nothing is mocked.
-- **Deep MagicBlock use.** ER is required; Insider also uses VRF, PER, session keys and cranks, which is the "technical depth" judges score.
-- **Working prototype.** A judge can open the link and play a round with agents in under a minute.
+- **Playable, not promised.** A cold visitor clicks _Play_ and is trading within 5 seconds. This
+  beats any amount of README.
+- **One crisp idea.** "You can own a secret" works in a single sentence and a single shot (a
+  sealed card cracking open).
+- **Privacy is load-bearing.** If the TEE leaked, the game would be broken. Judges reward
+  privacy that matters (v8's Herd won for exactly this).
+- **Visible onchain activity.** The submission form counts delegations, VRF requests and
+  private payments at the program address. Every round makes about 10 VRF requests, dozens
+  of permission updates and hundreds of rollup transactions, all of which are real gameplay.
+- **Honest README for automated screening.** Every claim maps to a file and a devnet transaction.
+- **Scope discipline.** The P0 loop ships first. Stake mode, SOAR and extras are cut before the
+  core loop is at risk.
 
-## Demo video plan (about 90 s, plus a 20 s cut for X)
+## Demo video plan (about 75 s, plus a 20 s cut for X)
 
-1. Cold open: a ticking price chart and the line "Someone in this room knows the future."
-2. Title: INSIDER.
-3. One real round with agents: trades, accusations, vote countdown, with caption pills on each beat.
-4. The reveal: the Insider's hidden view replayed against everyone's trades.
-5. "What's onchain": ER, VRF and PER with real explorer transactions.
-6. End card: tagline, play link, repo.
+1. Cold open: a black screen with a sealed card. _"This card knows the price 12 seconds from
+   now. Nobody has read it."_
+2. Title: INSIDER. "Buy the future. Sealed."
+3. A real round: a drop, the falling auction, a sniper takes it, a flip, someone opens it, and
+   a short follows.
+4. The crack-open shot: the TEE adds one reader, and the contents appear only on the owner's
+   screen. Split screen with a second browser that sees nothing.
+5. X-ray replay.
+6. "What's onchain": VRF seed, permission rewrite and rollup trades, each with an explorer link.
+7. End card: play link, repo.
 
 ## Non-goals (for this hackathon)
 
-- Mainnet launch, real-money onboarding or token launch
-- More than one asset or more than one game mode
+- Mainnet, real money or a token launch
+- Real-world price feeds. The future has to exist in advance, so the asset is synthetic by
+  design.
+- More than one table or asset
+- LLM chat agents (bots are deterministic; LLM flavour text is a stretch)
 - Native mobile apps
-- A custom wallet or custody solution
 
 ## Success criteria
 
-- A full round runs end to end on devnet: join, VRF role draw, private tape, trading, vote, settlement.
-- Delegation, VRF and private-state transactions are visible on the explorer.
-- A cold visitor can play a round against agents with no setup beyond a wallet.
-- The video and README tell the same story as the code.
+- A table runs continuously on devnet with bots: seed, ticks, drops, auctions, opens, flips,
+  trades and X-ray.
+- A second wallet provably cannot read a Leak it doesn't own (recorded in the demo and the
+  tests).
+- A cold visitor plays a round with no wallet and no setup.
+- The VRF, permission and rollup transactions are linked from the README.
+- The video, README and code tell the same story.
 
 ## Risks and how we handle them
 
-| Risk                                            | Mitigation                                                                                        |
-| ----------------------------------------------- | ------------------------------------------------------------------------------------------------- |
-| Private-state gating does not behave as assumed | Prototype the permission flow first (day 1-2); fall back to the documented access-control pattern |
-| Agent LLM latency or cost                       | Cache and rate-limit calls; scripted fallback lines; short persona prompts                        |
-| Empty lobby for judges                          | Agents fill seats automatically; solo play always works                                           |
-| Solo scope in about 6 days                      | Strict order: onchain loop, UI, agents, then polish; cut SOAR and cranks first                    |
-| Judges cannot verify claims                     | Explorer links and file paths for every feature in the README                                     |
+| Risk                                              | Mitigation                                                                                                       |
+| ------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| A private permission with zero members misbehaves | Use a keyless program PDA as the only member; nobody holds its key                                               |
+| Browser keys can't pay rollup fees                | ER transactions are free; if a fee payer must exist on the base layer, a faucet route funds the burner with dust |
+| Cranks can't issue VRF requests                   | The bot service calls `request_drop` on schedule (keeper fallback)                                               |
+| 10-commit limit without a delegated fee payer     | Commit the season every few rounds and add a delegated fee payer plus `magic_fee_vault`                          |
+| An empty or dull table for judges                 | Five bot strategies always seated; humans displace bots                                                          |
+| Solo scope with about 4.5 days left               | Strict P0/P1/P2 cut order (see TECHNICAL_SPEC.md section 15)                                                     |
+| Judges can't verify claims                        | Explorer links and file paths for every feature                                                                  |
 
 ## Branding notes
 
-- Look: neon trading floor, dark background, two accent colours, big mono numerals.
-- Tone: tense, playful, dry. Product name in caps: INSIDER.
-- Tagline options: "Someone here knows the future." / "Trade like you're not lying."
+- Look: a dark trading terminal, a sealed-envelope / wax-seal motif for Leaks, rarity colours
+  (grey, cyan, magenta), big mono numerals.
+- Motion: Leaks slide onto the chart at their horizon, auction price ticks down, cards crack
+  open.
+- Tone: tense, sly, dry. Name in caps: INSIDER.
