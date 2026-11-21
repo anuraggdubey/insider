@@ -18,7 +18,7 @@
     "test": "pnpm --filter tests test",
     "bots": "pnpm --filter bots dev",
     "program:build": "cargo build-sbf --manifest-path programs/insider/Cargo.toml",
-    "program:idl": "anchor idl build -o target/idl/insider.json",
+    "program:idl": "anchor idl build -o idl/insider.json",
     "program:check": "cargo check -p insider",
     "program:test": "cargo test -p insider",
     "program:deploy": "solana program deploy target/deploy/insider.so --program-id .keys/insider-program-keypair.json --keypair .keys/deployer.json --url devnet",
