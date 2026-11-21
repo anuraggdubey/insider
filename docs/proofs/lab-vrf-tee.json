@@ -1,0 +1,50 @@
+{
+  "experiment": "lab-vrf-tee",
+  "network": "devnet",
+  "program": {
+    "id": "5TbtvduZEmNWbnr7wfvB9A9TobbxSB96e1xYcr6NnSDQ",
+    "url": "https://explorer.solana.com/address/5TbtvduZEmNWbnr7wfvB9A9TobbxSB96e1xYcr6NnSDQ?cluster=devnet"
+  },
+  "facts": {
+    "validator": "tee MTEWGuqxUpYZGFJQcp8tLN7x5v9BSeoFHYWQQ3n3xzo",
+    "lab": "6Yvbc3kWpwK6sZJEyGoMQYSWT6v6WkcqJWqqx8nH6tRs",
+    "endpoint": "https://devnet-tee.magicblock.app/",
+    "callbackLatencyMs": 68,
+    "randomness": "dd43d0f84a4bc128164c5000175f6708fe1b0afea52cea2d5be4027b5eef682f",
+    "pickedReader": "G19hdXeC3PRtEVEZo4Gq2UjaMnET1Qeh6mTrP5xW42Sv",
+    "pendingAfterCallback": false,
+    "rollsOnBase": 1,
+    "readerOnBase": "G19hdXeC3PRtEVEZo4Gq2UjaMnET1Qeh6mTrP5xW42Sv",
+    "matchesProgram": "5TbtvduZEmNWbnr7wfvB9A9TobbxSB96e1xYcr6NnSDQ"
+  },
+  "steps": [
+    {
+      "step": "lab_cancel_roll (cleanup)",
+      "layer": "base",
+      "signature": "4egFMyAmgci42dokGNEAP9Y8v8gw2jJAdfrCcuAiiespPCvYCYwJ58QsnWFjfYE62eTHPF4b8NRBx7NeyfBfPHw4",
+      "url": "https://explorer.solana.com/tx/4egFMyAmgci42dokGNEAP9Y8v8gw2jJAdfrCcuAiiespPCvYCYwJ58QsnWFjfYE62eTHPF4b8NRBx7NeyfBfPHw4?cluster=devnet",
+      "ms": 858
+    },
+    {
+      "step": "lab_delegate",
+      "layer": "base",
+      "signature": "51gjwy2YoraWxaNxwrJ4mGqpTeWtwVENTcY5aAFiR9S7z9sCxX6mgcUsJsGwSjs3uTL8ze2dCe5fH27sraQ2Msar",
+      "url": "https://explorer.solana.com/tx/51gjwy2YoraWxaNxwrJ4mGqpTeWtwVENTcY5aAFiR9S7z9sCxX6mgcUsJsGwSjs3uTL8ze2dCe5fH27sraQ2Msar?cluster=devnet",
+      "ms": 671
+    },
+    {
+      "step": "lab_request_roll",
+      "layer": "TEE",
+      "signature": "21jB5AnR1Pzn1vadAKVS6DctZDHZ8MD195rBWWZ5cUSLhnrAykbf6zdpbbNExArheUiSaa8NcEtacsZW1XZaYdCJ",
+      "url": "https://explorer.solana.com/tx/21jB5AnR1Pzn1vadAKVS6DctZDHZ8MD195rBWWZ5cUSLhnrAykbf6zdpbbNExArheUiSaa8NcEtacsZW1XZaYdCJ?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app",
+      "ms": 681
+    },
+    {
+      "step": "lab_undelegate",
+      "layer": "TEE",
+      "signature": "3yZyN83wQ7PznJfdi82nkkJG6ss3ZY7NLwhqSKQeS6m9jnrdqebwopufW7t1kciMQksNgSZdJPjzGg1CMVCY6VZz",
+      "url": "https://explorer.solana.com/tx/3yZyN83wQ7PznJfdi82nkkJG6ss3ZY7NLwhqSKQeS6m9jnrdqebwopufW7t1kciMQksNgSZdJPjzGg1CMVCY6VZz?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app",
+      "ms": 775
+    }
+  ]
+}

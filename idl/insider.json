@@ -8,6 +8,509 @@
   },
   "instructions": [
     {
+      "name": "lab_cancel_roll",
+      "discriminator": [
+        251,
+        18,
+        202,
+        5,
+        183,
+        254,
+        111,
+        29
+      ],
+      "accounts": [
+        {
+          "name": "authority",
+          "signer": true
+        },
+        {
+          "name": "lab",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  108,
+                  97,
+                  98
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "authority"
+              }
+            ]
+          }
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "lab_commit",
+      "discriminator": [
+        165,
+        149,
+        173,
+        114,
+        6,
+        19,
+        10,
+        68
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "lab",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  108,
+                  97,
+                  98
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "payer"
+              }
+            ]
+          }
+        },
+        {
+          "name": "magic_program",
+          "address": "Magic11111111111111111111111111111111111111"
+        },
+        {
+          "name": "magic_context",
+          "writable": true,
+          "address": "MagicContext1111111111111111111111111111111"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "lab_delegate",
+      "discriminator": [
+        239,
+        59,
+        48,
+        197,
+        248,
+        165,
+        249,
+        184
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "buffer_lab",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  117,
+                  102,
+                  102,
+                  101,
+                  114
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "lab"
+              }
+            ],
+            "program": {
+              "kind": "const",
+              "value": [
+                66,
+                63,
+                78,
+                15,
+                253,
+                38,
+                178,
+                18,
+                48,
+                234,
+                70,
+                177,
+                15,
+                177,
+                88,
+                44,
+                19,
+                214,
+                196,
+                206,
+                3,
+                213,
+                82,
+                45,
+                218,
+                31,
+                2,
+                84,
+                2,
+                142,
+                241,
+                139
+              ]
+            }
+          }
+        },
+        {
+          "name": "delegation_record_lab",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  100,
+                  101,
+                  108,
+                  101,
+                  103,
+                  97,
+                  116,
+                  105,
+                  111,
+                  110
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "lab"
+              }
+            ],
+            "program": {
+              "kind": "account",
+              "path": "delegation_program"
+            }
+          }
+        },
+        {
+          "name": "delegation_metadata_lab",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  100,
+                  101,
+                  108,
+                  101,
+                  103,
+                  97,
+                  116,
+                  105,
+                  111,
+                  110,
+                  45,
+                  109,
+                  101,
+                  116,
+                  97,
+                  100,
+                  97,
+                  116,
+                  97
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "lab"
+              }
+            ],
+            "program": {
+              "kind": "account",
+              "path": "delegation_program"
+            }
+          }
+        },
+        {
+          "name": "lab",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  108,
+                  97,
+                  98
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "payer"
+              }
+            ]
+          }
+        },
+        {
+          "name": "owner_program",
+          "address": "5TbtvduZEmNWbnr7wfvB9A9TobbxSB96e1xYcr6NnSDQ"
+        },
+        {
+          "name": "delegation_program",
+          "address": "DELeGGvXpWV2fqJUhqcF5ZSYMS4JTLjteaAMARRSaeSh"
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "lab_init",
+      "discriminator": [
+        66,
+        200,
+        51,
+        247,
+        172,
+        229,
+        129,
+        4
+      ],
+      "accounts": [
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "lab",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  108,
+                  97,
+                  98
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "authority"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "secret",
+          "type": "u64"
+        },
+        {
+          "name": "candidates",
+          "type": {
+            "array": [
+              "pubkey",
+              4
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "lab_request_roll",
+      "discriminator": [
+        200,
+        65,
+        120,
+        97,
+        66,
+        122,
+        75,
+        86
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "lab",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  108,
+                  97,
+                  98
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "payer"
+              }
+            ]
+          }
+        },
+        {
+          "name": "oracle_queue",
+          "writable": true
+        },
+        {
+          "name": "program_identity",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  105,
+                  100,
+                  101,
+                  110,
+                  116,
+                  105,
+                  116,
+                  121
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "vrf_program",
+          "address": "Vrf1RNUjXmQGjmQrQLvJHs9SNkvDJEsRVFPkfSQUwGz"
+        },
+        {
+          "name": "slot_hashes",
+          "address": "SysvarS1otHashes111111111111111111111111111"
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "client_seed",
+          "type": "u8"
+        }
+      ]
+    },
+    {
+      "name": "lab_roll_callback",
+      "discriminator": [
+        164,
+        55,
+        248,
+        35,
+        154,
+        174,
+        17,
+        137
+      ],
+      "accounts": [
+        {
+          "name": "vrf_program_identity",
+          "signer": true,
+          "address": "Hh9YNZoipoEX3JZWTM6eyW54HZYZd5e1at1VLJeoegVX"
+        },
+        {
+          "name": "lab",
+          "docs": [
+            "The lab is fixed by the request; the identity signer authenticates the callback."
+          ],
+          "writable": true
+        }
+      ],
+      "args": [
+        {
+          "name": "randomness",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "lab_undelegate",
+      "discriminator": [
+        209,
+        81,
+        151,
+        9,
+        74,
+        232,
+        61,
+        78
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "lab",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  108,
+                  97,
+                  98
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "payer"
+              }
+            ]
+          }
+        },
+        {
+          "name": "magic_program",
+          "address": "Magic11111111111111111111111111111111111111"
+        },
+        {
+          "name": "magic_context",
+          "writable": true,
+          "address": "MagicContext1111111111111111111111111111111"
+        }
+      ],
+      "args": []
+    },
+    {
       "name": "process_undelegation",
       "discriminator": [
         196,
@@ -497,6 +1000,19 @@
   ],
   "accounts": [
     {
+      "name": "Lab",
+      "discriminator": [
+        238,
+        80,
+        146,
+        49,
+        216,
+        167,
+        224,
+        7
+      ]
+    },
+    {
       "name": "Spike",
       "discriminator": [
         242,
@@ -515,9 +1031,89 @@
       "code": 6000,
       "name": "Overflow",
       "msg": "Arithmetic overflow"
+    },
+    {
+      "code": 6001,
+      "name": "RollPending",
+      "msg": "A randomness request is already pending"
+    },
+    {
+      "code": 6002,
+      "name": "NoRollPending",
+      "msg": "No randomness request is pending"
     }
   ],
   "types": [
+    {
+      "name": "Lab",
+      "docs": [
+        "Phase 2 lab: one account used to de-risk VRF, private permissions, cranks and multi-account",
+        "settlement before the real game accounts exist. Removed once the game replaces it."
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "authority",
+            "type": "pubkey"
+          },
+          {
+            "name": "secret",
+            "docs": [
+              "Value used to prove who can read a private account."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "candidates",
+            "docs": [
+              "Wallets the VRF callback may pick as the reader."
+            ],
+            "type": {
+              "array": [
+                "pubkey",
+                4
+              ]
+            }
+          },
+          {
+            "name": "reader",
+            "docs": [
+              "Wallet picked by the last VRF callback."
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "randomness",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "pending",
+            "type": "bool"
+          },
+          {
+            "name": "rolls",
+            "type": "u64"
+          },
+          {
+            "name": "ticks",
+            "docs": [
+              "Incremented by the crank target."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
     {
       "name": "Spike",
       "docs": [

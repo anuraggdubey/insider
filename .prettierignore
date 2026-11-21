@@ -5,3 +5,4 @@ pnpm-lock.yaml
 Cargo.lock
 idl
 docs/proofs/er-spike.json
+docs/proofs/*.json

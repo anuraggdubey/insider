@@ -196,6 +196,9 @@ importers:
       dotenv:
         specifier: ^18.0.10
         version: 18.0.10
+      tweetnacl:
+        specifier: ^1.0.3
+        version: 1.0.3
 
   tests:
     dependencies:

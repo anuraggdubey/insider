@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -27,4 +27,29 @@ export const config = {
 export function loadKeypair(path: string): Keypair {
   const secret = JSON.parse(readFileSync(path, "utf8")) as number[];
   return Keypair.fromSecretKey(Uint8Array.from(secret));
+}
+
+export const VALIDATORS = {
+  er: new PublicKey("MAS1Dt9qreoRMQ14YQuhg8UTZMMzDdKhmkZMECCzk57"),
+  tee: new PublicKey("MTEWGuqxUpYZGFJQcp8tLN7x5v9BSeoFHYWQQ3n3xzo"),
+} as const;
+export type ValidatorKind = keyof typeof VALIDATORS;
+
+export function parseValidatorArg(argv: string[]): ValidatorKind {
+  const index = argv.indexOf("--validator");
+  const value = index >= 0 ? argv[index + 1] : "er";
+  if (value !== "er" && value !== "tee") throw new Error(`--validator must be er or tee`);
+  return value;
+}
+
+/** Loads a keypair file, creating and saving a fresh one when it does not exist yet. */
+export function loadOrCreateKeypair(path: string): Keypair {
+  try {
+    return loadKeypair(path);
+  } catch {
+    const keypair = Keypair.generate();
+    mkdirSync(dirname(path), { recursive: true });
+    writeFileSync(path, JSON.stringify(Array.from(keypair.secretKey)));
+    return keypair;
+  }
 }

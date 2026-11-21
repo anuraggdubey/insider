@@ -32,7 +32,9 @@ fn spike_pda(authority: &Pubkey) -> Pubkey {
 fn send(svm: &mut LiteSVM, signer: &Keypair, ix: Instruction) -> Result<(), String> {
     let message = Message::new(&[ix], Some(&signer.pubkey()));
     let tx = Transaction::new(&[signer], message, svm.latest_blockhash());
-    svm.send_transaction(tx).map(|_| ()).map_err(|e| format!("{e:?}"))
+    svm.send_transaction(tx)
+        .map(|_| ())
+        .map_err(|e| format!("{e:?}"))
 }
 
 fn init_ix(authority: &Pubkey) -> Instruction {

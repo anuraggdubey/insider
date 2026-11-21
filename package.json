@@ -23,7 +23,8 @@
     "program:test": "cargo test -p insider",
     "program:deploy": "solana program deploy target/deploy/insider.so --program-id .keys/insider-program-keypair.json --keypair .keys/deployer.json --url devnet",
     "validator:local": "ephemeral-validator",
-    "spike": "tsx scripts/src/spike.ts"
+    "spike": "tsx scripts/src/spike.ts",
+    "lab:vrf": "tsx scripts/src/lab/vrf.ts"
   },
   "devDependencies": {
     "@magicblock-labs/ephemeral-validator": "^2.0.3",
