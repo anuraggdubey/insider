@@ -4,362 +4,588 @@ Plan for the combined design (spec: [TECHNICAL_SPEC.md](TECHNICAL_SPEC.md), prod
 [PROJECT_INFO.md](PROJECT_INFO.md)). Hard deadline: **Nov 27, 9:00 AM EST = 14:00 UTC =
 19:30 IST**. Target submit time: 08:00 UTC.
 
-The plan is **block-driven, not date-driven**: finish a block, hit its sync point, start the next.
-About 3 days of building, then a protected 2-day submission window. If the build runs long we cut
-scope (section 9). We never spend submission days on features.
+**Pace.** Block-driven, not date-driven: finish a block, hit its sync point, start the next. About 3
+days of building, then a protected 2-day submission window. If the build runs long we cut scope
+(section 12). We never spend the submission window on features.
 
-| Person            | Stream                                  | Owns (directories)                                                                           |
-| ----------------- | --------------------------------------- | -------------------------------------------------------------------------------------------- |
-| **Anurag Dubey**  | **A: Chain, SDK, bots, infrastructure** | `programs/`, `sdk/`, `bots/`, `scripts/`, `tests/`, `idl/`, deploys, the operator            |
-| **Misbah Ansari** | **B: Product, app, AI Desk**            | `app/`, design system, AI analysts and commentary, share cards, broadcast view, video assets |
-
-Both: gate reviews, playtests, the final video, README proofs and the submission.
+**The video is not in this plan.** Anurag will record it and both of us will edit it. It gets added
+here when we start it.
 
 ---
 
-## 0. Ground rules
+## 1. The split at a glance (equal on purpose)
 
-1. **One owner per directory.** Don't edit the other person's directory. Ask in chat, or open a
-   small PR for them.
-2. **Contract first.** The streams share only `sdk/` (typed client) and `idl/insider.json`. Stream A
-   publishes them and Stream B consumes them. Changing an instruction's shape means updating the
-   spec and telling the other person before pushing.
+Each person owns about **105-108 hours** of work, an almost equal share of Rust, and an almost
+equal share of TypeScript and UI. The split follows these rules: the **SDK** goes to Misbah (it's the
+biggest TypeScript piece and doesn't need heavy builds), and Anurag's PC takes the **lighter
+compute** work (scripts, gates, bots, hosting, devnet ops, smaller UI screens) plus a Rust share
+that is mostly instruction wiring rather than big builds.
+
+|                                 | **Anurag Dubey**                                                                                                                            | **Misbah Ansari**                                                                                                                                                                                |
+| ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Theme                           | **Lifecycle, gates, Desk, bots, infra**                                                                                                     | **Market engine, Leaks, SDK, trading UI**                                                                                                                                                        |
+| Rust (about 40 h vs 39 h)       | Table setup and delegation, seats, VRF round seed, `tick` loop and cranks, epoch, recovery; **Desk, Alpha Cup, Magic Action, session keys** | **Math and engine** (price path, vAMM, arbitrage, Dutch, payloads), **orders and mempool**, **Leaks** (drops, bid, open, flip, license), **X-ray and sandwiches**, **economics gate E1**         |
+| TypeScript (about 50 h vs 28 h) | Gates G0-G10, setup and simulate-round scripts, **5 bots + operator**, **AI analysts and commentary**, hosting, soak, proofs                | **SDK** (`@insider/sdk`)                                                                                                                                                                         |
+| UI (about 18 h vs 38 h)         | `/desk`, `/cup`, `/proof`                                                                                                                   | Design system, landing, **floor**, order panel and ghost orders, **Leak board and crack-open**, **X-ray**, flip and license UI, onboarding, wallet and session UI, `/watch`, share cards, polish |
+| Total hours                     | **108**                                                                                                                                     | **105**                                                                                                                                                                                          |
+
+If one of us falls behind, the other takes tasks from the **overflow list** (section 11), not from
+the other person's list.
+
+---
+
+## 2. Ground rules
+
+1. **One owner per file area** (section 5). Don't edit the other person's area. Ask in chat, or open
+   a small PR for them.
+2. **Contracts first.** The streams share three things: the **engine API** (Rust function
+   signatures, handoff H-API), the **IDL** (`idl/insider.json`) and the **SDK** (`sdk/`). Changing
+   any of them means telling the other person before pushing.
 3. **Small commits, rebase before push.** `git pull --rebase origin main`, then push. One finished
    feature per commit with a clear message. **No `Co-Authored-By` or "Generated with" trailers.**
-   Before rewriting shared docs, say so in chat: we both edited the same files once already.
-4. **Run CI locally first:** `pnpm format:check && pnpm lint && pnpm typecheck && pnpm test && cargo test -p insider`.
-5. **No fakes.** The UI reads the real devnet table through `sdk/`. Typed fixtures are for
+4. **Say it before you rewrite a shared doc.** We both rewrote the same four docs once already.
+5. **Run CI locally first:** `pnpm format:check && pnpm lint && pnpm typecheck && pnpm test && cargo test -p insider`.
+6. **No fakes.** The UI reads the real devnet table through `sdk/`. Typed fixtures are for
    component development only and are removed from live pages at handoff H3.
-6. **No workarounds.** If a gate fails, the feature is cut from code and docs (spec section 4).
-7. **Secrets** only in `.env` and host env vars. `.keys/` is never committed.
-8. **Both of us use AI heavily.** Review AI output against the spec and run the tests.
+7. **No workarounds.** If a gate fails, the feature is cut from code and docs (spec section 4).
+8. **Secrets** only in `.env` and host env vars. `.keys/` is never committed.
+9. **Both of us use AI heavily.** Review AI output against the spec and run the tests.
 
 ---
 
-## 1. Where we are (reuse, don't redo)
+## 3. What we delete from the old (Phase 0-2) work
 
-Done and pushed (Phases 0-2):
+Nothing is lost: before deleting, Anurag tags the repo **`phase-2-lab`**. The lab program, lab
+scripts and proofs are reproducible from that tag, and `docs/proofs/` and
+`docs/phase-2-findings.md` **stay** in the repo as the evidence of what we proved.
 
-- Repo, CI, docs, toolchain (Node 24, pnpm 10, Rust 1.89, Solana 4.0.2, Anchor 1.2.2) and all
-  dependencies (Next.js 16, wallet adapter, SDK 0.18, lightweight-charts, zod, ...).
-- Lab program at `5TbtvduZEmNWbnr7wfvB9A9TobbxSB96e1xYcr6NnSDQ` (`spike_*`, `lab_*`, `slot_*`), 7
-  LiteSVM tests, and 13 devnet proof files in `docs/proofs/`.
-- Proven on devnet: ER round trip, VRF in the public ER and the TEE, private permissions, VRF
-  picking the sole reader and rewriting the permission atomically, finite cranks on the TEE, 6
-  delegations per transaction, settle intents of at most 9 accounts (we use 8).
-- Reusable code: `scripts/src/lib/{config,client,lab,rpc,tee,explorer}.ts` and
-  `scripts/src/lab/*.ts`. They become the base of `sdk/` and `scripts/src/gates/`.
+### 3.1 Delete from the program (`programs/insider/`)
 
-Still to do: everything in the spec. The program has only lab code, the app is the Next.js starter,
-`bots/` is empty and `sdk/` doesn't exist.
+Delete after porting the patterns listed in 3.3:
 
-**Fresh deploys are fine.** The game gets a new program ID. Anurag funds a new deployer (about 6
-SOL) and an operator wallet (2 SOL). The lab program stays deployed so the old proofs remain valid,
-and the lab source is tagged `phase-2-lab` before it is removed.
+| Delete             | Files                                                                                                                                                                                                                                                                         |
+| ------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Spike instructions | `src/instructions/spike_init.rs`, `spike_increment.rs`, `spike_delegate.rs`, `spike_commit.rs`, `spike_undelegate.rs`                                                                                                                                                         |
+| Lab instructions   | `src/instructions/lab_init.rs`, `lab_delegate.rs`, `lab_request_roll.rs`, `lab_roll_callback.rs`, `lab_cancel_roll.rs`, `lab_permission.rs`, `lab_request_pick.rs`, `lab_pick_callback.rs`, `lab_tick.rs`, `lab_schedule_tick.rs`, `lab_commit.rs`, `lab_undelegate.rs`       |
+| Slot instructions  | `src/instructions/slot_batch.rs`                                                                                                                                                                                                                                              |
+| Old state          | `src/state/spike.rs`, `src/state/lab.rs`, `src/state/slot.rs`                                                                                                                                                                                                                 |
+| Old tests          | `tests/spike.rs`, `tests/lab.rs`                                                                                                                                                                                                                                              |
+| Registry lines     | the `spike_*`, `lab_*`, `slot_*` entries in `src/lib.rs`, `src/instructions.rs`, `src/state.rs`; the constants `SPIKE_SEED`, `LAB_SEED`, `LAB_MAX_CANDIDATES`, `LAB_MAX_PERMISSION_MEMBERS`, `SLOT_SEED`; the error variants `RollPending`, `NoRollPending`, `TooManyMembers` |
+| Generated          | the contents of `idl/insider.json` (regenerated for the new program)                                                                                                                                                                                                          |
+| Identity           | the old program ID `5TbtvduZEmNWbnr7wfvB9A9TobbxSB96e1xYcr6NnSDQ` in `Anchor.toml`, `declare_id!`, `.env.example` (the old keypair file stays in `.keys/`; the old program stays deployed on devnet)                                                                          |
+
+**Keep** `src/constants.rs` entries `CRANK_PROGRAM_ID` and `TASK_CONTEXT_ID`, and `rust-toolchain.toml`,
+`Cargo.toml`, `Anchor.toml` structure.
+
+### 3.2 Delete from scripts, tests and root
+
+| Delete                         | Files                                                                                                                                       |
+| ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| Experiments                    | `scripts/src/spike.ts`, `scripts/src/lab/crank.ts`, `per.ts`, `pick.ts`, `slots.ts`, `vrf.ts`                                               |
+| Lab helper                     | `scripts/src/lib/lab.ts`                                                                                                                    |
+| Root scripts in `package.json` | `spike`, `lab:vrf`, `lab:per`, `lab:pick`, `lab:crank`, `lab:slots`, `validator:local`                                                      |
+| Starter content                | the default Next.js page body in `app/src/app/page.tsx` and the starter styles in `app/src/app/globals.css` (replaced by the design system) |
+| Placeholder                    | `bots/src/index.ts` (replaced by the real service)                                                                                          |
+
+**Move, don't delete:** `scripts/src/lib/{config,client,rpc,tee,explorer}.ts` move into `sdk/` (task
+B-SDK-1). **Keep:** `scripts/src/build-proof-index.ts`, `scripts/check-setup.ts`,
+`tests/setup.test.ts` (updated), `docs/proofs/*`, `docs/phase-2-findings.md`.
+
+### 3.3 Port before deleting (knowledge we keep)
+
+| Pattern                                                                                | From                                           | Used by                                                     |
+| -------------------------------------------------------------------------------------- | ---------------------------------------------- | ----------------------------------------------------------- |
+| VRF callback with the compile-time scoped identity (fixes the 270k-CU `const fn` cost) | `lab_roll_callback.rs`, `lab_pick_callback.rs` | `round_seed_callback` (Anurag)                              |
+| Permission create, update, close CPIs; the keyless reader                              | `lab_permission.rs`                            | `init_permissions`, `open_leak`, `buy_license`, `mint_call` |
+| Atomic permission rewrite from a callback                                              | `lab_pick_callback.rs`                         | `settle_due`, `open_leak`                                   |
+| Crank schedule, the crank signer check, `remaining_accounts` lifetimes                 | `lab_tick.rs`, `lab_schedule_tick.rs`          | `schedule_ticks`, `rearm_ticks`, `tick`                     |
+| Batched delegation (6 per transaction, 1.4M CU) and batched settle (at most 8)         | `slot_batch.rs`, `scripts/src/lab/slots.ts`    | `delegate_batch`, `teardown`, `commit_epoch`                |
+| TEE login, send helper, delegation wait and retry                                      | `scripts/src/lib/{tee,client,lab}.ts`          | `sdk/`                                                      |
+
+### 3.4 Remove these installed packages (unused)
+
+Run from the repo root. Nothing in the source imports them.
+
+```bash
+pnpm --filter app remove @solana/kit @magicblock-labs/ephemeral-rollups-kit @solana-program/token
+pnpm --filter bots remove @solana/kit
+pnpm --filter tests remove @solana/kit
+pnpm --filter scripts remove @solana/kit
+pnpm remove -w @magicblock-labs/ephemeral-validator
+```
+
+Why: the game uses the web3.js 1.x path with SDK 0.18, so the kit packages (and their peer-dependency
+warning) aren't needed; the local rollup validator is a large download we don't use (we test on
+devnet). Owner: Anurag (task A-0.2), who pushes it so Misbah installs a lighter tree.
 
 ---
 
-## 2. Gates (Block 0, owner: Anurag, review: both)
+## 4. Dependencies and machine setup
+
+### 4.1 New packages to add, by gate
+
+Nothing is added speculatively. Each package is installed **only when its gate passes** (the person
+who owns the gate installs it and pushes the lockfile).
+
+| Package                                       | Where                                          | Needed for                          | Added when                                                               | Command                                                            |
+| --------------------------------------------- | ---------------------------------------------- | ----------------------------------- | ------------------------------------------------------------------------ | ------------------------------------------------------------------ |
+| **`sdk/` workspace package** (`@insider/sdk`) | new `sdk/` dir, added to `pnpm-workspace.yaml` | typed client for app, bots, scripts | Block 0 (Misbah B-SDK-1)                                                 | see 4.4                                                            |
+| `@magicblock-labs/gum-sdk` 3.0.x              | `sdk`                                          | session keys                        | G7 passes                                                                | `pnpm --filter @insider/sdk add @magicblock-labs/gum-sdk`          |
+| `@magicblock-labs/gum-react-sdk` 3.0.x        | `app`                                          | session-key React hooks             | G7 passes                                                                | `pnpm --filter app add @magicblock-labs/gum-react-sdk`             |
+| Rust crate `session-keys` 3.1.x               | `programs/insider`                             | session keys on chain               | G7 passes                                                                | `cargo add session-keys@3.1 -p insider`                            |
+| Rust crate `pyth-solana-receiver-sdk` 2.x     | `programs/insider`                             | reading the oracle price account    | G4, **only if** manual byte decoding of the feed account turns out worse | `cargo add pyth-solana-receiver-sdk@2 -p insider`                  |
+| `@pythnetwork/pyth-solana-receiver`           | `app` or `sdk`                                 | client-side feed account decoding   | G4, **only if** needed                                                   | `pnpm --filter @insider/sdk add @pythnetwork/pyth-solana-receiver` |
+| `@magicblock-labs/soar-sdk` 0.1.x             | `app`, `sdk`                                   | SOAR achievements                   | **already installed** in `app`; add to `sdk` when G6 passes              | `pnpm --filter @insider/sdk add @magicblock-labs/soar-sdk`         |
+| Private Payments                              | none                                           | Alpha Cup                           | G5: it is an HTTP API, so plain `fetch`                                  | no package                                                         |
+
+Already installed and **kept**: `next`, `react`, `tailwindcss`, `framer-motion`,
+`lightweight-charts`, `lucide-react`, `clsx`, `tailwind-merge`, `zustand`, `@tanstack/react-query`,
+`zod`, `@solana/wallet-adapter-*`, `@wallet-standard/core`, `@solana/web3.js` (1.x),
+`@solana/spl-token`, `@anchor-lang/core`, `@magicblock-labs/ephemeral-rollups-sdk` (**0.18.0, never
+0.20**), `bs58`, `tweetnacl`, `dotenv`, `pino`, `ws`, `@anthropic-ai/sdk`, `prettier`, `vitest`,
+`tsx`, `typescript`. Rust crates in use: `anchor-lang` 1.2.2, `ephemeral-rollups-sdk` 0.18.0
+(features `anchor`, `vrf`, `access-control`, `crank`), dev: `litesvm`.
+
+### 4.2 Machine setup checklist
+
+**Misbah: do all of this.** Anurag: verify with `pnpm tsx scripts/check-setup.ts` (everything must
+print `ok`). Commands below are for Windows (PowerShell); macOS and Linux notes in parentheses.
+
+| #   | Tool                                             | Version                    | How                                                                                                                                                                                                                                               |
+| --- | ------------------------------------------------ | -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | Git                                              | any recent                 | https://git-scm.com. Then `git config user.name "..."` and `git config user.email "..."`                                                                                                                                                          |
+| 2   | GitHub access                                    |                            | Accept the repo invite for `anuraggdubey/insider`. `git clone https://github.com/anuraggdubey/insider.git`                                                                                                                                        |
+| 3   | C++ build tools (Windows)                        | VS Build Tools 2022        | Install "Desktop development with C++". Needed by Rust. (macOS: `xcode-select --install`. Linux: `build-essential`)                                                                                                                               |
+| 4   | Node.js                                          | **24.x** (24.15 works)     | nvm-windows: `nvm install 24.15.0; nvm use 24.15.0` (macOS/Linux: nvm)                                                                                                                                                                            |
+| 5   | pnpm                                             | **10.34.9**                | `npm i -g pnpm@10.34.9` or `corepack enable; corepack prepare pnpm@10.34.9 --activate`                                                                                                                                                            |
+| 6   | Rust                                             | **1.89.0**                 | https://rustup.rs, then `rustup toolchain install 1.89.0; rustup component add rustfmt clippy --toolchain 1.89.0`. The repo's `rust-toolchain.toml` selects it                                                                                    |
+| 7   | Solana CLI (Agave)                               | **4.0.x**                  | https://docs.anza.xyz/cli/install. Check `solana --version` and `cargo build-sbf --version`                                                                                                                                                       |
+| 8   | Anchor CLI                                       | **1.2.2**                  | https://www.anchor-lang.com/docs/installation (avm). **Windows:** `avm install 1.2.2` works but the symlink step fails; copy the binary: `copy %USERPROFILE%\.avm\bin\anchor-1.2.2 %USERPROFILE%\.cargo\bin\anchor.exe`. Check `anchor --version` |
+| 9   | Disk and RAM                                     | about 15 GB free, 8 GB RAM | Rust and SBF tool caches are large. Close the browser while building                                                                                                                                                                              |
+| 10  | VS Code (or similar) + rust-analyzer             |                            | optional but recommended                                                                                                                                                                                                                          |
+| 11  | Claude Code (or your AI tool)                    |                            | and the MagicBlock dev skill: `npx skills add https://github.com/magicblock-labs/magicblock-dev-skill` (it installs into your local, git-ignored `.agents/`)                                                                                      |
+| 12  | Phantom (or any Solana wallet) set to **devnet** |                            | for session-key and wallet work                                                                                                                                                                                                                   |
+| 13  | Accounts                                         |                            | Telegram (needed by build.magicblock.app), https://build.magicblock.app login, builder profile saved                                                                                                                                              |
+
+First-time project setup (everyone):
+
+```bash
+git clone https://github.com/anuraggdubey/insider.git
+cd insider
+pnpm install                      # installs every workspace package
+cp .env.example .env              # then fill values (4.3)
+pnpm tsx scripts/check-setup.ts   # all lines must be "ok"
+cargo check -p insider            # first run downloads and compiles for a few minutes
+pnpm dev                          # app on http://localhost:3000
+```
+
+A repo-level note for Misbah: `app/AGENTS.md` says this Next.js version differs from older ones.
+Read the relevant guide in `node_modules/next/dist/docs/` before writing app code.
+
+### 4.3 Environment variables (`.env`, never committed)
+
+| Variable                                               | Who         | Value                                                                                                                               |
+| ------------------------------------------------------ | ----------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| `SOLANA_RPC_URL`                                       | both        | dedicated devnet RPC once Anurag sets it up (A-5.3); until then `https://api.devnet.solana.com`                                     |
+| `MAGIC_ROUTER_URL`, `MAGIC_ROUTER_WS_URL`              | both        | `https://devnet-router.magicblock.app`, `wss://devnet-router.magicblock.app`                                                        |
+| `TEE_RPC_URL`, `TEE_VALIDATOR`                         | both        | `https://devnet-tee.magicblock.app`, `MTEWGuqxUpYZGFJQcp8tLN7x5v9BSeoFHYWQQ3n3xzo`                                                  |
+| `INSIDER_PROGRAM_ID`, `NEXT_PUBLIC_INSIDER_PROGRAM_ID` | both        | the **new** program ID, announced by Anurag after A-0.1                                                                             |
+| `ANCHOR_WALLET`                                        | each dev    | path to your own devnet keypair, e.g. `./.keys/deployer.json`. Misbah generates his own: `solana-keygen new -o .keys/deployer.json` |
+| `ANTHROPIC_API_KEY`                                    | Anurag only | for AI analysts and commentary                                                                                                      |
+| `AGENT_KEYPAIR_DIR`                                    | Anurag only | `./.keys/agents`                                                                                                                    |
+| `OPERATOR_KEYPAIR`                                     | Anurag only | `./.keys/operator.json`                                                                                                             |
+
+Devnet SOL: Anurag funds a fresh deployer (about 6 SOL) and an operator (2 SOL). Misbah needs about
+2 SOL on his own devnet wallet (faucet.solana.com) for testing. Each bot and AI key needs 0.05 SOL
+(Anurag's script funds them).
+
+### 4.4 The new `sdk/` package skeleton (Misbah, task B-SDK-1)
+
+```bash
+mkdir sdk && cd sdk
+pnpm init                         # then set name "@insider/sdk", "type": "module", "main": "src/index.ts", "private": true
+```
+
+Add `sdk` to `pnpm-workspace.yaml`, then:
+
+```bash
+pnpm --filter @insider/sdk add @solana/web3.js@1 @anchor-lang/core @magicblock-labs/ephemeral-rollups-sdk@0.18.0 tweetnacl bs58 zod
+pnpm --filter app add @insider/sdk@workspace:*
+pnpm --filter bots add @insider/sdk@workspace:*
+pnpm --filter scripts add @insider/sdk@workspace:*
+```
+
+The SDK ships TypeScript source (no build step). In `app/next.config.ts` add
+`transpilePackages: ["@insider/sdk"]`. Bots and scripts run it through `tsx`.
+
+---
+
+## 5. File ownership (who edits what)
+
+### 5.1 Program (`programs/insider/src/`)
+
+Shared registry files (`lib.rs`, `constants.rs`, `error.rs`, `instructions.rs`, `state.rs`) are
+**add-only**: add your own lines, in alphabetical order, never reformat the other person's lines, and
+rebase before every push.
+
+| Area            | Anurag                                                                                                                        | Misbah                                                                                                   |
+| --------------- | ----------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| `math/`         |                                                                                                                               | `prng.rs`, `path.rs`, `vamm.rs`, `arb.rs`, `dutch.rs`, `payloads.rs`, `seed.rs`                          |
+| `engine/`       | calls `engine::step` from `tick`                                                                                              | `engine/step.rs` (the pure per-tick function: maturity, arbitrage, drops, auctions, liquidation, phases) |
+| `state/`        | `table.rs`, `seat.rs`, `tape.rs`, `calls.rs`, `season.rs`                                                                     | `market.rs`, `mempool.rs`, `future.rs`, `board.rs`, `leak_vault.rs`, `xray.rs`                           |
+| `instructions/` | `setup.rs`, `round_seed.rs`, `tick.rs`, `cranks.rs`, `seats.rs`, `epoch.rs`, `recovery.rs`, `desk.rs`, `cup.rs`, `session.rs` | `orders.rs`, `leaks.rs`, `licenses.rs`, `finish_round.rs`                                                |
+| `tests/`        | `tests/lifecycle.rs`, `tests/desk.rs`                                                                                         | `tests/engine.rs`, `tests/leaks.rs`, `tests/economics.rs`                                                |
+
+### 5.2 TypeScript and app
+
+| Area                  | Anurag                                                                   | Misbah                                                                             |
+| --------------------- | ------------------------------------------------------------------------ | ---------------------------------------------------------------------------------- |
+| `sdk/`                | consumes it                                                              | **owns it**                                                                        |
+| `app/src/app/` routes | `desk/`, `cup/`, `proof/`                                                | `page.tsx` (landing), `table/`, `xray/[round]/`, `watch/`, `api/og/` (share cards) |
+| `app/src/components/` | `desk/*`, `cup/*`, `proof/*`                                             | `ui/*` (design system), `floor/*`, `leaks/*`, `xray/*`, `onboarding/*`, `watch/*`  |
+| `app/src/lib/`        |                                                                          | everything (thin wrappers over the SDK)                                            |
+| `bots/`               | **owns it** (`strategies/`, `ai/`, `operator.ts`, `loop.ts`)             | none                                                                               |
+| `scripts/`            | **owns it** (`gates/`, `setup-table.ts`, `simulate-round.ts`, `fund.ts`) | none                                                                               |
+| `docs/`, `README.md`  | `docs/gates.md`, `docs/proofs/`                                          | `docs/engine.md` (math notes, E1 results)                                          |
+
+The design system (`app/src/components/ui`, Misbah) must exist before Anurag builds the Desk, Cup,
+Proof and Watch screens. Anurag's UI work is scheduled after that (Blocks 3-4).
+
+---
+
+## 6. Blocks, sync points and handoffs
+
+| Block                          | Goal                                                            | Sync at the end         |
+| ------------------------------ | --------------------------------------------------------------- | ----------------------- |
+| **0 Reset and gates**          | Repo reset, gates decided, SDK skeleton, design system          | **S1**                  |
+| **1 Floor core**               | Market engine, orders, lifecycle, vertical slice on devnet      | **S2**                  |
+| **2 Leaks and the live table** | Leaks, X-ray, bots, live table, trading UI                      | **S3**                  |
+| **3 Exchange depth**           | Flip, license, Desk, cup, AI analysts, epoch                    | **S4**                  |
+| **4 Reach and polish**         | Session keys, Actions and SOAR, proof, watch, share cards, soak | **S5 (feature freeze)** |
+| **5 Ship**                     | QA, README proofs, submission (video added when we start it)    | **S6**                  |
+
+### Handoffs (the only places we wait on each other)
+
+| ID        | From to | What                                                                                                                                 | When                     |
+| --------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------ | ------------------------ |
+| **H0**    | A to B  | Gate results (G0 mempool yes or no, G3 funding, G7 sessions) and the new program ID                                                  | End of Block 0           |
+| **H-API** | B to A  | **Engine API**: `math/` and `engine/step.rs` function signatures and the `state/` structs B owns (stubs with `todo!()` are fine)     | First 4 hours of Block 1 |
+| **H1**    | B to A  | **SDK v0**: connection, TEE auth, send helper, account decode from the IDL, instruction builders (A needs this for bots and scripts) | Mid Block 1              |
+| **H2**    | both    | Fresh `idl/insider.json` after each program milestone                                                                                | Each milestone           |
+| **H3**    | A to B  | **Live devnet table** with bots: URL and setup transcript                                                                            | End of Block 2           |
+| **H4**    | B to A  | UI findings from the first live round                                                                                                | S3                       |
+| **H5**    | A to B  | Desk, license and cup instructions in the IDL                                                                                        | Mid Block 3              |
+| **H6**    | A to B  | Production URLs, proof feed, session-key support                                                                                     | Block 4                  |
+
+If a handoff slips, the receiver works on the next task that doesn't need it. Every block has
+independent work.
+
+---
+
+## 7. Gates (Block 0, owner Anurag, reviewed by both)
 
 **G0 runs first and decides the shape of the Floor.** Each gate is a script in
 `scripts/src/gates/gN-*.ts` and a row in `docs/gates.md` with transaction links, plus a pass or cut
 decision written into the spec. Nothing that depends on a gate is built before its result.
 
-| Gate                             | Script             | Needed by                   | Result written to                 |
-| -------------------------------- | ------------------ | --------------------------- | --------------------------------- |
-| **G0 Darkcheck**                 | `g0-darkcheck.ts`  | mempool, lanes, Flow Leaks  | spec sections 7.2-7.3, scope      |
-| G1 Clock and tick rate           | `g1-clock.ts`      | all of A; B's timers        | spec section 6 (`SLOTS_PER_TICK`) |
-| G2 Keyless reader                | `g2-keyless.ts`    | `Mempool`, `Future`, vaults | spec section 13                   |
-| G3 Zero-balance key              | `g3-zero-sol.ts`   | guest onboarding (B)        | spec section 9                    |
-| G4 Oracle in the TEE             | `g4-oracle.ts`     | The Desk                    | scope (in or cut)                 |
-| G5 Private Payments              | `g5-payments.ts`   | Alpha Cup                   | scope (in or cut)                 |
-| G6 Magic Action + SOAR           | `g6-actions.ts`    | achievements                | scope (in or cut)                 |
-| G7 Session keys                  | `g7-session.ts`    | wallet identity (B)         | scope (in or cut)                 |
-| G8 Epoch cycle                   | `g8-epoch.ts`      | Season and epoch design     | spec section 6                    |
-| G9 Duplicate cranks              | `g9-cranks.ts`     | `tick` idempotency          | spec section 6                    |
-| G10 Crank-invoked VRF (optional) | `g10-crank-vrf.ts` | per-drop VRF enhancement    | spec section 12                   |
+| Gate                             | Script             | Needed by                   | Result written to         |
+| -------------------------------- | ------------------ | --------------------------- | ------------------------- |
+| **G0 Darkcheck**                 | `g0-darkcheck.ts`  | mempool, lanes, Flow Leaks  | spec 7.2-7.3, scope       |
+| G1 Clock and tick rate           | `g1-clock.ts`      | `tick`; UI timers           | spec 6 (`SLOTS_PER_TICK`) |
+| G2 Keyless reader                | `g2-keyless.ts`    | `Mempool`, `Future`, vaults | spec 13                   |
+| G3 Zero-balance key              | `g3-zero-sol.ts`   | guest onboarding            | spec 9                    |
+| G4 Oracle in the TEE             | `g4-oracle.ts`     | The Desk                    | scope                     |
+| G5 Private Payments              | `g5-payments.ts`   | Alpha Cup                   | scope                     |
+| G6 Magic Action + SOAR           | `g6-actions.ts`    | achievements                | scope                     |
+| G7 Session keys                  | `g7-session.ts`    | wallet identity             | scope                     |
+| G8 Epoch cycle                   | `g8-epoch.ts`      | Season and epoch            | spec 6                    |
+| G9 Duplicate cranks              | `g9-cranks.ts`     | `tick` idempotency          | spec 6                    |
+| G10 Crank-invoked VRF (optional) | `g10-crank-vrf.ts` | per-drop VRF enhancement    | spec 12                   |
 
-**G0 procedure.** A lab `lab_send_secret(side_size)` instruction writes into a private lab account
-with no members and prints no logs. Key A sends it on the TEE. Key B and an anonymous client try
-`getTransaction`, `getSignaturesForAddress`, `logsSubscribe`, `simulateTransaction` and account
-reads. Record what each path returns. If B learns nothing, the dark mempool stays. If anything
-leaks, the Flow family and the lanes are removed and the Fundamentals market ships (spec section 4).
+**G0 procedure.** A lab `lab_send_secret(side_size)` instruction (written in the `phase-2-lab`
+state, before deletion) writes into a private lab account with no members and prints no logs. Key A
+sends it on the TEE. Key B and an anonymous client try `getTransaction`, `getSignaturesForAddress`,
+`logsSubscribe`, `simulateTransaction` and account reads. Record what each path returns. If B learns
+nothing, the dark mempool stays. If anything leaks, the Flow family and the lanes are removed and
+the Fundamentals market ships (spec section 4).
 
 G1, G2, G3 and G9 are quick (the lab program is enough). G4-G8 and G10 need a small stub
-instruction each in a throwaway `gates` module that is deleted once the gate passes.
+instruction each in a throwaway `gates` module, deleted once the gate passes.
 
 ---
 
-## 3. Stream A: Anurag (chain, SDK, bots, infrastructure)
+## 8. Anurag's work (108 h)
 
-### A0. Reset and gates (Block 0)
+Light on PC load: scripts, gates, bots, hosting and screens. His Rust is mostly instruction wiring.
+While editing Rust, use `cargo check -p insider` and `cargo test -p insider`; only run
+`pnpm program:build` (release) before a deploy.
 
-- [ ] **A0.1** Tag the repo `phase-2-lab`. Create a new program keypair and ID
-      (`.keys/insider-v1-program-keypair.json`), update `Anchor.toml`, `declare_id!`, `.env.example`.
-      Remove `spike_*`, `lab_*` and `slot_*` from the program (the source stays in the tag).
-- [ ] **A0.2** Create `sdk/` (workspace package `@insider/sdk`): move `config`, `client`, `rpc`,
-      `tee`, `explorer`. Export typed `connection`, `program`, `teeAuth`. Add it to
-      `pnpm-workspace.yaml`.
-- [ ] **A0.3** Gates G0-G10 as above, with `docs/gates.md`. Update the spec with each result.
-- [ ] **A0.4** `pnpm gates` runner that prints a pass/cut table.
+### Block 0: Reset and gates (13 h)
 
-**Done when:** `docs/gates.md` has every result and the spec scope is final. **Handoff H0.**
+- [ ] **A-0.1 Tag and reset (2 h).** `git tag phase-2-lab && git push origin phase-2-lab`. Create
+      the new program keypair `.keys/insider-v1-program-keypair.json`, get its address, update
+      `Anchor.toml`, `declare_id!`, `.env.example`. Delete everything in section 3.1 and 3.2 after
+      porting 3.3. Make `cargo check -p insider` pass with an empty program. **Announce the new program
+      ID** (handoff H0). _Done when:_ CI is green and the repo has no `lab_*`, `spike_*`, `slot_*`.
+- [ ] **A-0.2 Remove unused packages (0.5 h).** Run the commands in 3.4, commit the lockfile, tell
+      Misbah to `pnpm install`.
+- [ ] **A-0.3 Update scripts (0.5 h).** Remove the old root scripts, add `gates`, `fund`,
+      `setup-table`, `simulate-round` placeholders in `package.json`.
+- [ ] **A-0.4 Gates G0-G10 (8 h).** One script per gate as in section 7, one row each in
+      `docs/gates.md`, results written into the spec. Install packages from 4.1 as each gate passes.
+- [ ] **A-0.5 `pnpm gates` runner (1 h).** Prints a pass or cut table.
+- [ ] **A-0.6 Fund and document (1 h).** Fund the deployer and operator, record addresses in
+      `docs/gates.md`, share the `.env` values (not secrets) with Misbah.
 
-### A1. The Floor core (Block 1, P0)
+### Block 1: Lifecycle and the vertical slice (20 h)
 
-- [ ] **A1.1** `math.rs`: `xorshift128+`, fundamental path (two regimes, 2-4 shocks, clamp), vAMM
-      fills and fee, arbitrage pull (integer sqrt), Dutch price, Leak payload functions for all eight
-      kinds. **Unit tests first.**
-- [ ] **A1.2** State: `Table`, `Market[2]`, `Mempool` + `PendingOrder`, `Future`, `Tape`, `Board` +
-      `LeakHeader`, `LeakVault`, `Seat`, `Xray`, `CallBook` + `CallHeader`, `CallVault`, `Season`.
-      Fixed sizes, `InitSpace`.
-- [ ] **A1.3** Setup: `init_table`, `init_slots`, `delegate_batch` (6 per transaction, 1.4M CU),
-      `init_permissions` (`Mempool`, `Future` and vaults get the keyless reader).
-- [ ] **A1.4** `request_round_seed` / `round_seed_callback` (const VRF identity, `request_id`;
-      fills the future, whales and drop schedule), `cancel_vrf`.
-- [ ] **A1.5** `send_order` (two lanes, limits, no logs, public `SendEvent`), `tick` (clock-derived,
-      catch-up, maturity in `seq` order at most 12 per tick, arbitrage pull, liquidation, phase
-      management), `schedule_ticks`, `rearm_ticks`.
-- [ ] **A1.6** `claim_seat`, `ping`, seat classes (bot, AI, human-first).
-- [ ] **A1.7** Economics simulator v1 (`scripts/src/sim/economics.ts` + `economics.rs`) with the
-      six agents and the E1 checks.
-- [ ] **A1.8** **Publish SDK v1** (instruction builders, account decoders, websocket
-      subscriptions, `vamm`, `table` view-model) and the IDL. **Handoff H1.**
+Needs Misbah's engine stubs (H-API) before wiring.
 
-**Done when:** LiteSVM tests pass and `pnpm simulate-round --floor-only` runs seed, orders,
-180 ticks and close on devnet.
+- [ ] **A-1.1 State (3 h).** `state/{table,seat,tape,calls,season}.rs` with fixed sizes and
+      `InitSpace` (spec section 5). Unit-test the sizes.
+- [ ] **A-1.2 Setup instructions (5 h).** `init_table`, `init_slots`, `delegate_batch` (6 per
+      transaction, 1.4M CU), `init_permissions` (keyless `nobody` reader for `Mempool`, `Future`,
+      vaults; pre-funded rent). Tests in `tests/lifecycle.rs`.
+- [ ] **A-1.3 VRF round seed (4 h).** `request_round_seed` (any seat, table `Idle`),
+      `round_seed_callback` (const scoped VRF identity, `request_id`; calls Misbah's `math::seed`
+      to fill the future, whales and drop schedule), `cancel_vrf` after 10 ticks.
+- [ ] **A-1.4 `tick` loop and cranks (5 h).** Clock-derived tick (using G1's `SLOTS_PER_TICK`),
+      catch-up of at most 8 missed ticks, calls `engine::step`, phase machine
+      (`Idle/Seeding/Live/Closing/Xray`), `schedule_ticks`, permissionless `rearm_ticks`, crank signer
+      check. Test idempotence with duplicate calls (G9).
+- [ ] **A-1.5 Seats (2 h).** `claim_seat` (bot, AI and human-first classes, idle displacement),
+      `ping`.
+- [ ] **A-1.6 Deploy and vertical slice (1 h).** Build, deploy, run seed, orders, 180 ticks, close
+      on devnet with a script. _Done when:_ one full empty-table round runs on devnet. **Handoff H2.**
 
-### A2. Leaks and the live table (Block 2, P0)
+### Block 2: Live table, bots, proofs (21 h)
 
-- [ ] **A2.1** Drop schedule from the seed; Leak drops at their ticks (Flow and Fundamentals
-      payloads from `Mempool` or `Future`); `bid` (Dutch); `open_leak` (members become `[owner]`);
-      expiry in `tick`.
-- [ ] **A2.2** `finish_round`: order log and payloads into `Xray`, **sandwich tags**, clear
-      members, score into `Season`, reset seats.
-- [ ] **A2.3** `pnpm simulate-round` full round with three keys; writes `docs/proofs`.
-- [ ] **A2.4** **Privacy tests**: the opener reads; a second key and anonymous get nothing from the
-      vault, the mempool or A's order transactions; the authority can't read sealed vaults.
-- [ ] **A2.5** **Deploy the live devnet table** (setup script, delegate, permissions, crank armed).
+- [ ] **A-2.1 Setup script (3 h).** `scripts/src/setup-table.ts`: init, slots, delegate in batches,
+      permissions, arm the crank. Idempotent and resumable.
+- [ ] **A-2.2 `simulate-round` (4 h).** Full round with three keys: seed, orders, eight drops, bids,
+      opens, front-run, X-ray. Prints every explorer link and writes `docs/proofs`.
+- [ ] **A-2.3 Privacy tests (3 h).** Opener reads; a second key and an anonymous call can't read
+      the vault, the mempool or the opener's order transactions; the authority can't read sealed
+      vaults.
+- [ ] **A-2.4 Bots v1 (8 h).** `bots/` service: `config`, `keys` (generate and fund), `chain`
+      (uses `@insider/sdk`), one decision every 2 ticks, jitter, TEE token per bot; personas
+      **Front-runner, Flow, Baiter**; bots also sign `request_round_seed` and `rearm_ticks` so the table
+      never idles.
+- [ ] **A-2.5 Go live (3 h).** Run the setup script on devnet, start the bots, hand over the URL
+      and transcript. _Done when:_ a human and three bots complete a round with no manual steps.
       **Handoff H3.**
-- [ ] **A2.6** `bots/` v1: Front-runner, Flow, Baiter with own keypairs and TEE tokens, one
-      decision every 2 ticks, `request_round_seed` and `rearm_ticks` duty.
 
-**Done when:** a human and three bots complete a round on the live table with no manual steps.
+### Block 3: Exchange depth (30 h)
 
-### A3. Exchange depth (Block 3, P1)
+- [ ] **A-3.1 Desk program (8 h, if G4 passes).** `mint_call`, `buy_call_license`,
+      `schedule_settle` / `settle_due` (reads the oracle, reveals, pays), `desk_trade`, analyst stats in
+      `Season`. Tests in `tests/desk.rs`.
+- [ ] **A-3.2 Epoch (4 h).** `commit_epoch` (commit-and-undelegate `Season`), `open_epoch`
+      (re-delegate), operator service `bots/src/operator.ts`. Verify with a 10-round run.
+- [ ] **A-3.3 Alpha Cup (5 h, if G5 passes).** `cup_join`, `cup_settle`, Private Payments over
+      HTTP with the platform fee account; operator signs payouts.
+- [ ] **A-3.4 Recovery (3 h).** `request_undelegation` wrapper and `teardown`; a runbook in
+      `docs/`. Run a teardown and a re-setup on devnet.
+- [ ] **A-3.5 Bots v2 (4 h).** Copycat and Flipper (which also licenses), license-buying behaviour.
+- [ ] **A-3.6 AI analysts and commentary (6 h).** Two AI seats with their own keys that mint Calls
+      through the SDK (Anthropic API, public data only), and a commentary service that turns public
+      events into short captions. Lives in `bots/src/ai/`. If the API is unreachable they mint nothing
+      and captions pause.
 
-- [ ] **A3.1** Flip (`list_leak`, `buy_listed`), licensing (`offer_license`, `buy_license`), the
-      hoard limit. **Tune and pass gate E1** (alpha decay visible, no free-money strategy, both Leak
-      families profitable for a selective buyer).
-- [ ] **A3.2** The Desk (if G4 passes): `mint_call`, `buy_call_license`, `schedule_settle` /
-      `settle_due`, `desk_trade`, analyst stats in `Season`.
-- [ ] **A3.3** Epoch: `commit_epoch`, `open_epoch`, operator service (`bots/src/operator.ts`) that
-      runs both at the epoch boundary. Verify with a 10-round run.
-- [ ] **A3.4** Alpha Cup (if G5 passes): `cup_join`, `cup_settle`, Private Payments integration with
-      the platform fee account.
-- [ ] **A3.5** Bots v2: Copycat, Flipper (also licenses), and bots that buy licenses. Two AI analyst
-      seats registered (the strategy code is Misbah's, **handoff H6**).
-- [ ] **A3.6** Recovery: `request_undelegation` wrapper and a runbook in `docs/`.
+### Block 4: Reach, infrastructure, screens (21 h)
 
-**Done when:** a full 10-round epoch runs with flips, licenses, Calls settled by the oracle, an
-epoch commit and (if enabled) a private cup payout, all linked in `docs/proofs`.
+- [ ] **A-4.1 Session keys on chain (4 h, if G7 passes).** `session.rs`; accept session keys for the
+      gameplay instructions; expiry and revoke.
+- [ ] **A-4.2 Magic Action and SOAR (4 h, if G6 passes).** Attach the post-commit action to
+      `commit_epoch`; leaderboard and achievements.
+- [ ] **A-4.3 Hosting (4 h).** Dedicated devnet RPC (a free-tier provider), bot service and operator
+      on an always-on host (Railway or Fly), env management, health endpoint, auto-restart.
+- [ ] **A-4.4 Soak (3 h).** 60 minutes with five bots and two AI analysts. Fix what it finds.
+- [ ] **A-4.5 Desk and Cup screens (6 h).** `/desk` (Call board, mint form, oracle chart,
+      leaderboard, license flow, history) and `/cup` (entry, standings, private payout confirmation),
+      using Misbah's design system.
 
-### A4. Reach and infrastructure (Block 4, P2)
+### Block 5: Ship (proofs, 3 h)
 
-- [ ] **A4.1** Session keys (if G7 passes) in the program and `sdk/session`.
-- [ ] **A4.2** Magic Action + SOAR leaderboard and achievements (if G6 passes).
-- [ ] **A4.3** Production deploy: bot service and operator on an always-on host, dedicated devnet
-      RPC, env management, health endpoint, auto-restart.
-- [ ] **A4.4** 60-minute soak: five bots and two AI analysts. Fix everything it finds.
-- [ ] **A4.5** `pnpm proofs` index covers every experiment and the live table; a feed for the app's
-      `/proof` page.
+- [ ] **A-5.1 `/proof` page (3 h).** Live links to the program, delegation, VRF, permission and
+      payment transactions, fed by `docs/proofs` and the SDK. `pnpm proofs` covers every experiment and
+      the live table.
 
-### A5. Freeze and ship (Block 5)
-
-- [ ] Code freeze at sync point S5. Only bug fixes after that.
-- [ ] README statuses updated to `done` only for what is verifiable; proof checklist filled in.
-- [ ] Final tag `v1.0-blitz`.
-
----
-
-## 4. Stream B: Misbah (product, app, AI Desk)
-
-You can start B0 immediately: it needs no chain work. From H1 on, use `@insider/sdk` types. Read
-`app/AGENTS.md` first: this Next.js version differs from older docs (see
-`node_modules/next/dist/docs/`).
-
-### B0. Foundation (Block 0)
-
-- [ ] **B0.1** Design system: tokens (dark terminal, cold blue for sealed, hot amber for opened,
-      grey/cyan/magenta rarities, mono numerals), type scale, spacing, motion rules,
-      `prefers-reduced-motion`.
-- [ ] **B0.2** Components with typed fixtures (test data in `app/src/fixtures`, never on live
-      pages): `GhostOrder`, `SealedCard`, `LeakCard` (all six states, both families), `PriceChart` (with
-      landing markers and sandwich arrows), `SeatRail` (with lane tells), `OrderPanel`, `AuctionTimer`,
-      `ActivityFeed`, `PhaseBar`.
-- [ ] **B0.3** Landing page: the sealed-card hero, one-sentence pitch, **Play** button.
-- [ ] **B0.4** Providers: wallet adapter, query client, SDK context.
-
-### B1. The trading floor (Block 1)
-
-- [ ] **B1.1** After **H1**: `/table` reads live accounts through `sdk/` (Table, Market, Tape,
-      Seats) with websocket updates at 2 Hz and no layout jitter.
-- [ ] **B1.2** Onboarding: guest key creation (stored in `localStorage`, exportable), seat claim,
-      TEE login, chip balance, "you are seat 4". Follow gate G3 for funding.
-- [ ] **B1.3** Order panel: side, size, lane (standard or priority with the fee), a price-impact
-      preview from `sdk/vamm`, and your **ghost orders** drifting toward the chart until they land
-      (shown from client memory, never from chain).
-- [ ] **B1.4** Phase bar and timers driven by `Table.tick`, not by wall clocks.
-
-### B2. Leaks on screen (Block 2)
-
-- [ ] **B2.1** Leak board: auction cards with the falling price, rarity styling, sealed state,
-      family badge (Flow or Fundamentals).
-- [ ] **B2.2** **Crack-open animation** (the hero moment): the purchase, the TEE login, the payload
-      revealed on the chart (pending orders as ghosts, or the fundamental path).
-- [ ] **B2.3** **X-ray replay**: every order (sent to landed), every Leak and who held it, sandwich
-      arrows, scrubbable, ending in the round score. The same component powers `/xray/[round]` and the
-      inline end-of-round view.
-- [ ] **B2.4** Activity feed: who sent an order in which lane, who opened what, copy and fade
-      shortcuts.
-- [ ] **B2.5** The **two-browser test** page (or a documented procedure) for the demo.
-
-### B3. Exchange depth screens (Block 3)
-
-- [ ] **B3.1** Flip and license flows: sell sealed, offer a license, buy one, readers list, and a
-      live "edge left" indicator derived from readers and impact.
-- [ ] **B3.2** `/desk`: Call board, mint-a-Call form, oracle chart, analyst leaderboard with hit
-      rate and streaks, license flow, settled-Call history.
-- [ ] **B3.3** **AI Desk** (handoff **H6**): two analyst agents (own keys, Anthropic API, public
-      data only) that mint Calls through `@insider/sdk`, and a commentary service that turns public
-      events into short captions. Prompt files live in `bots/src/ai/`; coordinate with Anurag, who owns
-      `bots/`, before merging.
-- [ ] **B3.4** `/cup`: Alpha Cup entry, standings, private payout confirmation (if G5 passes).
-- [ ] **B3.5** Share card generator (Next.js OG image route): "I read a Full Book Leak for 120 and
-      front-ran a whale for +412", used by X-ray and the Desk.
-
-### B4. Reach and polish (Block 4)
-
-- [ ] **B4.1** `/watch` broadcast view: auto-camera on the biggest event, live captions, no
-      controls, 16:9 recording mode.
-- [ ] **B4.2** `/proof` page: live links to the program, delegation, VRF, permission and payment
-      transactions, fed by `docs/proofs` and the SDK.
-- [ ] **B4.3** Wallet identity and session-key UI (if G7 passes): connect, create session, revoke,
-      leaderboard under your key.
-- [ ] **B4.4** SOAR achievements display (if G6 passes).
-- [ ] **B4.5** Motion and sound polish, mobile layout, empty, loading and error states,
-      accessibility pass.
-
-### B5. Video and launch assets (Block 5 and the submission window)
-
-- [ ] Storyboard (section 7), capture sessions from the live app, motion graphics with the
-      HyperFrames or Remotion skills, an 80 s film plus a 20 s X clip.
-- [ ] Landing copy, screenshots and the X thread.
+Block totals: 13 + 20 + 21 + 30 + 21 + 3 = **108 h**.
 
 ---
 
-## 5. Handoffs (the only places the streams depend on each other)
+## 9. Misbah's work (105 h)
 
-| ID     | From to | What                                                                                                | When                  |
-| ------ | ------- | --------------------------------------------------------------------------------------------------- | --------------------- |
-| **H0** | A to B  | Gate results, especially G0 (mempool or not), G3 (funding) and G7 (session keys)                    | End of Block 0        |
-| **H1** | A to B  | `@insider/sdk` v1 and `idl/insider.json`: typed accounts, builders, subscriptions, TEE auth, `vamm` | First half of Block 1 |
-| **H2** | A to B  | Constants exported by the SDK: `SLOTS_PER_TICK`, lane delays and fees, auction lengths              | With H1               |
-| **H3** | A to B  | **Live devnet table** running with bots: URL and setup transcript                                   | End of Block 2        |
-| **H4** | B to A  | UI findings from the first live round: missing fields, slow reads, awkward flows                    | Sync point S2         |
-| **H5** | A to B  | Desk, license and cup instructions in the SDK                                                       | Mid Block 3           |
-| **H6** | B to A  | AI analyst and commentary code merged into `bots/src/ai/`                                           | Late Block 3          |
-| **H7** | A to B  | Production URLs, proof feed, session key support                                                    | Block 4               |
+Needs the full toolchain (4.2). The Rust share is the market engine, which is mostly pure functions
+that are easy to unit-test. Use `cargo test -p insider --test engine` for a fast loop.
 
-If a handoff slips, the receiver works on the next item that doesn't need it. Every block has
-independent work.
+### Block 0: Foundation (14 h)
+
+- [ ] **B-0.1 Machine setup (2 h).** Everything in 4.2, then `pnpm tsx scripts/check-setup.ts` all
+      `ok`, `cargo check -p insider`, `pnpm dev` shows the starter page.
+- [ ] **B-SDK-1 SDK skeleton (3 h).** Create `sdk/` (4.4). Move `config`, `client`, `rpc`, `tee`,
+      `explorer` from `scripts/src/lib`. Export typed `connection`, `teeAuth`, `send`. Add Vitest tests.
+- [ ] **B-0.2 Design system (5 h).** `app/src/components/ui`: tokens (dark terminal, cold blue for
+      sealed, hot amber for opened, rarity colours grey/cyan/magenta, mono numerals), type scale,
+      spacing, motion rules, `prefers-reduced-motion`. Wire Tailwind, replace the starter styles.
+- [ ] **B-0.3 Landing (2 h).** `page.tsx`: the sealed-card hero, one-line pitch, **Play** button.
+- [ ] **B-0.4 Providers (2 h).** Wallet adapter, query client, SDK context; `transpilePackages`.
+
+### Block 1: Market engine (the Rust core) and SDK v0 (24 h)
+
+- [ ] **B-1.1 Engine API stubs (2 h, handoff H-API).** Create `math/` and `engine/` with the
+      public function signatures and `state/` structs (spec section 5), bodies as `todo!()`. Push
+      within the first 4 hours so Anurag can wire.
+- [ ] **B-1.2 `math/` (8 h).** `prng.rs` (`xorshift128+`), `path.rs` (fundamental path: two regimes,
+      2-4 shocks, clamp), `vamm.rs` (fills, fee, price impact, `u128` intermediates), `arb.rs`
+      (arbitrage pull by integer sqrt), `dutch.rs`, `seed.rs` (fills future, whales and drop schedule
+      from the 32-byte VRF output), `payloads.rs` (all eight Leak kinds). **Unit tests first** in
+      `tests/engine.rs`: deterministic per seed, bounded, shock counts, payload matches source,
+      fixed-point edge cases.
+- [ ] **B-1.3 `engine/step.rs` (4 h).** The pure per-tick function: mature orders in `seq` order (at
+      most 12 per tick), apply arbitrage, mint and step drops, step auctions, expire Leaks, liquidate,
+      advance phases. Fully unit-tested.
+- [ ] **B-1.4 Orders (4 h).** `state/mempool.rs`, `instructions/orders.rs`: `send_order` (two lanes,
+      fee, limits of 2,000 units per order, 5,000 position, 4 pending per seat), public `SendEvent`,
+      **no logs**. Tests in `tests/leaks.rs`.
+- [ ] **B-1.5 SDK v0 (4 h, handoff H1).** Account decode from the IDL, instruction builders,
+      websocket subscriptions, `table` view-model, `vamm` (TS port of the Rust math for price-impact
+      previews, cross-checked with shared test vectors).
+- [ ] **B-1.6 Floor UI start (2 h).** `components/floor/*` with typed fixtures: `GhostOrder`,
+      `PriceChart` (landing markers), `SeatRail`, `OrderPanel`, `PhaseBar`.
+
+### Block 2: Leaks, X-ray and the trading UI (28 h)
+
+- [ ] **B-2.1 Leaks (7 h).** `state/{board,leak_vault}.rs`, `instructions/leaks.rs`: drops at their
+      ticks from the schedule, Dutch `bid`, `open_leak` (members become `[owner]`), expiry, the
+      seat's 2-unopened-Leaks limit. Tests.
+- [ ] **B-2.2 `finish_round` and sandwiches (4 h).** `state/xray.rs`, `finish_round.rs`: write the
+      order log and payloads, **sandwich tags**, clear members, score into `Season`, reset seats.
+- [ ] **B-2.3 `/table` live (5 h).** Read live accounts through the SDK with websocket updates at 2
+      Hz and no layout jitter; the order panel with lane choice, fee and impact preview; ghost orders
+      drifting toward the chart (from client memory); phase bar driven by `Table.tick`.
+- [ ] **B-2.4 Onboarding (3 h).** Guest key (in `localStorage`, exportable), seat claim, TEE login,
+      chip balance, "you are seat 4". Follow gate G3 for funding.
+- [ ] **B-2.5 Leak board and crack-open (5 h).** Auction cards with the falling price, rarity
+      styling, family badge (Flow or Fundamentals), sealed state; **the crack-open animation** (the
+      purchase, the TEE login, the payload revealed on the chart).
+- [ ] **B-2.6 Two-browser test page (2 h).** A page or documented procedure for the privacy demo.
+- [ ] **B-2.7 Playtest and fixes (2 h).** Play the live table (H3) and send findings to Anurag (H4).
+
+### Block 3: Exchange depth and the economics gate (18 h)
+
+- [ ] **B-3.1 Flip and license (5 h).** `list_leak`, `buy_listed`, `offer_license`, `buy_license`
+      (members up to 4), hoard limit. Tests.
+- [ ] **B-3.2 Economics gate E1 (5 h).** `tests/economics.rs` plus a printed table: the six agents
+      (Blind, Front-runner, Fundamentalist, Hoarder, Flipper, Crowd) over thousands of seeded rounds;
+      tune `ARB_PCT`, fees, depth and Leak prices until all six E1 checks pass (spec section 10).
+      Results into `docs/engine.md`.
+- [ ] **B-3.3 X-ray screen (6 h).** `xray/*` and `/xray/[round]`: every order (sent to landed),
+      every Leak and who held it, sandwich arrows, scrubbable, ending in the score; the same component
+      inline at round end.
+- [ ] **B-3.4 Flip and license UI (2 h).** Sell sealed, offer and buy a license, readers list, a
+      live "edge left" indicator from readers and impact.
+
+### Block 4: Identity and polish (11 h)
+
+- [ ] **B-4.1 Wallet and session UI (3 h, if G7 passes).** Connect, create session, revoke,
+      leaderboard under your key (install `@magicblock-labs/gum-react-sdk` then).
+- [ ] **B-4.2 Share data and activity feed (2 h).** Activity feed (who sent which lane, who opened
+      what, copy and fade shortcuts); expose the data Anurag's share-card route needs.
+- [ ] **B-4.3 Polish (6 h).** Motion pass, mobile layout, empty, loading and error states,
+      accessibility, 16:9 recording mode for the table.
+
+### Block 5: Ship (10 h)
+
+- [ ] **B-5.1 Engine docs (1 h).** `docs/engine.md`: formulas, parameters, E1 results.
+- [ ] **B-5.2 QA sweep (6 h).** Cold-visitor test on a clean browser profile, bug fixes in own
+      areas, README screenshots.
+- [ ] **B-5.3 `/watch` and share cards (3 h).** The broadcast view (auto-camera on the biggest
+      event, live captions from Anurag's commentary service, no controls, 16:9 mode) and the share-card
+      image route `app/src/app/api/og/` ("I read a Full Book Leak for 120 and front-ran a whale for
+      +412"), used by the X-ray and the Desk.
+
+Block totals: 14 + 24 + 28 + 18 + 11 + 10 = **105 h**.
 
 ---
 
-## 6. Sync points (join, run it live, decide)
+## 10. Sync points (join, run it live, decide)
 
 | Sync   | When               | What we do together                              | Pass condition                                 |
 | ------ | ------------------ | ------------------------------------------------ | ---------------------------------------------- |
-| **S1** | End of Block 0     | Review gates, freeze scope, agree the SDK shape  | Every gate row decided; G0 result known        |
-| **S2** | End of Block 2     | Play a full round, two browsers, bots running    | Two-browser privacy test works; no stuck phase |
-| **S3** | End of Block 3     | Economics, Desk and cup playtest, 10-round epoch | E1 passes; epoch commit lands                  |
-| **S4** | End of Block 4     | Soak report, mobile and polish review            | 60-minute soak clean                           |
+| **S1** | End of Block 0     | Review gates, freeze scope, check both machines  | Every gate decided; G0 known; both can build   |
+| **S2** | End of Block 1     | Engine plus lifecycle on devnet                  | An empty-table round runs; engine tests green  |
+| **S3** | End of Block 2     | Play a full round with two browsers and bots     | Two-browser privacy test works; no stuck phase |
+| **S4** | End of Block 3     | Economics, Desk and cup playtest, 10-round epoch | E1 passes; epoch commit lands                  |
 | **S5** | **Feature freeze** | Decide what is cut, tag the release candidate    | No red items                                   |
-| **S6** | Submission window  | Video review, README and form dry run            | Section 8 ready                                |
+| **S6** | Submission window  | README, form dry run                             | Section 13 ready                               |
 
 ---
 
-## 7. Demo and video plan (owners: both; Misbah leads design, Anurag leads proofs)
+## 11. Overflow list (take from here if you finish early or the other is behind)
 
-About 80 s, recorded from the real app:
+Each item is independent and can go to either person. Order by priority.
 
-1. **0:00** A pending order card, glowing. "This order executes in 10 seconds. Someone just paid
-   to see it."
-2. **0:08** Title: INSIDER. "Own the secret."
-3. **0:14** A Leak drops, the price falls, one click buys it. The same second, a second browser
-   shows "nothing" for that account (the two-browser test).
-4. **0:26** Crack it open: an 800-unit buy landing in 7 s. Priority-send ahead, the price moves,
-   sell into it.
-5. **0:40** A flip, a license, a bot copying the trade, the edge shrinking.
-6. **0:52** X-ray with sandwich arrows.
-7. **1:02** The Desk: an AI analyst's Call resolves against the live oracle.
-8. **1:10** The proof page: VRF request, permission rewrite, delegation, private payout.
-9. **1:18** End card: Own the secret. Link, repo.
-
-Plus a 20 s X clip (steps 3-4 and 6) and share cards.
+1. Extra bot personas and strategy tuning
+2. Sound effects and micro-interactions
+3. Extra share-card templates
+4. A `/rules` page that explains lanes, Leaks and licenses in 30 seconds
+5. SDK docs and a short `docs/api.md`
+6. More LiteSVM tests (liquidation, hoard limit, license caps)
+7. A season history page
 
 ---
 
-## 8. Submission checklist (window: last 2 days)
-
-- [ ] Live URL works for a cold visitor and the table is running.
-- [ ] README: statuses honest, program ID, live URL, transaction links, proof checklist filled.
-- [ ] Both teammates logged in to build.magicblock.app, profiles saved, **team member added** in
-      the form, one wallet entered for prizes (agree the split now).
-- [ ] Form: name, description, categories (Games, Privacy, AI / Agents), GitHub repo, video,
-      explorer link, **on-chain addresses** (program, operator wallet, platform fee account), X account.
-- [ ] Post the clip on X, tag @magicblock.
-- [ ] Submit at least 6 hours before the deadline.
-
----
-
-## 9. Cut order and freeze
+## 12. Cut order and freeze
 
 If time runs short, cut from the bottom and never from the top:
 
-1. Mobile polish and sound 2. Share cards 3. SOAR / Magic Action 4. Session keys
-2. Alpha Cup 6. AI commentary (keep the analysts) 7. The Desk 8. Broadcast view
+1. Sound and extra polish 2. Extra share cards 3. SOAR / Magic Action 4. Session keys
+2. Alpha Cup 6. AI commentary (keep the analysts) 7. The Desk 8. `/watch`
 
 **Never cut:** G0, the Floor, Leaks, the two-browser privacy test, the X-ray, E1 and the live
-table.
+table. Code freeze at S5: only bug fixes after that.
 
 ---
 
-## 10. Definition of done
+## 13. Submission checklist (the last 2 days)
+
+- [ ] Live URL works for a cold visitor and the table is running.
+- [ ] README: statuses honest (`done` only for what is verifiable), program ID, live URL,
+      transaction links, proof checklist filled in.
+- [ ] Both teammates logged in to build.magicblock.app, profiles saved, **team member added** in the
+      form, one wallet entered for prizes (agree the split now).
+- [ ] Form: name, description, categories (Games, Privacy, AI / Agents), GitHub repo, **demo video
+      link** (added when the video exists), explorer link, **on-chain addresses** (program, operator
+      wallet, platform fee account), X account.
+- [ ] Post on X and tag @magicblock.
+- [ ] Submit at least 6 hours before the deadline.
+- [ ] Final tag `v1.0-blitz`.
+
+## 14. Definition of done
 
 - [ ] G0 recorded and the design decision written down
-- [ ] Table runs continuously on devnet with bots, with no keeper in the game loop
+- [ ] Table runs continuously on devnet with bots and no keeper in the game loop
 - [ ] VRF, permission and rollup transactions linked in the README
-- [ ] A second key can't read pending orders or a Leak it doesn't own (tested and filmed)
+- [ ] A second key can't read pending orders or a Leak it doesn't own (tested)
 - [ ] A cold visitor plays with no wallet
-- [ ] Video and X clip rendered
 - [ ] README claims verified against code and transactions
 - [ ] Submitted
 
----
-
-## 11. Commands
+## 15. Commands
 
 ```bash
 pnpm install
-pnpm dev                         # app
-pnpm program:build && pnpm program:idl && pnpm program:deploy
-pnpm gates                       # gate runner (A0.4)
-pnpm simulate-round              # full devnet round (A2.3)
-pnpm sim:economics               # economics simulator (A1.7)
-pnpm bots                        # bot service
-pnpm proofs                      # rebuild docs/proofs/README.md
+pnpm dev                                   # app
+pnpm program:build && pnpm program:idl     # release build and IDL (only before a deploy)
+pnpm program:deploy                        # Anurag
+cargo check -p insider                     # fast check while editing Rust
+cargo test -p insider                      # all program tests
+cargo test -p insider --test economics -- --nocapture   # E1 table
+pnpm gates                                 # gate runner
+pnpm simulate-round                        # full devnet round
+pnpm bots                                  # bot service
+pnpm proofs                                # rebuild docs/proofs/README.md
+pnpm format:check && pnpm lint && pnpm typecheck && pnpm test   # CI locally
 ```
-
-Funding needs: Anurag's deployer (about 6 SOL), operator wallet (2 SOL), each bot and AI key
-(0.05 SOL), a devnet test mint for the cup. Misbah needs a devnet wallet for session-key work.
