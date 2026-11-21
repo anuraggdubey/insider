@@ -20,7 +20,10 @@ export async function getDelegationStatus(
       params: [account.toBase58()],
     }),
   });
-  const body = (await response.json()) as { result?: DelegationStatus; error?: { message: string } };
+  const body = (await response.json()) as {
+    result?: DelegationStatus;
+    error?: { message: string };
+  };
   if (body.error) throw new Error(`getDelegationStatus: ${body.error.message}`);
   return body.result as DelegationStatus;
 }
