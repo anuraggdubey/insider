@@ -1,0 +1,10 @@
+{
+  "name": "tests",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Integration tests for the Insider program",
+  "scripts": {
+    "test": "vitest run"
+  }
+}
