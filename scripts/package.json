@@ -1,0 +1,10 @@
+{
+  "name": "scripts",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Deploy, delegate and simulate-round scripts",
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  }
+}
