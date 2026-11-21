@@ -68,7 +68,19 @@ video/              Demo film project
 
 ## Quick start
 
-Setup instructions land with the project scaffold.
+Prerequisites: Node 24, pnpm 10, Rust 1.89, Solana CLI 4.x, Anchor CLI 1.2.2.
+
+```bash
+pnpm install
+cp .env.example .env            # fill in values
+pnpm tsx scripts/check-setup.ts # verify toolchain and keypairs
+pnpm dev                        # run the Next.js app
+pnpm program:build              # build the program to SBF
+pnpm program:idl                # generate the IDL
+pnpm test                       # run tests
+```
+
+Note: on Windows, `anchor build` can crash inside `cargo-build-sbf`; use `pnpm program:build` and `pnpm program:idl` instead.
 
 ## Status legend
 
@@ -82,4 +94,4 @@ Solana Blitz v10, Nov 20-27 2026 (online), by MagicBlock. Submission deadline: N
 
 ## License
 
-MIT (to be added with the scaffold).
+MIT. See [LICENSE](LICENSE).
