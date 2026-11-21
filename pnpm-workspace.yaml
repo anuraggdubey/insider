@@ -3,3 +3,7 @@ packages:
   - bots
   - tests
   - scripts
+
+ignoredBuiltDependencies:
+  - sharp
+  - unrs-resolver
