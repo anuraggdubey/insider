@@ -278,7 +278,7 @@ so each can be cut or demoed alone.
 
 ## 10. Economic model and gate E1
 
-`scripts/src/sim/economics.ts` and `programs/insider/src/economics.rs` run the engine against
+`programs/insider/tests/economics.rs` runs the engine against
 scripted agents with a fixed seed set (thousands of rounds, deterministic):
 
 | Agent          | Behaviour                                                          |
@@ -295,7 +295,7 @@ bankroll per round; (2) Hoarder earns less than the selective informed agents (n
 button); (3) edge per reader falls as readers grow (decay is real); (4) the Dutch auction clears
 between 25% and 75% of the start price on average; (5) liquidations happen in under 5% of
 seat-rounds; (6) the Flow family and the Fundamentals family each earn a profit for a selective
-buyer, so neither is dominated. The same checks run as Rust unit tests so parameter changes can't
+buyer, so neither is dominated. These are Rust tests, so parameter changes can't
 regress them.
 
 ## 11. Instructions

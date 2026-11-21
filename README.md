@@ -105,7 +105,7 @@ sdk/                Typed TypeScript client (accounts, instructions, TEE auth)
 app/                Next.js app (trading floor, ghost orders, Leak cards, Desk, X-ray)
 bots/               Bot players, AI analysts and commentary
 tests/              Integration tests
-scripts/            Deploy, setup, gates, simulate-round, economics simulator, lab experiments
+scripts/            Deploy, setup, gates, simulate-round, proof index
 docs/               Phase 2 findings, gate results and devnet proofs
 ```
 
