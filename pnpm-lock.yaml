@@ -173,7 +173,29 @@ importers:
         specifier: ^8.18.2
         version: 8.18.2
 
-  scripts: {}
+  scripts:
+    dependencies:
+      '@anchor-lang/core':
+        specifier: ^1.2.2
+        version: 1.2.2(bufferutil@4.2.0)(typescript@5.9.3)(utf-8-validate@6.1.0)
+      '@magicblock-labs/ephemeral-rollups-sdk':
+        specifier: ^0.20.0
+        version: 0.20.0(bufferutil@4.2.0)(utf-8-validate@6.1.0)
+      '@solana/kit':
+        specifier: ^8.6.0
+        version: 8.6.0(bufferutil@4.2.0)(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.9.3)(utf-8-validate@6.1.0)
+      '@solana/spl-token':
+        specifier: ^0.4.15
+        version: 0.4.15(@solana/web3.js@1.99.0(bufferutil@4.2.0)(typescript@5.9.3)(utf-8-validate@6.1.0))(bufferutil@4.2.0)(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.9.3)(utf-8-validate@6.1.0)
+      '@solana/web3.js':
+        specifier: ^1.99.0
+        version: 1.99.0(bufferutil@4.2.0)(typescript@5.9.3)(utf-8-validate@6.1.0)
+      bs58:
+        specifier: ^6.0.0
+        version: 6.0.0
+      dotenv:
+        specifier: ^18.0.10
+        version: 18.0.10
 
   tests:
     dependencies:
