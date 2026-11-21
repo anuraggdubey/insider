@@ -15,7 +15,7 @@ declare_id!("5TbtvduZEmNWbnr7wfvB9A9TobbxSB96e1xYcr6NnSDQ");
 pub mod insider {
     use super::*;
 
-    pub fn initialize(ctx: Context<Initialize>) -> Result<()> {
-        initialize::handler(ctx)
+    pub fn spike_init(ctx: Context<SpikeInit>) -> Result<()> {
+        spike_init::handler(ctx)
     }
 }

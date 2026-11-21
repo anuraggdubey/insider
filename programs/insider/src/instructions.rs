@@ -1,3 +1,3 @@
-pub mod initialize;
+pub mod spike_init;
 
-pub use initialize::*;
+pub use spike_init::*;
