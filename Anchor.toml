@@ -1,0 +1,21 @@
+[toolchain]
+package_manager = "pnpm"
+
+[features]
+resolution = true
+skip-lint = false
+
+[programs.devnet]
+insider = "5TbtvduZEmNWbnr7wfvB9A9TobbxSB96e1xYcr6NnSDQ"
+
+[programs.localnet]
+insider = "5TbtvduZEmNWbnr7wfvB9A9TobbxSB96e1xYcr6NnSDQ"
+
+[provider]
+cluster = "devnet"
+wallet = "./.keys/deployer.json"
+
+[scripts]
+test = "cargo test"
+
+[hooks]
