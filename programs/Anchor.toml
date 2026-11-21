@@ -6,6 +6,9 @@ package_manager = "pnpm"
 resolution = true
 skip-lint = false
 
+[workspace]
+members = ["insider"]
+
 [programs.devnet]
 insider = "5TbtvduZEmNWbnr7wfvB9A9TobbxSB96e1xYcr6NnSDQ"
 
@@ -14,7 +17,7 @@ insider = "5TbtvduZEmNWbnr7wfvB9A9TobbxSB96e1xYcr6NnSDQ"
 
 [provider]
 cluster = "devnet"
-wallet = "./.keys/deployer.json"
+wallet = "../.keys/deployer.json"
 
 [scripts]
 test = "cargo test"

@@ -1,0 +1,17 @@
+{
+  "address": "5TbtvduZEmNWbnr7wfvB9A9TobbxSB96e1xYcr6NnSDQ",
+  "metadata": {
+    "name": "insider",
+    "version": "0.1.0",
+    "spec": "0.1.0",
+    "description": "Created with Anchor"
+  },
+  "instructions": [],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "Overflow",
+      "msg": "Arithmetic overflow"
+    }
+  ]
+}
