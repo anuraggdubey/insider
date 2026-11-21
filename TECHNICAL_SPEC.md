@@ -1,414 +1,441 @@
 # INSIDER: Technical Specification
 
-Version 0.3 (design, dark mempool). Items marked **[verify]** depend on MagicBlock behaviour that
-hasn't been confirmed with a prototype yet. Each one has a named fallback.
+Version 2.0 (combined: Dark Mempool + Leak Exchange). This spec is the contract between the two
+work streams in [STEPS.md](STEPS.md).
 
-## 1. Goals and principles
+**How we handle risk.** There are no workaround code paths. Everything here is either (a) proven by
+a Phase 2 lab experiment on devnet, or (b) behind a numbered **gate** (section 4) that runs in the
+first work block. A gate that fails removes its feature from the scope and from every doc. The
+design is built so that every removal leaves a complete product.
 
-1. **Players make the hidden information.** The secret is other players' pending orders, not a
-   random number.
-2. **The table never leaves the rollup.** Table, market, mempool, seats and Leaks are delegated
-   once and play continuous rounds inside the TEE rollup. The base layer is for setup, periodic
-   season commits and stake-mode money only.
-3. **Privacy only where it carries weight.** Two things are private: pending orders (the dark
-   mempool) and sealed Leak contents. Executed trades, positions, prices, Leak ownership and
-   "who sent an order in which lane" are public, because public behaviour makes the game social.
-4. **Read access is the asset.** Owning a Leak means being on its permission's member list.
-5. **Everything claimed is real.** No mocked ER, VRF or PER paths. Every feature has code, a test
-   and a devnet transaction.
-6. **One-click play.** A browser key claims a pre-delegated seat inside the rollup. No wallet, no
-   base-layer transaction.
+## 1. Principles
 
-## 2. Technology stack
+1. **Players make the hidden information.** Pending orders are the main secret. A VRF-written
+   future is the second.
+2. **The table never leaves the rollup.** All gameplay accounts are delegated once to the TEE
+   validator. Cranks and seat-signed requests run the game, so no keeper is needed to play.
+3. **Privacy only where it carries weight.** Private: pending orders, the future, sealed Leak
+   contents, open Call contents. Public: executed fills, positions, prices, Leak ownership, and
+   _who_ sent an order in _which lane_. Public behaviour is what makes the game social.
+4. **Read access is the asset.** Owning, licensing or authoring information means being on a
+   permission's member list. Every ownership change is a permission update.
+5. **Nothing is mocked.** Every claim has code, a test and a devnet transaction.
+6. **The operator has no power over play.** No instruction lets the authority read or write the
+   mempool, the future, a Leak, a Call, a price or a score.
+7. **Clock-derived, idempotent automation.** Cranks can fire late, twice or from a stale task; state
+   is derived from time and tick, not from call counts.
+8. **No cancels.** A sent order is a commitment. That keeps Flow Leaks honest.
 
-| Layer                    | Choice                                                  | Notes                                                 |
-| ------------------------ | ------------------------------------------------------- | ----------------------------------------------------- |
-| Program                  | Rust + Anchor                                           | Anchor CLI 1.2.2                                      |
-| MagicBlock SDK (program) | `ephemeral-rollups-sdk` 0.18.0 (pinned)                 | Features `anchor`, `vrf`, `access-control`            |
-| Frontend                 | Next.js (App Router), TypeScript                        | Read `app/AGENTS.md`; this Next version differs       |
-| Styling and motion       | Tailwind CSS, Framer Motion                             | Ghost orders, Leak cards, X-ray arrows                |
-| Charts                   | `lightweight-charts`                                    | Price line, order landing markers, Leak windows       |
-| Client SDK               | `@solana/kit`, `@magicblock-labs/ephemeral-rollups-kit` | Magic Router connection, TEE auth token               |
-| Keys                     | In-browser burner keypair (localStorage)                | Optional Wallet Standard link for stake mode          |
-| Bots                     | TypeScript service, one keypair per bot                 | Deterministic strategies, same instructions as humans |
-| Tests                    | LiteSVM / `cargo test` for logic; devnet scripts for ER | Existing `programs/insider/tests`                     |
+## 2. Stack
 
-Phase 2 environment note: public devnet ERs and the TEE run validator 1.x, so the SDK stays on
-0.18.x. On 0.20 the `#[vrf]` macro doesn't compile.
+| Layer          | Choice                                                                                                    | Notes                                           |
+| -------------- | --------------------------------------------------------------------------------------------------------- | ----------------------------------------------- |
+| Program        | Rust, Anchor CLI 1.2.2, `anchor-lang` 1.2.2                                                               | Pinned                                          |
+| MagicBlock SDK | `ephemeral-rollups-sdk` 0.18.0 (`anchor`, `vrf`, `access-control`, `crank`)                               | 0.20 is validator-2.0-only                      |
+| Typed client   | `sdk/` (TypeScript)                                                                                       | Single source of truth for the app and the bots |
+| Frontend       | Next.js (App Router), TypeScript, Tailwind, Framer Motion, `lightweight-charts`                           | Read `app/AGENTS.md`                            |
+| Client libs    | `@solana/web3.js` 1.x, `@anchor-lang/core`, `@magicblock-labs/ephemeral-rollups-sdk` 0.18, wallet-adapter |                                                 |
+| Bots / AI      | TypeScript service, Anthropic API                                                                         | One keypair per bot                             |
+| Tests          | LiteSVM for program logic, devnet scripts for rollup behaviour, Vitest for the SDK                        |                                                 |
+
+Phase 2 environment facts: public devnet ERs and the TEE run validator 1.x; growing the program
+needs `solana program extend`; `anchor build` crashes on Windows (use `pnpm program:build`).
 
 ## 3. Architecture
 
 ```
-  Browser (burner key)                        Bot service (Node)
-  - trading floor UI                          - 5 strategy bots, own keypairs
-  - TEE auth token per key                    - keeper fallback (ticks, drops, phases)
-        |                                              |
-        |  rollup txs (Magic Router / TEE RPC)          |
-        v                                              v
- +--------------------------------------------------------------+
- |  MagicBlock TEE rollup (devnet-tee)                           |
- |   public : Table, Market (vAMM), Board, Seats[8], Tape, Xray  |
- |   private: Mempool (no reader), LeakVault[6] (owner on open)  |
- |   VRF    : round seed (whales, noise), Leak drops             |
- |   Cranks : 500 ms tick (mature orders, auctions, phases)      |
- +-------------------------------+------------------------------+
-                                 | periodic commit (Season, Table)
-                                 v
- +--------------------------------------------------------------+
- |  Solana devnet: program, delegation, Season leaderboard,      |
- |  stake-mode vault (P2, Ephemeral SPL / Private Payments)      |
- +--------------------------------------------------------------+
+ Browser (guest key or wallet + session key)        Bot service (Node)
+ - trading floor, ghost orders, Desk, X-ray         - 5 strategy bots, 2 AI analysts
+ - TEE auth token per key                           - commentary desk (LLM)
+        |                                                   |
+        |      rollup transactions via sdk/ (Magic Router + TEE RPC)
+        v                                                   v
+ +----------------------------------------------------------------------+
+ |  MagicBlock TEE rollup (devnet-tee)                                   |
+ |  public : Table, Market[2], Tape, Board, Seat[10], Xray, CallBook     |
+ |  private: Mempool, Future, LeakVault[6], CallVault[10] (permissions)  |
+ |  VRF    : one request per round (ephemeral oracle queue)              |
+ |  Cranks : 500 ms tick (maturity, arbitrage, drops, auctions)          |
+ |  Oracle : SOL/USD feed read inside the rollup (Desk)                  |
+ +--------------------------+-------------------------------------------+
+                            | epoch commit + Magic Action
+                            v
+ +----------------------------------------------------------------------+
+ |  Solana devnet: program, delegation, Season, SOAR, Private Payments   |
+ +----------------------------------------------------------------------+
 ```
 
-Endpoints and programs (devnet):
+Endpoints and programs (devnet): router `https://devnet-router.magicblock.app`; TEE
+`devnet-tee.magicblock.app` (validator `MTEWGuqxUpYZGFJQcp8tLN7x5v9BSeoFHYWQQ3n3xzo`); Permission
+program `ACLseoPoyC3cBqoUtkbjZ4aDrkurZW86v19pXz2XQnp1`; Delegation program
+`DELeGGvXpWV2fqJUhqcF5ZSYMS4JTLjteaAMARRSaeSh`; ephemeral VRF queue
+`5hBR571xnXppuCPveTrctfTU7tJLSN94nq7kv7FRK5Tc`. The game gets a **new program ID**. The lab
+program `5TbtvduZEmNWbnr7wfvB9A9TobbxSB96e1xYcr6NnSDQ` stays deployed so the Phase 2 proofs remain
+valid, and its source is tagged `phase-2-lab`.
 
-- Router: `https://devnet-router.magicblock.app`
-- TEE validator: `devnet-tee.magicblock.app`, identity `MTEWGuqxUpYZGFJQcp8tLN7x5v9BSeoFHYWQQ3n3xzo`
-- Permission program: `ACLseoPoyC3cBqoUtkbjZ4aDrkurZW86v19pXz2XQnp1`
-- Delegation program: `DELeGGvXpWV2fqJUhqcF5ZSYMS4JTLjteaAMARRSaeSh`
-- Ephemeral VRF queue (in rollup): `5hBR571xnXppuCPveTrctfTU7tJLSN94nq7kv7FRK5Tc`
-- Program: `5TbtvduZEmNWbnr7wfvB9A9TobbxSB96e1xYcr6NnSDQ`
+## 4. Gates
 
-## 4. MagicBlock integration: what is proven, what is not
+Proven in Phase 2 (see `docs/proofs`): delegate and settle (6 delegates per transaction, at most 8
+accounts per commit intent), VRF in the TEE, private permissions, atomic permission rewrite from a
+VRF callback, finite cranks on the TEE, immediate revocation.
 
-Proven in Phase 2 (devnet, see `docs/proofs`):
+Everything else is a gate. Each is a script in `scripts/src/gates/`, a row in `docs/gates.md` with
+transaction links, and a decision written into this spec. **G0 runs first** because it decides the
+shape of the Floor.
 
-| Need in INSIDER                        | Mechanism                                                                 | Proven by                            |
-| -------------------------------------- | ------------------------------------------------------------------------- | ------------------------------------ |
-| Delegate about 20 table accounts once  | `#[delegate]`, 6 delegates per tx, 1.4M CU limit                          | `pnpm lab:slots` (E)                 |
-| VRF inside the TEE                     | `create_request_scoped_randomness_ix` + `#[vrf_callback]`, const identity | `pnpm lab:vrf --validator tee` (A)   |
-| Account readable only by chosen keys   | `CreateEphemeralPermissionCpi`, `is_private = true`, member flags         | `pnpm lab:per` (B)                   |
-| Rewrite who can read, atomically       | `UpdateEphemeralPermissionCpi` (from a VRF callback)                      | `pnpm lab:pick` (C)                  |
-| Member changes take effect immediately | Permission update, then a read with the TEE token                         | `pnpm lab:per` (B)                   |
-| Scheduled ticks                        | Crank schedule, finite iterations (cancel unavailable on TEE)             | `pnpm lab:crank --validator tee` (D) |
-| Commit state to base without leaving   | `commit` intent (at most 8 accounts per intent)                           | `pnpm spike`, `pnpm lab:slots`       |
+| Gate                                 | Question                                                                                                                                                                                         | Pass means                                        | Fail means (scope rule)                                                                                                        |
+| ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| **G0 Darkcheck**                     | A `send_order` writes side and size into the private `Mempool`. Can a non-member recover them from `getTransaction`, `getSignaturesForAddress`, logs subscriptions, simulation or account reads? | Dark mempool, lanes and the Flow family are in    | **Remove the Flow family and the lanes.** Orders execute immediately and the Fundamentals market ships as the complete product |
+| **G1 Clock**                         | How many slots or milliseconds does the TEE advance per 500 ms, and how precise is `Clock`?                                                                                                      | We derive `tick = f(clock)` with under 10% jitter | Not a cut: the measured value becomes `SLOTS_PER_TICK`                                                                         |
+| **G2 Keyless reader**                | Is an account private with a keyless PDA (`["nobody"]`) as its only member unreadable by everyone?                                                                                               | Used for `Mempool`, `Future` and sealed vaults    | Not a cut: use an empty member list (same test)                                                                                |
+| **G3 Zero-balance key**              | Can a key with 0 SOL sign on the TEE?                                                                                                                                                            | Guest onboarding needs no funding                 | Guests get one treasury transfer of 0.01 SOL at seat claim                                                                     |
+| **G4 Oracle in the TEE**             | Can a program read a fresh SOL/USD feed inside the TEE?                                                                                                                                          | The Desk is in                                    | The Desk is cut                                                                                                                |
+| **G5 Private Payments**              | Do deposit, private transfer and withdraw work on devnet-tee with a platform fee account?                                                                                                        | Alpha Cup is in                                   | Alpha Cup is cut (chips only)                                                                                                  |
+| **G6 Magic Action + SOAR**           | Can a post-commit action update a SOAR leaderboard on the base layer?                                                                                                                            | Achievements are in                               | Achievements are cut                                                                                                           |
+| **G7 Session keys**                  | Do session keys work with our program on the TEE?                                                                                                                                                | Wallet identity is in                             | Guest keys only                                                                                                                |
+| **G8 Epoch cycle**                   | Can `Season` be committed and undelegated, then re-delegated, repeatedly?                                                                                                                        | The epoch design stands                           | Season commits become one-shot and cadence is reduced                                                                          |
+| **G9 Duplicate cranks**              | If two crank tasks run the same tick, is state still correct?                                                                                                                                    | Idempotent ticking confirmed                      | Not a cut: make `tick` strictly time-gated                                                                                     |
+| **G10 Crank-invoked VRF** (optional) | Can a crank-scheduled instruction request VRF?                                                                                                                                                   | Per-drop VRF becomes an enhancement               | Nothing changes: drops stay derived from the round seed                                                                        |
 
-Not yet verified. Checked in this order; item 1 decides the design:
+Also in the first block: the browser fee-payer question (G3) and a 10-account intent is never tried
+again (Phase 2 showed it hangs).
 
-1. **[verify] Order transactions stay dark.** A `send_order` transaction writes side and size into
-   the private `Mempool`. Non-members must not be able to recover the instruction data through
-   `getTransaction`, `getSignaturesForAddress`, websocket logs or simulation on the TEE RPC.
-   The permission model has a `TX_MESSAGE` flag that gates "view transaction message data", which
-   suggests this works. Test: send an order from key A, then try every read path from key B and
-   anonymously. Also check that program logs never print order fields (`msg!` is banned in
-   `send_order`).
-   _Fallback (v0.2):_ if instruction data leaks, orders become public, and Leaks are cut from a
-   VRF-written private price path instead (the v0.2 design). Accounts, UI and the Leak lifecycle
-   stay the same; only the payload source changes. Decide by the end of day 1.
-2. **[verify] Private permission with zero members.** _Fallback:_ the only member is a keyless PDA
-   `["nobody"]`. There's no private key, so no one can complete the TEE login.
-3. **[verify] A browser key with no SOL can sign rollup transactions.** ER transactions cost 0.
-   _Fallback:_ `/api/faucet` sends dust once, or a relayer acts as fee payer.
-4. **[verify] A crank-invoked instruction can CPI a VRF request.** _Fallback:_ the keeper calls the
-   permissionless `request_drop` when it's due; early calls are rejected.
-5. **[verify] Commit limits.** Without a delegated fee payer an account can commit 10 times.
-   _Plan:_ commit the season every 5 rounds; register a delegated fee payer plus `magic_fee_vault`
-   before the demo.
+## 5. Accounts
 
-## 5. Onchain program (`programs/insider`)
+All created on the base layer at setup, delegated once (6 per transaction, 1.4M compute limit), and
+reused every round. Sizes are fixed, so there is no realloc inside the rollup. `Season` is
+delegated separately (epoch cycle).
 
-### 5.1 Accounts
+| Account     | Seats / count | Visibility              | Summary                                                                                                                                                |
+| ----------- | ------------- | ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `Table`     | 1             | public                  | authority, epoch, round_id, phase (`Idle`/`Seeding`/`Live`/`Closing`/`Xray`), round_start, tick, armed_until, vrf_nonce, vrf_pending, params           |
+| `Market`    | 2             | public                  | kind 0 = Floor (vAMM `base`, `quote`, price 1e6, `history: [u32; 192]`), kind 1 = Desk (oracle mark)                                                   |
+| `Mempool`   | 1             | **private, keyless**    | `orders: [PendingOrder; 48]`, next_seq, whale schedule, drop schedule                                                                                  |
+| `Future`    | 1             | **private, keyless**    | round_id, `path: [u32; 192]` (fundamental price per tick)                                                                                              |
+| `Tape`      | 1             | public                  | `sends` ring (seat, lane, sent_tick), `fills` ring (seat, side, size, price, landed_tick)                                                              |
+| `Board`     | 1             | public                  | `headers: [LeakHeader; 6]`, drop_index                                                                                                                 |
+| `LeakVault` | 6             | **private**             | leak_id, kind, minted_tick, payload (up to 32 orders x 8 bytes, or a 16-byte Fundamentals payload)                                                     |
+| `Seat`      | 10            | public                  | owner key, name_idx, seat_kind (Bot/Ai/Human), chips, position, entry, fees_paid, leak_spend, pending_count, desk_chips, desk_position, last_seen_tick |
+| `Xray`      | 1             | public                  | last round's full order log (sent, landed, side, size, seat), Leak payloads and holders, sandwich tags                                                 |
+| `CallBook`  | 1             | public                  | `headers: [CallHeader; 10]` (one Call per seat)                                                                                                        |
+| `CallVault` | 10            | **private**             | direction, confidence                                                                                                                                  |
+| `Season`    | 1             | public, epoch-committed | top-20 scores, per-seat analyst stats, rounds_played                                                                                                   |
 
-All accounts are created on the base layer, delegated once to the TEE validator, and reused every
-round. Sizes are fixed, so there's no realloc inside the rollup.
+`PendingOrder` (8 bytes): `seat: u8` (255 = whale), `side_size: i16` (signed units), `lane: u8`,
+`land_tick: u16`, `seq: u16`.
 
-| Account     | Seeds                    | Visibility                    | Fields (summary)                                                                                                        |
-| ----------- | ------------------------ | ----------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
-| `Table`     | `["table", table_id]`    | public                        | authority, round_id, phase (`Seeding`/`Live`/`Closing`/`Xray`), tick, round_start_tick, params, vrf_pending, request_id |
-| `Market`    | `["market", table]`      | public                        | vAMM reserves (`base`, `quote`), price (fixed-point 1e6), `history: [u32; 200]`, noise seed                             |
-| `Mempool`   | `["mempool", table]`     | **private, no reader**        | `orders: [PendingOrder; 48]`, next_seq, whale schedule                                                                  |
-| `Tape`      | `["tape", table]`        | public                        | `sends: [SendEvent; 64]` ring (seat, lane, sent_tick); `fills: [Fill; 64]` ring (seat, side, size, price, landed_tick)  |
-| `Board`     | `["board", table]`       | public                        | `headers: [LeakHeader; 6]`, next_drop_tick, drop_counter                                                                |
-| `LeakVault` | `["leak", table, slot]`  | **private, owner after open** | leak_id, kind, minted_tick, payload (up to 32 orders × 8 bytes)                                                         |
-| `Seat`      | `["seat", table, index]` | public                        | owner (burner key), persona/name, is_bot, cash, position, entry, fees_paid, leak_spend, pending_count, last_seen_tick   |
-| `Xray`      | `["xray", table]`        | public                        | the last round's full order log (sent/landed/side/size/seat), Leak payloads and holders, sandwich tags                  |
-| `Season`    | `["season", table]`      | public (committed to base)    | `top: [(owner, score); 20]`, rounds_played                                                                              |
+`LeakHeader` (public): leak_id, kind, rarity, window_start, window_end, minted_tick, state
+(`Empty`/`Auction`/`Owned`/`Listed`/`Opened`/`Expired`), auction_start, start_price, floor_price,
+owner_seat, ask, license_ask, `readers: [Pubkey; 4]`, flips, opened_tick.
 
-`PendingOrder` (8 bytes): `seat: u8`, `side_size: i16` (signed units), `lane: u8`,
-`land_tick: u16`, `seq: u16`. Whale orders use `seat = 255`.
+`CallHeader` (public): call_id, author_seat, minted_ts, minted_price, horizon_secs, expiry_ts,
+stake, license_ask, `readers: [Pubkey; 4]`, state (`Empty`/`Open`/`Right`/`Wrong`), revealed_dir.
 
-`LeakHeader` (public): `leak_id`, `kind`, `rarity`, `window_start`, `window_end`, `minted_tick`,
-`state` (`Empty`/`Auction`/`Owned`/`Listed`/`Opened`/`Expired`), `auction_start_tick`,
-`start_price`, `floor_price`, `owner_seat`, `ask`, `flips`, `opened_tick`.
+**Totals:** 35 delegated gameplay accounts (6 delegation transactions) plus `Season`; 18
+permissions (`Mempool`, `Future`, 6 Leak vaults, 10 Call vaults); teardown uses 5 intents of at most
+8 accounts.
 
-Total: Table, Market, Mempool, Tape, Board, Xray, Season (7) + 6 vaults + 8 seats = **21
-delegated accounts** (4 delegation transactions). Permissions: 7 (`Mempool` + 6 vaults).
+## 6. Time, rounds and automation
 
-### 5.2 Instructions
+- **Clock-derived ticks (G1).** `tick = (now - round_start) / TICK` from the rollup clock. The
+  `tick` instruction processes every missed tick up to the derived one in order (at most 8 per
+  call), so late or duplicate cranks are harmless.
+- **Round loop (about 110 s):** `Idle -> Seeding -> Live (ticks 0-159) -> Closing (160-179) -> Xray
+(20 ticks) -> Idle`. Live accepts orders. Closing drains the mempool and, at tick 180, every
+  position closes at the last price.
+- **Who starts a round.** `request_round_seed` is callable by any seat when the table is `Idle`.
+  Bots sign it so the table never idles, and a human click does the same if the bot service is
+  down. Only a signing seat ever requests VRF, so no crank signs a VRF request.
+- **One VRF request per round.** Its 32-byte output seeds a PRNG that fills the future path, the
+  3-5 whale orders (side, 1,500-3,000 units, land ticks 30-170) and the whole Leak drop schedule
+  (kind, rarity, window per drop). Drops are computed at their tick from the live private state.
+  (G10 may later add per-drop VRF as an enhancement.)
+- **Cranks.** `schedule_ticks` arms a finite task (`armed_until`). `rearm_ticks` is permissionless
+  once `tick > armed_until - 600`, so any seat keeps it alive (cancel is unavailable on the TEE,
+  Phase 2 D). A second crank runs `settle_due` for Desk Calls every second.
+- **Epoch.** An epoch is 10 rounds. At its end the operator calls `commit_epoch`
+  (commit-and-undelegate `Season`, fire the Magic Action) and `open_epoch` (re-delegate). The table
+  accounts stay delegated. This keeps every account below the 10-commit limit and produces real
+  delegations, which MagicBlock counts.
 
-| Instruction           | Layer | Signer                      | Purpose                                                                                                                                                        |
-| --------------------- | ----- | --------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `init_table`          | base  | authority                   | Create Table, Market, Mempool, Tape, Board, Xray, Season                                                                                                       |
-| `init_slots`          | base  | authority                   | Create Seats (8) and LeakVaults (6), in batches                                                                                                                |
-| `delegate_table`      | base  | authority                   | Delegate up to 6 accounts per tx to the TEE validator                                                                                                          |
-| `init_permissions`    | ER    | authority                   | Private permissions for Mempool and each LeakVault (no reader / `nobody` PDA)                                                                                  |
-| `schedule_ticks`      | ER    | authority                   | Crank `tick` every 500 ms for N iterations (finite; keeper re-arms)                                                                                            |
-| `request_round_seed`  | ER    | anyone, when due            | VRF request for the next round                                                                                                                                 |
-| `round_seed_callback` | ER    | VRF program only            | Schedule 3-5 whale orders into the Mempool (random side, 1,500-3,000 units, land ticks 30-170); set the noise seed; phase → `Live`                             |
-| `send_order`          | ER    | seat owner                  | Push `PendingOrder{side_size, lane}` into the Mempool; land at +20 (standard) or +4 (priority, fee 10 chips); log a public `SendEvent` with seat and lane only |
-| `tick`                | ER    | crank signer or keeper      | Execute all orders with `land_tick == tick` in `seq` order against the vAMM; apply noise; step auctions; expire Leaks; manage phases                           |
-| `request_drop`        | ER    | anyone, at `next_drop_tick` | VRF request for the next Leak; allocates a free slot                                                                                                           |
-| `drop_callback`       | ER    | VRF program only            | Roll kind and window; snapshot the Mempool into the vault payload; header → `Auction`                                                                          |
-| `claim_seat` / `ping` | ER    | burner key                  | Take a free or idle-bot seat / heartbeat                                                                                                                       |
-| `bid`                 | ER    | seat owner                  | Buy an `Auction` Leak at the current Dutch price                                                                                                               |
-| `open_leak`           | ER    | seat owner                  | Permission update: members = [owner key]; header → `Opened` (can't be resold)                                                                                  |
-| `list_leak`           | ER    | seat owner                  | Re-list an `Owned` (sealed) Leak at an ask                                                                                                                     |
-| `buy_listed`          | ER    | seat owner                  | Pay the ask to the seller; ownership moves; still sealed                                                                                                       |
-| `finish_round`        | ER    | anyone, in `Xray`           | Write the full order log and Leak payloads into `Xray`; tag sandwiches; clear vault members; score into Season; reset seats                                    |
-| `commit_season`       | ER    | anyone, every 5 rounds      | Commit Season and Table to base (≤ 8 accounts per intent)                                                                                                      |
-| `cancel_vrf`          | ER    | anyone, after timeout       | Clear a stalled VRF request (pattern from `lab_cancel_roll`)                                                                                                   |
-| `teardown`            | ER    | authority                   | Make permissions public, close them, commit and undelegate in batches of ≤ 8                                                                                   |
+## 7. The Floor
 
-There are no order cancels: a sent order is a commitment, which is what keeps Leaks honest. The
-authority has no instruction that reads or writes Mempool contents, Leak payloads, prices or
-scores.
+### 7.1 Market: anchored vAMM
 
-### 5.3 State machine (per round, about 110 s)
+- Constant product with virtual reserves `base = 50,000` units and `quote = 50,000` chips (price
+  1.00), reset every round. An order of `s` units fills at the vAMM's average price for `s` plus a
+  0.1% fee. A 2,000-unit buy moves the price about 8.5%.
+- **Fundamental path.** `Future.path[t]` is the true value (fixed-point 1e6, `xorshift128+`,
+  around 1.00): two volatility regimes, 2-4 shocks of 3-8% over 3-6 ticks after tick 20, clamped to
+  [0.5, 2.0].
+- **Arbitrage pull.** After executing orders each tick, the price moves `ARB_PCT` (start 4%) of the
+  gap toward `path[tick]` by rebalancing the reserves at constant product (integer sqrt). Flow
+  pushes the quote away from fundamentals and arbitrage pulls it back, so a push lasts about 17
+  ticks. This is the source of alpha decay: it is emergent, with no hand-written decay rule.
+- **Limits:** at most 2,000 units per order, absolute position of at most 5,000 units (5x leverage
+  on the 1,000-chip bankroll), at most 4 pending orders per seat. A seat whose equity reaches 0 is
+  liquidated at the next tick and sits out the round.
+- Integer math only: prices in fixed point 1e6, `u128` intermediates, checked operations.
 
-```
-Seeding --(round_seed_callback)--> Live --(tick 160)--> Closing --(tick 180)--> Xray --(+20 ticks)--> Seeding
-```
+### 7.2 Orders and the dark mempool
 
-- **Live:** ticks 0-159. Orders accepted. Drops at ticks 10, 30, ..., 150 (8 drops).
-- **Closing:** ticks 160-179. No new orders; the Mempool drains (standard orders sent at tick 159
-  land at 179). At tick 180 every position closes at the last price.
-- **Xray:** 20 ticks. The UI animates the replay from `Xray`.
+- `send_order(side_size, lane)` pushes a `PendingOrder` into the private `Mempool`. **Standard**
+  lands at `tick + 20`, **priority** at `tick + 4` for a fee of 10 chips. It writes a public
+  `SendEvent` (seat, lane, tick) to `Tape` and **emits no logs**.
+- `tick` executes every order with `land_tick == tick` in `seq` order against the vAMM (at most 12
+  per tick, overflow carries to the next tick in `seq` order) and records a public `Fill`.
+- Whale orders live in the mempool like any other order, so there is always flow to leak.
 
-### 5.4 Market: vAMM plus noise
+### 7.3 Leaks
 
-- Constant product with virtual reserves: `base = 50,000` units, `quote = 50,000` chips (price
-  1.00). Reserves reset every round.
-- An order of `s` units fills at the vAMM's average price for `s`, plus a 0.1% fee. A 2,000-unit
-  buy moves the price about 8.5%, so size matters and front-running pays.
-- Worked example: front-running a 2,000-unit buy with 2,000 units earns roughly 100-150 chips
-  after both impacts and fees. That's why Leaks (60-200 chips) and the 10-chip priority fee are
-  worth paying, but not always.
-- **Noise:** each tick adds a small random walk (±0.05%) from the round's noise seed (a PRNG over
-  the VRF output), so the chart moves even when nobody trades. Noise is public after the fact
-  and never in Leaks.
-- **Whales:** 3-5 VRF-scheduled orders per round live in the Mempool like any other order, so
-  there's always flow to leak, even at a quiet table.
-- Limits: at most 2,000 units per order, an absolute position of at most 5,000 units (5×
-  leverage on the 1,000-chip bankroll), and at most 4 pending orders per seat. A seat whose
-  equity hits 0 is liquidated at the next tick.
-- Integer math only: prices in fixed-point 1e6, `u128` intermediates, checked operations.
+Drops at ticks 10, 30, ..., 150 (eight per round; at most four live at once).
 
-### 5.5 Leaks
+| Rarity | Weight | Family and kinds                                      | Start / floor | Auction  |
+| ------ | ------ | ----------------------------------------------------- | ------------- | -------- |
+| Common | 65%    | Flow: `Flow`. Fundamentals: `Pin`, `Drift`            | 60 / 5        | 12 ticks |
+| Rare   | 30%    | Flow: `Spotlight`, `Whale`. Fundamentals: `Shockwave` | 120 / 10      | 12 ticks |
+| Epic   | 5%     | Flow: `Full Book`. Fundamentals: `Summit`             | 200 / 20      | 12 ticks |
 
-**Drop roll** (`drop_callback`):
+Price at tick `t` = `start - (start - floor) * (t - auction_start) / 12`. An unsold Leak at the
+floor expires. The 12-tick auction is shorter than the 20-tick standard delay, so a Leak bought at
+any point still shows orders that haven't landed. (Prices are starting values for gate E1.)
 
-| Rarity | Weight | Kinds            | Start price | Floor | Auction        |
-| ------ | ------ | ---------------- | ----------- | ----- | -------------- |
-| Common | 65%    | Flow             | 60          | 5     | 12 ticks (6 s) |
-| Rare   | 30%    | Spotlight, Whale | 120         | 10    | 12 ticks       |
-| Epic   | 5%     | Full Book        | 200         | 20    | 12 ticks       |
+| Kind        | Payload (accurate as of `minted_tick`)                                                 |
+| ----------- | -------------------------------------------------------------------------------------- |
+| `Flow`      | Net signed units and order count landing in a 10-tick window starting 2-12 ticks ahead |
+| `Spotlight` | The largest non-whale pending order: seat, side, size, land_tick                       |
+| `Whale`     | The next whale order in the next 60 ticks: side, size, land_tick, or "none"            |
+| `Full Book` | Every pending order (up to 32): seat, side, size, land_tick                            |
+| `Pin`       | Fundamental price at a target tick 10-30 ticks ahead                                   |
+| `Drift`     | Fundamental direction and size bucket (<1%, 1-3%, >3%) over 20-40 ticks                |
+| `Shockwave` | Whether a fundamental shock hits in the next 40 ticks, its tick and sign               |
+| `Summit`    | Fundamental high and low and their ticks over the next 60 ticks                        |
 
-Price at tick `t` = `start − (start − floor) × (t − auction_start) / 12`. An unsold Leak at the
-floor expires. The auction (12 ticks) is shorter than the standard delay (20 ticks), so a Leak
-bought at any point still shows orders that haven't landed.
+Payloads are computed by the program from `Mempool` or `Future`. A Leak can't be false. Orders sent
+after minting (mostly priority orders) can still land in a Flow window. That uncertainty is created
+by front-runners, and it is intended. `window_end` is the expiry.
 
-**Payloads:** a snapshot of the Mempool at `minted_tick`, filtered by kind.
+### 7.4 Ownership, flipping and licensing (permission edits)
 
-| Kind        | Window                             | Payload                                                     |
-| ----------- | ---------------------------------- | ----------------------------------------------------------- |
-| `Flow`      | 10 ticks starting 2-12 ticks ahead | net signed units and order count landing in the window      |
-| `Spotlight` | all pending                        | the largest non-whale order: seat, side, size, land_tick    |
-| `Whale`     | next 60 ticks                      | the next whale order (side, size, land_tick), or "none"     |
-| `Full Book` | all pending                        | every pending order (up to 32): seat, side, size, land_tick |
+| Action                          | Who                                | Effect                                                                             |
+| ------------------------------- | ---------------------------------- | ---------------------------------------------------------------------------------- |
+| `bid`                           | any seat                           | `Auction -> Owned`; pays the current Dutch price; members stay `[nobody]` (sealed) |
+| `list_leak` / `buy_listed`      | owner / any seat                   | Sealed resale; ownership moves; flips +1; still unread                             |
+| `open_leak`                     | owner                              | Members become `[owner]`; state `Opened`; can't be resold (it has been read)       |
+| `offer_license` / `buy_license` | owner of an opened Leak / any seat | Buyer pays the owner; members gain the buyer (max 4 readers)                       |
 
-- **Accurate as of `minted_tick`.** Orders can't be cancelled, so everything in the payload will
-  land as stated. Orders sent after minting (mostly priority ones) can still land in the window.
-  That uncertainty is created by front-runners, and it's intended.
-- `window_end` (or the last listed land tick) is the expiry. After that the Leak is worthless.
+A seat holds at most 2 unopened Leaks. A Leak never opened has never had a reader, which is
+provable from `readers` and the permission history.
 
-**Ownership:**
+### 7.5 X-ray and sandwich tags
 
-- `Auction` → `bid` → `Owned` (sealed; no reader).
-- `Owned` → `list_leak` → `Listed` → `buy_listed` → `Owned` by the buyer (chips go to the seller;
-  `flips++`).
-- `Owned` → `open_leak` → `Opened`: members become exactly `[owner key]`. It can't be listed
-  again.
-- A Leak never opened has never had a reader. That's the "sealed" guarantee, visible in the
-  permission history.
-- At most 2 unopened Leaks per seat.
+`finish_round` (anyone, during Xray) copies the order log and every Leak payload into `Xray`, tags
+sandwiches, clears vault members, scores into `Season` and resets seats. A **sandwich** is tagged
+when seat `F` has a priority order landing before a standard order of seat `V` on the same side,
+then an opposite order from `F` within 6 ticks after `V`'s, and `F` opened a Leak containing `V`'s
+order. Tags carry `(F, V, profit_estimate)`. They are computed on chain, so the X-ray can't be
+edited. It never flips a permission from public back to private.
 
-### 5.6 Seats and burner keys
+Round score = equity - 1,000 chips (fees, Leak spend, flip and license income included).
 
-- 8 seats, 5 of them bots by default. `claim_seat` takes a free seat or the bot seat idle
-  longest; displaced bots spectate until a seat frees up.
-- A seat is idle once `last_seen_tick` is more than 60 ticks old. Clients send heartbeats with
-  `ping`.
-- Names come from a fixed list, picked by hashing the key (no free text onchain).
+### 7.6 Seats
 
-### 5.7 Scoring, season and stakes
+- 10 seats: 0-4 bots (a human may displace the bot idle longest), 5-6 AI analysts (protected),
+  7-9 human-first. `claim_seat` takes a free seat or a displaceable bot seat. A seat is idle after
+  60 ticks without `ping`, `send_order` or a trade.
+- Names come from a fixed list picked by hashing the key (no free text on chain).
 
-- Round score = equity − 1,000, which already includes fills, fees, Leak spend and flip income.
-- `finish_round` folds scores into `Season.top`. `commit_season` commits every 5 rounds.
-- **Stake mode (P2):** a devnet test mint through Ephemeral SPL eATAs. The top 3 by round score
-  split the pot (50/30/20) with private visibility via the Private Payments API. If cut,
-  chips-only is the shipped product and the README says so.
+## 8. The Desk (oracle-settled Calls)
 
-### 5.8 Sandwich tags (X-ray)
+- **Mint.** `mint_call(direction, horizon, stake, license_price)` reads the SOL/USD feed (G4),
+  stores `minted_price` publicly, keeps direction private. One open Call per seat. Horizons: 60,
+  120 or 180 s.
+- **License.** `buy_call_license` adds the buyer to the Call's readers (max 4) and pays the author.
+- **Settle.** A crank runs `settle_due` every second: for each due Call it reads the oracle,
+  decides Right or Wrong, reveals the direction by making the Call public, returns stake plus a
+  bonus on Right or burns it on Wrong, and updates the author's stats in `Season`.
+- **Desk market.** `desk_trade` trades the oracle price with the same fill engine (marked to the
+  oracle, no arbitrage). Licensees act on a Call there.
+- **Track record** (public, on chain): calls, hits, hit rate, streak, profit.
 
-`finish_round` tags a **sandwich** when seat `F` has a priority order landing before a standard
-order of seat `V` on the same side, then an opposite order from `F` landing within 6 ticks after
-`V`'s, and `F` opened a Leak containing `V`'s order. Tags carry `(F, V, profit_estimate)` and the
-UI draws them as arrows. Tagging is computed onchain, so the X-ray can't be edited.
+Desk chips are a separate balance credited each epoch. Nothing on the Desk depends on the Floor,
+so each can be cut or demoed alone.
 
-## 6. Private state design (PER)
+## 9. Money, identity and achievements
 
-| Account         | Readers during play                   | How it changes                                                                       |
-| --------------- | ------------------------------------- | ------------------------------------------------------------------------------------ |
-| `Mempool`       | nobody (no member / `nobody` PDA)     | Written by `send_order`, `round_seed_callback` and `tick`; read by program code only |
-| `LeakVault`     | nobody while sealed; owner after open | `open_leak` → `UpdateEphemeralPermissionCpi` members = [owner]                       |
-| everything else | public                                | n/a                                                                                  |
+- **Guest identity.** A browser key claims a seat (G3 decides funding). Guests play chips only.
+- **Wallet identity (G7).** A wallet creates a session key; the rollup accepts it for
+  `send_order`, `bid`, `open_leak`, `list_leak`, `buy_*`, `offer_license`, `mint_call`, `ping`.
+  Wallet seats appear on the leaderboard under their key and can enter the Alpha Cup.
+- **Alpha Cup (G5).** Humans buy in with a devnet test token through the Private Payments API. At
+  the end of each cup (5 rounds) the top 3 human seats are paid 50/30/20 with private transfers.
+  Bots and AI can't win prizes. The app takes a platform fee into a fee-vault account listed in
+  our submission. Payouts are signed by the operator wallet from the epoch Magic Action.
+- **Magic Action + SOAR (G6).** `commit_epoch` attaches a post-commit action that updates the SOAR
+  leaderboard and unlocks achievements: _Sealed Seer_ (flip a Leak that was never opened),
+  _Sandwich_ (be the front-runner in a tagged sandwich), _Alpha Decay_ (license a Leak and still
+  profit), _Clean Hands_ (win a round without opening anything), _Oracle_ (5 correct Calls in a row).
 
-- Program code reads and writes private accounts freely inside the TEE. Permissions gate **RPC
-  reads** (verified in Phase 2: the VRF callback read and rewrote a private account).
-- `send_order` transactions touch the private Mempool, so their messages and logs must be gated
-  too (§4, item 1). `send_order` emits no logs. The public trace is the `SendEvent` written to
-  `Tape` (seat, lane, tick).
-- `finish_round` publishes the past round's orders and payloads into `Xray` and resets vault
-  members. It never flips a permission from public back to private.
-- Clients read an opened Leak through the TEE login challenge (`scripts/src/lib/tee.ts`): sign
-  with the burner key, then `getAccountInfo(LeakVault)` with the token.
-- **The two-browser test** (demo and integration test): A opens a Leak and reads it. B, and an
-  anonymous call, get "account not returned" for the vault and the Mempool, and nothing useful
-  from A's order transactions.
+## 10. Economic model and gate E1
 
-**Trust model, stated plainly:** privacy relies on MagicBlock's TEE (Intel TDX). Bot keys sit in
-the bot service, which can only read Leaks its bots opened. The bot service never sees the
-Mempool. Executed fills and positions are public by design.
+`scripts/src/sim/economics.ts` and `programs/insider/src/economics.rs` run the engine against
+scripted agents with a fixed seed set (thousands of rounds, deterministic):
 
-## 7. VRF flows
+| Agent          | Behaviour                                                          |
+| -------------- | ------------------------------------------------------------------ |
+| Blind          | Never buys a Leak, trades momentum                                 |
+| Front-runner   | Buys Flow Leaks, opens, priority-sends ahead of big pending orders |
+| Fundamentalist | Buys Fundamentals Leaks, opens, trades the content                 |
+| Hoarder        | Buys every Leak at the floor and opens all                         |
+| Flipper        | Buys sealed at mid price, lists at +40%                            |
+| Crowd          | Three informed agents on the same Leak                             |
 
-1. **Round seed** (once per round): whale schedule and noise seed.
-2. **Leak drop** (8 per round): rarity, kind, Flow window offset.
-3. Both callbacks declare the scoped VRF identity with a compile-time constant (the Phase 2 fix
-   for the 270k CU cost on SDK 0.18) and check `request_id`. A late callback after `cancel_vrf` is
-   rejected.
+**E1 passes when:** (1) informed agents beat Blind by a clear margin but never by more than 3x
+bankroll per round; (2) Hoarder earns less than the selective informed agents (no free-money
+button); (3) edge per reader falls as readers grow (decay is real); (4) the Dutch auction clears
+between 25% and 75% of the start price on average; (5) liquidations happen in under 5% of
+seat-rounds; (6) the Flow family and the Fundamentals family each earn a profit for a selective
+buyer, so neither is dominated. The same checks run as Rust unit tests so parameter changes can't
+regress them.
 
-## 8. Cranks and keeper
+## 11. Instructions
 
-- `schedule_ticks` arms a finite crank (for example 7,200 iterations = 1 hour). Cancel doesn't
-  work on the TEE (Phase 2 D); the keeper re-arms before it runs out.
-- `tick` is idempotent per tick index, accepts the crank signer PDA or the keeper, and executes at
-  most 12 orders per tick (overflow carries to the next tick in `seq` order).
-- The keeper (bot service) calls `tick`, `request_drop`, `request_round_seed` and `finish_round`
-  when they're due and the crank hasn't. All of these are permissionless and time-gated.
+| Group        | Instructions                                                                                            |
+| ------------ | ------------------------------------------------------------------------------------------------------- |
+| Setup (base) | `init_table`, `init_slots`, `delegate_batch`, `init_permissions` (rollup), `open_epoch`, `commit_epoch` |
+| Automation   | `schedule_ticks`, `rearm_ticks`, `tick`, `schedule_settle`, `settle_due`                                |
+| Round        | `request_round_seed`, `round_seed_callback`, `cancel_vrf`, `finish_round`                               |
+| Seats        | `claim_seat`, `ping`, `send_order`                                                                      |
+| Leaks        | `bid`, `open_leak`, `list_leak`, `buy_listed`, `offer_license`, `buy_license`                           |
+| Desk         | `mint_call`, `buy_call_license`, `desk_trade`                                                           |
+| Money (G5)   | `cup_join`, `cup_settle`                                                                                |
+| Recovery     | `request_undelegation` (CPI to the Delegation program's rollback path), `teardown`                      |
 
-## 9. Off-chain components
+Every mutating instruction checks phase and tick, requires the seat owner's signature or a valid
+session key, and uses checked integer math. Crank-only instructions check the crank signer PDA
+(`["crank-executor", authority]` under `Crank11111111111111111111111111111111111111`).
 
-### 9.1 App (`app/`)
+## 12. VRF
 
-| Route    | Screen                                                                                                                                                                       |
-| -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `/`      | Landing: hero, one-line pitch, **Play**, live table preview                                                                                                                  |
-| `/table` | Trading floor: chart with landing markers, seat rail with lane tells, ghost-order lane (your pending orders), Leak board, order panel (side, size, lane), opened Leaks, feed |
-| `/xray`  | The last round's replay with sandwich arrows (also inline during `Xray`)                                                                                                     |
-| `/proof` | Live links: program, delegation, latest VRF and permission txs, the two-browser test                                                                                         |
+One `request_round_seed` per round; `round_seed_callback(randomness)` fills the future, whale and
+drop schedules. The callback declares the scoped VRF identity as a compile-time constant (the Phase
+2 fix for the 270k-CU `const fn` cost on SDK 0.18), carries a `request_id`, and has a `cancel_vrf`
+path after 10 ticks of silence. Each request is a real, organic VRF request from our program, which
+MagicBlock counts.
 
-Client modules in `app/src/lib/`: `connection.ts`, `program.ts` (typed client from
-`idl/insider.json`), `burner.ts`, `tee-auth.ts`, `table.ts` (websocket subscriptions to public
-accounts), `vamm.ts` (price-impact preview, the same math as the program).
+## 13. Private state (PER)
 
-UI requirements: 2 Hz updates without jitter; your own pending orders shown locally (from the
-client's memory, never from chain); the crack-open animation; a 16:9 recording mode;
-`prefers-reduced-motion` support.
+| Account             | Readers during play                                   | How it changes                                               |
+| ------------------- | ----------------------------------------------------- | ------------------------------------------------------------ |
+| `Mempool`, `Future` | nobody (`nobody` PDA)                                 | Written by program code only; read by program code only      |
+| `LeakVault`         | nobody while sealed; owner (and licensees) after open | `open_leak`, `buy_license` -> `UpdateEphemeralPermissionCpi` |
+| `CallVault`         | the author, then licensees                            | `mint_call`, `buy_call_license`; made public at settlement   |
+| everything else     | public                                                | n/a                                                          |
 
-### 9.2 Bots (`bots/`)
+- Program code reads and writes private accounts freely inside the TEE; permissions gate **RPC
+  reads** (verified in Phase 2).
+- `send_order` touches the private `Mempool`, so its message and logs must be gated too (G0).
+  `send_order` emits no logs; the public trace is the `SendEvent`.
+- Clients read an opened Leak with the TEE login challenge (`scripts/src/lib/tee.ts`).
+- **The two-browser test:** A opens a Leak and reads it. B, and an anonymous call, get "account not
+  returned" for the vault and the mempool, and nothing useful from A's order transactions.
+
+**Trust model, stated plainly:** privacy relies on MagicBlock's TEE (Intel TDX). Bot keys sit in the
+bot service, which only reads Leaks its bots opened and never the mempool. Fills and positions are
+public by design.
+
+## 14. AI Desk
+
+- **Analysts.** Two AI seats own keys, mint Calls through the SDK like anyone else, and are judged
+  by the oracle. Their prompts see public market data only.
+- **Commentary.** A service turns public events (sends, fills, drops, opens, flips, licenses,
+  X-ray sandwiches, settled Calls) into short live captions for the broadcast view and share
+  cards. It reads no private account.
+- If the API is unreachable the analysts simply don't mint and captions pause. Nothing on chain
+  depends on them.
+
+## 15. Bots (`bots/`)
 
 | Persona          | Strategy                                                                                                                    |
 | ---------------- | --------------------------------------------------------------------------------------------------------------------------- |
 | **Front-runner** | Buys Spotlight and Full Book Leaks, opens them, priority-sends ahead of big pending orders, exits after they land           |
 | **Baiter**       | Sends large standard orders, then a priority order the other way just before they land                                      |
-| **Flipper**      | Buys sealed Leaks at the mid price, lists at +40%, opens only if unsold after 6 ticks                                       |
+| **Flipper**      | Buys sealed Leaks at the mid price, lists at +40%, opens only if unsold after 6 ticks; also licenses opened Leaks           |
 | **Copycat**      | Never buys Leaks. Mirrors the side of whoever just used the priority lane after opening a Leak (inferred from public fills) |
 | **Flow**         | Steady medium-size standard orders from a momentum rule, so the mempool always has something to leak                        |
 
-- Each bot has its own keypair and TEE token and reads only Leaks it opened.
-- One decision every 2 ticks at most, with random delay and size jitter, so the bots are
-  beatable.
+Each bot has its own keypair and TEE token and reads only Leaks it opened. One decision every 2
+ticks at most, with random delay and size jitter so bots stay beatable. Bots also sign
+`request_round_seed` and `rearm_ticks`.
 
-## 10. Repository layout
+## 16. App (`app/`)
 
-```
-insider/
-  programs/insider/   Anchor program: table, mempool, vAMM, leaks, math, VRF, PER, cranks
-  app/                Next.js app
-  bots/               Bot strategies and keeper
-  scripts/            setup-table, simulate-round, darkcheck, proof index, Phase 2 lab scripts
-  tests/              Integration tests
-  idl/                Generated IDL
-  docs/               Phase 2 findings and devnet proofs
-```
+| Route           | Screen                                                                                                                                                                        |
+| --------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `/`             | Landing: sealed-card hero, one-line pitch, **Play**, live table preview                                                                                                       |
+| `/table`        | Floor: chart with landing markers, seat rail with lane tells, ghost-order lane (your pending orders), Leak board, order panel (side, size, lane), my Leaks and licenses, feed |
+| `/desk`         | Call board, analyst leaderboard, license flow, oracle chart                                                                                                                   |
+| `/xray/[round]` | X-ray replay with sandwich arrows, and the share card                                                                                                                         |
+| `/watch`        | Broadcast view: auto-camera, live captions, no controls                                                                                                                       |
+| `/proof`        | Live links: program, delegation, VRF, permission and payment transactions; the two-browser test                                                                               |
+| `/cup`          | Alpha Cup entry and standings (if G5 passes)                                                                                                                                  |
 
-The Phase 2 `spike_*`, `lab_*` and `slot_*` instructions stay until the table instructions replace
-them, then move behind a `lab` cargo feature so the proofs stay reproducible.
+`sdk/` provides `connection`, `program`, `tee-auth`, `session`, `accounts` (typed decode and
+websocket subscriptions), `instructions` (builders), `vamm` (price-impact preview, the same math as
+the program) and `table` (derived view-model). Your own pending orders are shown from the client's
+memory, never from chain. UI requirements: 2 Hz updates without layout jitter, optimistic state,
+the crack-open animation, a 16:9 recording mode, `prefers-reduced-motion`.
 
-## 11. Testing plan
+## 17. Testing
 
-- **Unit (LiteSVM / `cargo test`):** vAMM fills and fees (no overflow; buy then sell returns less
-  than the start); order maturity ordering (`land_tick`, then `seq`); lane delays and fees;
-  position, order-size and pending limits; Leak payloads match the Mempool for each kind; Dutch
-  curve; ownership transitions (can't list opened; can't bid on own; hoard limit); phase gating
-  (no orders in `Closing`); sandwich tagging; `tick` idempotence; VRF callbacks only from the VRF
-  program.
-- **`pnpm darkcheck` (devnet TEE, day 1):** the §4 item 1 test. Key A sends orders; key B and an
-  anonymous client try `getTransaction`, `getSignaturesForAddress`, logs subscriptions and
-  account reads. Output goes into `docs/proofs`.
-- **`pnpm simulate-round` (devnet):** setup → seed → orders → 8 drops → bids, flips, opens →
-  front-run → Xray → commit, printing every explorer link.
-- **Bot soak:** five bots, no humans, for 30 minutes: no stuck phase, crank re-armed, mempool
-  never overflows.
+- **Unit (LiteSVM):** vAMM fills and fees; arbitrage pull; order maturity ordering (`land_tick`,
+  then `seq`); lane delays and fees; position, size and pending limits; every Leak payload against
+  its source; Dutch curve; ownership and license transitions; phase gating (no orders in
+  `Closing`); sandwich tagging; `tick` idempotence and catch-up; callbacks only from the VRF
+  program; crank-only instructions reject everyone else; E1 checks.
+- **Devnet scripts:** `pnpm gates` (G0-G10), `pnpm simulate-round` (setup, seed, orders, eight
+  drops, bids, flips, licenses, front-run, Xray, epoch), `pnpm lab:*` (kept from Phase 2).
+- **Privacy tests:** the opener reads; a second key and an anonymous call can't read the vault, the
+  mempool or A's order transactions; sealed vaults are unreadable to everyone including the
+  authority; a revoked licensee loses access.
+- **SDK tests (Vitest):** decode every account, build every instruction.
+- **Soak:** five bots and two AI analysts, 60 minutes, no stuck phase, no failed VRF, crank
+  re-armed, mempool never overflows.
 
-## 12. Deployment
+## 18. Deployment
 
-- Program on Solana devnet (ID above). The table is set up once by `scripts/setup-table.ts`.
-- App on Vercel. The bots and keeper on an always-on host (Railway/Fly), so the table is live
-  whenever a judge opens the link.
-- A dedicated devnet RPC for base reads (the public RPC rate-limits, Phase 2 notes).
+- New program ID on devnet; the table is created by `scripts/src/setup-table.ts`.
+- App on Vercel. Bot service and operator on an always-on host (Railway or Fly) so the table is
+  live whenever a judge opens the link. A dedicated devnet RPC for base reads.
 - Secrets only in `.env` and host env vars. `.env.example` is committed.
 
-## 13. Security and fairness
+## 19. Activity MagicBlock counts, produced organically
 
-- `#[vrf_callback]` plus a `request_id` match on both callbacks.
-- No cancels and no authority write path to the Mempool, payloads, prices or scores.
-- `send_order` prints no logs and the client never puts order details in memos.
-- Every mutating instruction checks phase and tick.
-- Seat actions need the seat owner's signature; crank-only paths check the crank signer PDA.
-- Checked integer arithmetic only.
-- Known limitations, documented: TEE trust; bot keys held by the service; devnet test token; a
-  vAMM market by design.
+| Counted by the submission form | Produced by                                                       |
+| ------------------------------ | ----------------------------------------------------------------- |
+| Delegations                    | Setup (6 delegation transactions) and one re-delegation per epoch |
+| VRF requests                   | One per round, continuously                                       |
+| Private payments               | Alpha Cup buy-ins and payouts, with the platform fee account      |
 
-## 14. Proof checklist for reviewers (to fill with links)
+All are real gameplay consequences, not scripted padding.
 
-- [ ] Program ID on devnet
-- [ ] Table delegation transactions to the TEE validator
-- [ ] `darkcheck` output: an order tx is unreadable to a second key
-- [ ] Round seed and Leak drop VRF requests and callbacks
-- [ ] `open_leak` permission update, and a failed read from a second key
-- [ ] Rollup orders and fills (sample)
-- [ ] Season commit to base
-- [ ] (P2) Private payout transaction
-- [ ] Live app URL and a recorded round
+## 20. Security and fairness
 
-## 15. Scope and cut order (deadline Nov 27, 9:00 AM EST = 14:00 UTC)
+- `#[vrf_callback]` plus a `request_id` match; the callback is cheap by construction.
+- No authority write path to the mempool, future, payloads, prices, scores or Call outcomes.
+- `send_order` and the tick path emit no logs that contain order fields.
+- Checked arithmetic only; no floats; every PDA derived from stored seeds and bumps.
+- Session keys are scoped to gameplay instructions and expire.
+- Known limitations, stated in the README: TEE trust (Intel TDX), bot keys held by the service,
+  devnet test funds, a synthetic asset on the Floor by design.
 
-| Priority | Scope                                                                                                                                                                                                                                                                 |
-| -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **P0**   | `darkcheck`; Table/Market/Mempool/Tape/Seats; vAMM; `send_order` with two lanes; `tick` maturity; round seed VRF (whales); Leak drop VRF (Flow, Spotlight); bid; open (permission); Xray; burner seats; 3 bots (Front-runner, Flow, Baiter); trading-floor UI; deploy |
-| **P1**   | Whale and Full Book Leaks; flip (list / buy_listed); Copycat and Flipper; sandwich tags and arrows; `/proof`; season commit                                                                                                                                           |
-| **P2**   | Stake mode with Private Payments; SOAR; mobile layout                                                                                                                                                                                                                 |
+## 21. Scope and cut order
 
-Cut from the bottom up. Never cut `darkcheck`, the two-browser test, or the X-ray, because the
-demo depends on them.
+| Tier   | Scope                                                                                                                                                                                                                        |
+| ------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **P0** | `Table`, `Market`, `Mempool`, `Future`, `Seat`, round seed VRF, `send_order`, `tick`, Leak drops (Flow and Fundamentals), Dutch `bid`, `open_leak`, X-ray with sandwiches, guest seats, 3 bots, trading-floor UI, deploy, E1 |
+| **P1** | Flip, license and decay; Desk and Calls; Alpha Cup; AI analysts and commentary; 5 bots                                                                                                                                       |
+| **P2** | Session keys, Magic Action and SOAR, share cards, broadcast view, proof page, mobile                                                                                                                                         |
 
-| Day    | Goal                                                                                            |
-| ------ | ----------------------------------------------------------------------------------------------- |
-| Nov 22 | Docs; **`darkcheck` on the TEE (decides v0.3 or the v0.2 fallback)**; `math.rs` (vAMM) tests    |
-| Nov 23 | Table accounts; `send_order`; `tick` maturity; seed VRF; Leak drop, bid, open; `simulate-round` |
-| Nov 24 | App: trading floor, ghost orders, Leak cards, crack-open, X-ray; burner seats                   |
-| Nov 25 | Bots and keeper deployed; app deployed; soak test; P1 items                                     |
-| Nov 26 | Record rounds; video; README proofs                                                             |
-| Nov 27 | Submit by 08:00 UTC (6 h buffer); post the X clip                                               |
+Cut from the bottom up, and only when a gate fails or time forces it. Never cut G0, the
+two-browser privacy test, the X-ray, E1, or the live table.
