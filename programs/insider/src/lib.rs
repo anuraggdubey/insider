@@ -18,4 +18,8 @@ pub mod insider {
     pub fn spike_init(ctx: Context<SpikeInit>) -> Result<()> {
         spike_init::handler(ctx)
     }
+
+    pub fn spike_increment(ctx: Context<SpikeIncrement>) -> Result<()> {
+        spike_increment::handler(ctx)
+    }
 }
