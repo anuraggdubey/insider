@@ -8,6 +8,9 @@ importers:
 
   .:
     devDependencies:
+      '@magicblock-labs/ephemeral-validator':
+        specifier: ^2.0.3
+        version: 2.0.3
       '@types/node':
         specifier: ^24.19.2
         version: 24.19.2
@@ -883,8 +886,120 @@ packages:
   '@magicblock-labs/ephemeral-rollups-sdk@0.20.0':
     resolution: {integrity: sha512-aTwga+UKv0dMPYrtHnnjBck3v4HybdccG/FsCQh2dar/X8Ewf9qTwq6YgMDGrWBKDmrpAezzFlY6MvaJVndR9g==}
 
+  '@magicblock-labs/ephemeral-validator-darwin-arm64@2.0.3':
+    resolution: {integrity: sha512-73AwMchOYl1p+1MYsbNfnb3GhjFm6dXcBF02EskslqSOLRsa0r0EkaPpn0arHrLbs06d93TdFGdbMu1BHRWzNw==}
+    cpu: [arm64]
+    os: [darwin]
+
+  '@magicblock-labs/ephemeral-validator-darwin-x64@2.0.3':
+    resolution: {integrity: sha512-7phmbXb2aRfNT82Z/jy1EpG7QVUCsQAibbv+HAY2WYQEiQuJ38qYez0dTgWX1NdXNfJW2gT1vyuzhrDtkYUPHQ==}
+    cpu: [x64]
+    os: [darwin]
+
+  '@magicblock-labs/ephemeral-validator-linux-arm64@2.0.3':
+    resolution: {integrity: sha512-iBH8AwM2thbtaSmOtFLnmWy1I3MtB8HKjKoty22XnTtpWIeMXLyxiT1+ybLsT5u3yLf75a9e66uZ2SczdVDFTw==}
+    cpu: [arm64]
+    os: [linux]
+
+  '@magicblock-labs/ephemeral-validator-linux-x64@2.0.3':
+    resolution: {integrity: sha512-4SKHY8mzzelusdFQsnoax0IfaRNOTidz70u5kU2Qx4PnWBG7mdXudX5SXK8pJavmqoCmvGzJk0luObhbZG1y9A==}
+    cpu: [x64]
+    os: [linux]
+
+  '@magicblock-labs/ephemeral-validator@2.0.3':
+    resolution: {integrity: sha512-nGM0Nu4iAXVcKoQvYzPUnmAUW01Y3M+gj750szUIrW2lgmMrBm9rmUkYH+CyC53rn+g6bxlkeMmg8wPcw1YstA==}
+    hasBin: true
+
+  '@magicblock-labs/hydra-cranker-darwin-arm64@0.2.2':
+    resolution: {integrity: sha512-SvX1nVrsmh5eJSd0ox80ASpiX7nDfq/qjWxubGJOsF63kA1MfO/I66qJ72C3uldQ97pE69eshgFmwyYwQUBfOg==}
+    cpu: [arm64]
+    os: [darwin]
+    hasBin: true
+
+  '@magicblock-labs/hydra-cranker-darwin-x64@0.2.2':
+    resolution: {integrity: sha512-YioIm7wMT8o0sSovhLzNQAOi0rYo5OMs13h9zrKDJtN8P8LjUXz4/p3bj62BhO9qJA9HDeyAjUYKrHy9/Nyidw==}
+    cpu: [x64]
+    os: [darwin]
+    hasBin: true
+
+  '@magicblock-labs/hydra-cranker-linux-arm64@0.2.2':
+    resolution: {integrity: sha512-zUfNRwOR23t6/MCgR4OodoIUhaYYcNgT6T15IYXFzYcZns9pGnct+mdfEwpYbWw0Dh784BUm0n2PGENhFI4I5g==}
+    cpu: [arm64]
+    os: [linux]
+    hasBin: true
+
+  '@magicblock-labs/hydra-cranker-linux-x64@0.2.2':
+    resolution: {integrity: sha512-jTtq9CukkvsnUAyB9D8D8iQSJ26qxHKaqDhGZiSxsmEs5giIR6+ur6HpkygTPXHeFEhZ1cf/KUCzjXg+OJKh0w==}
+    cpu: [x64]
+    os: [linux]
+    hasBin: true
+
+  '@magicblock-labs/query-filtering-service-darwin-arm64@0.1.3':
+    resolution: {integrity: sha512-gOuxYfwhc4GpYRCHyaghKn0yx4sNmylOeJfhfygFSTyqBEJZ2LGfedsu87ynhKtXpguGa6ECbEwBpHFR1byE3g==}
+    cpu: [arm64]
+    os: [darwin]
+    hasBin: true
+
+  '@magicblock-labs/query-filtering-service-darwin-x64@0.1.3':
+    resolution: {integrity: sha512-uPj5BIjy8dd6I8qKxan0OqnNADWk/ecYQcju6Hn/6/4nGHlUGYh2WLa1y9qh4CoroXZB/jZSptKXBwNWMaamrQ==}
+    cpu: [x64]
+    os: [darwin]
+    hasBin: true
+
+  '@magicblock-labs/query-filtering-service-linux-arm64@0.1.3':
+    resolution: {integrity: sha512-u+RmkhaOiotvVhK77Hci37CT3BZ7D2mDYXl0rb1x+WxTxFNeo/CnjBczIxUT0WzymCCzHlTWAC9J+kTGu5SG9g==}
+    cpu: [arm64]
+    os: [linux]
+    hasBin: true
+
+  '@magicblock-labs/query-filtering-service-linux-x64@0.1.3':
+    resolution: {integrity: sha512-pdwR+RnDBSlOL7bVIHQMPDRY+pIb0PAGeTynIVQyWczjxSEqZjZWVuqU8dRGVD4n/RDu1jsMgAnspIpxNlx3NQ==}
+    cpu: [x64]
+    os: [linux]
+    hasBin: true
+
+  '@magicblock-labs/rpc-router-darwin-arm64@0.0.1':
+    resolution: {integrity: sha512-l/zjqMxN5qST/pxGIYnY72EjnHiu4hF99tVcJG+7tUigNfPjn3XQ9U9x/t+p6kFtfvgprVbuY53VPB5e9O7YXQ==}
+    cpu: [arm64]
+    os: [darwin]
+
+  '@magicblock-labs/rpc-router-darwin-x64@0.0.1':
+    resolution: {integrity: sha512-ka9Yi8nwQ/dMloJ8OKYKQI1gKntGbiDplFS3sDi+frS/OhDxGE/ImwXUOGWZuUdRdGdKL8TIHbTKmk8l5FdusQ==}
+    cpu: [x64]
+    os: [darwin]
+
+  '@magicblock-labs/rpc-router-linux-arm64@0.0.1':
+    resolution: {integrity: sha512-Z23lJw15d7/YxxoMK9gBZdnWdSw2qZP2V0h6+T3zrBWpbC+KYR48NG/0pyWrkRKWIqujak+eEoJvC/LEBfIKMg==}
+    cpu: [arm64]
+    os: [linux]
+
+  '@magicblock-labs/rpc-router-linux-x64@0.0.1':
+    resolution: {integrity: sha512-pxCvYyuYnUalZjec8uSxjkxHs4FlvXt+NHxFzhfGppV/WQuk4fYpYv9A+LmPIMQvSXVXHqISnVzSblc3zyXeHA==}
+    cpu: [x64]
+    os: [linux]
+
   '@magicblock-labs/soar-sdk@0.1.23':
     resolution: {integrity: sha512-E7TyQhkgEVoBFxrY56YrnsRdVOy2zy4TDMFS+2WmKuU/HVlFxgnCHl9S0JQomtAI3mtaKK9AN4uuNaq2XmFooQ==}
+
+  '@magicblock-labs/vrf-oracle-darwin-arm64@0.4.1':
+    resolution: {integrity: sha512-lelmZ7D7xzosnD3oL+1SsW6tMNj0ckb3+ishV3z9eOsFM7FWu6eNXMOAA0QT+SgCDyfVpLMgnGeKjKCzEXyzeA==}
+    cpu: [arm64]
+    os: [darwin]
+
+  '@magicblock-labs/vrf-oracle-darwin-x64@0.4.1':
+    resolution: {integrity: sha512-KLITTvkjEyt5P4JcRmQ4LAnKowlv3znCdfuYBJy7CHfkilLR8ssy9osiCGJoyhnpXtFqmjDN/rM1IpUzab+YbQ==}
+    cpu: [x64]
+    os: [darwin]
+
+  '@magicblock-labs/vrf-oracle-linux-arm64@0.4.1':
+    resolution: {integrity: sha512-cDA5wI3SsHAxkKGJW0tZNNWq/INf+a9DCBJidACLQ5tfyqegntsfmKI3xutADa986wSbVKPQD0VTXaDNyTWRig==}
+    cpu: [arm64]
+    os: [linux]
+
+  '@magicblock-labs/vrf-oracle-linux-x64@0.4.1':
+    resolution: {integrity: sha512-XkcPFm/NbABiCHRz4h4jKR1hV5RC3t9stUB/6ecrfSjyWi0Eu2SlLVSw2MvXsQz2sZDMNOQB4LTSUHuBFv9IXg==}
+    cpu: [x64]
+    os: [linux]
 
   '@metaplex-foundation/beet-solana@0.3.1':
     resolution: {integrity: sha512-tgyEl6dvtLln8XX81JyBvWjIiEcjTkUwZbrM5dIobTmoqMuGewSyk9CClno8qsMsFdB5T3jC91Rjeqmu/6xk2g==}
@@ -8193,6 +8308,77 @@ snapshots:
       - encoding
       - utf-8-validate
 
+  '@magicblock-labs/ephemeral-validator-darwin-arm64@2.0.3':
+    optional: true
+
+  '@magicblock-labs/ephemeral-validator-darwin-x64@2.0.3':
+    optional: true
+
+  '@magicblock-labs/ephemeral-validator-linux-arm64@2.0.3':
+    optional: true
+
+  '@magicblock-labs/ephemeral-validator-linux-x64@2.0.3':
+    optional: true
+
+  '@magicblock-labs/ephemeral-validator@2.0.3':
+    optionalDependencies:
+      '@magicblock-labs/ephemeral-validator-darwin-arm64': 2.0.3
+      '@magicblock-labs/ephemeral-validator-darwin-x64': 2.0.3
+      '@magicblock-labs/ephemeral-validator-linux-arm64': 2.0.3
+      '@magicblock-labs/ephemeral-validator-linux-x64': 2.0.3
+      '@magicblock-labs/hydra-cranker-darwin-arm64': 0.2.2
+      '@magicblock-labs/hydra-cranker-darwin-x64': 0.2.2
+      '@magicblock-labs/hydra-cranker-linux-arm64': 0.2.2
+      '@magicblock-labs/hydra-cranker-linux-x64': 0.2.2
+      '@magicblock-labs/query-filtering-service-darwin-arm64': 0.1.3
+      '@magicblock-labs/query-filtering-service-darwin-x64': 0.1.3
+      '@magicblock-labs/query-filtering-service-linux-arm64': 0.1.3
+      '@magicblock-labs/query-filtering-service-linux-x64': 0.1.3
+      '@magicblock-labs/rpc-router-darwin-arm64': 0.0.1
+      '@magicblock-labs/rpc-router-darwin-x64': 0.0.1
+      '@magicblock-labs/rpc-router-linux-arm64': 0.0.1
+      '@magicblock-labs/rpc-router-linux-x64': 0.0.1
+      '@magicblock-labs/vrf-oracle-darwin-arm64': 0.4.1
+      '@magicblock-labs/vrf-oracle-darwin-x64': 0.4.1
+      '@magicblock-labs/vrf-oracle-linux-arm64': 0.4.1
+      '@magicblock-labs/vrf-oracle-linux-x64': 0.4.1
+
+  '@magicblock-labs/hydra-cranker-darwin-arm64@0.2.2':
+    optional: true
+
+  '@magicblock-labs/hydra-cranker-darwin-x64@0.2.2':
+    optional: true
+
+  '@magicblock-labs/hydra-cranker-linux-arm64@0.2.2':
+    optional: true
+
+  '@magicblock-labs/hydra-cranker-linux-x64@0.2.2':
+    optional: true
+
+  '@magicblock-labs/query-filtering-service-darwin-arm64@0.1.3':
+    optional: true
+
+  '@magicblock-labs/query-filtering-service-darwin-x64@0.1.3':
+    optional: true
+
+  '@magicblock-labs/query-filtering-service-linux-arm64@0.1.3':
+    optional: true
+
+  '@magicblock-labs/query-filtering-service-linux-x64@0.1.3':
+    optional: true
+
+  '@magicblock-labs/rpc-router-darwin-arm64@0.0.1':
+    optional: true
+
+  '@magicblock-labs/rpc-router-darwin-x64@0.0.1':
+    optional: true
+
+  '@magicblock-labs/rpc-router-linux-arm64@0.0.1':
+    optional: true
+
+  '@magicblock-labs/rpc-router-linux-x64@0.0.1':
+    optional: true
+
   '@magicblock-labs/soar-sdk@0.1.23(@types/node@20.19.43)(arweave@1.15.7)(bufferutil@4.2.0)(fastestsmallesttextencoderdecoder@1.0.22)(utf-8-validate@6.1.0)':
     dependencies:
       '@coral-xyz/anchor': 0.27.0(bufferutil@4.2.0)(typescript@5.9.3)(utf-8-validate@6.1.0)
@@ -8211,6 +8397,18 @@ snapshots:
       - fastestsmallesttextencoderdecoder
       - supports-color
       - utf-8-validate
+
+  '@magicblock-labs/vrf-oracle-darwin-arm64@0.4.1':
+    optional: true
+
+  '@magicblock-labs/vrf-oracle-darwin-x64@0.4.1':
+    optional: true
+
+  '@magicblock-labs/vrf-oracle-linux-arm64@0.4.1':
+    optional: true
+
+  '@magicblock-labs/vrf-oracle-linux-x64@0.4.1':
+    optional: true
 
   '@metaplex-foundation/beet-solana@0.3.1(bufferutil@4.2.0)(typescript@5.9.3)(utf-8-validate@6.1.0)':
     dependencies:
