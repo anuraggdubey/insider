@@ -13,7 +13,7 @@ import {
   loadKeypair,
   loadOrCreateKeypair,
 } from "./config.js";
-import { getDelegationStatus, waitFor } from "./rpc.js";
+import { getDelegationStatus, sleep, waitFor } from "./rpc.js";
 import { teeAuthUrl } from "./tee.js";
 
 export const LAB_SECRET = 424242;
@@ -87,6 +87,9 @@ export async function undelegateLab(ctx: LabCtx, session: Session, label = "lab_
     const info = await ctx.base.getAccountInfo(ctx.lab);
     return info && info.owner.equals(config.programId) ? info : undefined;
   });
+  // the base layer finishes cleaning the delegation record just after ownership returns;
+  // delegating again in that window can fail
+  await sleep(4_000);
 }
 
 /**
@@ -136,16 +139,25 @@ export async function resetLab(ctx: LabCtx) {
 
 /** Delegates the lab to the chosen validator and returns a session on the endpoint serving it. */
 export async function delegateLab(ctx: LabCtx, kind: ValidatorKind): Promise<Session> {
-  await send(
-    ctx.base,
-    ctx.payer,
-    await ctx.baseProgram.methods
-      .labDelegate()
-      .accounts({ payer: ctx.payer.publicKey, lab: ctx.lab })
-      .remainingAccounts([{ pubkey: VALIDATORS[kind], isSigner: false, isWritable: false }])
-      .transaction(),
-    { run: ctx.run, step: "lab_delegate", layer: "base" },
-  );
+  for (let attempt = 1; ; attempt++) {
+    try {
+      await send(
+        ctx.base,
+        ctx.payer,
+        await ctx.baseProgram.methods
+          .labDelegate()
+          .accounts({ payer: ctx.payer.publicKey, lab: ctx.lab })
+          .remainingAccounts([{ pubkey: VALIDATORS[kind], isSigner: false, isWritable: false }])
+          .transaction(),
+        { run: ctx.run, step: "lab_delegate", layer: "base" },
+      );
+      break;
+    } catch (error) {
+      if (attempt >= 3 || !/does not own|modified data/.test((error as Error).message)) throw error;
+      console.log("delegation raced the previous undelegation; retrying in 4s");
+      await sleep(4_000);
+    }
+  }
   const status = await waitFor("router delegation status", async () => {
     const s = await getDelegationStatus(config.routerUrl, ctx.lab);
     return s.isDelegated && s.fqdn ? s : undefined;

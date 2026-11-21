@@ -24,14 +24,14 @@ Built solo for **Solana Blitz v10** (MagicBlock, theme: _Entertainment Finance_)
 | Feature                              | What it does in Insider                                                              | Code                          | Status                                                        |
 | ------------------------------------ | ------------------------------------------------------------------------------------ | ----------------------------- | ------------------------------------------------------------- |
 | **Ephemeral Rollup (ER)** (required) | Delegates round, market and player accounts; 10 ms, zero-fee trades and ticks        | `programs/insider`            | in progress (delegate, commit, undelegate verified on devnet) |
-| **VRF**                              | Picks the Insider, seeds the hidden price path                                       | `programs/insider`            | planned                                                       |
-| **Private ER (PER, TEE)**            | Hides the price tape, positions and balances from everyone but the permitted wallets | `programs/insider`            | planned                                                       |
+| **VRF**                              | Picks the Insider, seeds the hidden price path                                       | `programs/insider`            | in progress (verified on devnet)                              |
+| **Private ER (PER, TEE)**            | Hides the price tape, positions and balances from everyone but the permitted wallets | `programs/insider`            | in progress (verified on devnet-tee)                          |
 | **Magic Router**                     | Routes transactions to base layer or ER automatically on the client                  | `app/lib`                     | planned                                                       |
 | **Session keys**                     | Wallet-free play: no popup per trade                                                 | `programs/insider`, `app/lib` | planned                                                       |
-| **Cranks**                           | Scheduled price ticks inside the rollup                                              | `programs/insider`            | planned                                                       |
+| **Cranks**                           | Scheduled price ticks inside the rollup                                              | `programs/insider`            | in progress (verified; finite tasks on the TEE)               |
 | **SOAR** (stretch)                   | Onchain "best detective" leaderboard                                                 | `app`                         | planned                                                       |
 
-Explorer proofs: the Ephemeral Rollup round trip (delegate, 5 rollup transactions, commit, undelegate, state back on the base layer) is recorded in [docs/proofs](docs/proofs/README.md). VRF and private-state proofs will be added when built.
+Explorer proofs: the Ephemeral Rollup round trip (delegate, 5 rollup transactions, commit, undelegate, state back on the base layer) is recorded in [docs/proofs](docs/proofs/README.md). The Phase 2 de-risking experiments (VRF inside the rollup, private permissions on the TEE, VRF picking the sole reader, cranks and multi-account settlement) are written up in [docs/phase-2-findings.md](docs/phase-2-findings.md).
 
 ## Why onchain
 

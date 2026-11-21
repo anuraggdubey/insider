@@ -63,10 +63,10 @@ Flow: accounts are created and funded on the base layer, delegated to a **TEE va
 | --------------- | ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Delegation / ER | Live round state                | `#[ephemeral]`, `#[delegate]` macros, `delegate_*` CPI, `commit_and_undelegate` via `MagicIntentBundleBuilder`                                                                                                                              |
 | Private ER      | Price tape, positions, balances | Delegate to the TEE validator; `EphemeralPermission` accounts created on the ER via `CreateEphemeralPermissionCpi` / updated via `UpdateEphemeralPermissionCpi` with `Member` flags (`TX_LOGS_FLAG`, `TX_MESSAGE_FLAG`, `TX_BALANCES_FLAG`) |
-| VRF             | Insider selection, tape seed    | `create_request_scoped_randomness_ix` with `#[vrf]` context and a `#[vrf_callback]` consume instruction; oracle queue from `vrf::consts` (ER devnet queue when requested inside the ER) [verify in-ER request]                              |
+| VRF             | Insider selection, tape seed    | `create_request_scoped_randomness_ix` with `#[vrf]` context and a `#[vrf_callback]` consume instruction; oracle queue from `vrf::consts` (delegated ephemeral queue when requested inside the rollup; verified)                             |
 | Magic Router    | Client routing                  | `Connection.create("https://devnet-router.magicblock.app", "wss://devnet-router.magicblock.app")`                                                                                                                                           |
 | Session keys    | Wallet-free trading             | Program-level session authority (section 8)                                                                                                                                                                                                 |
-| Cranks          | Scheduled price ticks           | MagicBlock cranks; fallback is a keeper loop in the agent service [verify]                                                                                                                                                                  |
+| Cranks          | Scheduled price ticks           | MagicBlock cranks with finite iterations (cancel is unavailable on the TEE); fallback is a keeper loop in the agent service                                                                                                                 |
 | SOAR (stretch)  | Detective leaderboard           | SOAR leaderboard + achievements                                                                                                                                                                                                             |
 
 Known endpoints and programs (devnet, from MagicBlock docs):
@@ -225,7 +225,7 @@ insider/
 - **Program unit tests:** payout math (property test: payouts sum to pot), phase gating, vote rules, position limits.
 - **Integration (local ER stack or Surfpool):** full round with 5 players, delegate, VRF, trade, vote, settle.
 - **Devnet smoke test:** scripted round that prints explorer links for each MagicBlock feature.
-- **Privacy test:** a non-Insider wallet attempts to read `PriceTape` and is refused; Insider succeeds [verify].
+- **Privacy test:** a non-Insider wallet attempts to read `PriceTape` and is refused; Insider succeeds (verified on devnet by `pnpm lab:pick`).
 - **Agent dry run:** headless round with 5 agents, no humans, for demo recording.
 
 ## 13. Deployment
@@ -265,10 +265,12 @@ insider/
 
 Cut order if time runs short: SOAR, cranks (use keeper), replay page, agent personas beyond three.
 
-## 17. Open questions to verify early
+## 17. Answers from Phase 2 (verified on devnet)
 
-1. Can `request_roles` run inside the TEE ER with the ER-devnet oracle queue, and can the callback then update the tape permission to the Insider's wallet in the same flow?
-2. Exact TEE authorization flow for reading a private account from the browser and from an agent.
-3. Cranks availability on the TEE validator for periodic `tick`.
-4. Maximum number of delegated accounts per round and compute limits for settlement.
-5. Validator lines: public devnet ERs and the TEE run validator 1.x, which needs SDK 0.18.x; SDK 0.20.x works only with validator 2.0 (devnet-us) and its `#[vrf]` macro does not compile. Re-check before any SDK upgrade.
+Full write-up: [docs/phase-2-findings.md](docs/phase-2-findings.md). Proofs: [docs/proofs](docs/proofs/README.md).
+
+1. **VRF inside the TEE rollup, then a permission update in the same flow:** works. The callback picks the reader and rewrites the permission in one transaction (about 0.4 s end to end). The callback must declare the scoped VRF identity as a compile-time constant on SDK 0.18.
+2. **Reading a private account:** sign the TEE login challenge and use the returned token on the RPC URL. Any permission member can read; others get nothing. Revocation is immediate.
+3. **Cranks on the TEE:** scheduling and ticking work; cancel does not (no task context account), so schedule finite tasks.
+4. **Accounts per round:** 6 delegate instructions per transaction, one update instruction for 11 accounts (26k CU), and at most 9 accounts per settle intent. Settle in batches of 8 or fewer.
+5. **Validator lines:** public devnet ERs and the TEE run validator 1.x, which needs SDK 0.18.x. SDK 0.20.x works only with validator 2.0 (devnet-us) and its `#[vrf]` macro does not compile. Re-check before any SDK upgrade.

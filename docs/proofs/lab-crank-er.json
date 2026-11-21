@@ -13,71 +13,73 @@
       "observed": 6,
       "timeline": [
         {
-          "atMs": 676,
+          "atMs": 660,
           "ticks": 1
         },
         {
-          "atMs": 1246,
+          "atMs": 1224,
           "ticks": 2
         },
         {
-          "atMs": 1823,
+          "atMs": 1801,
           "ticks": 3
         },
         {
-          "atMs": 2393,
+          "atMs": 2373,
           "ticks": 5
         },
         {
-          "atMs": 2966,
+          "atMs": 2953,
           "ticks": 6
         }
       ]
     },
     "directTickCall": "rejected: Simulation failed. \nMessage: transaction verification error: Error processing Instruction 0: custom ",
     "cancel": {
+      "supported": true,
+      "error": null,
       "ticksGrewBeforeCancel": true,
-      "ticksAfterCancelSettled": 12,
-      "ticksFourSecondsLater": 12,
+      "ticksAfterCancelSettled": 380,
+      "ticksFourSecondsLater": 380,
       "stopped": true
     },
-    "ticksOnBase": 12
+    "ticksOnBase": 380
   },
   "steps": [
     {
       "step": "lab_delegate",
       "layer": "base",
-      "signature": "4rbe799qPUtBW4NTxqzXK9Kdg4CjXgtDgDTbw42SKjpRDzxYsCUaCFwQtp5ZrJHtibCosiaegwH8PJR959HZWhuL",
-      "url": "https://explorer.solana.com/tx/4rbe799qPUtBW4NTxqzXK9Kdg4CjXgtDgDTbw42SKjpRDzxYsCUaCFwQtp5ZrJHtibCosiaegwH8PJR959HZWhuL?cluster=devnet",
-      "ms": 802
+      "signature": "47h44AHvdXRCRkw7Hunb8AywnteWQPjSMXMLw1XHrxQLypBAJie7cuBoBw63XrH36qBC8X8umMEPtx9ZNeexvvgk",
+      "url": "https://explorer.solana.com/tx/47h44AHvdXRCRkw7Hunb8AywnteWQPjSMXMLw1XHrxQLypBAJie7cuBoBw63XrH36qBC8X8umMEPtx9ZNeexvvgk?cluster=devnet",
+      "ms": 739
     },
     {
-      "step": "lab_schedule_tick task 280925157 (6x 500ms)",
+      "step": "lab_schedule_tick task 282217549 (6x 500ms)",
       "layer": "ER",
-      "signature": "3Ct7Dc2m4x18onN1szxMzzB5yEWDyAhYySv6P18EKL74foERQHDmJSyCLu7d62CQRY6BvvQsWpEREtG1brcm2Evm",
-      "url": "https://explorer.solana.com/tx/3Ct7Dc2m4x18onN1szxMzzB5yEWDyAhYySv6P18EKL74foERQHDmJSyCLu7d62CQRY6BvvQsWpEREtG1brcm2Evm?cluster=custom&customUrl=https%3A%2F%2Fdevnet-as.magicblock.app",
-      "ms": 411
+      "signature": "46m7Augik5VhXFmBAi3EmLHtMA2vBeNoGVRcbNztaau1CxekTcKhKo7x6v1yzT3bDUeFbY78xwT5yxPBfFsRZ14V",
+      "url": "https://explorer.solana.com/tx/46m7Augik5VhXFmBAi3EmLHtMA2vBeNoGVRcbNztaau1CxekTcKhKo7x6v1yzT3bDUeFbY78xwT5yxPBfFsRZ14V?cluster=custom&customUrl=https%3A%2F%2Fdevnet-as.magicblock.app",
+      "ms": 393
     },
     {
-      "step": "lab_schedule_tick task 280925158 (500x 300ms)",
+      "step": "lab_schedule_tick task 282217550 (500x 300ms)",
       "layer": "ER",
-      "signature": "3nBRj7dz87QkZZrkacCbcJSGVVJCLGfV8HbAxuYFdPbhBNEXWUwejkrHSPyrkVGzkSmDQxg4hEyDKigpYtijphoj",
-      "url": "https://explorer.solana.com/tx/3nBRj7dz87QkZZrkacCbcJSGVVJCLGfV8HbAxuYFdPbhBNEXWUwejkrHSPyrkVGzkSmDQxg4hEyDKigpYtijphoj?cluster=custom&customUrl=https%3A%2F%2Fdevnet-as.magicblock.app",
-      "ms": 381
+      "signature": "mGQwDpGjX7NQV8n3ne4VbAYCMiFNB4dsxWPgtMxsFwqkzWQTUru9q6tyzUp67rgzkHYM7gcwCjizQMPAVhAsoMd",
+      "url": "https://explorer.solana.com/tx/mGQwDpGjX7NQV8n3ne4VbAYCMiFNB4dsxWPgtMxsFwqkzWQTUru9q6tyzUp67rgzkHYM7gcwCjizQMPAVhAsoMd?cluster=custom&customUrl=https%3A%2F%2Fdevnet-as.magicblock.app",
+      "ms": 365
     },
     {
-      "step": "lab_cancel_tick task 280925158",
+      "step": "lab_cancel_tick task 282217550",
       "layer": "ER",
-      "signature": "5nD72X9e6YJa4DeFmvxAEWdFiDXF45YFhACqJvKiSs5w28Zz4A4tfW5nd451TgEhsZ5urWp96ExQb4aqCTzBNM48",
-      "url": "https://explorer.solana.com/tx/5nD72X9e6YJa4DeFmvxAEWdFiDXF45YFhACqJvKiSs5w28Zz4A4tfW5nd451TgEhsZ5urWp96ExQb4aqCTzBNM48?cluster=custom&customUrl=https%3A%2F%2Fdevnet-as.magicblock.app",
-      "ms": 340
+      "signature": "wPwruA42P78pzVsATB4y9czgQfMqwBh7vx4k2AKF3N5Loby7QzVhE8Yyo6UwGMBs7MBTV7SGzFtmjqLXB7ToHti",
+      "url": "https://explorer.solana.com/tx/wPwruA42P78pzVsATB4y9czgQfMqwBh7vx4k2AKF3N5Loby7QzVhE8Yyo6UwGMBs7MBTV7SGzFtmjqLXB7ToHti?cluster=custom&customUrl=https%3A%2F%2Fdevnet-as.magicblock.app",
+      "ms": 374
     },
     {
       "step": "lab_undelegate",
       "layer": "ER",
-      "signature": "aqcbLsmrTDuvFs5JXE87nBvBg1CQCkiJUfMcW18UAesZmPHqtTwFhjb4ggu4wT6wH9fHnB9uD9zvhAzX7jryt2J",
-      "url": "https://explorer.solana.com/tx/aqcbLsmrTDuvFs5JXE87nBvBg1CQCkiJUfMcW18UAesZmPHqtTwFhjb4ggu4wT6wH9fHnB9uD9zvhAzX7jryt2J?cluster=custom&customUrl=https%3A%2F%2Fdevnet-as.magicblock.app",
-      "ms": 366
+      "signature": "2DEFCQtPk2WZxC67RxAd9co2s51SALJg1ZRcrsVBc398sUHzfnFW85hzH8rTcZgwRpeFGdhLSykUfWGwJTZTMr2j",
+      "url": "https://explorer.solana.com/tx/2DEFCQtPk2WZxC67RxAd9co2s51SALJg1ZRcrsVBc398sUHzfnFW85hzH8rTcZgwRpeFGdhLSykUfWGwJTZTMr2j?cluster=custom&customUrl=https%3A%2F%2Fdevnet-as.magicblock.app",
+      "ms": 337
     }
   ]
 }

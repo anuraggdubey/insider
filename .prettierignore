@@ -6,3 +6,4 @@ Cargo.lock
 idl
 docs/proofs/er-spike.json
 docs/proofs/*.json
+docs/proofs/README.md

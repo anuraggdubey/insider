@@ -28,7 +28,8 @@
     "lab:per": "tsx scripts/src/lab/per.ts",
     "lab:pick": "tsx scripts/src/lab/pick.ts",
     "lab:crank": "tsx scripts/src/lab/crank.ts",
-    "lab:slots": "tsx scripts/src/lab/slots.ts"
+    "lab:slots": "tsx scripts/src/lab/slots.ts",
+    "proofs": "tsx scripts/src/build-proof-index.ts"
   },
   "devDependencies": {
     "@magicblock-labs/ephemeral-validator": "^2.0.3",

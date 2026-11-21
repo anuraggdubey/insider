@@ -13,23 +13,23 @@
       "observed": 6,
       "timeline": [
         {
-          "atMs": 569,
-          "ticks": 1
-        },
-        {
-          "atMs": 1160,
+          "atMs": 732,
           "ticks": 2
         },
         {
-          "atMs": 1741,
+          "atMs": 1309,
+          "ticks": 3
+        },
+        {
+          "atMs": 1893,
           "ticks": 4
         },
         {
-          "atMs": 2319,
+          "atMs": 2477,
           "ticks": 5
         },
         {
-          "atMs": 2904,
+          "atMs": 3057,
           "ticks": 6
         }
       ]
@@ -39,40 +39,40 @@
       "supported": false,
       "error": "Simulation failed. Message: transaction verification error: Transaction loads a writable account that cannot be written. Catch the `SendTransactionError` and ca",
       "ticksGrewBeforeCancel": true,
-      "ticksAfterCancelSettled": 354,
-      "ticksFourSecondsLater": 354,
+      "ticksAfterCancelSettled": 396,
+      "ticksFourSecondsLater": 396,
       "stopped": true
     },
-    "ticksOnBase": 354
+    "ticksOnBase": 396
   },
   "steps": [
     {
       "step": "lab_delegate",
       "layer": "base",
-      "signature": "dfGsaSVN35gcskLLmTEbaHFHZiQt14f239LnbQVrDSAKXgZsoSCkN9MMvsstkyPPMH6p388Jvgbz1B5RWpHR1je",
-      "url": "https://explorer.solana.com/tx/dfGsaSVN35gcskLLmTEbaHFHZiQt14f239LnbQVrDSAKXgZsoSCkN9MMvsstkyPPMH6p388Jvgbz1B5RWpHR1je?cluster=devnet",
-      "ms": 793
+      "signature": "3bagRDw1qGc32jSqd7xqfEckwrLcnUD3cvX3xAjpMHeVvWvoafHnHdkCdAhyGD6JtFb2uZh5XiA42zS2n2ZQ4xm",
+      "url": "https://explorer.solana.com/tx/3bagRDw1qGc32jSqd7xqfEckwrLcnUD3cvX3xAjpMHeVvWvoafHnHdkCdAhyGD6JtFb2uZh5XiA42zS2n2ZQ4xm?cluster=devnet",
+      "ms": 963
     },
     {
-      "step": "lab_schedule_tick task 281113661 (6x 500ms)",
+      "step": "lab_schedule_tick task 282238904 (6x 500ms)",
       "layer": "TEE",
-      "signature": "2g5rXCTfDCvrcqSMEFE73mD4t6wGZhCVwBQvYmvfMC9He2ZEmAgZszhrhScxqo2vjMm1wxBMUQANsaM1hc57RFy6",
-      "url": "https://explorer.solana.com/tx/2g5rXCTfDCvrcqSMEFE73mD4t6wGZhCVwBQvYmvfMC9He2ZEmAgZszhrhScxqo2vjMm1wxBMUQANsaM1hc57RFy6?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app",
-      "ms": 430
+      "signature": "5F2hVg3NcgZRKrASxJrGYZhcc83EvbezvhTCxKoASwmSVH7w8HJSKR7LDArv6A742owKWmz3KWVKvH44zhVHMEJw",
+      "url": "https://explorer.solana.com/tx/5F2hVg3NcgZRKrASxJrGYZhcc83EvbezvhTCxKoASwmSVH7w8HJSKR7LDArv6A742owKWmz3KWVKvH44zhVHMEJw?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app",
+      "ms": 586
     },
     {
-      "step": "lab_schedule_tick task 281113662 (10x 300ms)",
+      "step": "lab_schedule_tick task 282238905 (10x 300ms)",
       "layer": "TEE",
-      "signature": "3trqHc3B35QDPnBXhHE41NVZwWMBMpsF7knDjUFxrW1Sb9BLEE5oB38N512ayNNRKfnJzKjjnZGCvxVhckmJJdip",
-      "url": "https://explorer.solana.com/tx/3trqHc3B35QDPnBXhHE41NVZwWMBMpsF7knDjUFxrW1Sb9BLEE5oB38N512ayNNRKfnJzKjjnZGCvxVhckmJJdip?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app",
-      "ms": 356
+      "signature": "5ugknG4mWZW7svaum4Ahaypqn9hJdTyyQJL4aZCtJKgt32nvaqY7Zryyp7ARXeWrBQnaqgBq9hykF7PSUUxyomsx",
+      "url": "https://explorer.solana.com/tx/5ugknG4mWZW7svaum4Ahaypqn9hJdTyyQJL4aZCtJKgt32nvaqY7Zryyp7ARXeWrBQnaqgBq9hykF7PSUUxyomsx?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app",
+      "ms": 346
     },
     {
       "step": "lab_undelegate",
       "layer": "TEE",
-      "signature": "3L5AamQEBVMSreg2rjhgkwpX4BdW5n587WoAwcuVovAm5yKeKKay8pskLrS2c7Y4RiDt1WZ3fbrsE4y997Xv9NFU",
-      "url": "https://explorer.solana.com/tx/3L5AamQEBVMSreg2rjhgkwpX4BdW5n587WoAwcuVovAm5yKeKKay8pskLrS2c7Y4RiDt1WZ3fbrsE4y997Xv9NFU?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app",
-      "ms": 377
+      "signature": "9ZAh8fVZqJvyfs9c2qXKEhKAgkiid2yLCH2pREQGKqBQEuVomQxf4cN9ZZ3szBAjpZ5EpxaanCNFrJsFYHBzXLv",
+      "url": "https://explorer.solana.com/tx/9ZAh8fVZqJvyfs9c2qXKEhKAgkiid2yLCH2pREQGKqBQEuVomQxf4cN9ZZ3szBAjpZ5EpxaanCNFrJsFYHBzXLv?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app",
+      "ms": 342
     }
   ]
 }

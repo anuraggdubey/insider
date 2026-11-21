@@ -78,7 +78,6 @@ pub fn handler(ctx: Context<LabRequestPick>, client_seed: u8) -> Result<()> {
                 readonly(MAGIC_PROGRAM_ID),
             ]),
             callback_args: None,
-            ..Default::default()
         },
         PROGRAM_IDENTITY,
     );

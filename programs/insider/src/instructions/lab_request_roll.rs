@@ -53,7 +53,6 @@ pub fn handler(ctx: Context<LabRequestRoll>, client_seed: u8) -> Result<()> {
                 is_writable: true,
             }]),
             callback_args: None,
-            ..Default::default()
         },
         PROGRAM_IDENTITY,
     );
