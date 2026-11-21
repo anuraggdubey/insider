@@ -1,112 +1,112 @@
 # INSIDER
 
-**Front-running is the game.**
+**Own the secret. Front-running is the game.**
 
-INSIDER is a real-time trading game on Solana built around MEV. Every order you send waits **10
-seconds in a dark mempool** before it executes. For those 10 seconds the future exists, sealed
-inside MagicBlock's Private Ephemeral Rollup. Nobody can see it: not the other players, not the
-server, not us.
+INSIDER is a live trading exchange on Solana where the asset is **read access to information**.
+Every order you send waits **10 seconds in a dark mempool** inside MagicBlock's Private Ephemeral
+Rollup. Nobody can see its side or size: not the other players, not the server, not us. Behind the
+market, VRF also writes a **hidden future** that no wallet can read.
 
-Unless they buy a **Leak**: a sealed, provably untouched snapshot of a piece of that mempool. Read
-it, then pay the priority fee to jump ahead of the orders you just saw. Or flip it unopened to
-someone who'll pay more. Or place a fat fake order to bait the front-runners, and fade them when
-they bite.
+Every ten seconds the program mints a sealed **Leak**: a snapshot of the dark mempool, or a true
+fact about the hidden future. Buy one at a falling Dutch price and the TEE makes you its only
+reader. Then open it and **front-run** the orders you just read, flip it sealed to someone who'll
+pay more, or license it to a few others and watch your edge decay.
 
-The future here isn't a random number. **The other players make it**, and you can buy a look at
-it.
+On **The Desk**, players lock private **Calls** on the _real_ SOL/USD price. A crank settles them
+against the MagicBlock oracle, and every seat builds a public, verifiable track record. Two of the
+analysts are AI agents.
 
-Built solo for **Solana Blitz v10** (MagicBlock, theme: _Entertainment Finance_).
+Built by **Anurag Dubey** and **Misbah Ansari** for **Solana Blitz v10** (MagicBlock, theme:
+_Entertainment Finance_).
 
-> **Status:** in development. Every feature below is marked `planned`, `in progress` or `done`, and
-> only `done` items are claimed as working. See [Status legend](#status-legend).
+> **Status:** in development. Every feature is marked `planned`, `in progress` or `done`. Only
+> `done` items are claimed as working. "Verified" means the underlying primitive ran on devnet in
+> our lab experiments (see [docs/phase-2-findings.md](docs/phase-2-findings.md)). See the
+> [status legend](#status-legend).
 
 ---
 
-## A round in 90 seconds
+## A round in 110 seconds
 
-1. **Sit down.** Click _Play_. A browser key takes a seat at a live table. There's no wallet popup
-   and no deposit. Bots with real strategies fill the other seats.
-2. **Send orders into the dark.** Buy or sell. Your order enters the private mempool and
-   executes against the market **20 ticks (10 s)** later. Everyone sees that _you_ sent something,
-   and which lane you used. Nobody sees the side or size.
-3. **Leaks drop.** Every 10 s the program snapshots part of the mempool into a sealed Leak, such
-   as _"Net flow landing in 4-9 s"_, _"Largest pending order"_ or _"Whale incoming"_. The label
-   is public. The contents are sealed.
-4. **Dutch auction.** The Leak's price falls every 500 ms until someone takes it.
-5. **Open, flip or ignore.** _Open_ makes you its only reader (the TEE adds your key to its
-   permission). _Flip_ resells it sealed, and a sealed Leak has provably never been read.
-6. **Front-run.** Saw an 800-unit buy landing in 7 s? Send your buy in the **priority lane** (2 s
-   delay, costs a fee), let their order push the price, and sell into it.
-7. **X-ray.** At round end, every order, every Leak and every front-run is replayed on the chart,
-   with arrows showing who got sandwiched by whom.
+1. **Sit down.** One click gets you a seat. Guests get a browser key and chips; wallet users get a
+   session key with no popups. Bots fill the other seats.
+2. **The future is written.** A VRF request seeds the round inside the TEE: a hidden price path,
+   hidden whale orders and the Leak schedule.
+3. **Send orders into the dark.** The standard lane lands in 10 s. The priority lane lands in 2 s
+   for a fee, and using it is a tell. Everyone sees _who_ sent an order, never what it was.
+4. **Leaks drop** every 10 s: sealed, with a public label and rarity.
+5. **Dutch auction.** The price falls every 500 ms until someone takes it.
+6. **Open, flip or license.** Each is an access-control edit enforced by the TEE.
+7. **Front-run, bait, fade.** Read a big pending buy, jump ahead in the priority lane, sell into
+   it. Or send a decoy and fade the bots that bite.
+8. **X-ray.** Every order, Leak and sandwich is replayed on the chart.
 
-## Why this is different
+## What makes it different
 
-- **The hidden information is made by the players.** In most hidden-info games the secret is a
-  card or a random number. In INSIDER the secret is other people's pending orders, so every
-  action you take creates information someone else can buy.
-- **It plays out a real crypto concept.** Mempools, priority fees, front-running and sandwiches
-  are everyday Solana knowledge, and here they're the game mechanics.
-- **Privacy you can sell.** A Leak is read access to sealed data, and ownership is enforced by
-  the TEE's permission list. Most privacy projects hide data. Here, read access is something you
-  trade.
-- **Bluffing is built in.** Leaks are true snapshots, so the only way to deceive is to place real
-  orders you're willing to have filled. Bluffing costs you, which keeps it meaningful.
-- **It plays with one person.** Bots front-run, bait, flip and copy-trade under the same rules,
-  so a judge can play a full round alone in under a minute.
+- **The secret is made by the players.** Pending orders are the hidden information, so every action
+  you take creates something someone else can buy.
+- **It plays out a concept every Solana user knows.** Mempools, priority fees, front-running and
+  sandwiches are the game mechanics.
+- **Read access is the asset.** Buying, flipping and licensing a Leak rewrites who the TEE lets
+  read an account. A Leak that was never opened has provably never been read.
+- **Two kinds of secret that interact.** Flow (other players' orders) and Fundamentals (the VRF
+  future the market is pulled toward). Flow pushes the price, fundamentals pull it back.
+- **A real information economy.** Every reader's trades move the price, so shared information
+  decays. Sellers choose between exclusivity and revenue.
+- **Real markets, private signals.** Calls on live SOL/USD are settled by a crank against the
+  MagicBlock oracle, so analyst track records are verifiable on chain.
+- **Always live, plays alone.** Cranks run the table. Bots front-run, bait, flip, license and copy
+  under the same rules as humans.
 
 ## MagicBlock features used
 
-| Feature                                   | What it does in INSIDER                                                                                 | Code                      | Status                                                    |
-| ----------------------------------------- | ------------------------------------------------------------------------------------------------------- | ------------------------- | --------------------------------------------------------- |
-| **Ephemeral Rollup (ER)** (required)      | The table, market and seats stay delegated; orders, bids and ticks run at zero fees, 2 ticks per second | `programs/insider`        | in progress (delegate, commit, undelegate verified)       |
-| **Private ER (PER, TEE)**                 | The dark mempool and every sealed Leak are unreadable; opening a Leak adds exactly one reader           | `programs/insider`        | in progress (private read and member rewrite verified)    |
-| **VRF**                                   | Rolls each Leak drop (type, window), schedules hidden whale flow, and adds market noise                 | `programs/insider`        | in progress (VRF in TEE + permission rewrite verified)    |
-| **Cranks**                                | 500 ms ticks: mature orders, step auctions, expire Leaks, change phases                                 | `programs/insider`        | in progress (finite scheduled ticks on the TEE, verified) |
-| **Magic Router**                          | Client routes base and rollup transactions automatically                                                | `app/src/lib`             | planned                                                   |
-| **Ephemeral SPL / Private Payments** (P2) | Stake mode: buy-in and private prize payouts in a devnet test token                                     | `programs/insider`, `app` | planned                                                   |
+| Feature                              | What it does in INSIDER                                                                                                         | Code                      | Status                                                                                        |
+| ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------- | ------------------------- | --------------------------------------------------------------------------------------------- |
+| **Ephemeral Rollup (ER)** (required) | The whole table runs delegated: 500 ms ticks, order maturity, auctions and zero-fee trades                                      | `programs/insider`        | in progress (delegate, commit, undelegate verified)                                           |
+| **Private ER (PER, TEE)**            | Hides the pending-order mempool, the future, and every sealed Leak and Call; ownership, flips and licenses are permission edits | `programs/insider`        | in progress (private read, revocation and atomic rewrite verified; order privacy gated by G0) |
+| **VRF**                              | Seeds each round's hidden future, whale orders and drop schedule in the TEE                                                     | `programs/insider`        | in progress (VRF in the TEE and permission rewrite verified)                                  |
+| **Cranks**                           | 500 ms ticks, order maturity, auction steps, expiries, Call settlement                                                          | `programs/insider`        | in progress (finite scheduled ticks on the TEE verified)                                      |
+| **Pricing Oracle**                   | Real SOL/USD for The Desk: Call snapshots, settlement, marks                                                                    | `programs/insider`        | planned (gate G4)                                                                             |
+| **Private Payments / Ephemeral SPL** | Alpha Cup buy-ins and private prize payouts                                                                                     | `programs/insider`, `app` | planned (gate G5)                                                                             |
+| **Magic Actions + SOAR**             | Post-commit leaderboard and achievements on the base layer                                                                      | `programs/insider`        | planned (gate G6)                                                                             |
+| **Session keys**                     | Popup-free play for wallet users                                                                                                | `programs/insider`, `app` | planned (gate G7)                                                                             |
+| **Magic Router**                     | Client routing across base and rollup transactions                                                                              | `sdk`                     | planned                                                                                       |
 
-The primitive the game depends on was proven before any game code was written: a VRF callback
-inside the TEE picks a wallet and makes it the only reader of a private account in one
-transaction, in about 0.4 s. See [docs/phase-2-findings.md](docs/phase-2-findings.md) and the devnet
-index in [docs/proofs](docs/proofs/README.md). The new risk for the dark mempool is whether
-order transactions themselves stay hidden. That's
-[TECHNICAL_SPEC.md §4](TECHNICAL_SPEC.md#4-magicblock-integration-what-is-proven-what-is-not), and
-it's checked first, with a fallback.
+The hard part was proven before any game code was written: a VRF callback inside the TEE picks a
+wallet and makes it the **only** reader of a private account in one transaction, in about 0.4 s. The
+transaction index is in [docs/proofs](docs/proofs/README.md).
 
 ## Why it has to be onchain
 
-- **A dark mempool you can trust.** On a normal server, the operator is the biggest
-  front-runner. Here pending orders sit in TEE-private state that no key can read, including ours.
-- **Leaks can't lie.** The program builds each Leak from the real mempool, so the contents are
-  guaranteed accurate as of the tick it was minted.
-- **Ownership is enforced, not promised.** Who can read a Leak is a permission record, visible on
-  the explorer.
-- **Real-time at zero fees.** Execution at 2 ticks per second and auctions that drop every 500 ms
-  aren't practical on the base layer.
+- **Nobody can peek.** Pending orders, the future and sealed Leaks are readable by no wallet,
+  including ours.
+- **Nobody can rig it.** VRF writes the future and the authority has no instruction that edits it.
+- **Truth is guaranteed.** The program computes every Leak from the hidden state.
+- **Real time at zero fees.** A falling price every 500 ms and orders that mature on a tick aren't
+  practical on the base layer.
+- **Track records can't be faked.** The crank settles Calls against the oracle, not against us.
 
 ## Tech stack
 
-- **Onchain:** Rust, Anchor, `ephemeral-rollups-sdk` 0.18 (features: `anchor`, `vrf`,
-  `access-control`)
-- **Frontend:** Next.js (App Router), TypeScript, Tailwind CSS, Framer Motion,
-  `lightweight-charts`
-- **Client SDKs:** `@solana/kit`, `@magicblock-labs/ephemeral-rollups-kit`, Wallet Standard
-- **Bots:** TypeScript service, one real keypair per bot, deterministic strategies, no privileged
-  path
+- **Onchain:** Rust, Anchor, `ephemeral-rollups-sdk` 0.18 (`anchor`, `vrf`, `access-control`, `crank`)
+- **Frontend:** Next.js (App Router), TypeScript, Tailwind CSS, Framer Motion, `lightweight-charts`
+- **SDK:** `sdk/`, a typed client shared by the app and the bots
+- **Bots:** TypeScript service, one real keypair per bot, deterministic strategies
+- **AI Desk:** Anthropic API for analyst Calls and live commentary
 
-Full design in [TECHNICAL_SPEC.md](TECHNICAL_SPEC.md). Product and pitch in
-[PROJECT_INFO.md](PROJECT_INFO.md).
+Design: [TECHNICAL_SPEC.md](TECHNICAL_SPEC.md). Product: [PROJECT_INFO.md](PROJECT_INFO.md). Who
+builds what: [STEPS.md](STEPS.md).
 
 ## Repository layout
 
 ```
-programs/insider/   Anchor program (table, dark mempool, vAMM, leaks, VRF, PER, cranks)
-app/                Next.js app (trading floor, Leak cards, X-ray replay)
-bots/               Bot players (Front-runner, Baiter, Flipper, Copycat, Flow) and keeper
+programs/insider/   Anchor program: table, mempool, vAMM, leaks, desk, math, VRF, PER, cranks
+sdk/                Typed TypeScript client (accounts, instructions, TEE auth)
+app/                Next.js app (trading floor, ghost orders, Leak cards, Desk, X-ray)
+bots/               Bot players, AI analysts and commentary
 tests/              Integration tests
-scripts/            Deploy, table setup, simulate-round, Phase 2 lab experiments
-docs/               Phase 2 findings and devnet proofs
+scripts/            Deploy, setup, gates, simulate-round, economics simulator, lab experiments
+docs/               Phase 2 findings, gate results and devnet proofs
 ```
 
 ## Quick start
@@ -124,7 +124,7 @@ pnpm program:test               # program unit tests (LiteSVM)
 pnpm test                       # integration tests
 ```
 
-Note: on Windows, `anchor build` can crash inside `cargo-build-sbf`; use `pnpm program:build` and
+On Windows, `anchor build` can crash inside `cargo-build-sbf`; use `pnpm program:build` and
 `pnpm program:idl` instead.
 
 ## Status legend
@@ -135,7 +135,8 @@ Note: on Windows, `anchor build` can crash inside `cargo-build-sbf`; use `pnpm p
 
 ## Hackathon
 
-Solana Blitz v10, Nov 20-27 2026 (online), by MagicBlock. Submission deadline: Nov 27 9:00 AM EST.
+Solana Blitz v10, Nov 20-27 2026 (online), by MagicBlock. Submission deadline: Nov 27, 9:00 AM EST
+(14:00 UTC).
 
 ## License
 
