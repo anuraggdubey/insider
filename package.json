@@ -1,0 +1,15 @@
+{
+  "name": "insider",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Insider: a real-time social-deduction trading game on Solana, built on MagicBlock Ephemeral Rollups.",
+  "license": "MIT",
+  "packageManager": "pnpm@10.34.9",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "dev": "pnpm --filter app dev",
+    "build": "pnpm --filter app build"
+  }
+}
