@@ -4,10 +4,4 @@ use anchor_lang::prelude::*;
 pub enum InsiderError {
     #[msg("Arithmetic overflow")]
     Overflow,
-    #[msg("A randomness request is already pending")]
-    RollPending,
-    #[msg("No randomness request is pending")]
-    NoRollPending,
-    #[msg("Permission member list exceeds the funded capacity")]
-    TooManyMembers,
 }

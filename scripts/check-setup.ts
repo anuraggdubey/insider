@@ -4,11 +4,10 @@ import { existsSync } from "node:fs";
 const tools: Array<[string, string]> = [
   ["node", "node --version"],
   ["pnpm", "pnpm --version"],
-  ["rustc", "rustc --version"],
+  ["rustc (programs/)", "cd programs && rustc --version"],
   ["solana", "solana --version"],
   ["anchor", "anchor --version"],
   ["cargo build-sbf", "cargo build-sbf --version"],
-  ["ffmpeg", "ffmpeg -version"],
 ];
 
 let failed = false;
