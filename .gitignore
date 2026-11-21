@@ -1,0 +1,47 @@
+# Private working notes (not part of the submission)
+DEMO_VIDEO_PLAYBOOK.md
+
+# Local agent tooling / installed skills
+.agents/
+.claude/
+skills-lock.json
+
+# Secrets and keys
+.env
+.env.*
+!.env.example
+*.keypair
+*-keypair.json
+id.json
+wallet.json
+
+# Node / Next.js
+node_modules/
+.next/
+out/
+dist/
+.turbo/
+.vercel/
+*.tsbuildinfo
+next-env.d.ts
+
+# Rust / Anchor / Solana
+target/
+.anchor/
+test-ledger/
+.surfpool/
+*.so
+
+# Video project renders and caches
+video/renders/
+video/.cache/
+*.mp4
+*.mov
+*.webm
+
+# Logs and OS files
+*.log
+npm-debug.log*
+pnpm-debug.log*
+.DS_Store
+Thumbs.db
