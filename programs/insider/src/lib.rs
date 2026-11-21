@@ -4,7 +4,7 @@ pub mod instructions;
 pub mod state;
 
 use anchor_lang::prelude::*;
-use ephemeral_rollups_sdk::anchor::ephemeral;
+use ephemeral_rollups_sdk::{access_control::structs::Member, anchor::ephemeral};
 
 pub use constants::*;
 pub use instructions::*;
@@ -61,6 +61,26 @@ pub mod insider {
 
     pub fn lab_cancel_roll(ctx: Context<LabCancelRoll>) -> Result<()> {
         lab_cancel_roll::handler(ctx)
+    }
+
+    pub fn lab_create_permission(
+        ctx: Context<LabPermission>,
+        is_private: bool,
+        members: Vec<Member>,
+    ) -> Result<()> {
+        lab_permission::create_handler(ctx, is_private, members)
+    }
+
+    pub fn lab_update_permission(
+        ctx: Context<LabPermission>,
+        is_private: bool,
+        members: Vec<Member>,
+    ) -> Result<()> {
+        lab_permission::update_handler(ctx, is_private, members)
+    }
+
+    pub fn lab_close_permission(ctx: Context<LabPermission>) -> Result<()> {
+        lab_permission::close_handler(ctx)
     }
 
     pub fn lab_commit(ctx: Context<LabCommit>) -> Result<()> {

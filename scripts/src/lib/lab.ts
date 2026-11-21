@@ -158,3 +158,33 @@ export async function readLab(connection: Connection, programClient: Program, la
   const info = await connection.getAccountInfo(lab);
   return info ? programClient.coder.accounts.decode("lab", info.data) : undefined;
 }
+
+/** Permission member flags from the Permission Program. */
+export const FLAGS = {
+  AUTHORITY: 1,
+  TX_LOGS: 2,
+  TX_BALANCES: 4,
+  TX_MESSAGE: 8,
+  ACCOUNT_SIGNATURES: 16,
+} as const;
+export const ALL_FLAGS = 15;
+
+export type Member = { flags: number; pubkey: PublicKey };
+
+export type ReadResult = { visible: boolean; secret?: string; detail: string };
+
+/** Reads the lab through a connection and reports whether the caller can see its data. */
+export async function tryRead(
+  connection: Connection,
+  programClient: Program,
+  lab: PublicKey,
+): Promise<ReadResult> {
+  try {
+    const info = await connection.getAccountInfo(lab);
+    if (!info) return { visible: false, detail: "account not returned" };
+    const state = programClient.coder.accounts.decode("lab", info.data);
+    return { visible: true, secret: state.secret.toString(), detail: "data returned" };
+  } catch (error) {
+    return { visible: false, detail: (error as Error).message.slice(0, 120) };
+  }
+}

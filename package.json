@@ -24,7 +24,8 @@
     "program:deploy": "solana program deploy target/deploy/insider.so --program-id .keys/insider-program-keypair.json --keypair .keys/deployer.json --url devnet",
     "validator:local": "ephemeral-validator",
     "spike": "tsx scripts/src/spike.ts",
-    "lab:vrf": "tsx scripts/src/lab/vrf.ts"
+    "lab:vrf": "tsx scripts/src/lab/vrf.ts",
+    "lab:per": "tsx scripts/src/lab/per.ts"
   },
   "devDependencies": {
     "@magicblock-labs/ephemeral-validator": "^2.0.3",

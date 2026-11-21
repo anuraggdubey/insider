@@ -1,0 +1,147 @@
+{
+  "experiment": "lab-per-tee",
+  "network": "devnet",
+  "program": {
+    "id": "5TbtvduZEmNWbnr7wfvB9A9TobbxSB96e1xYcr6NnSDQ",
+    "url": "https://explorer.solana.com/address/5TbtvduZEmNWbnr7wfvB9A9TobbxSB96e1xYcr6NnSDQ?cluster=devnet"
+  },
+  "facts": {
+    "lab": "6Yvbc3kWpwK6sZJEyGoMQYSWT6v6WkcqJWqqx8nH6tRs",
+    "permission": "4oRH3SJCCDRKxmg4CkariABTZWDZRT4rRfB74q1RtKAr",
+    "member": "5E4jdNnxWgAUdJjUR2hMZt5hXtZDYg5cfK35Zc2GDsEF",
+    "outsider": "4UjkijS5MGe5UfYNAooWENu5UoMEuZy8VYr14kDi749g",
+    "endpoint": "https://devnet-tee.magicblock.app/",
+    "read:1 before permission / anonymous": {
+      "expectedVisible": true,
+      "visible": true,
+      "secretSeen": "424242",
+      "detail": "data returned",
+      "settledMs": 236,
+      "ok": true
+    },
+    "read:2 private / member payer": {
+      "expectedVisible": true,
+      "visible": true,
+      "secretSeen": "424242",
+      "detail": "data returned",
+      "settledMs": 67,
+      "ok": true
+    },
+    "read:2 private / anonymous": {
+      "expectedVisible": false,
+      "visible": false,
+      "secretSeen": null,
+      "detail": "account not returned",
+      "settledMs": 196,
+      "ok": true
+    },
+    "read:2 private / outsider": {
+      "expectedVisible": false,
+      "visible": false,
+      "secretSeen": null,
+      "detail": "account not returned",
+      "settledMs": 64,
+      "ok": true
+    },
+    "read:2 private / not-yet-added member": {
+      "expectedVisible": false,
+      "visible": false,
+      "secretSeen": null,
+      "detail": "account not returned",
+      "settledMs": 65,
+      "ok": true
+    },
+    "read:3 member with TX_LOGS only": {
+      "expectedVisible": true,
+      "visible": true,
+      "secretSeen": "424242",
+      "detail": "data returned",
+      "settledMs": 68,
+      "ok": true
+    },
+    "read:3 outsider still blocked": {
+      "expectedVisible": false,
+      "visible": false,
+      "secretSeen": null,
+      "detail": "account not returned",
+      "settledMs": 69,
+      "ok": true
+    },
+    "read:4 member after revocation": {
+      "expectedVisible": false,
+      "visible": false,
+      "secretSeen": null,
+      "detail": "account not returned",
+      "settledMs": 66,
+      "ok": true
+    },
+    "read:4 payer still reads": {
+      "expectedVisible": true,
+      "visible": true,
+      "secretSeen": "424242",
+      "detail": "data returned",
+      "settledMs": 67,
+      "ok": true
+    },
+    "read:5 public again / anonymous": {
+      "expectedVisible": true,
+      "visible": true,
+      "secretSeen": "424242",
+      "detail": "data returned",
+      "settledMs": 65,
+      "ok": true
+    },
+    "failures": 0
+  },
+  "steps": [
+    {
+      "step": "lab_delegate",
+      "layer": "base",
+      "signature": "f3wD7KNFkugoWxF5kbKCWGUbh4cXrVDop3Vgu9mme742C6dsf9yGq5xPTppbgsptTKpNKj9FDNzbaaWgUFxmrDY",
+      "url": "https://explorer.solana.com/tx/f3wD7KNFkugoWxF5kbKCWGUbh4cXrVDop3Vgu9mme742C6dsf9yGq5xPTppbgsptTKpNKj9FDNzbaaWgUFxmrDY?cluster=devnet",
+      "ms": 779
+    },
+    {
+      "step": "lab_create_permission",
+      "layer": "TEE",
+      "signature": "b9QG8s382J2SZD9Sod5EtdZADFqNUhqjutXox5JwRoiPaH4Tc7HSF8XvYrrfxoDNCx57haNVshXS2MhgxdcLJpH",
+      "url": "https://explorer.solana.com/tx/b9QG8s382J2SZD9Sod5EtdZADFqNUhqjutXox5JwRoiPaH4Tc7HSF8XvYrrfxoDNCx57haNVshXS2MhgxdcLJpH?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app",
+      "ms": 466
+    },
+    {
+      "step": "lab_update_permission (add member, TX_LOGS)",
+      "layer": "TEE",
+      "signature": "ymPQQqKvFHQJA4yksM31VLpGejMyofQhMEfK2TxmhYoEMNhCuPxWrX7S9ceUE8BBYyqSr25k6J1TQYwDafQ3th5",
+      "url": "https://explorer.solana.com/tx/ymPQQqKvFHQJA4yksM31VLpGejMyofQhMEfK2TxmhYoEMNhCuPxWrX7S9ceUE8BBYyqSr25k6J1TQYwDafQ3th5?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app",
+      "ms": 480
+    },
+    {
+      "step": "lab_update_permission (revoke member)",
+      "layer": "TEE",
+      "signature": "48xHVSB8yGzfdJp5RDFDxTQLwAt4fpeEWZNMJio8kSwBVQCNavuMQgSqXtwamW99Ynr6PADZxsFhsQj6JNFrKc4C",
+      "url": "https://explorer.solana.com/tx/48xHVSB8yGzfdJp5RDFDxTQLwAt4fpeEWZNMJio8kSwBVQCNavuMQgSqXtwamW99Ynr6PADZxsFhsQj6JNFrKc4C?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app",
+      "ms": 149
+    },
+    {
+      "step": "lab_update_permission (public)",
+      "layer": "TEE",
+      "signature": "DKJjfrJ3JumWzGTeu4CV2qLbibBhPhe3BDtBjopSmzH52g2jEk5dqTMTReuNY19twezMRB2czL49JH9QmuBe3s8",
+      "url": "https://explorer.solana.com/tx/DKJjfrJ3JumWzGTeu4CV2qLbibBhPhe3BDtBjopSmzH52g2jEk5dqTMTReuNY19twezMRB2czL49JH9QmuBe3s8?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app",
+      "ms": 147
+    },
+    {
+      "step": "lab_close_permission",
+      "layer": "TEE",
+      "signature": "4vny9cgUiEXVXvhNo2AFSfoX3DHGYW1gE9uZE17w9QC7bK4a6trayr8GNfHEkW59Deubdz1X5M3m96bY22vBdy5U",
+      "url": "https://explorer.solana.com/tx/4vny9cgUiEXVXvhNo2AFSfoX3DHGYW1gE9uZE17w9QC7bK4a6trayr8GNfHEkW59Deubdz1X5M3m96bY22vBdy5U?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app",
+      "ms": 143
+    },
+    {
+      "step": "lab_undelegate",
+      "layer": "TEE",
+      "signature": "Pfr8DPpgm4sfGqGkh24aDRgKhWjVWDMXrpNWA4dcqRxD9ZcwAxBmismB9V225Nxxzr7swcoS47B5gzBHUuKLJUp",
+      "url": "https://explorer.solana.com/tx/Pfr8DPpgm4sfGqGkh24aDRgKhWjVWDMXrpNWA4dcqRxD9ZcwAxBmismB9V225Nxxzr7swcoS47B5gzBHUuKLJUp?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app",
+      "ms": 204
+    }
+  ]
+}

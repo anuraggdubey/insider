@@ -8,4 +8,6 @@ pub enum InsiderError {
     RollPending,
     #[msg("No randomness request is pending")]
     NoRollPending,
+    #[msg("Permission member list exceeds the funded capacity")]
+    TooManyMembers,
 }
