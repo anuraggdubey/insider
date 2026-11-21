@@ -25,7 +25,8 @@
     "validator:local": "ephemeral-validator",
     "spike": "tsx scripts/src/spike.ts",
     "lab:vrf": "tsx scripts/src/lab/vrf.ts",
-    "lab:per": "tsx scripts/src/lab/per.ts"
+    "lab:per": "tsx scripts/src/lab/per.ts",
+    "lab:pick": "tsx scripts/src/lab/pick.ts"
   },
   "devDependencies": {
     "@magicblock-labs/ephemeral-validator": "^2.0.3",

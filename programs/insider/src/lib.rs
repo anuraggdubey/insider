@@ -59,6 +59,14 @@ pub mod insider {
         lab_roll_callback::handler(ctx, randomness)
     }
 
+    pub fn lab_request_pick(ctx: Context<LabRequestPick>, client_seed: u8) -> Result<()> {
+        lab_request_pick::handler(ctx, client_seed)
+    }
+
+    pub fn lab_pick_callback(ctx: Context<LabPickCallback>, randomness: [u8; 32]) -> Result<()> {
+        lab_pick_callback::handler(ctx, randomness)
+    }
+
     pub fn lab_cancel_roll(ctx: Context<LabCancelRoll>) -> Result<()> {
         lab_cancel_roll::handler(ctx)
     }
