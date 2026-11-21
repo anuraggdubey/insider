@@ -10,7 +10,19 @@
   },
   "scripts": {
     "dev": "pnpm --filter app dev",
-    "build": "pnpm --filter app build"
+    "build": "pnpm --filter app build",
+    "lint": "pnpm --filter app lint",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "typecheck": "pnpm -r --if-present typecheck",
+    "test": "pnpm --filter tests test",
+    "bots": "pnpm --filter bots dev",
+    "program:build": "cargo build-sbf --manifest-path programs/insider/Cargo.toml",
+    "program:idl": "anchor idl build -o target/idl/insider.json",
+    "program:check": "cargo check -p insider",
+    "program:test": "cargo test -p insider",
+    "program:deploy": "solana program deploy target/deploy/insider.so --program-id .keys/insider-program-keypair.json --keypair .keys/deployer.json --url devnet",
+    "validator:local": "ephemeral-validator"
   },
   "devDependencies": {
     "@magicblock-labs/ephemeral-validator": "^2.0.3",
