@@ -2,7 +2,7 @@
   "name": "insider",
   "version": "0.1.0",
   "private": true,
-  "description": "INSIDER: a real-time market for sealed, perishable information on Solana, built on MagicBlock Ephemeral Rollups, VRF and Private ER.",
+  "description": "INSIDER: a real-time front-running game on Solana with a TEE-sealed dark mempool, built on MagicBlock Ephemeral Rollups, VRF and Private ER.",
   "license": "MIT",
   "packageManager": "pnpm@10.34.9",
   "engines": {

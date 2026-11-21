@@ -2,182 +2,195 @@
 
 ## One-line pitch
 
-A real-time market where you trade the future: sealed, perishable Leaks about the price, which
-only their owner can read. The TEE enforces that.
+A real-time trading game where every order waits 10 seconds in a TEE-sealed dark mempool, and
+players buy, flip and act on sealed snapshots of it. Front-running is the game.
 
 ## Taglines
 
-- "Buy the future. Sealed."
-- "On Solana you can own a token. Here you can own a secret."
-- "Alpha expires."
+- "Front-running is the game."
+- "Every order waits 10 seconds in the dark. Buy a look."
+- "The future is other people's orders."
 
 ## The idea in plain words
 
-Finance runs on information asymmetry. Somebody knows something first, and everyone else pays
-for it. INSIDER turns that into a game you can play in 90 seconds.
+On real chains, whoever sees the mempool first wins. Bots read pending transactions, pay a
+priority fee to jump ahead, and profit from everyone else's trades. INSIDER turns that into a
+90-second game that's fair to play.
 
-- A table trades one synthetic asset. Its price path for the round is **already written** by
-  verifiable randomness and sealed inside a Private Ephemeral Rollup. No one can read it.
-- Every ten seconds the program cuts a **Leak** from that hidden future: one true fact, such as
-  the exact price twelve seconds from now, or whether a crash starts within twenty seconds.
-- The Leak is sold **sealed** in a falling-price auction. The label and rarity are public. The
-  contents aren't.
-- The owner can **open** it (they become its only reader) or **flip** it sealed to another
-  player. Because it's sealed, the buyer knows nobody has read it.
-- Leaks **expire**. A Leak about second 40 is worth nothing at second 41.
-- At the end of the round, the **X-ray** replays every Leak on the chart next to the trades it
-  caused.
+- A table trades one asset against a simple onchain market maker (a virtual AMM: big orders move
+  the price). Everyone has 1,000 chips and up to 5× leverage.
+- **Every order is delayed.** Standard orders execute 20 ticks (10 s) after you send them.
+  Priority orders execute after 4 ticks (2 s) but cost a fee.
+- **Pending orders are private.** They sit in a dark mempool inside MagicBlock's Private
+  Ephemeral Rollup. The public only sees _"Seat 3 sent an order (priority lane)"_.
+- **Leaks** are sealed snapshots of part of that mempool, auctioned every 10 s. Open one to read
+  it, flip it unopened, or let it expire.
+- At round end the **X-ray** replays everything and draws every sandwich on the chart.
+
+## Why this is 10x the earlier versions
+
+| Version                           | The hidden thing                       | Weakness                                                                     |
+| --------------------------------- | -------------------------------------- | ---------------------------------------------------------------------------- |
+| v0.1 Among Us for the market      | One player's role                      | Social deduction is common, needs many humans, and the tell is trivial       |
+| v0.2 Sealed Leaks of a VRF future | A random price path                    | The secret is a random number; once you hold a Leak, play is mechanical      |
+| **v0.3 Dark mempool (this)**      | **Other players' real pending orders** | Players create the information, so strategy, bluffing and reflexivity follow |
+
+The key change is that the information is **made by the players**. Every order you send is
+something someone else can buy a look at, and every Leak you buy can push you into a trade that
+someone else is waiting for.
 
 ## Why this is Entertainment Finance
 
 MagicBlock describes Entertainment Finance as apps where you trade, collect, compete and win
 assets you actually own, with game mechanics on top. Their examples are trading games
-(BananaZone), skill games with prizes (Slimecoin) and packs you open (Jungle Fun). INSIDER combines
-all three in one loop:
+(BananaZone), skill games with real prizes (Slimecoin) and packs you open (Jungle Fun).
 
-| Entertainment Finance element | INSIDER                                                              |
-| ----------------------------- | -------------------------------------------------------------------- |
-| Packs you open and collect    | Sealed Leaks with rarities, opened with a reveal animation           |
-| Trading game                  | A live long/short market at 500 ms ticks with zero fees              |
-| Skill with real stakes        | Auction timing, reading other players, a PnL leaderboard, stake mode |
-| Assets you own                | The Leak itself: ownership is the TEE's permission list              |
+| Entertainment Finance element | INSIDER                                                                        |
+| ----------------------------- | ------------------------------------------------------------------------------ |
+| Trading game                  | Live long/short against a vAMM at 2 ticks per second, zero fees                |
+| Packs you open                | Sealed Leaks with rarities, auctioned, cracked open with a reveal              |
+| Skill with real stakes        | Reading flow, timing the priority lane, bluffing; PnL leaderboard; stake mode  |
+| Assets you own                | The Leak itself: ownership is the TEE's permission list, transferable sealed   |
+| Finance mechanics             | Mempool, priority fees, front-running, sandwiches, the core of onchain markets |
 
 ## Why it stands out
 
-Three of the last four Blitz winners in v9 used privacy, and all of them used it to **hide
-state**: fog-of-war battle royales and a private order book. Hidden-information card games,
-prediction markets and social deduction are also common entries. INSIDER is none of these:
+Recent Blitz winners used privacy to **hide state**: fog-of-war battle royales (Blackout,
+Nightfall), a private order book (NoirWire), private RFQ (Tenor) and hidden answers (Herd).
+Hidden-information card games, prediction markets and social deduction are common entries.
+INSIDER is different in four ways:
 
-1. **Privacy as property, not fog.** The asset is read access. Buying, flipping and opening are
-   permission updates enforced by Intel TDX hardware, not database rows.
-2. **A new asset type: verifiable, sealed, perishable information.** The program generates the
-   Leak from the hidden future, so it's guaranteed true. It hasn't been read, and it rots on a
-   timer. We haven't seen this primitive in an onchain game before.
-3. **Emergent social play without assigned roles.** Ownership is public. When a bot opens an
-   Epic Leak and goes short two seconds later, the whole table sees it. Players copy-trade, fade,
-   and bluff, and you can buy a Leak just to make others think you know something.
-4. **Solo-playable by design.** Five bot strategies (Whale, Sniper, Flipper, Copycat, Degen) trade
-   under the same rules and read only Leaks they own. A judge can play a full round in under a
-   minute without finding other humans.
-5. **Built to be watched.** Leak drops on the chart, an auction counting down, a crack-open
-   animation, and the X-ray replay at the end.
+1. **It plays out MEV.** Every Solana user knows front-running and sandwiches, but nobody has made
+   a fair game out of them. Private pending orders are also exactly what MagicBlock's TEE is good
+   at.
+2. **Privacy is something you trade.** Pending orders are private, and read access to a snapshot
+   of them is an asset you can buy, resell sealed, or use.
+3. **Information created by players.** The secret is your opponents' intent, so the game has real
+   depth: bait orders, decoy priority sends, copy-trading the priority lane.
+4. **Bluffing has a real cost.** Leaks can't be faked, so deception means placing real orders
+   that really get filled.
 
-## Players and roles
+## Players
 
-There are no assigned roles. Everyone has the same rules and different information.
+There are no roles. Everyone follows the same rules and holds different information.
 
 - **Player (human).** Browser key, 1,000 chips per round, one seat.
-- **Bot.** Same instructions, its own keypair, a fixed strategy and a persona name.
-- **Spectator.** Watches the table live without a seat.
+- **Bot.** Same instructions, its own keypair, a fixed strategy and a persona.
+- **Spectator.** Watches the table live, with all public data.
+
+## The two lanes
+
+| Lane     | Delay           | Cost               | What everyone sees                 |
+| -------- | --------------- | ------------------ | ---------------------------------- |
+| Standard | 20 ticks (10 s) | free               | "Seat 3 sent an order"             |
+| Priority | 4 ticks (2 s)   | 10 chips per order | "Seat 3 sent a **priority** order" |
+
+Using the priority lane is itself a tell. It usually means someone knows something.
 
 ## Leak types
 
-| Leak          | Rarity | What the owner learns                                         | Horizon |
-| ------------- | ------ | ------------------------------------------------------------- | ------- |
-| **Pin**       | Common | The exact price at a future tick                              | 5-15 s  |
-| **Drift**     | Common | Up or down over the next window, plus a magnitude bucket      | 10-20 s |
-| **Shockwave** | Rare   | Whether a shock of at least 3% starts in the window, and when | 20 s    |
-| **Summit**    | Epic   | The highest and lowest price in the window, and their ticks   | 30 s    |
+| Leak          | Rarity | What the owner learns (accurate at mint tick)                           |
+| ------------- | ------ | ----------------------------------------------------------------------- |
+| **Flow**      | Common | Net units and order count landing in a 10-tick window, 2-12 ticks ahead |
+| **Spotlight** | Rare   | The largest pending order: seat, side, size, landing tick               |
+| **Whale**     | Rare   | The next hidden whale order (VRF-scheduled): side, size, landing tick   |
+| **Full Book** | Epic   | Every pending order in the mempool: seat, side, size, landing tick      |
 
-VRF picks each drop's type, rarity and horizon. The label (type, rarity, horizon, expiry tick)
-is public. The contents are sealed.
+A Leak is a true snapshot at the tick it was minted. Orders sent afterwards, mostly priority
+ones, can still land inside its window. Front-runners create that uncertainty, and that's
+intended.
 
 ## Round flow
 
-| Phase | Duration | What happens                                                              |
-| ----- | -------- | ------------------------------------------------------------------------- |
-| Seed  | ~1 s     | VRF writes the hidden price path for the round                            |
-| Live  | 90 s     | 500 ms ticks; a Leak drops every 10 s (9 per round); trading and auctions |
-| X-ray | 10 s     | Positions force-closed, every Leak revealed on the chart, scores posted   |
-| Next  | instant  | The table rolls straight into the next round (always live)                |
+| Phase | Duration | What happens                                                                                    |
+| ----- | -------- | ----------------------------------------------------------------------------------------------- |
+| Seed  | ~1 s     | VRF schedules 3-5 hidden whale orders and the round's noise seed                                |
+| Live  | 90 s     | 500 ms ticks; orders mature; a Leak drops every 10 s (8 per round); auctions; trades            |
+| Close | 10 s     | No new orders after tick 160; the mempool drains; positions close at the last price at tick 180 |
+| X-ray | 10 s     | Every order, Leak and sandwich revealed on the chart; scores posted                             |
+| Next  | instant  | The table rolls straight into the next round                                                    |
 
 ## Scoring
 
-- Everyone starts a round with 1,000 chips.
-- Leak purchases cost chips. Flip sales earn chips from the buyer.
-- At round end, positions close at the last price.
+- 1,000 chips per round. Leak bids and priority fees cost chips; flip sales earn them.
 - **Round score = final equity − 1,000.** The season leaderboard sums round scores.
-- **Stake mode (P1):** a fixed buy-in in a devnet test token; the top 3 by round score split the
-  pot, and payouts are sent with MagicBlock Private Payments.
+- **Stake mode (P2):** a devnet test-token buy-in; the top 3 split the pot through MagicBlock
+  Private Payments.
 
 ## Example round (for the demo)
 
-1. 0:00. Price 100.00, flat. You sit with Whale, Sniper, Flipper and Copycat.
-2. 0:10. A **Rare Shockwave** drops at 300 chips and falls 15 chips per tick. Sniper takes it at 180.
-3. 0:14. Sniper flips it, still sealed, for 260. Whale buys. The feed shows: _"Whale bought a
-   sealed Shockwave from Sniper."_
-4. 0:15. Whale opens it. A second later Whale shorts the maximum size. Copycat follows.
-5. 0:21. You fade them and go long. 0:24: the shock is real, the price drops 6%, and you're
-   down.
-6. 0:30. A **Common Pin** drops. You buy it cheap and open it: _"Price at 0:42 = 97.80"_. You go
-   long and close at 0:42.
-7. X-ray. The chart replays all nine Leaks, who held them, when each was opened, and the trade
-   that followed. Whale tops the round, you finish second, and Sniper profited without opening
-   anything.
+1. 0:12. You go long 2,000 units in the standard lane. The feed shows: _"You sent an order."_
+2. 0:14. A **Rare Spotlight** drops. Front-runner takes it at 90 and opens it. It shows your 2,000-unit buy, landing at 0:22.
+3. 0:15. _"Front-runner sent a **priority** order."_ It lands at 0:17, buying ahead of you.
+4. 0:22. Your buy lands and pushes the price up about 8%. Front-runner sells into it at 0:23. You've
+   just been sandwiched by a player who **bought the right to see your order**.
+5. 0:40. Payback. You buy a **Common Flow** Leak: _"+2,600 net buy landing 0:46-0:51"_. You
+   send a priority buy, it lands at 0:44, and you sell at 0:52.
+6. 0:55. Baiter sends a huge standard sell. Copycat sees the Spotlight's owner go priority-short
+   and follows. Baiter's priority buy lands first, and the trap closes on both of them.
+7. X-ray: the chart replays every order with arrows (sent → landed), every Leak and who held it,
+   and labels each sandwich.
 
 ## Strategy for winning the hackathon
 
-- **Playable, not promised.** A cold visitor clicks _Play_ and is trading within 5 seconds. This
-  beats any amount of README.
-- **One crisp idea.** "You can own a secret" works in a single sentence and a single shot (a
-  sealed card cracking open).
-- **Privacy is load-bearing.** If the TEE leaked, the game would be broken. Judges reward
-  privacy that matters (v8's Herd won for exactly this).
-- **Visible onchain activity.** The submission form counts delegations, VRF requests and
-  private payments at the program address. Every round makes about 10 VRF requests, dozens
-  of permission updates and hundreds of rollup transactions, all of which are real gameplay.
-- **Honest README for automated screening.** Every claim maps to a file and a devnet transaction.
-- **Scope discipline.** The P0 loop ships first. Stake mode, SOAR and extras are cut before the
-  core loop is at risk.
+- **A hook people get immediately.** "Front-running is the game" needs no explanation on
+  Solana, and "you got front-run by someone who bought your order" works in one shot.
+- **Privacy that carries the game.** If the TEE leaked, the dark mempool would be pointless.
+  Judges reward privacy that matters (v8's Herd won for that reason).
+- **Playable, not promised.** A cold visitor clicks _Play_ and is trading in 5 seconds, against
+  bots that play the meta.
+- **Visible onchain activity.** The submission form counts delegations, VRF requests and private
+  payments at the program address. Each round makes around 9 VRF requests, dozens of permission
+  updates and hundreds of rollup transactions, all from real gameplay.
+- **Honest README.** Every claim maps to a file and a devnet transaction.
+- **A fallback that still ships.** If order transactions can't be hidden (spec §4, item 1), the
+  v0.2 design (Leaks cut from a VRF-written price path) uses the same accounts and UI, so the
+  project still ships.
 
 ## Demo video plan (about 75 s, plus a 20 s cut for X)
 
-1. Cold open: a black screen with a sealed card. _"This card knows the price 12 seconds from
-   now. Nobody has read it."_
-2. Title: INSIDER. "Buy the future. Sealed."
-3. A real round: a drop, the falling auction, a sniper takes it, a flip, someone opens it, and
-   a short follows.
-4. The crack-open shot: the TEE adds one reader, and the contents appear only on the owner's
-   screen. Split screen with a second browser that sees nothing.
-5. X-ray replay.
-6. "What's onchain": VRF seed, permission rewrite and rollup trades, each with an explorer link.
-7. End card: play link, repo.
+1. Cold open: a pending order card, glowing. _"This order executes in 10 seconds. Someone just
+   paid to see it."_
+2. Title: INSIDER. "Front-running is the game."
+3. A real round: send an order; a Spotlight drops and is bought and opened; a priority send;
+   the sandwich lands on the chart.
+4. Split screen: the Leak owner's screen shows the order, a second browser shows nothing
+   (TEE-gated).
+5. Revenge: a Flow Leak, a priority buy, profit.
+6. X-ray with sandwich arrows.
+7. "What's onchain": VRF, permission rewrite, rollup orders, each with an explorer link. End
+   card.
 
 ## Non-goals (for this hackathon)
 
 - Mainnet, real money or a token launch
-- Real-world price feeds. The future has to exist in advance, so the asset is synthetic by
-  design.
-- More than one table or asset
-- LLM chat agents (bots are deterministic; LLM flavour text is a stretch)
-- Native mobile apps
+- Real-world price feeds (the market is a vAMM by design, because players are the price)
+- Multiple tables or assets; native mobile apps
+- LLM chat agents (bots are deterministic)
 
 ## Success criteria
 
-- A table runs continuously on devnet with bots: seed, ticks, drops, auctions, opens, flips,
-  trades and X-ray.
-- A second wallet provably cannot read a Leak it doesn't own (recorded in the demo and the
-  tests).
+- A table runs continuously on devnet with bots: orders, maturity, Leak drops, auctions, opens,
+  flips, front-runs, X-ray.
+- A second key provably can't read pending orders or a Leak it doesn't own, including through
+  transaction lookups.
 - A cold visitor plays a round with no wallet and no setup.
-- The VRF, permission and rollup transactions are linked from the README.
-- The video, README and code tell the same story.
+- VRF, permission and rollup transactions are linked from the README.
 
 ## Risks and how we handle them
 
-| Risk                                              | Mitigation                                                                                                       |
-| ------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
-| A private permission with zero members misbehaves | Use a keyless program PDA as the only member; nobody holds its key                                               |
-| Browser keys can't pay rollup fees                | ER transactions are free; if a fee payer must exist on the base layer, a faucet route funds the burner with dust |
-| Cranks can't issue VRF requests                   | The bot service calls `request_drop` on schedule (keeper fallback)                                               |
-| 10-commit limit without a delegated fee payer     | Commit the season every few rounds and add a delegated fee payer plus `magic_fee_vault`                          |
-| An empty or dull table for judges                 | Five bot strategies always seated; humans displace bots                                                          |
-| Solo scope with about 4.5 days left               | Strict P0/P1/P2 cut order (see TECHNICAL_SPEC.md section 15)                                                     |
-| Judges can't verify claims                        | Explorer links and file paths for every feature                                                                  |
+| Risk                                                                     | Mitigation                                                                                        |
+| ------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------- |
+| Order instruction data is visible through transaction lookups on the TEE | Checked first (spec §4, item 1). If it leaks: fall back to v0.2, where Leaks come from a VRF path |
+| A private permission with zero members misbehaves                        | The only member is a keyless `nobody` PDA                                                         |
+| Browser keys can't pay rollup fees                                       | ER transactions are free; otherwise a faucet route sends dust                                     |
+| Cranks can't make VRF requests                                           | The keeper calls the permissionless, time-gated `request_drop`                                    |
+| Too few humans, so the mempool is thin                                   | Five bots plus VRF whale flow keep the mempool full every round                                   |
+| Solo scope with about 4.5 days left                                      | P0/P1/P2 cut order (spec §15); the core is just orders, delay, Leak and open                      |
 
 ## Branding notes
 
-- Look: a dark trading terminal, a sealed-envelope / wax-seal motif for Leaks, rarity colours
-  (grey, cyan, magenta), big mono numerals.
-- Motion: Leaks slide onto the chart at their horizon, auction price ticks down, cards crack
-  open.
-- Tone: tense, sly, dry. Name in caps: INSIDER.
+- Look: a dark terminal; the pending-order "ghost" cards are translucent and float toward the
+  chart until they land. Leaks use a wax-seal motif. Rarity colours are grey, cyan and magenta.
+- Motion: ghost orders drift in, cards crack open, sandwich arrows in the X-ray.
+- Tone: sly, tense, dry. Name in caps: INSIDER.
