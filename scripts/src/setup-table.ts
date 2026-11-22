@@ -3,6 +3,7 @@
  * everything to the TEE. Idempotent and resumable: it reads what exists and sends only what is
  * missing, so it is safe to run again after a failure.
  *
+ *   pnpm setup-table --status        print which accounts exist and are delegated, send nothing
  *   pnpm setup-table --dry-run       print the plan, send nothing (works before the program is deployed)
  *   pnpm setup-table                 run the plan with the deployer wallet as the table authority
  *   pnpm setup-table --validator er  delegate to the public ER instead of the TEE
@@ -23,6 +24,7 @@ import { describeTarget, isComplete, planSetup } from "./setup/plan.js";
 const args = process.argv.slice(2);
 const dryRun = args.includes("--dry-run");
 const arm = args.includes("--arm");
+const statusOnly = args.includes("--status");
 const kind = args.includes("--validator") ? args[args.indexOf("--validator") + 1] : "tee";
 if (kind !== "tee" && kind !== "er") throw new Error("--validator must be tee or er");
 
@@ -39,7 +41,7 @@ async function main() {
 
   const program = await connection.getAccountInfo(config.programId);
   if (!program?.executable) {
-    if (!dryRun) {
+    if (!dryRun && !statusOnly) {
       throw new Error(
         `the game program ${config.programId.toBase58()} is not deployed on devnet yet: run pnpm program:deploy first (or use --dry-run)`,
       );
@@ -48,6 +50,21 @@ async function main() {
   }
 
   const state = await readState(connection, accounts);
+  if (statusOnly) {
+    const rows: Array<[string, (typeof state)["table"]]> = [
+      ["table", state.table],
+      ["tape", state.tape],
+      ["callBook", state.callBook],
+      ["season", state.season],
+      ...state.seats.map((seat, i): [string, typeof seat] => [`seat ${i}`, seat]),
+    ];
+    for (const [name, account] of rows) {
+      console.log(
+        `  ${name.padEnd(9)} ${account.exists ? "created" : "missing"}  ${account.delegated ? "delegated" : "-"}`,
+      );
+    }
+    return;
+  }
   const plan = planSetup(state);
   if (plan.length === 0) {
     console.log("\nnothing to do: the table is created and delegated");

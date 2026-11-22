@@ -26,6 +26,7 @@ Growing an already deployed program needs `solana program extend` first.
 ## 3. Set up the table
 
 ```bash
+pnpm setup-table --status    # which accounts exist and are delegated (read only)
 pnpm setup-table --dry-run   # prints the plan, sends nothing, works before the deploy
 pnpm setup-table             # creates and delegates everything
 pnpm setup-table --arm       # also schedules the tick crank on the TEE (10 minutes)
