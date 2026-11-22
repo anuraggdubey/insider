@@ -352,30 +352,41 @@ While editing Rust, use `pnpm program:check` and `pnpm program:test`; only run
       committed. Misbah: run `pnpm install`.
 - [x] **A-0.3 Update scripts (0.5 h).** _Done:_ old root scripts removed, `program:*` scripts now run from
       `programs/`. Still to add as the work arrives: `gates`, `fund`, `setup-table`, `simulate-round`.
-- [ ] **A-0.4 Gates G0-G10 (8 h).** One script per gate as in section 7, one row each in
-      `docs/gates.md`, results written into the spec. Install packages from 4.1 as each gate passes.
-- [ ] **A-0.5 `pnpm gates` runner (1 h).** Prints a pass or cut table.
-- [ ] **A-0.6 Fund and document (1 h).** Fund the deployer and operator, record addresses in
-      `docs/gates.md`, share the `.env` values (not secrets) with Misbah.
+- [x] **A-0.4 Gates G0-G10 (8 h).** _Done:_ one script per gate in `scripts/src/gates/`, run on
+      devnet against a throwaway probe program (`programs/gates`, ID in `.env.example`). **9 pass
+      (G0-G5, G7-G9), none cut, 2 informational:** G6 (Magic Action works, SOAR untested, decided
+      at A-4.2) and G10 (a crank cannot request VRF, nothing changes). Results are in
+      [gates.md](gates.md) and spec section 4.1. `@magicblock-labs/gum-sdk` was installed in
+      `scripts` for G7; the Rust `session-keys` crate is added to the game program at A-4.1.
+- [x] **A-0.5 `pnpm gates` runner (1 h).** _Done:_ `pnpm gates` runs them, `--only g0,g4` runs some,
+      `--report` prints the last saved result, `--docs` rewrites `docs/gates.md`.
+- [x] **A-0.6 Fund and document (1 h).** _Done:_ deployer and operator are funded, addresses are
+      in `docs/gates.md`, `.env.example` has the new program ID, the gates probe ID and
+      `OPERATOR_KEYPAIR`. **Still to do before deploying the game program:** reclaim the SOL held by
+      the gates probe program (`solana program close`) and the 5 SOL sitting on the new program ID
+      address (it must be moved out first or it is locked inside the program account).
 
 ### Block 1: Lifecycle and the vertical slice (20 h)
 
 Needs Misbah's engine stubs (H-API) before wiring.
 
-- [ ] **A-1.1 State (3 h).** `state/{table,seat,tape,calls,season}.rs` with fixed sizes and
-      `InitSpace` (spec section 5). Unit-test the sizes.
-- [ ] **A-1.2 Setup instructions (5 h).** `init_table`, `init_slots`, `delegate_batch` (6 per
-      transaction, 1.4M CU), `init_permissions` (keyless `nobody` reader for `Mempool`, `Future`,
-      vaults; pre-funded rent). Tests in `tests/lifecycle.rs`.
+- [x] **A-1.1 State (3 h).** _Done:_ `state/{table,seat,tape,calls,season}.rs` with fixed sizes
+      (`CallBook` is zero-copy), size unit tests, constants for the round shape and
+      `SLOTS_PER_TICK = 50`.
+- [ ] **A-1.2 Setup instructions (5 h).** _Done:_ `init_table`, `init_tape`, `init_call_book`,
+      `init_season`, `init_seat`, and one `delegate_*` instruction per account kind (the setup
+      script sends six per transaction, 1.4M CU), tests in `tests/lifecycle.rs`. **Still open,
+      needs Misbah's H-API types:** init and delegate for `Market`, `Mempool`, `Future`, `Board`,
+      `LeakVault`, `Xray`, and `init_permissions` (keyless `nobody` reader, pre-funded rent).
 - [ ] **A-1.3 VRF round seed (4 h).** `request_round_seed` (any seat, table `Idle`),
       `round_seed_callback` (const scoped VRF identity, `request_id`; calls Misbah's `math::seed`
       to fill the future, whales and drop schedule), `cancel_vrf` after 10 ticks.
-- [ ] **A-1.4 `tick` loop and cranks (5 h).** Clock-derived tick (using G1's `SLOTS_PER_TICK`),
-      catch-up of at most 8 missed ticks, calls `engine::step`, phase machine
-      (`Idle/Seeding/Live/Closing/Xray`), `schedule_ticks`, permissionless `rearm_ticks`, crank signer
-      check. Test idempotence with duplicate calls (G9).
-- [ ] **A-1.5 Seats (2 h).** `claim_seat` (bot, AI and human-first classes, idle displacement),
-      `ping`.
+- [ ] **A-1.4 `tick` loop and cranks (5 h).** _Done:_ clock-derived tick (50 slots), catch-up of
+      at most 8 missed ticks, phase machine, `schedule_ticks`, permissionless `rearm_ticks`, crank
+      signer check, idempotence unit tests. **Still open:** the `engine::step` call (the hook is
+      marked in `instructions/tick.rs`) and a devnet run; both need H-API.
+- [x] **A-1.5 Seats (2 h).** _Done:_ `claim_seat` (bot, AI and human-first classes, idle
+      displacement, protected AI seats), `ping`, LiteSVM tests.
 - [ ] **A-1.6 Deploy and vertical slice (1 h).** Build, deploy, run seed, orders, 180 ticks, close
       on devnet with a script. _Done when:_ one full empty-table round runs on devnet. **Handoff H2.**
 
