@@ -7,13 +7,15 @@ resolution = true
 skip-lint = false
 
 [workspace]
-members = ["insider"]
+members = ["insider", "gates"]
 
 [programs.devnet]
 insider = "7mTtHsFMYnZRnhd3SRzhj8Nm1U2T3s33dnbJwa9zBErW"
+gates = "3h7wNZEN4hqcwwCh5KfmrXaq74PXuKKCJ8xgdGDA4wa8"
 
 [programs.localnet]
 insider = "7mTtHsFMYnZRnhd3SRzhj8Nm1U2T3s33dnbJwa9zBErW"
+gates = "3h7wNZEN4hqcwwCh5KfmrXaq74PXuKKCJ8xgdGDA4wa8"
 
 [provider]
 cluster = "devnet"

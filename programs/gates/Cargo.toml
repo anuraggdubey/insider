@@ -1,0 +1,27 @@
+[package]
+name = "gates"
+version = "0.1.0"
+description = "Throwaway probe program for the Block 0 gates (G0-G10). Never part of the game."
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib", "lib"]
+name = "gates"
+
+[features]
+default = []
+cpi = ["no-entrypoint"]
+no-entrypoint = []
+no-idl = []
+no-log-ix-name = []
+idl-build = ["anchor-lang/idl-build"]
+anchor-debug = []
+custom-heap = []
+custom-panic = []
+
+[dependencies]
+anchor-lang = "1.0.2"
+ephemeral-rollups-sdk = { version = "0.18.0", features = ["anchor", "vrf", "access-control", "crank"] }
+
+[lints.rust]
+unexpected_cfgs = { level = "warn", check-cfg = ['cfg(target_os, values("solana"))'] }

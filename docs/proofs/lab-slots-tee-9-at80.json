@@ -18,27 +18,11 @@
     "bumpAll": {
       "accounts": 9,
       "computeUnits": 21546,
-      "latenciesMs": [
-        658,
-        269,
-        272,
-        278,
-        266
-      ]
+      "latenciesMs": [658, 269, 272, 278, 266]
     },
     "settleAllComputeUnits": 53403,
     "allSettledOnBaseAfterMs": 2743,
-    "countsOnBase": [
-      5,
-      5,
-      5,
-      5,
-      5,
-      5,
-      5,
-      5,
-      5
-    ],
+    "countsOnBase": [5, 5, 5, 5, 5, 5, 5, 5, 5],
     "allCountsEqual5": true
   },
   "steps": [

@@ -18,36 +18,15 @@
     "bumpAll": {
       "accounts": 11,
       "computeUnits": 26176,
-      "latenciesMs": [
-        489,
-        415,
-        284,
-        287,
-        284
-      ]
+      "latenciesMs": [489, 415, 284, 287, 284]
     },
     "settle": {
       "batchSize": 6,
       "intents": 2,
-      "computeUnitsPerIntent": [
-        46483,
-        40997
-      ]
+      "computeUnitsPerIntent": [46483, 40997]
     },
     "allSettledOnBaseAfterMs": 1987,
-    "countsOnBase": [
-      10,
-      10,
-      10,
-      10,
-      10,
-      10,
-      10,
-      10,
-      10,
-      10,
-      10
-    ],
+    "countsOnBase": [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10],
     "allCountsEqual5": true
   },
   "steps": [

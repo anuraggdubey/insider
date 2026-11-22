@@ -11,27 +11,21 @@
     "endpoint": "https://devnet-tee.magicblock.app/",
     "round 1": {
       "pickedReader": "5E4jdNnxWgAUdJjUR2hMZt5hXtZDYg5cfK35Zc2GDsEF",
-      "canRead": [
-        "5E4jdNnxWgAUdJjUR2hMZt5hXtZDYg5cfK35Zc2GDsEF"
-      ],
+      "canRead": ["5E4jdNnxWgAUdJjUR2hMZt5hXtZDYg5cfK35Zc2GDsEF"],
       "blocked": 3,
       "callbackSettledMs": 333,
       "ok": true
     },
     "round 2": {
       "pickedReader": "23k9UnCKBkFyci6Sv1RhuFXUXFgTnjV6oeTZyMaxopWm",
-      "canRead": [
-        "23k9UnCKBkFyci6Sv1RhuFXUXFgTnjV6oeTZyMaxopWm"
-      ],
+      "canRead": ["23k9UnCKBkFyci6Sv1RhuFXUXFgTnjV6oeTZyMaxopWm"],
       "blocked": 3,
       "callbackSettledMs": 336,
       "ok": true
     },
     "round 3": {
       "pickedReader": "23k9UnCKBkFyci6Sv1RhuFXUXFgTnjV6oeTZyMaxopWm",
-      "canRead": [
-        "23k9UnCKBkFyci6Sv1RhuFXUXFgTnjV6oeTZyMaxopWm"
-      ],
+      "canRead": ["23k9UnCKBkFyci6Sv1RhuFXUXFgTnjV6oeTZyMaxopWm"],
       "blocked": 3,
       "callbackSettledMs": 343,
       "ok": true

@@ -1,0 +1,447 @@
+{
+  "gate": "G0",
+  "name": "Darkcheck",
+  "status": "pass",
+  "decision": "Non-members and anonymous callers recovered nothing from any path; the member control could read. The dark mempool, lanes and Flow family stay in.",
+  "facts": {
+    "probe": "1cqLAyFcJjhzqMoQpGuhBeyrCoybQU8v1Tp5hE4i2aa",
+    "keyA": "A9isy97bd9juoDuh766kuEANqtxwLagW5N7BqV46Pfvq",
+    "keyB": "yUVPQAHq81D8hca9tNn32RNyb6YLJ3pzCqTvWDnZEnw",
+    "endpoint": "https://devnet-tee.magicblock.app/",
+    "paths": [
+      {
+        "phase": "phase1",
+        "path": "payer(member): getTransaction",
+        "returned": true,
+        "leaks": ["instruction data carries 1234"],
+        "detail": "data returned: {\"instructions\":[{\"programIdIndex\":3,\"accounts\":[1,2],\"data\":\"AoT81ypAnao5L7\",\"stackHeight\":1}],\"logs\":[\"Program 3h7wNZEN4hqcwwCh5KfmrXaq74PXuKKCJ8xgdGDA4wa8 invoke [1]\",\"Program log: Instruction: ProbeSendSecret\",\"Program 3h7wNZEN4hqcwwCh5KfmrXaq74PXuKKCJ8xgdGDA4wa8 consumed 4731 of 200000 compute units\",\"Program 3h7wNZEN4hqcwwCh5KfmrXaq74PXuKKCJ8xgdGDA4wa8 success\"]}"
+      },
+      {
+        "phase": "phase1",
+        "path": "payer(member): getSignaturesForAddress(probe)",
+        "returned": true,
+        "leaks": [],
+        "detail": "data returned: [{\"signature\":\"578sCgKULsTUh98zvB38xhCwCynHw3ES1kpLUuot9Q49GkYiBmMfUZ6JwjWYXmaQAX3bo6YqeUFjrCMrTYBwSgYy\",\"slot\":862140888,\"err\":null,\"memo\":null,\"blockTime\":1795378771,\"confirmationStatus\":\"finalized\""
+      },
+      {
+        "phase": "phase1",
+        "path": "payer(member): getSignaturesForAddress(sender)",
+        "returned": true,
+        "leaks": [],
+        "detail": "data returned: [{\"signature\":\"578sCgKULsTUh98zvB38xhCwCynHw3ES1kpLUuot9Q49GkYiBmMfUZ6JwjWYXmaQAX3bo6YqeUFjrCMrTYBwSgYy\",\"slot\":862140888,\"err\":null,\"memo\":null,\"blockTime\":1795378771,\"confirmationStatus\":\"finalized\""
+      },
+      {
+        "phase": "phase1",
+        "path": "payer(member): getAccountInfo(probe)",
+        "returned": true,
+        "leaks": ["account data carries 1234"],
+        "detail": "data returned: {\"context\":{\"slot\":862140944},\"value\":{\"lamports\":2807328,\"data\":[\"6K/Fi/H/q1cPj6JUGUISugGUeu+dt+tgUosMO7COUruwxWZofxL8mtIEEgAAAIf1LmfS5LVUdqJnVkA7BH7G4EZIp+gkJmE9v0FEnNIqAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      {
+        "phase": "phase1",
+        "path": "payer(member): getBlock(full)",
+        "returned": false,
+        "leaks": [],
+        "detail": "\"Access denied\""
+      },
+      {
+        "phase": "phase1",
+        "path": "payer(member): simulateTransaction(accounts)",
+        "returned": true,
+        "leaks": ["account data carries 1234"],
+        "detail": "data returned: {\"context\":{\"slot\":862140970},\"value\":{\"accounts\":[{\"data\":[\"6K/Fi/H/q1cPj6JUGUISugGUeu+dt+tgUosMO7COUruwxWZofxL8mtIEEgAAAIf1LmfS5LVUdqJnVkA7BH7G4EZIp+gkJmE9v0FEnNIqAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      {
+        "phase": "phase1",
+        "path": "payer(member): logsSubscribe(probe)",
+        "returned": true,
+        "leaks": [],
+        "detail": "1 notifications"
+      },
+      {
+        "phase": "phase1",
+        "path": "payer(member): accountSubscribe(probe)",
+        "returned": true,
+        "leaks": ["account data carries 4321"],
+        "detail": "1 notifications"
+      },
+      {
+        "phase": "phase1",
+        "path": "B(other key): getTransaction",
+        "returned": true,
+        "leaks": [],
+        "detail": "data returned: {\"instructions\":[],\"logs\":[]}"
+      },
+      {
+        "phase": "phase1",
+        "path": "B(other key): getSignaturesForAddress(probe)",
+        "returned": false,
+        "leaks": [],
+        "detail": "nothing returned"
+      },
+      {
+        "phase": "phase1",
+        "path": "B(other key): getSignaturesForAddress(sender)",
+        "returned": true,
+        "leaks": [],
+        "detail": "data returned: [{\"signature\":\"4hxFd74QkPXQPiNaCh3qyAiosDBvF4YjxnhHNzgamkZetdH8bhTFVNz4khykRozdX6VKxdw3jFroxbi9k1xD5RLZ\",\"slot\":862123783,\"err\":null,\"memo\":null,\"blockTime\":1795378600,\"confirmationStatus\":\"finalized\""
+      },
+      {
+        "phase": "phase1",
+        "path": "B(other key): getAccountInfo(probe)",
+        "returned": false,
+        "leaks": [],
+        "detail": "nothing returned"
+      },
+      {
+        "phase": "phase1",
+        "path": "B(other key): getBlock(full)",
+        "returned": false,
+        "leaks": [],
+        "detail": "\"Access denied\""
+      },
+      {
+        "phase": "phase1",
+        "path": "B(other key): simulateTransaction(accounts)",
+        "returned": true,
+        "leaks": [],
+        "detail": "data returned: {\"context\":{\"slot\":862141667},\"value\":{\"accounts\":[null],\"err\":null,\"fee\":null,\"innerInstructions\":null,\"loadedAccountsDataSize\":null,\"loadedAddresses\":null,\"logs\":[\"Program 11111111111111111111111111"
+      },
+      {
+        "phase": "phase1",
+        "path": "B(other key): logsSubscribe(probe)",
+        "returned": false,
+        "leaks": [],
+        "detail": "0 notifications"
+      },
+      {
+        "phase": "phase1",
+        "path": "B(other key): accountSubscribe(probe)",
+        "returned": false,
+        "leaks": [],
+        "detail": "0 notifications"
+      },
+      {
+        "phase": "phase1",
+        "path": "anonymous: getTransaction",
+        "returned": true,
+        "leaks": [],
+        "detail": "data returned: {\"instructions\":[],\"logs\":[]}"
+      },
+      {
+        "phase": "phase1",
+        "path": "anonymous: getSignaturesForAddress(probe)",
+        "returned": false,
+        "leaks": [],
+        "detail": "nothing returned"
+      },
+      {
+        "phase": "phase1",
+        "path": "anonymous: getSignaturesForAddress(sender)",
+        "returned": false,
+        "leaks": [],
+        "detail": "nothing returned"
+      },
+      {
+        "phase": "phase1",
+        "path": "anonymous: getAccountInfo(probe)",
+        "returned": false,
+        "leaks": [],
+        "detail": "nothing returned"
+      },
+      {
+        "phase": "phase1",
+        "path": "anonymous: getBlock(full)",
+        "returned": false,
+        "leaks": [],
+        "detail": "\"Access denied\""
+      },
+      {
+        "phase": "phase1",
+        "path": "anonymous: simulateTransaction(accounts)",
+        "returned": true,
+        "leaks": [],
+        "detail": "data returned: {\"context\":{\"slot\":862142373},\"value\":{\"accounts\":[null],\"err\":null,\"fee\":null,\"innerInstructions\":null,\"loadedAccountsDataSize\":null,\"loadedAddresses\":null,\"logs\":[\"Program 11111111111111111111111111"
+      },
+      {
+        "phase": "phase1",
+        "path": "anonymous: logsSubscribe(probe)",
+        "returned": false,
+        "leaks": [],
+        "detail": "0 notifications"
+      },
+      {
+        "phase": "phase1",
+        "path": "anonymous: accountSubscribe(probe)",
+        "returned": false,
+        "leaks": [],
+        "detail": "0 notifications"
+      },
+      {
+        "phase": "phase2",
+        "path": "payer(member): getTransaction",
+        "returned": true,
+        "leaks": [],
+        "detail": "data returned: {\"instructions\":[],\"logs\":[]}"
+      },
+      {
+        "phase": "phase2",
+        "path": "payer(member): getSignaturesForAddress(probe)",
+        "returned": true,
+        "leaks": [],
+        "detail": "data returned: [{\"signature\":\"3i4gpPJj7wdLJT1bCaeL1fB862CaLAczDhibgPuPCvWETLkd3h2uJP32fiA9oXmLwW7uYQYk3osHZKS21j4gwZnS\",\"slot\":862143083,\"err\":null,\"memo\":null,\"blockTime\":1795378793,\"confirmationStatus\":\"finalized\""
+      },
+      {
+        "phase": "phase2",
+        "path": "payer(member): getSignaturesForAddress(sender)",
+        "returned": true,
+        "leaks": [],
+        "detail": "data returned: [{\"signature\":\"3i4gpPJj7wdLJT1bCaeL1fB862CaLAczDhibgPuPCvWETLkd3h2uJP32fiA9oXmLwW7uYQYk3osHZKS21j4gwZnS\",\"slot\":862143083,\"err\":null,\"memo\":null,\"blockTime\":1795378793,\"confirmationStatus\":\"finalized\""
+      },
+      {
+        "phase": "phase2",
+        "path": "payer(member): getAccountInfo(probe)",
+        "returned": false,
+        "leaks": [],
+        "detail": "nothing returned"
+      },
+      {
+        "phase": "phase2",
+        "path": "payer(member): getBlock(full)",
+        "returned": false,
+        "leaks": [],
+        "detail": "\"Access denied\""
+      },
+      {
+        "phase": "phase2",
+        "path": "payer(member): simulateTransaction(accounts)",
+        "returned": true,
+        "leaks": [],
+        "detail": "data returned: {\"context\":{\"slot\":862143160},\"value\":{\"accounts\":[null],\"err\":null,\"fee\":null,\"innerInstructions\":null,\"loadedAccountsDataSize\":null,\"loadedAddresses\":null,\"logs\":[\"Program 11111111111111111111111111"
+      },
+      {
+        "phase": "phase2",
+        "path": "payer(member): logsSubscribe(probe)",
+        "returned": false,
+        "leaks": [],
+        "detail": "0 notifications"
+      },
+      {
+        "phase": "phase2",
+        "path": "payer(member): accountSubscribe(probe)",
+        "returned": false,
+        "leaks": [],
+        "detail": "0 notifications"
+      },
+      {
+        "phase": "phase2",
+        "path": "B(other key): getTransaction",
+        "returned": true,
+        "leaks": [],
+        "detail": "data returned: {\"instructions\":[],\"logs\":[]}"
+      },
+      {
+        "phase": "phase2",
+        "path": "B(other key): getSignaturesForAddress(probe)",
+        "returned": false,
+        "leaks": [],
+        "detail": "nothing returned"
+      },
+      {
+        "phase": "phase2",
+        "path": "B(other key): getSignaturesForAddress(sender)",
+        "returned": false,
+        "leaks": [],
+        "detail": "nothing returned"
+      },
+      {
+        "phase": "phase2",
+        "path": "B(other key): getAccountInfo(probe)",
+        "returned": false,
+        "leaks": [],
+        "detail": "nothing returned"
+      },
+      {
+        "phase": "phase2",
+        "path": "B(other key): getBlock(full)",
+        "returned": false,
+        "leaks": [],
+        "detail": "\"Access denied\""
+      },
+      {
+        "phase": "phase2",
+        "path": "B(other key): simulateTransaction(accounts)",
+        "returned": true,
+        "leaks": [],
+        "detail": "data returned: {\"context\":{\"slot\":862143863},\"value\":{\"accounts\":[null],\"err\":null,\"fee\":null,\"innerInstructions\":null,\"loadedAccountsDataSize\":null,\"loadedAddresses\":null,\"logs\":[\"Program 11111111111111111111111111"
+      },
+      {
+        "phase": "phase2",
+        "path": "B(other key): logsSubscribe(probe)",
+        "returned": false,
+        "leaks": [],
+        "detail": "0 notifications"
+      },
+      {
+        "phase": "phase2",
+        "path": "B(other key): accountSubscribe(probe)",
+        "returned": false,
+        "leaks": [],
+        "detail": "0 notifications"
+      },
+      {
+        "phase": "phase2",
+        "path": "anonymous: getTransaction",
+        "returned": true,
+        "leaks": [],
+        "detail": "data returned: {\"instructions\":[],\"logs\":[]}"
+      },
+      {
+        "phase": "phase2",
+        "path": "anonymous: getSignaturesForAddress(probe)",
+        "returned": false,
+        "leaks": [],
+        "detail": "nothing returned"
+      },
+      {
+        "phase": "phase2",
+        "path": "anonymous: getSignaturesForAddress(sender)",
+        "returned": false,
+        "leaks": [],
+        "detail": "nothing returned"
+      },
+      {
+        "phase": "phase2",
+        "path": "anonymous: getAccountInfo(probe)",
+        "returned": false,
+        "leaks": [],
+        "detail": "nothing returned"
+      },
+      {
+        "phase": "phase2",
+        "path": "anonymous: getBlock(full)",
+        "returned": false,
+        "leaks": [],
+        "detail": "\"Access denied\""
+      },
+      {
+        "phase": "phase2",
+        "path": "anonymous: simulateTransaction(accounts)",
+        "returned": true,
+        "leaks": [],
+        "detail": "data returned: {\"context\":{\"slot\":862144567},\"value\":{\"accounts\":[null],\"err\":null,\"fee\":null,\"innerInstructions\":null,\"loadedAccountsDataSize\":null,\"loadedAddresses\":null,\"logs\":[\"Program 11111111111111111111111111"
+      },
+      {
+        "phase": "phase2",
+        "path": "anonymous: logsSubscribe(probe)",
+        "returned": false,
+        "leaks": [],
+        "detail": "0 notifications"
+      },
+      {
+        "phase": "phase2",
+        "path": "anonymous: accountSubscribe(probe)",
+        "returned": false,
+        "leaks": [],
+        "detail": "0 notifications"
+      }
+    ],
+    "controlMemberRecoveredSecret": true,
+    "outsiderLeaks": []
+  },
+  "steps": [
+    {
+      "step": "probe_delegate",
+      "layer": "base",
+      "signature": "51QjAMAFAMMyykKL2kEzye4eW67HQReCdDEjg4Jydex2czeQt6RggTXH8mSNNbVs332ZEwXiYGP881BruPYGzwSM",
+      "url": "https://explorer.solana.com/tx/51QjAMAFAMMyykKL2kEzye4eW67HQReCdDEjg4Jydex2czeQt6RggTXH8mSNNbVs332ZEwXiYGP881BruPYGzwSM?cluster=devnet",
+      "ms": 815
+    },
+    {
+      "step": "probe_permission_create (phase1)",
+      "layer": "TEE",
+      "signature": "51xBLeGo97XosBZNrudfzaGsrdAGiMDhoH2QFPUJRgSBJTxYg9w447c3XS4KY1Lzei5RPCsodSKHttKXe5iUUZC1",
+      "url": "https://explorer.solana.com/tx/51xBLeGo97XosBZNrudfzaGsrdAGiMDhoH2QFPUJRgSBJTxYg9w447c3XS4KY1Lzei5RPCsodSKHttKXe5iUUZC1?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app",
+      "ms": 424
+    },
+    {
+      "step": "probe_send_secret 1234 (phase1)",
+      "layer": "TEE",
+      "signature": "578sCgKULsTUh98zvB38xhCwCynHw3ES1kpLUuot9Q49GkYiBmMfUZ6JwjWYXmaQAX3bo6YqeUFjrCMrTYBwSgYy",
+      "url": "https://explorer.solana.com/tx/578sCgKULsTUh98zvB38xhCwCynHw3ES1kpLUuot9Q49GkYiBmMfUZ6JwjWYXmaQAX3bo6YqeUFjrCMrTYBwSgYy?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app",
+      "ms": 153
+    },
+    {
+      "step": "probe_send_secret 4321 (stream, payer(member))",
+      "layer": "TEE",
+      "signature": "WM68MQbAbP4L9ra8jJQJG96Rai19whXMeZBM9DKv9YgqGDzsaoYWDx3KF8cK5xjgEz42CJGMErdfQMy64fw9VeL",
+      "url": "https://explorer.solana.com/tx/WM68MQbAbP4L9ra8jJQJG96Rai19whXMeZBM9DKv9YgqGDzsaoYWDx3KF8cK5xjgEz42CJGMErdfQMy64fw9VeL?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app",
+      "ms": 357
+    },
+    {
+      "step": "probe_send_secret 4321 (stream, B(other key))",
+      "layer": "TEE",
+      "signature": "5FfwRSXhH9PwufsHWBfFjKZ8oLZ4nKugN135VsY6M6QRGCozbUxkDy5fMb2j4oUexUE9EgnxcSdbA9XCxUgJHfVp",
+      "url": "https://explorer.solana.com/tx/5FfwRSXhH9PwufsHWBfFjKZ8oLZ4nKugN135VsY6M6QRGCozbUxkDy5fMb2j4oUexUE9EgnxcSdbA9XCxUgJHfVp?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app",
+      "ms": 419
+    },
+    {
+      "step": "probe_send_secret 4321 (stream, anonymous)",
+      "layer": "TEE",
+      "signature": "4GZaK4qPDtMis6Tuy9MvMcwGrHgoSBhLe6y8MPyE4eQiM1rE8HY8otshFuEKnUTvnDuGvdp7AjKBZjDahnsGo4Xs",
+      "url": "https://explorer.solana.com/tx/4GZaK4qPDtMis6Tuy9MvMcwGrHgoSBhLe6y8MPyE4eQiM1rE8HY8otshFuEKnUTvnDuGvdp7AjKBZjDahnsGo4Xs?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app",
+      "ms": 443
+    },
+    {
+      "step": "probe_permission_update (phase2)",
+      "layer": "TEE",
+      "signature": "2AtgaN42RSjFA6ywUz5QjAuQKJYs1kGJmjgLEbbBNy2qVkgucftbG2gHRksSP6rKJmKZA1AzPAWiUEGfTnF4gr4r",
+      "url": "https://explorer.solana.com/tx/2AtgaN42RSjFA6ywUz5QjAuQKJYs1kGJmjgLEbbBNy2qVkgucftbG2gHRksSP6rKJmKZA1AzPAWiUEGfTnF4gr4r?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app",
+      "ms": 504
+    },
+    {
+      "step": "probe_send_secret 1234 (phase2)",
+      "layer": "TEE",
+      "signature": "3i4gpPJj7wdLJT1bCaeL1fB862CaLAczDhibgPuPCvWETLkd3h2uJP32fiA9oXmLwW7uYQYk3osHZKS21j4gwZnS",
+      "url": "https://explorer.solana.com/tx/3i4gpPJj7wdLJT1bCaeL1fB862CaLAczDhibgPuPCvWETLkd3h2uJP32fiA9oXmLwW7uYQYk3osHZKS21j4gwZnS?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app",
+      "ms": 147
+    },
+    {
+      "step": "probe_send_secret 4321 (stream, payer(member))",
+      "layer": "TEE",
+      "signature": "iDrm6CU5jxHYpCRcEGVueeYwfrmvdPFrsiKjTAyRTBzSLaBX2kuvZLsQ5A9qrvoHWZuVvzM8jFd4So7F5VFgwuv",
+      "url": "https://explorer.solana.com/tx/iDrm6CU5jxHYpCRcEGVueeYwfrmvdPFrsiKjTAyRTBzSLaBX2kuvZLsQ5A9qrvoHWZuVvzM8jFd4So7F5VFgwuv?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app",
+      "ms": 428
+    },
+    {
+      "step": "probe_send_secret 4321 (stream, B(other key))",
+      "layer": "TEE",
+      "signature": "qMvvvm7qFC23wuwM2EFTrbVPMTFkChoFnVUNsbDB9jBysctxfytNyvgF3WodusW1VSDL7iWYjfWw1472PNo9rz2",
+      "url": "https://explorer.solana.com/tx/qMvvvm7qFC23wuwM2EFTrbVPMTFkChoFnVUNsbDB9jBysctxfytNyvgF3WodusW1VSDL7iWYjfWw1472PNo9rz2?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app",
+      "ms": 430
+    },
+    {
+      "step": "probe_send_secret 4321 (stream, anonymous)",
+      "layer": "TEE",
+      "signature": "4aJKUvHdBdKzwFGPrNqySj3qKCW2ALjjouKrhmAtTK1NDSGcEwPaQFwhtzg3zTk2ybLnz9QfWQmeGNg3pxQ9DMYy",
+      "url": "https://explorer.solana.com/tx/4aJKUvHdBdKzwFGPrNqySj3qKCW2ALjjouKrhmAtTK1NDSGcEwPaQFwhtzg3zTk2ybLnz9QfWQmeGNg3pxQ9DMYy?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app",
+      "ms": 414
+    },
+    {
+      "step": "probe_permission_close",
+      "layer": "TEE",
+      "signature": "5zLueS2cxWM9SibFhCkd9qBPeFpbVjUhH4BybDUg8KJFvNDex6QkuBn6GkgrNPs8U9BAGq5sdMtU7qJ3yarqbp6V",
+      "url": "https://explorer.solana.com/tx/5zLueS2cxWM9SibFhCkd9qBPeFpbVjUhH4BybDUg8KJFvNDex6QkuBn6GkgrNPs8U9BAGq5sdMtU7qJ3yarqbp6V?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app",
+      "ms": 469
+    },
+    {
+      "step": "probe_undelegate",
+      "layer": "TEE",
+      "signature": "3stMqCvdHSFX36ZWDBGAF1Pv1CytoQQyEbLqgdmK6HhRQpoR4A1ChSNbyY3gTpbJcz13GoergAPWMNR5Y8qphg1W",
+      "url": "https://explorer.solana.com/tx/3stMqCvdHSFX36ZWDBGAF1Pv1CytoQQyEbLqgdmK6HhRQpoR4A1ChSNbyY3gTpbJcz13GoergAPWMNR5Y8qphg1W?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app",
+      "ms": 183
+    }
+  ],
+  "network": "devnet",
+  "program": "3h7wNZEN4hqcwwCh5KfmrXaq74PXuKKCJ8xgdGDA4wa8"
+}
