@@ -20,7 +20,7 @@
     "program:check": "cd programs && cargo check -p insider",
     "program:test": "cd programs && cargo test -p insider",
     "program:build": "cd programs && cargo build-sbf --manifest-path insider/Cargo.toml",
-    "program:idl": "cd programs && anchor idl build -o idl/insider.json",
+    "program:idl": "cd programs && anchor idl build -p insider -o idl/insider.json",
     "program:deploy": "solana program deploy programs/target/deploy/insider.so --program-id .keys/insider-v1-program-keypair.json --keypair .keys/deployer.json --url devnet",
     "proofs": "tsx scripts/src/build-proof-index.ts",
     "gates": "tsx scripts/src/gates/run.ts"
