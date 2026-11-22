@@ -1,0 +1,96 @@
+{
+  "gate": "G4",
+  "name": "Oracle in the TEE",
+  "status": "pass",
+  "decision": "A program inside the TEE reads SOL/USD (about $69.91, age under 10s). The Desk is in. Decode as PriceUpdateV3 by layout, exponent -8 from the feed list.",
+  "facts": {
+    "feed": "ENYwebBThHzmzwPLAQvCucUTsjyfBSZdD9ViXksS4jPu",
+    "oracleProgram": "PriCems5tHihc6UDXDjzjeawomAwBduWMGAi8ZUjppd",
+    "feedByLayer": {
+      "tee": {
+        "owner": "PriCems5tHihc6UDXDjzjeawomAwBduWMGAi8ZUjppd",
+        "ownerIsOracle": true,
+        "priceUsd": 69.90481909,
+        "ageSeconds": 1,
+        "postedSlot": "862163666",
+        "size": 134
+      },
+      "er-asia": {
+        "owner": "PriCems5tHihc6UDXDjzjeawomAwBduWMGAi8ZUjppd",
+        "ownerIsOracle": true,
+        "priceUsd": 69.90472917,
+        "ageSeconds": 0,
+        "postedSlot": "1140340029",
+        "size": 134
+      },
+      "base": {
+        "owner": "DELeGGvXpWV2fqJUhqcF5ZSYMS4JTLjteaAMARRSaeSh",
+        "ownerIsOracle": false,
+        "priceUsd": 0,
+        "ageSeconds": 49526439,
+        "postedSlot": "0",
+        "size": 134
+      }
+    },
+    "endpoint": "https://devnet-tee.magicblock.app/",
+    "onChainReads": [
+      {
+        "price": 69.90504787,
+        "ageAtRead": 0,
+        "postedSlot": "862163866"
+      },
+      {
+        "price": 69.90511382,
+        "ageAtRead": 0,
+        "postedSlot": "862164076"
+      },
+      {
+        "price": 69.90524798,
+        "ageAtRead": 0,
+        "postedSlot": "862164281"
+      }
+    ],
+    "fresh": true,
+    "sanePrice": true,
+    "updatesBetweenReads": true
+  },
+  "steps": [
+    {
+      "step": "probe_delegate",
+      "layer": "base",
+      "signature": "2FndFZWqsfyct3jgBuyJxWKxjDJ3FYvXjjEwh76pjg686qeUPNgEDkD2Unc9zT4SXRGw1aEMhdURLDju2hW1gyeD",
+      "url": "https://explorer.solana.com/tx/2FndFZWqsfyct3jgBuyJxWKxjDJ3FYvXjjEwh76pjg686qeUPNgEDkD2Unc9zT4SXRGw1aEMhdURLDju2hW1gyeD?cluster=devnet",
+      "ms": 791
+    },
+    {
+      "step": "probe_read_oracle #1",
+      "layer": "TEE",
+      "signature": "4feGfVkGDkeuMgChwwnKM6NRcEAnY7U4GckneTTfLqiCbTEKjAMdjKSGJXtBdX9UZrjqHLKAtTR3dbqdxmuwPDj2",
+      "url": "https://explorer.solana.com/tx/4feGfVkGDkeuMgChwwnKM6NRcEAnY7U4GckneTTfLqiCbTEKjAMdjKSGJXtBdX9UZrjqHLKAtTR3dbqdxmuwPDj2?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app",
+      "ms": 407
+    },
+    {
+      "step": "probe_read_oracle #2",
+      "layer": "TEE",
+      "signature": "2vscSosshkAKPtKHXKK6F5RRXyzCSCYH2aNCEuXEPe46BYi9gUUFXgYe5NqpmW3Hxt4ZXbtFmwbQ3DkyeRiLHnbq",
+      "url": "https://explorer.solana.com/tx/2vscSosshkAKPtKHXKK6F5RRXyzCSCYH2aNCEuXEPe46BYi9gUUFXgYe5NqpmW3Hxt4ZXbtFmwbQ3DkyeRiLHnbq?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app",
+      "ms": 428
+    },
+    {
+      "step": "probe_read_oracle #3",
+      "layer": "TEE",
+      "signature": "FLEHsJUvKLm5VzC5D89FsPiaCzp7mCYgvxSghpj2CoFCUCMyZwKn8oYWjM3P1kQdKwuzaCsD6bGB2HE1s9zSVh9",
+      "url": "https://explorer.solana.com/tx/FLEHsJUvKLm5VzC5D89FsPiaCzp7mCYgvxSghpj2CoFCUCMyZwKn8oYWjM3P1kQdKwuzaCsD6bGB2HE1s9zSVh9?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app",
+      "ms": 427
+    },
+    {
+      "step": "probe_undelegate",
+      "layer": "TEE",
+      "signature": "2nSsp1h8EYZrN332C5MQZybrc7gjK856G6U1XLuCtyQGLWEVvsCB92CoUvQt6psunQeUKnhokzQ5UfrvdwfJBG5Y",
+      "url": "https://explorer.solana.com/tx/2nSsp1h8EYZrN332C5MQZybrc7gjK856G6U1XLuCtyQGLWEVvsCB92CoUvQt6psunQeUKnhokzQ5UfrvdwfJBG5Y?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app",
+      "ms": 369
+    }
+  ],
+  "network": "devnet",
+  "program": "3h7wNZEN4hqcwwCh5KfmrXaq74PXuKKCJ8xgdGDA4wa8"
+}

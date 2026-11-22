@@ -1,0 +1,83 @@
+{
+  "gate": "G2",
+  "name": "Keyless reader",
+  "status": "pass",
+  "decision": "Both a keyless-PDA member list and an empty list make the account unreadable to everyone, including the authority, while program code keeps writing. Use [nobody] for Mempool, Future and sealed vaults.",
+  "facts": {
+    "endpoint": "https://devnet-tee.magicblock.app/",
+    "reads": {
+      "members = [nobody PDA]": {
+        "payer (authority)": "not returned",
+        "B (other key)": "not returned",
+        "anonymous": "not returned"
+      },
+      "members = []": {
+        "payer (authority)": "not returned",
+        "B (other key)": "not returned",
+        "anonymous": "not returned"
+      }
+    },
+    "secretAfterPublic": 102,
+    "programWritesLandedWhileUnreadable": true
+  },
+  "steps": [
+    {
+      "step": "probe_delegate",
+      "layer": "base",
+      "signature": "3DeJjyX6zvWgTaVHB9sNoYJUaiVq4bR2SH3CAf29maRBLbN5CfCaqCTxEAiBtRyfQHSDbhoeHj9ezcuULDvkjPPE",
+      "url": "https://explorer.solana.com/tx/3DeJjyX6zvWgTaVHB9sNoYJUaiVq4bR2SH3CAf29maRBLbN5CfCaqCTxEAiBtRyfQHSDbhoeHj9ezcuULDvkjPPE?cluster=devnet",
+      "ms": 951
+    },
+    {
+      "step": "probe_permission_create (members = [nobody PDA])",
+      "layer": "TEE",
+      "signature": "2MyiWa5Wxjod5ECVS2CP2qjzPVocLfZSMhWqN9C3K3Bm1CQoYxsu31V7fFP9guwb7bnLP5DDVH42g6RQhQjEunfd",
+      "url": "https://explorer.solana.com/tx/2MyiWa5Wxjod5ECVS2CP2qjzPVocLfZSMhWqN9C3K3Bm1CQoYxsu31V7fFP9guwb7bnLP5DDVH42g6RQhQjEunfd?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app",
+      "ms": 413
+    },
+    {
+      "step": "probe_send_secret 101 (members = [nobody PDA])",
+      "layer": "TEE",
+      "signature": "4DSa1puaTGsocufbCUDksQp3ewviKZ4oFotV2dk4uYZnVyU1zJrwLJ6ioixv8C7zb1KvMHnCqLQ4JxApEvEYYj7c",
+      "url": "https://explorer.solana.com/tx/4DSa1puaTGsocufbCUDksQp3ewviKZ4oFotV2dk4uYZnVyU1zJrwLJ6ioixv8C7zb1KvMHnCqLQ4JxApEvEYYj7c?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app",
+      "ms": 275
+    },
+    {
+      "step": "probe_permission_update (members = [])",
+      "layer": "TEE",
+      "signature": "57q184zqPevDWhysqwFGudM9T6ZUkw1LmfmUNAffzftynFRnGLThx8kqqQQNwhiDkporrrcKW1bYj4owC32dsSpu",
+      "url": "https://explorer.solana.com/tx/57q184zqPevDWhysqwFGudM9T6ZUkw1LmfmUNAffzftynFRnGLThx8kqqQQNwhiDkporrrcKW1bYj4owC32dsSpu?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app",
+      "ms": 144
+    },
+    {
+      "step": "probe_send_secret 102 (members = [])",
+      "layer": "TEE",
+      "signature": "2WU2zaagAgpcevk7yBRsK7X9D35Azt93mXjMJmU4q3zy5RpYyFYQ2fVhGvRqpEX6f7CuZVQfQDK9k9pRG86657XD",
+      "url": "https://explorer.solana.com/tx/2WU2zaagAgpcevk7yBRsK7X9D35Azt93mXjMJmU4q3zy5RpYyFYQ2fVhGvRqpEX6f7CuZVQfQDK9k9pRG86657XD?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app",
+      "ms": 147
+    },
+    {
+      "step": "probe_permission_update (public)",
+      "layer": "TEE",
+      "signature": "2m6j1nkXBWQZsS74bWdzk3F8n5pNfGz3uEMCCgRHhmE872TL4w3G5549MJSFt9s18sHM6UEDanVMe4Ti7s9xkoNZ",
+      "url": "https://explorer.solana.com/tx/2m6j1nkXBWQZsS74bWdzk3F8n5pNfGz3uEMCCgRHhmE872TL4w3G5549MJSFt9s18sHM6UEDanVMe4Ti7s9xkoNZ?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app",
+      "ms": 146
+    },
+    {
+      "step": "probe_permission_close",
+      "layer": "TEE",
+      "signature": "KK5abrj6UooEeL6t9Umw98QSqDsDTKkDQQPF4A4UdfoLtLtikwC29GHFZyEfu3C5VmNhLYb1iuHz8SDEjSdp9at",
+      "url": "https://explorer.solana.com/tx/KK5abrj6UooEeL6t9Umw98QSqDsDTKkDQQPF4A4UdfoLtLtikwC29GHFZyEfu3C5VmNhLYb1iuHz8SDEjSdp9at?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app",
+      "ms": 150
+    },
+    {
+      "step": "probe_undelegate",
+      "layer": "TEE",
+      "signature": "4m13iiMrtmAtAehyG2y25DKpeqYdsSkDLH1F1du8E35EU7qWjzvFiCsjRHt4YpfJ7hTE5qdYx6jVZ7VigthKcUiP",
+      "url": "https://explorer.solana.com/tx/4m13iiMrtmAtAehyG2y25DKpeqYdsSkDLH1F1du8E35EU7qWjzvFiCsjRHt4YpfJ7hTE5qdYx6jVZ7VigthKcUiP?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app",
+      "ms": 207
+    }
+  ],
+  "network": "devnet",
+  "program": "3h7wNZEN4hqcwwCh5KfmrXaq74PXuKKCJ8xgdGDA4wa8"
+}

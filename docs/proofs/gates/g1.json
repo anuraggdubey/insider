@@ -1,0 +1,55 @@
+{
+  "gate": "G1",
+  "name": "Clock and tick rate",
+  "status": "pass",
+  "decision": "SLOTS_PER_TICK = 50 (jitter 1.5%). Tick is derived from the rollup slot.",
+  "facts": {
+    "endpoint": "https://devnet-tee.magicblock.app/",
+    "slotsPerSecondPolled": 100.04,
+    "calls": 16,
+    "ticks": 16,
+    "tickSlots": [
+      862154537, 862154587, 862154638, 862154687, 862154738, 862154788, 862154837, 862154887,
+      862154937, 862154988, 862155037, 862155088, 862155138, 862155188, 862155237, 862155287
+    ],
+    "tickUnixSeconds": [
+      1795378907, 1795378908, 1795378908, 1795378909, 1795378909, 1795378910, 1795378910,
+      1795378911, 1795378911, 1795378912, 1795378912, 1795378913, 1795378913, 1795378914,
+      1795378914, 1795378915
+    ],
+    "slotDeltaPerTick": {
+      "min": 49,
+      "median": 50,
+      "max": 51,
+      "mean": 50,
+      "jitter": 0.015
+    },
+    "clockGranularity": "unix_timestamp is whole seconds; derive ticks from the slot",
+    "SLOTS_PER_TICK": 50
+  },
+  "steps": [
+    {
+      "step": "probe_delegate",
+      "layer": "base",
+      "signature": "3GcwMbGfGoZUntMYbNcvECossdxSMaZ4F76Ea8R4pbjBUEQN2gyuS4AfuEAFqdb2GDJreU9WqMz5vYvo6bbfycWf",
+      "url": "https://explorer.solana.com/tx/3GcwMbGfGoZUntMYbNcvECossdxSMaZ4F76Ea8R4pbjBUEQN2gyuS4AfuEAFqdb2GDJreU9WqMz5vYvo6bbfycWf?cluster=devnet",
+      "ms": 990
+    },
+    {
+      "step": "probe_schedule (16 x 500 ms)",
+      "layer": "TEE",
+      "signature": "2EkJS5acUYenYfHHRAaDPTq1Y1QucTxBPSchN7H4AgRFpjj5b5yxqwMK9rRhHTQoArUnjohawUbfS983LZe1TZNN",
+      "url": "https://explorer.solana.com/tx/2EkJS5acUYenYfHHRAaDPTq1Y1QucTxBPSchN7H4AgRFpjj5b5yxqwMK9rRhHTQoArUnjohawUbfS983LZe1TZNN?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app",
+      "ms": 548
+    },
+    {
+      "step": "probe_undelegate",
+      "layer": "TEE",
+      "signature": "2owHmUoeQomd87GCnnvLqvYvmcDhxtx3U6KB3NV24AmxcyZqYqSwDhQaAJqabfafHr63L1xFf6DFLhHaZ5QFfsyf",
+      "url": "https://explorer.solana.com/tx/2owHmUoeQomd87GCnnvLqvYvmcDhxtx3U6KB3NV24AmxcyZqYqSwDhQaAJqabfafHr63L1xFf6DFLhHaZ5QFfsyf?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app",
+      "ms": 358
+    }
+  ],
+  "network": "devnet",
+  "program": "3h7wNZEN4hqcwwCh5KfmrXaq74PXuKKCJ8xgdGDA4wa8"
+}

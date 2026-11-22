@@ -1,0 +1,69 @@
+{
+  "gate": "G3",
+  "name": "Zero-balance key",
+  "status": "pass",
+  "decision": "A key with 0 SOL signs and pays its own transactions on the TEE. Guest onboarding needs no funding.",
+  "facts": {
+    "endpoint": "https://devnet-tee.magicblock.app/",
+    "guest": "BtY3a9oUqey2AYRRURS1vH7oYP61wAmydgquUsTBbyTF",
+    "guestBaseBalance": 0,
+    "attempts": [
+      {
+        "name": "guest is fee payer: probe_ping",
+        "ok": true,
+        "detail": "landed"
+      },
+      {
+        "name": "guest is fee payer: probe_send_secret",
+        "ok": true,
+        "detail": "landed"
+      },
+      {
+        "name": "funded fee payer, guest signs: probe_send_secret",
+        "ok": true,
+        "detail": "landed"
+      }
+    ],
+    "secretAfter": 78,
+    "guestBalanceAfterOnTee": 0
+  },
+  "steps": [
+    {
+      "step": "probe_delegate",
+      "layer": "base",
+      "signature": "LZ4eYk7szTEF6iSxjfuxNSKeApvstrBUpfENx4rnx7UuPE4GrcpU1wUDCD34N9kuXKUr3WtT3sfayRxCWPAVCvE",
+      "url": "https://explorer.solana.com/tx/LZ4eYk7szTEF6iSxjfuxNSKeApvstrBUpfENx4rnx7UuPE4GrcpU1wUDCD34N9kuXKUr3WtT3sfayRxCWPAVCvE?cluster=devnet",
+      "ms": 896
+    },
+    {
+      "step": "guest is fee payer: probe_ping",
+      "layer": "TEE",
+      "signature": "5zq78XHY6CJcbGQcZVYarECbJ6WR89mWEC7FV2AiHRwFuqiZAcPenLrgzNPk3tFPyuruR6DVmUKkkUwSMCg4CXpb",
+      "url": "https://explorer.solana.com/tx/5zq78XHY6CJcbGQcZVYarECbJ6WR89mWEC7FV2AiHRwFuqiZAcPenLrgzNPk3tFPyuruR6DVmUKkkUwSMCg4CXpb?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app",
+      "ms": 484
+    },
+    {
+      "step": "guest is fee payer: probe_send_secret",
+      "layer": "TEE",
+      "signature": "MexRXiPKmi6iCMM9fiDXEnooaZFf6vnpt9M2hoEXqjof1dkT9aGQjQfr6p2ns5kNF54PtRmLByN9XUYKDyog4ak",
+      "url": "https://explorer.solana.com/tx/MexRXiPKmi6iCMM9fiDXEnooaZFf6vnpt9M2hoEXqjof1dkT9aGQjQfr6p2ns5kNF54PtRmLByN9XUYKDyog4ak?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app",
+      "ms": 148
+    },
+    {
+      "step": "funded fee payer, guest signs: probe_send_secret",
+      "layer": "TEE",
+      "signature": "5ryxCS1szuBJoXsbfxNYnXfzJyRbihFkD4HQsJGKa1GcTnssSzCFXg4whzwR996J4z7NkdJzjhw9BwkRdj67Jioj",
+      "url": "https://explorer.solana.com/tx/5ryxCS1szuBJoXsbfxNYnXfzJyRbihFkD4HQsJGKa1GcTnssSzCFXg4whzwR996J4z7NkdJzjhw9BwkRdj67Jioj?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app",
+      "ms": 150
+    },
+    {
+      "step": "probe_undelegate",
+      "layer": "TEE",
+      "signature": "2t5aef82yi5E8UisVA9Ph9UjJB9pHhghtiDBJxhiMik8beuJ6E1hZzfiauBjWT6tr2iqA6XVGZPbmtVZkAJqgQwU",
+      "url": "https://explorer.solana.com/tx/2t5aef82yi5E8UisVA9Ph9UjJB9pHhghtiDBJxhiMik8beuJ6E1hZzfiauBjWT6tr2iqA6XVGZPbmtVZkAJqgQwU?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app",
+      "ms": 158
+    }
+  ],
+  "network": "devnet",
+  "program": "3h7wNZEN4hqcwwCh5KfmrXaq74PXuKKCJ8xgdGDA4wa8"
+}

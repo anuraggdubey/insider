@@ -1,0 +1,58 @@
+{
+  "gate": "G9",
+  "name": "Duplicate cranks",
+  "status": "pass",
+  "decision": "Duplicate tasks made 20 calls but only 10 effective ticks (single task: 10). A tick gated on elapsed slots is idempotent.",
+  "facts": {
+    "minSlots": 40,
+    "endpoint": "https://devnet-tee.magicblock.app/",
+    "single": {
+      "calls": 10,
+      "ticks": 10
+    },
+    "duplicate": {
+      "calls": 20,
+      "ticks": 10
+    },
+    "idempotent": true
+  },
+  "steps": [
+    {
+      "step": "probe_delegate",
+      "layer": "base",
+      "signature": "5yDDH4gQ1xPgDQDECjG9m5VLmeAv6VxSWwUPLjWbhg87yMjYW91fsvJAHp4w34g19DgH9rp8gnSEkHyBGdg6ENJ1",
+      "url": "https://explorer.solana.com/tx/5yDDH4gQ1xPgDQDECjG9m5VLmeAv6VxSWwUPLjWbhg87yMjYW91fsvJAHp4w34g19DgH9rp8gnSEkHyBGdg6ENJ1?cluster=devnet",
+      "ms": 839
+    },
+    {
+      "step": "probe_schedule (single task)",
+      "layer": "TEE",
+      "signature": "46EJfjFUMrCP9CSszMu9komepa7ESWRkdAas9wr8rUqE19DG32gFv49awMHwZBzMCovfAnHBz3bPdMoY77ifsx5R",
+      "url": "https://explorer.solana.com/tx/46EJfjFUMrCP9CSszMu9komepa7ESWRkdAas9wr8rUqE19DG32gFv49awMHwZBzMCovfAnHBz3bPdMoY77ifsx5R?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app",
+      "ms": 407
+    },
+    {
+      "step": "probe_schedule (duplicate task A)",
+      "layer": "TEE",
+      "signature": "5HQfnX988WpW6vMdibsSVfgikAenzU7HtZEwp1A3iEvVY1rbfmnPtJ5uwCrtiBpzYFMbveinQ8vrAJWDdK9Cy9E6",
+      "url": "https://explorer.solana.com/tx/5HQfnX988WpW6vMdibsSVfgikAenzU7HtZEwp1A3iEvVY1rbfmnPtJ5uwCrtiBpzYFMbveinQ8vrAJWDdK9Cy9E6?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app",
+      "ms": 326
+    },
+    {
+      "step": "probe_schedule (duplicate task B)",
+      "layer": "TEE",
+      "signature": "5ATyPhYD9AK2u7N4i5ymCAyySBE4PbEDGGFzTsMAy68cRjr4QHas2qUTdtUMivEbfB8dtyFppaEwstEQdv7Y5roi",
+      "url": "https://explorer.solana.com/tx/5ATyPhYD9AK2u7N4i5ymCAyySBE4PbEDGGFzTsMAy68cRjr4QHas2qUTdtUMivEbfB8dtyFppaEwstEQdv7Y5roi?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app",
+      "ms": 138
+    },
+    {
+      "step": "probe_undelegate",
+      "layer": "TEE",
+      "signature": "2ndx88mNZw4kz5Z4LGHQ394PEqzLej45JVFNECHroMtzmgqV6n48btwVtQz8Xf1a4VdoXJT1AKKhDERAohHWEsmr",
+      "url": "https://explorer.solana.com/tx/2ndx88mNZw4kz5Z4LGHQ394PEqzLej45JVFNECHroMtzmgqV6n48btwVtQz8Xf1a4VdoXJT1AKKhDERAohHWEsmr?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app",
+      "ms": 364
+    }
+  ],
+  "network": "devnet",
+  "program": "3h7wNZEN4hqcwwCh5KfmrXaq74PXuKKCJ8xgdGDA4wa8"
+}

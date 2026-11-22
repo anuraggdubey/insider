@@ -1,7 +1,7 @@
 import { mkdirSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 
-import { AnchorProvider, Program, Wallet, type Idl } from "@anchor-lang/core";
+import { AnchorProvider, BN, Program, Wallet, type Idl } from "@anchor-lang/core";
 import { permissionPdaFromAccount } from "@magicblock-labs/ephemeral-rollups-sdk";
 import {
   Connection,
@@ -333,6 +333,56 @@ export type ProbeState = {
 export async function readProbe(connection: Connection, program: Program, probe: PublicKey) {
   const info = await connection.getAccountInfo(probe);
   return info ? (program.coder.accounts.decode("probe", info.data) as ProbeState) : undefined;
+}
+
+const meta = (pubkey: PublicKey, isSigner: boolean, isWritable: boolean) => ({
+  pubkey,
+  isSigner,
+  isWritable,
+});
+
+/** Schedules the crank on the rollup. `vrf` schedules a VRF request instead of a tick (G10). */
+export async function scheduleCrank(
+  ctx: Ctx,
+  session: Session,
+  opts: {
+    taskId: number;
+    intervalMs: number;
+    iterations: number;
+    minSlots?: number;
+    vrf?: boolean;
+  },
+  step: string,
+) {
+  const remaining = [
+    meta(ctx.payer.publicKey, true, true),
+    meta(MAGIC_PROGRAM_ID, false, false),
+    meta(ctx.probe, false, true),
+  ];
+  if (opts.vrf) remaining.push(meta(EPHEMERAL_QUEUE, false, true));
+  return send(
+    ctx.gate,
+    session.er,
+    await session.erProgram.methods
+      .probeSchedule(
+        new BN(opts.taskId),
+        new BN(opts.intervalMs),
+        new BN(opts.iterations),
+        new BN(opts.minSlots ?? 0),
+        Boolean(opts.vrf),
+      )
+      .accounts({
+        authority: ctx.payer.publicKey,
+        probe: ctx.probe,
+        magicProgram: MAGIC_PROGRAM_ID,
+      })
+      .remainingAccounts(remaining)
+      .transaction(),
+    [ctx.payer],
+    step,
+    layerOf(session),
+    session.endpoint,
+  );
 }
 
 export { sleep, loadKeypair };
