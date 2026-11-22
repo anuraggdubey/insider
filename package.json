@@ -24,7 +24,8 @@
     "program:deploy": "solana program deploy programs/target/deploy/insider.so --program-id .keys/insider-v1-program-keypair.json --keypair .keys/deployer.json --url devnet",
     "proofs": "tsx scripts/src/build-proof-index.ts",
     "gates": "tsx scripts/src/gates/run.ts",
-    "setup-table": "tsx scripts/src/setup-table.ts"
+    "setup-table": "tsx scripts/src/setup-table.ts",
+    "fund": "pnpm --filter bots fund"
   },
   "prettier": {
     "semi": true,

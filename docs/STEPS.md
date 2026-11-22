@@ -403,7 +403,9 @@ Needs Misbah's engine stubs (H-API) before wiring.
 - [ ] **A-2.3 Privacy tests (3 h).** Opener reads; a second key and an anonymous call can't read
       the vault, the mempool or the opener's order transactions; the authority can't read sealed
       vaults.
-- [ ] **A-2.4 Bots v1 (8 h).** `bots/` service: `config`, `keys` (generate and fund), `chain`
+- [ ] **A-2.4 Bots v1 (8 h).** _Started:_ the roster (7 identities, seat classes checked against the
+      program), key creation and `pnpm fund` (`--dry-run`, `--all`, `--target`) with unit tests;
+      the service itself waits for the SDK. `bots/` service: `config`, `keys` (generate and fund), `chain`
       (uses `@insider/sdk`), one decision every 2 ticks, jitter, TEE token per bot; personas
       **Front-runner, Flow, Baiter**; bots also sign `request_round_seed` and `rearm_ticks` so the table
       never idles.
