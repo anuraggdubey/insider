@@ -1,0 +1,43 @@
+{
+  "gate": "G10",
+  "name": "Crank-invoked VRF",
+  "status": "info",
+  "decision": "A crank-scheduled VRF request produced no callback. Nothing changes: drops stay derived from the one round seed that a signing seat requests.",
+  "facts": {
+    "endpoint": "https://devnet-tee.magicblock.app/",
+    "walletRequest": {
+      "callbackArrived": true,
+      "ms": 558
+    },
+    "scheduleRejected": "Simulation failed. Message: transaction verification error: Error processing Instruction 0: Account is immutable. Catch the `SendTransactionError` and call `getLogs()` on it for full details.",
+    "crankRequest": {
+      "callbackArrived": false,
+      "callbacksFromCrank": 0
+    }
+  },
+  "steps": [
+    {
+      "step": "probe_delegate",
+      "layer": "base",
+      "signature": "657iymc2N4L6gL6xD3aALYax5SeZZK5bkfA8bRcWnJ6pd19pEHoZpxyhswewbEnRLTzoh6xe3k71XpqcrpBrNnfz",
+      "url": "https://explorer.solana.com/tx/657iymc2N4L6gL6xD3aALYax5SeZZK5bkfA8bRcWnJ6pd19pEHoZpxyhswewbEnRLTzoh6xe3k71XpqcrpBrNnfz?cluster=devnet",
+      "ms": 879
+    },
+    {
+      "step": "probe_request_vrf (wallet)",
+      "layer": "TEE",
+      "signature": "3dimRs4dgZ6gvk6pLCySTPdwhZr89DXuWb6YDeSG36qR3NNkFWDQz7EhqnD2RpJ74B1HPL2MRXCiXyGXfZZ1hTU8",
+      "url": "https://explorer.solana.com/tx/3dimRs4dgZ6gvk6pLCySTPdwhZr89DXuWb6YDeSG36qR3NNkFWDQz7EhqnD2RpJ74B1HPL2MRXCiXyGXfZZ1hTU8?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app",
+      "ms": 419
+    },
+    {
+      "step": "probe_undelegate",
+      "layer": "TEE",
+      "signature": "4joEbBjT3YVWGKTp3LNPANgQ52jhZ6HgmqoCLgjVLvbTLrPVR5cT3ifW1norzaZEU13Y52YcBs2cf9Ym3LzNy46D",
+      "url": "https://explorer.solana.com/tx/4joEbBjT3YVWGKTp3LNPANgQ52jhZ6HgmqoCLgjVLvbTLrPVR5cT3ifW1norzaZEU13Y52YcBs2cf9Ym3LzNy46D?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app",
+      "ms": 341
+    }
+  ],
+  "network": "devnet",
+  "program": "3h7wNZEN4hqcwwCh5KfmrXaq74PXuKKCJ8xgdGDA4wa8"
+}

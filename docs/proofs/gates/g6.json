@@ -1,0 +1,62 @@
+{
+  "gate": "G6",
+  "name": "Magic Action",
+  "status": "info",
+  "decision": "Magic Action works: a post-commit action ran our base-layer instruction, authenticated by the escrow signer, and wrote the committed value. The SOAR leaderboard call is not yet tested, so achievements stay undecided until task A-4.2.",
+  "facts": {
+    "actionLog": "dKR7XoUeNkCi1cywRExrxJSap7mGxs6NGd7DRL2Eud7",
+    "escrow": "9grDKqjQNniKGrZkqXrf35wgSC38nPfbrDdZLAMT9RUs",
+    "endpoint": "https://devnet-tee.magicblock.app/",
+    "actionLatencyMs": 1657,
+    "logBefore": {
+      "count": 0,
+      "lastSecret": 0,
+      "lastSends": 0
+    },
+    "logAfter": {
+      "count": 1,
+      "lastSecret": 4242,
+      "lastSends": 39
+    },
+    "soar": "not tested in this script"
+  },
+  "steps": [
+    {
+      "step": "top up action escrow (0.02 SOL)",
+      "layer": "base",
+      "signature": "4PnNNZEhJds2zvPurnMZ5nzcqAxPdWoLBDTeyLKBV3Sge7qikefR9hiSSkdzDomFNPNPFDopdPKEDLmw5m1qbQir",
+      "url": "https://explorer.solana.com/tx/4PnNNZEhJds2zvPurnMZ5nzcqAxPdWoLBDTeyLKBV3Sge7qikefR9hiSSkdzDomFNPNPFDopdPKEDLmw5m1qbQir?cluster=devnet",
+      "ms": 756
+    },
+    {
+      "step": "probe_delegate",
+      "layer": "base",
+      "signature": "38Vw2WWrYJuVFVBW6piKEoASoRKmGDpa4dSmZXcGok1vSp1pUtKVwrQm5kPxsHi5fUvspA6iMoq3zQ8MLq95qdSN",
+      "url": "https://explorer.solana.com/tx/38Vw2WWrYJuVFVBW6piKEoASoRKmGDpa4dSmZXcGok1vSp1pUtKVwrQm5kPxsHi5fUvspA6iMoq3zQ8MLq95qdSN?cluster=devnet",
+      "ms": 854
+    },
+    {
+      "step": "probe_send_secret 4242",
+      "layer": "TEE",
+      "signature": "4pU22CfQW2wbiyriYAiT13x7hvpBKdJie93AbuQkNpmfvXnywo4yWfdUX659UCnHMfdk2RAYqJaxYrewRAuqwqTo",
+      "url": "https://explorer.solana.com/tx/4pU22CfQW2wbiyriYAiT13x7hvpBKdJie93AbuQkNpmfvXnywo4yWfdUX659UCnHMfdk2RAYqJaxYrewRAuqwqTo?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app",
+      "ms": 417
+    },
+    {
+      "step": "probe_commit_with_action",
+      "layer": "TEE",
+      "signature": "4xWYwignkMrUUzBrwxuK9LtYMxm6cP6BF29WZvikfX6BxNNk5tz6B2t71k8sax8fRYkAXhmeiCJ9dqSG4iuQsT9D",
+      "url": "https://explorer.solana.com/tx/4xWYwignkMrUUzBrwxuK9LtYMxm6cP6BF29WZvikfX6BxNNk5tz6B2t71k8sax8fRYkAXhmeiCJ9dqSG4iuQsT9D?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app",
+      "ms": 173
+    },
+    {
+      "step": "probe_undelegate",
+      "layer": "TEE",
+      "signature": "635e2pPUvezACVn1Lbsb6YsgTprQe3dXZ6GaHx3dkWKjv58qcNMrxRobFFme6bcvrvM7gMEFSpQvkjQJDNhwyiym",
+      "url": "https://explorer.solana.com/tx/635e2pPUvezACVn1Lbsb6YsgTprQe3dXZ6GaHx3dkWKjv58qcNMrxRobFFme6bcvrvM7gMEFSpQvkjQJDNhwyiym?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app",
+      "ms": 350
+    }
+  ],
+  "network": "devnet",
+  "program": "3h7wNZEN4hqcwwCh5KfmrXaq74PXuKKCJ8xgdGDA4wa8"
+}

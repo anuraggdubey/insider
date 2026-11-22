@@ -1,0 +1,157 @@
+{
+  "gate": "G8",
+  "name": "Epoch cycle",
+  "status": "pass",
+  "decision": "Committed, undelegated and re-delegated 3 times in a row with the right value on base each time. The epoch design stands.",
+  "facts": {
+    "endpoint": "https://devnet-tee.magicblock.app/",
+    "cycles": [
+      {
+        "cycle": 1,
+        "delegatedMs": 2151,
+        "commitStayedDelegated": true,
+        "commitMs": 1395,
+        "undelegateMs": 5683,
+        "baseSecretAfterUndelegate": 102,
+        "expected": 102,
+        "ok": true
+      },
+      {
+        "cycle": 2,
+        "delegatedMs": 2656,
+        "commitStayedDelegated": true,
+        "commitMs": 2504,
+        "undelegateMs": 5662,
+        "baseSecretAfterUndelegate": 202,
+        "expected": 202,
+        "ok": true
+      },
+      {
+        "cycle": 3,
+        "delegatedMs": 2842,
+        "commitStayedDelegated": true,
+        "commitMs": 1538,
+        "undelegateMs": 5533,
+        "baseSecretAfterUndelegate": 302,
+        "expected": 302,
+        "ok": true
+      }
+    ]
+  },
+  "steps": [
+    {
+      "step": "probe_undelegate (cleanup)",
+      "layer": "TEE",
+      "signature": "57kgrTSpegEGaZ8KubU8xY1JtgxCKjVWMAQPrMYe9as56iN8CRxnprHykssE5Mq9X8nbWqeFnw4pUeBM9xfwx5m1",
+      "url": "https://explorer.solana.com/tx/57kgrTSpegEGaZ8KubU8xY1JtgxCKjVWMAQPrMYe9as56iN8CRxnprHykssE5Mq9X8nbWqeFnw4pUeBM9xfwx5m1?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app",
+      "ms": 360
+    },
+    {
+      "step": "probe_delegate",
+      "layer": "base",
+      "signature": "2Dg97hhatkwp24WwEG6FcpgKUSK7Qz9k3zH1X4VKaPQv21gevL3LiSpr4irLuG63s9jU2SVQbs2PtxrQ49GNooms",
+      "url": "https://explorer.solana.com/tx/2Dg97hhatkwp24WwEG6FcpgKUSK7Qz9k3zH1X4VKaPQv21gevL3LiSpr4irLuG63s9jU2SVQbs2PtxrQ49GNooms?cluster=devnet",
+      "ms": 1238
+    },
+    {
+      "step": "probe_send_secret 101",
+      "layer": "TEE",
+      "signature": "V7HYHJJb6yFXQjTiLKY8gXs35wVYEr2oJDpv6HzmJYsdQSGm3e4sGcEfNVWdzWHPtqw9rrsgo5euhcSoiNaYLmc",
+      "url": "https://explorer.solana.com/tx/V7HYHJJb6yFXQjTiLKY8gXs35wVYEr2oJDpv6HzmJYsdQSGm3e4sGcEfNVWdzWHPtqw9rrsgo5euhcSoiNaYLmc?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app",
+      "ms": 421
+    },
+    {
+      "step": "probe_commit (stay delegated)",
+      "layer": "TEE",
+      "signature": "4PDQ9zWa5h21TP2BXh3NTpajAYiv1K6yJD1qQeuTNJtpZX2THWSVePgHUcKKfsWsE5b7KA3nYrKzMpmbCqP1reui",
+      "url": "https://explorer.solana.com/tx/4PDQ9zWa5h21TP2BXh3NTpajAYiv1K6yJD1qQeuTNJtpZX2THWSVePgHUcKKfsWsE5b7KA3nYrKzMpmbCqP1reui?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app",
+      "ms": 165
+    },
+    {
+      "step": "probe_send_secret 102",
+      "layer": "TEE",
+      "signature": "2DBVj9TCDHVbRJoKatdHvWixspE3zXh9EuKJqychXL4ZyirxQ9GedNvqTU8mefSbvnbwELF4HtJiGojhheZ9wSdn",
+      "url": "https://explorer.solana.com/tx/2DBVj9TCDHVbRJoKatdHvWixspE3zXh9EuKJqychXL4ZyirxQ9GedNvqTU8mefSbvnbwELF4HtJiGojhheZ9wSdn?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app",
+      "ms": 342
+    },
+    {
+      "step": "probe_undelegate",
+      "layer": "TEE",
+      "signature": "37zMW4rKPHUkUZr9xxdsbDp5jpm1QraAZPrAcBYdDZTbKJTZavjmhWzTCKQtxe7Cs4exxKCAcdfchqZyhSkDQ8CV",
+      "url": "https://explorer.solana.com/tx/37zMW4rKPHUkUZr9xxdsbDp5jpm1QraAZPrAcBYdDZTbKJTZavjmhWzTCKQtxe7Cs4exxKCAcdfchqZyhSkDQ8CV?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app",
+      "ms": 150
+    },
+    {
+      "step": "probe_delegate",
+      "layer": "base",
+      "signature": "31cUhQvABMPWBJbEfjS6X1sr5WUbo4A3bz8zaqt97rWHhAACCgYqnyP9HYPTMFHWyKTRdzpDcTKESo8BN17Gg85",
+      "url": "https://explorer.solana.com/tx/31cUhQvABMPWBJbEfjS6X1sr5WUbo4A3bz8zaqt97rWHhAACCgYqnyP9HYPTMFHWyKTRdzpDcTKESo8BN17Gg85?cluster=devnet",
+      "ms": 849
+    },
+    {
+      "step": "probe_send_secret 201",
+      "layer": "TEE",
+      "signature": "51vkaTJ56DfKpdvmgcX43Pp9vWAp6bxTjEdWXgxA1Vr9TZ2kN9EU5idrhQP3bEanPVukFhes3X4ErtfbKTprJNoJ",
+      "url": "https://explorer.solana.com/tx/51vkaTJ56DfKpdvmgcX43Pp9vWAp6bxTjEdWXgxA1Vr9TZ2kN9EU5idrhQP3bEanPVukFhes3X4ErtfbKTprJNoJ?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app",
+      "ms": 412
+    },
+    {
+      "step": "probe_commit (stay delegated)",
+      "layer": "TEE",
+      "signature": "xVydHdC1ooqNcnvxXzk51nC5akxz5sZapzPBxEk6NZAuVWeyH4kERTktWWxf6MFgz2yKUdnuB85HsfbfXvPt5oM",
+      "url": "https://explorer.solana.com/tx/xVydHdC1ooqNcnvxXzk51nC5akxz5sZapzPBxEk6NZAuVWeyH4kERTktWWxf6MFgz2yKUdnuB85HsfbfXvPt5oM?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app",
+      "ms": 169
+    },
+    {
+      "step": "probe_send_secret 202",
+      "layer": "TEE",
+      "signature": "24FjhcYhynH9SvF7nji5UGxE8LhwmXDTVcP9kGKgRGkpG3zr25qhQY45CL6mMqVDEraVZVE7xQuZPKKH2jjfUsd1",
+      "url": "https://explorer.solana.com/tx/24FjhcYhynH9SvF7nji5UGxE8LhwmXDTVcP9kGKgRGkpG3zr25qhQY45CL6mMqVDEraVZVE7xQuZPKKH2jjfUsd1?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app",
+      "ms": 335
+    },
+    {
+      "step": "probe_undelegate",
+      "layer": "TEE",
+      "signature": "cLykzpskDtG2H1DgUTW7z9zh5LSQMmFM5Th78RHdd8sHf1V1oNLoUmuoVRd6B8HNLiNCczeu2MWNRc2EjftuQSP",
+      "url": "https://explorer.solana.com/tx/cLykzpskDtG2H1DgUTW7z9zh5LSQMmFM5Th78RHdd8sHf1V1oNLoUmuoVRd6B8HNLiNCczeu2MWNRc2EjftuQSP?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app",
+      "ms": 148
+    },
+    {
+      "step": "probe_delegate",
+      "layer": "base",
+      "signature": "J6TgkZMJcdubD7sSQW2f2z9hTAFEdygFg4GGXGjoeA2m3uVqy8YDut4eGh6RJnHAWJ825NZgQdgPf5hQPu1hysL",
+      "url": "https://explorer.solana.com/tx/J6TgkZMJcdubD7sSQW2f2z9hTAFEdygFg4GGXGjoeA2m3uVqy8YDut4eGh6RJnHAWJ825NZgQdgPf5hQPu1hysL?cluster=devnet",
+      "ms": 1050
+    },
+    {
+      "step": "probe_send_secret 301",
+      "layer": "TEE",
+      "signature": "Du5zidc8BmNDFnn7XYva4H3sxW5rU5k4KAgpjsHVAhgtLNQyutPrp1iyM8vY6bHiL93JLQtoiPbT4uGZZ7NxZXP",
+      "url": "https://explorer.solana.com/tx/Du5zidc8BmNDFnn7XYva4H3sxW5rU5k4KAgpjsHVAhgtLNQyutPrp1iyM8vY6bHiL93JLQtoiPbT4uGZZ7NxZXP?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app",
+      "ms": 407
+    },
+    {
+      "step": "probe_commit (stay delegated)",
+      "layer": "TEE",
+      "signature": "64rwKqjVXL16bnJM8KTRRMH9Z4MzSNganvA1UJCRro1HbGPe8aDsLjcVjKUrHX6fXydSNWhPNa5aXR3NvScn5jYA",
+      "url": "https://explorer.solana.com/tx/64rwKqjVXL16bnJM8KTRRMH9Z4MzSNganvA1UJCRro1HbGPe8aDsLjcVjKUrHX6fXydSNWhPNa5aXR3NvScn5jYA?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app",
+      "ms": 322
+    },
+    {
+      "step": "probe_send_secret 302",
+      "layer": "TEE",
+      "signature": "5UCoQWGodm6rRWv7USdjqiH3WnEjniqJSt6fapCowWCjF8Q4wkUxjrNFvvEHhP24fxJcMPKnZ38siLkfMBQqG6zm",
+      "url": "https://explorer.solana.com/tx/5UCoQWGodm6rRWv7USdjqiH3WnEjniqJSt6fapCowWCjF8Q4wkUxjrNFvvEHhP24fxJcMPKnZ38siLkfMBQqG6zm?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app",
+      "ms": 345
+    },
+    {
+      "step": "probe_undelegate",
+      "layer": "TEE",
+      "signature": "5u8Q4THKVCQ2W8MX8dfXK4n6XpWrYwj1qtcQSkKvL4hMe99j4nHn59VZzLLuqAdKTEBXGYsP9s7CoT7FwVgRETwy",
+      "url": "https://explorer.solana.com/tx/5u8Q4THKVCQ2W8MX8dfXK4n6XpWrYwj1qtcQSkKvL4hMe99j4nHn59VZzLLuqAdKTEBXGYsP9s7CoT7FwVgRETwy?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app",
+      "ms": 151
+    }
+  ],
+  "network": "devnet",
+  "program": "3h7wNZEN4hqcwwCh5KfmrXaq74PXuKKCJ8xgdGDA4wa8"
+}

@@ -63,6 +63,87 @@
       "args": []
     },
     {
+      "name": "probe_commit_with_action",
+      "docs": [
+        "G6 (rollup): commit the probe and attach the base-layer action."
+      ],
+      "discriminator": [
+        0,
+        198,
+        185,
+        50,
+        217,
+        155,
+        12,
+        157
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "probe",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  114,
+                  111,
+                  98,
+                  101
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "payer"
+              }
+            ]
+          }
+        },
+        {
+          "name": "log",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  97,
+                  99,
+                  116,
+                  105,
+                  111,
+                  110,
+                  95,
+                  108,
+                  111,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "program_id",
+          "address": "3h7wNZEN4hqcwwCh5KfmrXaq74PXuKKCJ8xgdGDA4wa8"
+        },
+        {
+          "name": "magic_program",
+          "address": "Magic11111111111111111111111111111111111111"
+        },
+        {
+          "name": "magic_context",
+          "writable": true,
+          "address": "MagicContext1111111111111111111111111111111"
+        }
+      ],
+      "args": []
+    },
+    {
       "name": "probe_delegate",
       "docs": [
         "Base layer: delegate to the validator passed as the first remaining account."
@@ -297,6 +378,119 @@
         {
           "name": "system_program",
           "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "probe_init_log",
+      "docs": [
+        "G6 (base layer): create the log the post-commit action writes."
+      ],
+      "discriminator": [
+        114,
+        136,
+        6,
+        56,
+        138,
+        52,
+        160,
+        223
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "log",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  97,
+                  99,
+                  116,
+                  105,
+                  111,
+                  110,
+                  95,
+                  108,
+                  111,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "probe_log_action",
+      "docs": [
+        "G6 (base layer, run by the delegation program after the commit lands)."
+      ],
+      "discriminator": [
+        58,
+        15,
+        64,
+        18,
+        111,
+        248,
+        158,
+        254
+      ],
+      "accounts": [
+        {
+          "name": "log",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  97,
+                  99,
+                  116,
+                  105,
+                  111,
+                  110,
+                  95,
+                  108,
+                  111,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "probe"
+        },
+        {
+          "name": "source_program",
+          "docs": [
+            "`escrow_auth`; `#[action]` does not add it."
+          ],
+          "address": "3h7wNZEN4hqcwwCh5KfmrXaq74PXuKKCJ8xgdGDA4wa8"
+        },
+        {
+          "name": "escrow_auth"
+        },
+        {
+          "name": "escrow",
+          "docs": [
+            "call came through the real post-commit path."
+          ],
+          "signer": true
         }
       ],
       "args": []
@@ -846,6 +1040,45 @@
       ]
     },
     {
+      "name": "probe_send_secret_session",
+      "docs": [
+        "G7: the same write as `probe_send_secret`, accepted from a wallet or from its session key."
+      ],
+      "discriminator": [
+        91,
+        121,
+        154,
+        61,
+        69,
+        208,
+        164,
+        211
+      ],
+      "accounts": [
+        {
+          "name": "signer",
+          "signer": true
+        },
+        {
+          "name": "wallet"
+        },
+        {
+          "name": "probe",
+          "writable": true
+        },
+        {
+          "name": "session_token",
+          "optional": true
+        }
+      ],
+      "args": [
+        {
+          "name": "side_size",
+          "type": "i16"
+        }
+      ]
+    },
+    {
       "name": "probe_tick",
       "docs": [
         "G1 / G9: crank target. Records the clock; only advances when `min_slots` have passed since",
@@ -1076,6 +1309,19 @@
   ],
   "accounts": [
     {
+      "name": "ActionLog",
+      "discriminator": [
+        21,
+        124,
+        15,
+        134,
+        245,
+        104,
+        185,
+        20
+      ]
+    },
+    {
       "name": "Probe",
       "discriminator": [
         232,
@@ -1107,6 +1353,29 @@
     }
   ],
   "types": [
+    {
+      "name": "ActionLog",
+      "docs": [
+        "G6: written on the base layer by the post-commit action."
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "count",
+            "type": "u32"
+          },
+          {
+            "name": "last_secret",
+            "type": "i16"
+          },
+          {
+            "name": "last_sends",
+            "type": "u32"
+          }
+        ]
+      }
+    },
     {
       "name": "Member",
       "repr": {
@@ -1224,6 +1493,34 @@
           {
             "name": "bump",
             "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "SessionTokenV2",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "authority",
+            "type": "pubkey"
+          },
+          {
+            "name": "target_program",
+            "type": "pubkey"
+          },
+          {
+            "name": "session_signer",
+            "type": "pubkey"
+          },
+          {
+            "name": "fee_payer",
+            "type": "pubkey"
+          },
+          {
+            "name": "valid_until",
+            "type": "i64"
           }
         ]
       }

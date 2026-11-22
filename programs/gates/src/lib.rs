@@ -17,22 +17,27 @@ use ephemeral_rollups_sdk::{
         },
         structs::{EphemeralMembersArgs, EphemeralPermission, Member, PERMISSION_SEED},
     },
-    anchor::{commit, delegate, ephemeral, vrf, vrf_callback},
+    anchor::{action, commit, delegate, ephemeral, vrf, vrf_callback},
     consts::{EPHEMERAL_VAULT_ID, MAGIC_PROGRAM_ID, PERMISSION_PROGRAM_ID},
     cpi::DelegateConfig,
     crank::{ScheduleCrankCpi, ScheduleTaskArgs},
-    ephem::MagicIntentBundleBuilder,
+    ephem::{CallHandler, MagicIntentBundleBuilder},
     ephemeral_accounts,
+    pda::ephemeral_balance_pda_from_payer,
     vrf::{
         self,
         consts::program_identity_pubkey,
         instructions::{create_request_randomness_ix_const, RequestRandomnessParams},
         types::SerializableAccountMeta,
     },
+    ActionArgs, ShortAccountMeta,
 };
+use session_keys::{session_auth_or, Session, SessionError, SessionTokenV2};
 
 declare_id!("3h7wNZEN4hqcwwCh5KfmrXaq74PXuKKCJ8xgdGDA4wa8");
 
+pub const ACTION_LOG_SEED: &[u8] = b"action_log";
+pub const ACTION_ESCROW_INDEX: u8 = 255;
 pub const PROBE_SEED: &[u8] = b"probe";
 pub const MAX_MEMBERS: usize = 4;
 pub const CRANK_PROGRAM_ID: Pubkey = pubkey!("Crank11111111111111111111111111111111111111");
@@ -83,6 +88,15 @@ pub struct Probe {
     pub vrf_calls: u32,
     pub vrf_out: [u8; 32],
     pub bump: u8,
+}
+
+/// G6: written on the base layer by the post-commit action.
+#[account]
+#[derive(InitSpace)]
+pub struct ActionLog {
+    pub count: u32,
+    pub last_secret: i16,
+    pub last_sends: u32,
 }
 
 pub fn crank_signer_pda(authority: &Pubkey) -> Pubkey {
@@ -342,6 +356,68 @@ pub mod gates {
         Ok(())
     }
 
+    /// G7: the same write as `probe_send_secret`, accepted from a wallet or from its session key.
+    #[session_auth_or(
+        ctx.accounts.wallet.key() == ctx.accounts.signer.key(),
+        SessionError::InvalidToken
+    )]
+    pub fn probe_send_secret_session(
+        ctx: Context<ProbeSendSecretSession>,
+        side_size: i16,
+    ) -> Result<()> {
+        let probe = &mut ctx.accounts.probe;
+        probe.secret = side_size;
+        probe.sends = probe.sends.wrapping_add(1);
+        probe.last_sender = ctx.accounts.wallet.key();
+        Ok(())
+    }
+
+    /// G6 (base layer): create the log the post-commit action writes.
+    pub fn probe_init_log(_ctx: Context<ProbeInitLog>) -> Result<()> {
+        Ok(())
+    }
+
+    /// G6 (base layer, run by the delegation program after the commit lands).
+    pub fn probe_log_action(ctx: Context<ProbeLogAction>) -> Result<()> {
+        let data = ctx.accounts.probe.try_borrow_data()?;
+        let probe = Probe::try_deserialize(&mut &data[..])?;
+        let log = &mut ctx.accounts.log;
+        log.count = log.count.wrapping_add(1);
+        log.last_secret = probe.secret;
+        log.last_sends = probe.sends;
+        Ok(())
+    }
+
+    /// G6 (rollup): commit the probe and attach the base-layer action.
+    pub fn probe_commit_with_action(ctx: Context<ProbeCommitWithAction>) -> Result<()> {
+        let data = anchor_lang::InstructionData::data(&instruction::ProbeLogAction {});
+        let action = CallHandler {
+            destination_program: crate::ID,
+            accounts: vec![
+                ShortAccountMeta {
+                    pubkey: ctx.accounts.log.key().to_bytes().into(),
+                    is_writable: true,
+                },
+                ShortAccountMeta {
+                    pubkey: ctx.accounts.probe.key().to_bytes().into(),
+                    is_writable: false,
+                },
+            ],
+            args: ActionArgs::new(data),
+            escrow_authority: ctx.accounts.payer.to_account_info(),
+            compute_units: 200_000,
+        };
+        MagicIntentBundleBuilder::new(
+            ctx.accounts.payer.to_account_info(),
+            ctx.accounts.magic_context.to_account_info(),
+            ctx.accounts.magic_program.to_account_info(),
+        )
+        .commit(&[ctx.accounts.probe.to_account_info()])
+        .add_post_commit_actions([action])
+        .build_and_invoke()?;
+        Ok(())
+    }
+
     /// G8: commit without undelegating.
     pub fn probe_commit(ctx: Context<ProbeCommit>) -> Result<()> {
         MagicIntentBundleBuilder::new(
@@ -513,6 +589,63 @@ pub struct ProbeVrfCallback<'info> {
     pub vrf_program_identity: Signer<'info>,
     #[account(mut)]
     pub probe: Account<'info, Probe>,
+}
+
+#[derive(Accounts, Session)]
+pub struct ProbeSendSecretSession<'info> {
+    pub signer: Signer<'info>,
+    /// CHECK: the wallet the seat belongs to; only compared against the signer or the session.
+    pub wallet: UncheckedAccount<'info>,
+    #[account(mut)]
+    pub probe: Account<'info, Probe>,
+    #[session(signer = signer, authority = wallet.key())]
+    pub session_token: Option<Account<'info, SessionTokenV2>>,
+}
+
+#[derive(Accounts)]
+pub struct ProbeInitLog<'info> {
+    #[account(mut)]
+    pub payer: Signer<'info>,
+    #[account(init, payer = payer, space = 8 + ActionLog::INIT_SPACE, seeds = [ACTION_LOG_SEED], bump)]
+    pub log: Account<'info, ActionLog>,
+    pub system_program: Program<'info, System>,
+}
+
+#[action]
+#[derive(Accounts)]
+pub struct ProbeLogAction<'info> {
+    #[account(mut, seeds = [ACTION_LOG_SEED], bump)]
+    pub log: Account<'info, ActionLog>,
+    /// CHECK: the delegated probe; read-only raw data.
+    pub probe: UncheckedAccount<'info>,
+    /// CHECK: the program that scheduled the action. The delegation program passes it before
+    /// `escrow_auth`; `#[action]` does not add it.
+    #[account(address = crate::ID)]
+    pub source_program: UncheckedAccount<'info>,
+    /// CHECK: payer identity the action was scheduled with.
+    pub escrow_auth: UncheckedAccount<'info>,
+    /// CHECK: only the delegation program can sign for this PDA, so being a signer proves the
+    /// call came through the real post-commit path.
+    #[account(
+        signer,
+        address = ephemeral_balance_pda_from_payer(&escrow_auth.key(), ACTION_ESCROW_INDEX),
+    )]
+    pub escrow: UncheckedAccount<'info>,
+}
+
+#[commit]
+#[derive(Accounts)]
+pub struct ProbeCommitWithAction<'info> {
+    #[account(mut)]
+    pub payer: Signer<'info>,
+    #[account(mut, seeds = [PROBE_SEED, payer.key().as_ref()], bump = probe.bump)]
+    pub probe: Account<'info, Probe>,
+    /// CHECK: the base-layer log the action writes; writable flag is set in the action accounts.
+    #[account(seeds = [ACTION_LOG_SEED], bump)]
+    pub log: UncheckedAccount<'info>,
+    /// CHECK: destination program of the action.
+    #[account(address = crate::ID)]
+    pub program_id: UncheckedAccount<'info>,
 }
 
 #[commit]

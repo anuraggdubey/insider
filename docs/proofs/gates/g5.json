@@ -1,0 +1,120 @@
+{
+  "gate": "G5",
+  "name": "Private Payments",
+  "status": "pass",
+  "decision": "Deposit, private transfer, withdraw and the platform fee all work on devnet-private, and another wallet cannot read a private balance. Alpha Cup is in. Caveat: a queued private base-to-base buy-in did not deliver to the operator within 150 s (the fee was skimmed at once), so buy-ins and payouts should run as deposit, private transfer inside the rollup and withdraw, which are fast and verified.",
+  "facts": {
+    "mint": "2P93g7wmAgD8126oJbNWfHDkejiEyYJCcHYT7UiprLio",
+    "platformFeeAccount": "7gfzeaau9hL6uTPcHAkp9fH2xuDzknwjrsA7GYZ8ctqA",
+    "outsiderBlocked": true,
+    "transferFees": {
+      "lamports": "0",
+      "tokens": "0"
+    },
+    "buyInFees": {
+      "lamports": "2039280",
+      "tokens": "510000"
+    },
+    "buyInSettled": false,
+    "platformFeeReceived": "500000",
+    "steps": [
+      {
+        "step": "initialize-mint",
+        "ok": true,
+        "detail": "ok"
+      },
+      {
+        "step": "login (player)",
+        "ok": true,
+        "detail": "ok"
+      },
+      {
+        "step": "login (operator)",
+        "ok": true,
+        "detail": "ok"
+      },
+      {
+        "step": "deposit 20",
+        "ok": true,
+        "detail": "ok"
+      },
+      {
+        "step": "private balance shows the deposit",
+        "ok": true,
+        "detail": "true"
+      },
+      {
+        "step": "outsider cannot read the player's private balance",
+        "ok": true,
+        "detail": "ok"
+      },
+      {
+        "step": "private transfer 5 (TEE -> TEE)",
+        "ok": true,
+        "detail": "ok"
+      },
+      {
+        "step": "recipient private balance shows the transfer",
+        "ok": true,
+        "detail": "true"
+      },
+      {
+        "step": "withdraw 5",
+        "ok": true,
+        "detail": "ok"
+      },
+      {
+        "step": "withdrawal reaches the base layer",
+        "ok": true,
+        "detail": "true"
+      },
+      {
+        "step": "buy-in 10 with 5% platform fee",
+        "ok": true,
+        "detail": "ok"
+      },
+      {
+        "step": "buy-in settles to the operator",
+        "ok": false,
+        "detail": "false"
+      },
+      {
+        "step": "platform fee account receives the fee",
+        "ok": true,
+        "detail": "500000"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "step": "deposit 20 (base -> TEE)",
+      "layer": "base",
+      "signature": "4D1qtyA3z9kEWm8ZCra3mpDJ8ePExRCYyb6HNmuPrgEPvLGZu23bchn4gyGzU9Qmvcw7LAVs32qYw9pvs5oPZaB1",
+      "url": "https://explorer.solana.com/tx/4D1qtyA3z9kEWm8ZCra3mpDJ8ePExRCYyb6HNmuPrgEPvLGZu23bchn4gyGzU9Qmvcw7LAVs32qYw9pvs5oPZaB1?cluster=devnet",
+      "ms": 650
+    },
+    {
+      "step": "private transfer 5 (TEE)",
+      "layer": "TEE",
+      "signature": "38nidqE8k8NRCr4o7aoRpyAfgg8MzjYScwkVrwVMawKP9iLxNjVMXWuaqjJ1WwV5DSSkHyyP7dFnhQwaTpKbYUKu",
+      "url": "https://explorer.solana.com/tx/38nidqE8k8NRCr4o7aoRpyAfgg8MzjYScwkVrwVMawKP9iLxNjVMXWuaqjJ1WwV5DSSkHyyP7dFnhQwaTpKbYUKu?cluster=devnet",
+      "ms": 89
+    },
+    {
+      "step": "withdraw 5 (TEE -> base)",
+      "layer": "base",
+      "signature": "4DvmRjS9aQk5rpe11y5d6JijboNgdPYzGiouvkWLMrtGkafRZ1PqEjraTv9jHGCaoLnnuAssWGEwxhimc7rCN9rz",
+      "url": "https://explorer.solana.com/tx/4DvmRjS9aQk5rpe11y5d6JijboNgdPYzGiouvkWLMrtGkafRZ1PqEjraTv9jHGCaoLnnuAssWGEwxhimc7rCN9rz?cluster=devnet",
+      "ms": 827
+    },
+    {
+      "step": "buy-in 10 (private base -> base, fee 5%)",
+      "layer": "base",
+      "signature": "3y3nvufgcoBBUHL5E2WCoUpdZv1ApuCzbmEiWfSebhMfs9zkAXWhvX1vpGeCkfgM5ZTSjRv7tCsNMrZAPeaG2nHZ",
+      "url": "https://explorer.solana.com/tx/3y3nvufgcoBBUHL5E2WCoUpdZv1ApuCzbmEiWfSebhMfs9zkAXWhvX1vpGeCkfgM5ZTSjRv7tCsNMrZAPeaG2nHZ?cluster=devnet",
+      "ms": 922
+    }
+  ],
+  "network": "devnet",
+  "program": "3h7wNZEN4hqcwwCh5KfmrXaq74PXuKKCJ8xgdGDA4wa8"
+}

@@ -100,6 +100,40 @@ shape of the Floor.
 Also in the first block: the browser fee-payer question (G3) and a 10-account intent is never tried
 again (Phase 2 showed it hangs).
 
+### 4.1 Gate results (Block 0, devnet)
+
+Run with `pnpm gates`; transactions and raw data are in [gates.md](gates.md) and
+`docs/proofs/gates/`. 9 pass, 2 are informational, none is cut.
+
+| Gate | Result   | What it means for the build                                                                                                                                                                                                                              |
+| ---- | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| G0   | **pass** | The dark mempool, lanes and the Flow family stay. A non-member or anonymous caller gets a transaction back with its instructions and logs emptied, and no account, signature, block, simulation or subscription path returned the order.                 |
+| G1   | **pass** | `SLOTS_PER_TICK = 50`: the TEE runs 100 slots per second, so a 500 ms tick is 50 slots with 1.5% jitter. `unix_timestamp` is whole seconds, so ticks are derived from the slot.                                                                          |
+| G2   | **pass** | `["nobody"]` (a keyless PDA) as the only member makes an account unreadable to everyone, including the authority, while program code keeps writing. An empty member list does the same.                                                                  |
+| G3   | **pass** | A brand-new key with 0 SOL signs and pays its own transactions on the TEE. Guests need no funding and no treasury transfer.                                                                                                                              |
+| G4   | **pass** | The Desk is in. The SOL/USD feed (`ENYwebBThHzmzwPLAQvCucUTsjyfBSZdD9ViXksS4jPu`, owner `PriCems...`) is on the TEE and fresh. Decode it by layout and take the exponent (-8) from the feed list, not the account.                                       |
+| G5   | **pass** | Alpha Cup is in: deposit, private transfer and withdraw work on `devnet-private`, the platform fee account receives its fee, and another wallet's token cannot read a private balance. Run buy-ins and payouts as deposit, in-rollup transfer, withdraw. |
+| G6   | **info** | Magic Action works (a post-commit action ran our base-layer instruction, paid from a funded escrow). The SOAR leaderboard call is untested: achievements stay undecided until task A-4.2.                                                                |
+| G7   | **pass** | Session keys are in. A zero-SOL session key signs gameplay for a wallet, wrong signers and missing tokens are rejected, the wallet still works directly, and revocation takes effect within seconds.                                                     |
+| G8   | **pass** | `Season` was committed, undelegated and re-delegated three times in a row with the right value on base each time. The epoch design stands.                                                                                                               |
+| G9   | **pass** | Two crank tasks on the same cadence made 20 calls but only 10 effective ticks. A tick gated on elapsed slots is idempotent.                                                                                                                              |
+| G10  | **info** | A crank-scheduled VRF request is rejected at schedule time ("Account is immutable"). Per-drop VRF is not available; drops stay derived from the one round seed that a signing seat requests.                                                             |
+
+Findings that shape the code:
+
+1. **Read access is evaluated when the read happens.** After a permission was closed, an old
+   transaction became readable to everyone. So the `Mempool` and `Future` permissions are never
+   closed or made public while their history matters; only `teardown` removes them.
+2. **What stays public:** who signed, which accounts a transaction touched and its signature. That is
+   the `SendEvent` we already treat as public; the order itself is the secret.
+3. **A session key must not be writable in the instruction** (`Transaction loads a writable account
+that cannot be written`): the session signer is a plain signer, and a funded key pays the fee.
+4. **A Magic Action handler's account order is** `[...accounts, source_program, escrow_auth,
+escrow]`, with `escrow` required to be a signer, and the escrow (a PDA of the delegation
+   program) must be topped up on the base layer first.
+5. **Zero-copy for big accounts.** A 1.8 KB account deserialised the normal way overflows the 4 KB
+   SBF stack frame, so `CallBook` is zero-copy and `init` runs in one instruction per big account.
+
 ## 5. Accounts
 
 All created on the base layer at setup, delegated once (6 per transaction, 1.4M compute limit), and

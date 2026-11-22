@@ -1,0 +1,93 @@
+{
+  "gate": "G7",
+  "name": "Session keys",
+  "status": "pass",
+  "decision": "A zero-SOL session key signs gameplay on the TEE for the wallet; wrong signers and missing tokens are rejected, the wallet still works directly, and revocation stops the session. Wallet identity is in.",
+  "facts": {
+    "wallet": "DoZQm3qS7pURB31BSSQiiFY63Cueb55SUhE78cdomoKw",
+    "sessionKey": "9KN4XZjo8dCQmMaEJpVHBRyyMzxBebLjnmZJ1FUybbD6",
+    "sessionToken": "AXjWvhpKokd1hQ6ktNT8EYnTxfxKpshzGdNTjSvkXZDW",
+    "endpoint": "https://devnet-tee.magicblock.app/",
+    "sessionTokenOnBase": true,
+    "attempts": [
+      {
+        "case": "session key signs with its token",
+        "expected": "ok",
+        "result": "ok",
+        "detail": "landed"
+      },
+      {
+        "case": "stranger signs with the wallet's token",
+        "expected": "fail",
+        "result": "fail",
+        "detail": "Simulation failed. Message: transaction verification error: Error processing Instruction 0: custom program error: 0x1771. Catch the `SendTra"
+      },
+      {
+        "case": "session key signs without a token",
+        "expected": "fail",
+        "result": "fail",
+        "detail": "Simulation failed. Message: transaction verification error: Error processing Instruction 0: custom program error: 0x1771. Catch the `SendTra"
+      },
+      {
+        "case": "wallet signs directly (fallback)",
+        "expected": "ok",
+        "result": "ok",
+        "detail": "landed"
+      },
+      {
+        "case": "session key after revoke",
+        "expected": "fail",
+        "result": "fail",
+        "detail": "Simulation failed. Message: transaction verification error: Error processing Instruction 0: custom program error: 0xbc4. Catch the `SendTran"
+      }
+    ],
+    "secretAfter": 556,
+    "revokeStopsSession": true
+  },
+  "steps": [
+    {
+      "step": "probe_delegate",
+      "layer": "base",
+      "signature": "3YgtYmydypYYLmuFfarqZFjKQmsWEcqSo9QUJcq5d3iRZVJ8TVgqfXiBu8NvbnXF8giNtr6N83KzghSDPJ5S8vUK",
+      "url": "https://explorer.solana.com/tx/3YgtYmydypYYLmuFfarqZFjKQmsWEcqSo9QUJcq5d3iRZVJ8TVgqfXiBu8NvbnXF8giNtr6N83KzghSDPJ5S8vUK?cluster=devnet",
+      "ms": 784
+    },
+    {
+      "step": "createSessionV2 (base)",
+      "layer": "base",
+      "signature": "4rnpuCoqkKcEX8wj6JsRz2qrAU9kaxqCjGdxGG8shBMKnVLoEfED5cQ7vLL3z8iMki5TECoA2cMF7ecFvR929R95",
+      "url": "https://explorer.solana.com/tx/4rnpuCoqkKcEX8wj6JsRz2qrAU9kaxqCjGdxGG8shBMKnVLoEfED5cQ7vLL3z8iMki5TECoA2cMF7ecFvR929R95?cluster=devnet",
+      "ms": 1024
+    },
+    {
+      "step": "session key signs with its token",
+      "layer": "TEE",
+      "signature": "2TTKd1kWZsDTiaMXEQLzmTFfpQZ5bcEsqXP1QduhXF5HPXLPsCpftApxitDWRiiQApB7BR7pKBKxWP5N3pCw1FYJ",
+      "url": "https://explorer.solana.com/tx/2TTKd1kWZsDTiaMXEQLzmTFfpQZ5bcEsqXP1QduhXF5HPXLPsCpftApxitDWRiiQApB7BR7pKBKxWP5N3pCw1FYJ?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app",
+      "ms": 510
+    },
+    {
+      "step": "wallet signs directly (fallback)",
+      "layer": "TEE",
+      "signature": "3f1FY1FYeV2vo9f171UpF6LRC8F1j4f7qnowYDS9hufVaPjTXLC3Y6oaqjM1rX2Bcc1DURyqbTsjXyP5tBEqwBgw",
+      "url": "https://explorer.solana.com/tx/3f1FY1FYeV2vo9f171UpF6LRC8F1j4f7qnowYDS9hufVaPjTXLC3Y6oaqjM1rX2Bcc1DURyqbTsjXyP5tBEqwBgw?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app",
+      "ms": 367
+    },
+    {
+      "step": "revokeSessionV2 (base)",
+      "layer": "base",
+      "signature": "3vmBE5J5fqmQpUnMLq4rzUFiCJzfDpBceQi5WgQ5hb6VGs4MYTionQGdWFuBtKaCkCUeFDL9LMBdWCzpAB9TkNpT",
+      "url": "https://explorer.solana.com/tx/3vmBE5J5fqmQpUnMLq4rzUFiCJzfDpBceQi5WgQ5hb6VGs4MYTionQGdWFuBtKaCkCUeFDL9LMBdWCzpAB9TkNpT?cluster=devnet",
+      "ms": 908
+    },
+    {
+      "step": "probe_undelegate",
+      "layer": "TEE",
+      "signature": "3XMYbCSWvyQjUDvkw4G4FxsbEoYX1Fix94BLNMahboomTzE9EZp34u1TLK85cY6jRZpSeZGsCLZmstYKxo3Aw1X1",
+      "url": "https://explorer.solana.com/tx/3XMYbCSWvyQjUDvkw4G4FxsbEoYX1Fix94BLNMahboomTzE9EZp34u1TLK85cY6jRZpSeZGsCLZmstYKxo3Aw1X1?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app",
+      "ms": 358
+    }
+  ],
+  "network": "devnet",
+  "program": "3h7wNZEN4hqcwwCh5KfmrXaq74PXuKKCJ8xgdGDA4wa8"
+}
