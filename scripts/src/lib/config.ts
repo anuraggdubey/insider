@@ -16,7 +16,7 @@ export const config = {
   baseRpcUrl: process.env.SOLANA_RPC_URL || "https://api.devnet.solana.com",
   routerUrl: process.env.MAGIC_ROUTER_URL || "https://devnet-router.magicblock.app",
   programId: new PublicKey(
-    process.env.INSIDER_PROGRAM_ID || "5TbtvduZEmNWbnr7wfvB9A9TobbxSB96e1xYcr6NnSDQ",
+    process.env.INSIDER_PROGRAM_ID || "7mTtHsFMYnZRnhd3SRzhj8Nm1U2T3s33dnbJwa9zBErW",
   ),
   erValidator: new PublicKey(
     process.env.ER_VALIDATOR || "MAS1Dt9qreoRMQ14YQuhg8UTZMMzDdKhmkZMECCzk57",

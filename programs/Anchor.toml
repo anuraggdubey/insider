@@ -10,10 +10,10 @@ skip-lint = false
 members = ["insider"]
 
 [programs.devnet]
-insider = "5TbtvduZEmNWbnr7wfvB9A9TobbxSB96e1xYcr6NnSDQ"
+insider = "7mTtHsFMYnZRnhd3SRzhj8Nm1U2T3s33dnbJwa9zBErW"
 
 [programs.localnet]
-insider = "5TbtvduZEmNWbnr7wfvB9A9TobbxSB96e1xYcr6NnSDQ"
+insider = "7mTtHsFMYnZRnhd3SRzhj8Nm1U2T3s33dnbJwa9zBErW"
 
 [provider]
 cluster = "devnet"

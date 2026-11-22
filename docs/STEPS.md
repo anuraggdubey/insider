@@ -345,9 +345,9 @@ While editing Rust, use `pnpm program:check` and `pnpm program:test`; only run
 - [x] **A-0.1 Tag and reset (2 h).** _Done:_ tag `phase-2-lab` pushed, all lab, spike and slot code
       deleted (sections 3.1-3.2), the program is an empty placeholder that passes `pnpm program:check`,
       the repo root was cleaned up (section 1.1), and the stale `leak-exchange-v1` branch was deleted.
-      **Still open (needs a funded wallet):** create the new program keypair
-      `.keys/insider-v1-program-keypair.json`, replace the old ID in `programs/Anchor.toml`, `declare_id!`
-      and `.env.example`, and **announce the new program ID** (handoff H0).
+      New program ID `7mTtHsFMYnZRnhd3SRzhj8Nm1U2T3s33dnbJwa9zBErW` (keypair
+      `.keys/insider-v1-program-keypair.json`) is set in `programs/Anchor.toml`, `declare_id!`,
+      `.env.example` and `scripts/src/lib/config.ts`. Announce it to Misbah with the H0 handoff.
 - [x] **A-0.2 Remove unused packages (0.5 h).** _Done:_ the packages in 3.4 are removed and the lockfile is
       committed. Misbah: run `pnpm install`.
 - [x] **A-0.3 Update scripts (0.5 h).** _Done:_ old root scripts removed, `program:*` scripts now run from

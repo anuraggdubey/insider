@@ -23,7 +23,7 @@ for (const [name, cmd] of tools) {
   }
 }
 
-for (const file of [".keys/deployer.json", ".keys/insider-program-keypair.json"]) {
+for (const file of [".keys/deployer.json", ".keys/insider-v1-program-keypair.json"]) {
   const ok = existsSync(file);
   if (!ok) failed = true;
   console.log(`${ok ? "ok  " : "FAIL"} ${file}`);
