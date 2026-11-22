@@ -392,8 +392,12 @@ Needs Misbah's engine stubs (H-API) before wiring.
 
 ### Block 2: Live table, bots, proofs (21 h)
 
-- [ ] **A-2.1 Setup script (3 h).** `scripts/src/setup-table.ts`: init, slots, delegate in batches,
-      permissions, arm the crank. Idempotent and resumable.
+- [ ] **A-2.1 Setup script (3 h).** _Done for my accounts:_ `pnpm setup-table` (`--dry-run`,
+      `--arm`, `--validator`) reads chain state, plans only the missing work (create, batch, delegate
+      six per transaction) and is idempotent and resumable; the plan, the client helpers and all 28
+      instructions are unit-tested offline. Runbook: [runbook.md](runbook.md). **Not yet run on
+      devnet** (the program is deployed together with Misbah's part). **Still open:** Misbah's
+      accounts and `init_permissions` in the plan.
 - [ ] **A-2.2 `simulate-round` (4 h).** Full round with three keys: seed, orders, eight drops, bids,
       opens, front-run, X-ray. Prints every explorer link and writes `docs/proofs`.
 - [ ] **A-2.3 Privacy tests (3 h).** Opener reads; a second key and an anonymous call can't read
