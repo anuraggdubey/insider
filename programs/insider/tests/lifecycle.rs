@@ -5,12 +5,18 @@
 use std::path::PathBuf;
 
 use anchor_lang::{
-    solana_program::{instruction::Instruction, pubkey::Pubkey, system_program},
+    solana_program::{
+        instruction::{AccountMeta, Instruction},
+        pubkey::Pubkey,
+        system_program,
+    },
     AccountDeserialize, AccountSerialize, InstructionData, ToAccountMetas,
 };
 use insider::{
     accounts, instruction, CallBook, Phase, Season, Seat, SeatKind, Table, Tape, BANKROLL_CHIPS,
-    CALLBOOK_SEED, SEASON_SEED, SEAT_IDLE_TICKS, SEAT_SEED, TABLE_SEED, TAPE_SEED,
+    Board, Future, LeakVault, Market, Mempool, Xray, BOARD_SEED, CALLBOOK_SEED, FUTURE_SEED,
+    LEAK_SEED, MARKET_FLOOR, MARKET_SEED, MEMPOOL_SEED, SEASON_SEED, SEAT_IDLE_TICKS, SEAT_SEED,
+    TABLE_SEED, TAPE_SEED, VRF_TIMEOUT_TICKS, XRAY_SEED,
 };
 use litesvm::LiteSVM;
 use solana_keypair::Keypair;
@@ -105,9 +111,90 @@ fn init_big_ixs(authority: &Pubkey) -> Vec<Instruction> {
     ]
 }
 
+/// The engine accounts: Floor market, mempool, future, board, X-ray and the six leak vaults.
+fn init_engine_ixs(authority: &Pubkey) -> Vec<Instruction> {
+    let table = table_pda(authority);
+    let base = |data: Vec<u8>, metas: Vec<anchor_lang::solana_program::instruction::AccountMeta>| {
+        Instruction {
+            program_id: insider::ID,
+            accounts: metas,
+            data,
+        }
+    };
+    let mut ixs = vec![
+        base(
+            instruction::InitMarket { kind: MARKET_FLOOR }.data(),
+            accounts::InitMarket {
+                authority: *authority,
+                table,
+                market: pda(&[MARKET_SEED, table.as_ref(), &[MARKET_FLOOR]]),
+                system_program: system_program::ID,
+            }
+            .to_account_metas(None),
+        ),
+        base(
+            instruction::InitMempool {}.data(),
+            accounts::InitMempool {
+                authority: *authority,
+                table,
+                mempool: pda(&[MEMPOOL_SEED, table.as_ref()]),
+                system_program: system_program::ID,
+            }
+            .to_account_metas(None),
+        ),
+        base(
+            instruction::InitFuture {}.data(),
+            accounts::InitFuture {
+                authority: *authority,
+                table,
+                future: pda(&[FUTURE_SEED, table.as_ref()]),
+                system_program: system_program::ID,
+            }
+            .to_account_metas(None),
+        ),
+        base(
+            instruction::InitBoard {}.data(),
+            accounts::InitBoard {
+                authority: *authority,
+                table,
+                board: pda(&[BOARD_SEED, table.as_ref()]),
+                system_program: system_program::ID,
+            }
+            .to_account_metas(None),
+        ),
+        base(
+            instruction::InitXray {}.data(),
+            accounts::InitXray {
+                authority: *authority,
+                table,
+                xray: pda(&[XRAY_SEED, table.as_ref()]),
+                system_program: system_program::ID,
+            }
+            .to_account_metas(None),
+        ),
+    ];
+    for slot in 0..6u8 {
+        ixs.push(base(
+            instruction::InitLeakVault { slot }.data(),
+            accounts::InitLeakVault {
+                authority: *authority,
+                table,
+                vault: pda(&[LEAK_SEED, table.as_ref(), &[slot]]),
+                system_program: system_program::ID,
+            }
+            .to_account_metas(None),
+        ));
+    }
+    ixs
+}
+
 fn init_everything(svm: &mut LiteSVM, authority: &Keypair) {
     send(svm, &[authority], init_table_ix(&authority.pubkey())).unwrap();
     for ix in init_big_ixs(&authority.pubkey()) {
+        svm.expire_blockhash();
+        send(svm, &[authority], ix).unwrap();
+    }
+    for ix in init_engine_ixs(&authority.pubkey()) {
         svm.expire_blockhash();
         send(svm, &[authority], ix).unwrap();
     }
@@ -310,6 +397,48 @@ fn an_occupied_seat_is_protected_until_a_bot_goes_idle() {
 }
 
 #[test]
+fn an_idle_bot_with_a_position_or_pending_orders_cannot_be_displaced() {
+    let (mut svm, authority) = table_with_seats();
+    let bot = Keypair::new();
+    let human = Keypair::new();
+    for key in [&bot, &human] {
+        svm.airdrop(&key.pubkey(), 1_000_000_000).unwrap();
+    }
+    let table = table_pda(&authority.pubkey());
+    let seat_key = seat_pda(&table, 1);
+    send(&mut svm, &[&bot], claim_ix(&bot.pubkey(), &authority.pubkey(), 1)).unwrap();
+    set_tick(&mut svm, &authority.pubkey(), SEAT_IDLE_TICKS + 5);
+
+    for (position, pending) in [(300i32, 0u8), (0, 2), (-50, 1)] {
+        let mut seat: Seat = read(&svm, &seat_key);
+        seat.position = position;
+        seat.pending_count = pending;
+        write(&mut svm, &seat_key, &seat);
+        svm.expire_blockhash();
+        assert!(
+            send(&mut svm, &[&human], claim_ix(&human.pubkey(), &authority.pubkey(), 1)).is_err(),
+            "position {position}, pending {pending}"
+        );
+    }
+
+    // flat and with nothing queued, the idle bot can be displaced again
+    let mut seat: Seat = read(&svm, &seat_key);
+    seat.position = 0;
+    seat.pending_count = 0;
+    write(&mut svm, &seat_key, &seat);
+    svm.expire_blockhash();
+    send(&mut svm, &[&human], claim_ix(&human.pubkey(), &authority.pubkey(), 1)).unwrap();
+}
+
+#[test]
+fn the_default_priority_fee_is_three_chips() {
+    let (mut svm, authority) = setup();
+    init_everything(&mut svm, &authority);
+    let table: Table = read(&svm, &table_pda(&authority.pubkey()));
+    assert_eq!(table.params.priority_fee, 3);
+}
+
+#[test]
 fn ai_seats_are_protected_even_when_idle() {
     let (mut svm, authority) = table_with_seats();
     let analyst = Keypair::new();
@@ -348,21 +477,159 @@ fn ping_keeps_a_seat_active_and_only_the_owner_can_ping() {
     assert!(send(&mut svm, &[&other], claim_ix(&other.pubkey(), &authority.pubkey(), 1)).is_err());
 }
 
+fn tick_ix(table: Pubkey, scheduler: Pubkey, crank_signer: Pubkey) -> Instruction {
+    let mut accounts = accounts::TickAccounts {
+        table,
+        scheduler,
+        crank_signer,
+        market: pda(&[MARKET_SEED, table.as_ref(), &[MARKET_FLOOR]]),
+        mempool: pda(&[MEMPOOL_SEED, table.as_ref()]),
+        future: pda(&[FUTURE_SEED, table.as_ref()]),
+        board: pda(&[BOARD_SEED, table.as_ref()]),
+        xray: pda(&[XRAY_SEED, table.as_ref()]),
+        tape: pda(&[TAPE_SEED, table.as_ref()]),
+    }
+    .to_account_metas(None);
+    // the six vaults, then the ten seats, as remaining accounts
+    for slot in 0..6u8 {
+        accounts.push(AccountMeta::new(pda(&[LEAK_SEED, table.as_ref(), &[slot]]), false));
+    }
+    for index in 0..10u8 {
+        accounts.push(AccountMeta::new(seat_pda(&table, index), false));
+    }
+    Instruction {
+        program_id: insider::ID,
+        accounts,
+        data: instruction::Tick {}.data(),
+    }
+}
+
 #[test]
 fn tick_rejects_callers_that_are_not_the_crank() {
     let (mut svm, authority) = table_with_seats();
     let table = table_pda(&authority.pubkey());
     let impostor = Keypair::new();
     svm.airdrop(&impostor.pubkey(), 1_000_000_000).unwrap();
-    let ix = Instruction {
+    let ix = tick_ix(table, authority.pubkey(), impostor.pubkey());
+    assert!(send(&mut svm, &[&impostor], ix).is_err());
+}
+
+#[test]
+fn engine_accounts_are_created_with_their_size_and_permission_rent() {
+    let (svm, authority) = table_with_seats();
+    let table = table_pda(&authority.pubkey());
+    let rent = insider::engine_setup::permission_rent();
+    assert!(rent > 0);
+
+    let check = |key: Pubkey, space: usize, private: bool| {
+        let account = svm.get_account(&key).expect("account exists");
+        assert_eq!(account.owner, insider::ID);
+        assert_eq!(account.data.len(), space);
+        if private {
+            // the permission is created later inside the rollup out of these lamports
+            assert!(account.lamports >= rent, "{key} holds {}", account.lamports);
+        }
+    };
+    check(pda(&[MEMPOOL_SEED, table.as_ref()]), Mempool::SPACE, true);
+    check(pda(&[FUTURE_SEED, table.as_ref()]), Future::SPACE, true);
+    check(pda(&[BOARD_SEED, table.as_ref()]), Board::SPACE, false);
+    check(pda(&[XRAY_SEED, table.as_ref()]), Xray::SPACE, false);
+    check(
+        pda(&[MARKET_SEED, table.as_ref(), &[MARKET_FLOOR]]),
+        Market::SPACE,
+        false,
+    );
+    for slot in 0..6u8 {
+        let key = pda(&[LEAK_SEED, table.as_ref(), &[slot]]);
+        check(key, LeakVault::SPACE, true);
+        let vault: LeakVault = read(&svm, &key);
+        assert_eq!(vault.slot, slot);
+        assert_ne!(vault.bump, 0);
+    }
+    let market: Market = read(&svm, &pda(&[MARKET_SEED, table.as_ref(), &[MARKET_FLOOR]]));
+    assert_eq!(market.kind, MARKET_FLOOR);
+}
+
+#[test]
+fn engine_accounts_have_one_authority_and_a_bounded_index() {
+    let (mut svm, authority) = table_with_seats();
+    let table = table_pda(&authority.pubkey());
+    let stranger = Keypair::new();
+    svm.airdrop(&stranger.pubkey(), 1_000_000_000).unwrap();
+
+    // a second Floor market, a Desk-less kind 2 and a seventh vault are all refused
+    let market_ix = |authority: Pubkey, kind: u8| Instruction {
         program_id: insider::ID,
-        accounts: accounts::TickAccounts {
+        accounts: accounts::InitMarket {
+            authority,
             table,
-            scheduler: authority.pubkey(),
-            crank_signer: impostor.pubkey(),
+            market: pda(&[MARKET_SEED, table.as_ref(), &[kind]]),
+            system_program: system_program::ID,
         }
         .to_account_metas(None),
-        data: instruction::Tick {}.data(),
+        data: instruction::InitMarket { kind }.data(),
     };
-    assert!(send(&mut svm, &[&impostor], ix).is_err());
+    svm.expire_blockhash();
+    assert!(send(&mut svm, &[&authority], market_ix(authority.pubkey(), MARKET_FLOOR)).is_err());
+    svm.expire_blockhash();
+    assert!(send(&mut svm, &[&authority], market_ix(authority.pubkey(), 2)).is_err());
+    svm.expire_blockhash();
+    assert!(send(&mut svm, &[&stranger], market_ix(stranger.pubkey(), 1)).is_err());
+    svm.expire_blockhash();
+    // the Desk market is a legal kind for the authority
+    send(&mut svm, &[&authority], market_ix(authority.pubkey(), 1)).unwrap();
+
+    let vault_ix = Instruction {
+        program_id: insider::ID,
+        accounts: accounts::InitLeakVault {
+            authority: authority.pubkey(),
+            table,
+            vault: pda(&[LEAK_SEED, table.as_ref(), &[6]]),
+            system_program: system_program::ID,
+        }
+        .to_account_metas(None),
+        data: instruction::InitLeakVault { slot: 6 }.data(),
+    };
+    svm.expire_blockhash();
+    assert!(send(&mut svm, &[&authority], vault_ix).is_err());
+}
+
+fn cancel_vrf_ix(payer: &Pubkey, authority: &Pubkey) -> Instruction {
+    Instruction {
+        program_id: insider::ID,
+        accounts: accounts::CancelVrf {
+            payer: *payer,
+            table: table_pda(authority),
+        }
+        .to_account_metas(None),
+        data: instruction::CancelVrf {}.data(),
+    }
+}
+
+#[test]
+fn a_stuck_seed_request_can_be_cancelled_only_after_the_timeout() {
+    let (mut svm, authority) = table_with_seats();
+    let key = table_pda(&authority.pubkey());
+    let anyone = Keypair::new();
+    svm.airdrop(&anyone.pubkey(), 1_000_000_000).unwrap();
+
+    // nothing pending: nothing to cancel
+    assert!(send(&mut svm, &[&anyone], cancel_vrf_ix(&anyone.pubkey(), &authority.pubkey())).is_err());
+
+    svm.warp_to_slot(1_000);
+    let mut table: Table = read(&svm, &key);
+    table.phase = Phase::Seeding;
+    table.vrf_pending = true;
+    table.vrf_requested_tick = (1_000 / insider::SLOTS_PER_TICK) as u16;
+    write(&mut svm, &key, &table);
+
+    svm.expire_blockhash();
+    assert!(send(&mut svm, &[&anyone], cancel_vrf_ix(&anyone.pubkey(), &authority.pubkey())).is_err());
+
+    svm.warp_to_slot(1_000 + u64::from(VRF_TIMEOUT_TICKS) * insider::SLOTS_PER_TICK);
+    svm.expire_blockhash();
+    send(&mut svm, &[&anyone], cancel_vrf_ix(&anyone.pubkey(), &authority.pubkey())).unwrap();
+    let table: Table = read(&svm, &key);
+    assert_eq!(table.phase, Phase::Idle);
+    assert!(!table.vrf_pending);
 }
