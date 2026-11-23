@@ -112,3 +112,10 @@ export function cycleStateFrom(
     readers: board.headers.reduce((sum, header) => sum + header.readerCount, 0),
   };
 }
+
+/** Mirrors `REARM_WINDOW_TICKS`: `rearm_ticks` opens once this few ticks of crank remain. */
+export const REARM_WINDOW_TICKS = 600;
+
+/** True when the crank has less than the rearm window left (or was never armed). */
+export const needsArming = (armedUntilSlot: number, currentSlot: number) =>
+  armedUntilSlot <= currentSlot + REARM_WINDOW_TICKS * SLOTS_PER_TICK;
