@@ -1,6 +1,12 @@
 "use client";
 
-import { previewOrder, type InsiderConfig, type TableSnapshot, type TableView } from "@insider/sdk";
+import {
+  previewOrder,
+  TICK_MILLIS,
+  type InsiderConfig,
+  type TableSnapshot,
+  type TableView,
+} from "@insider/sdk";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { ArrowDownLeft, ArrowUpRight, Zap } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -166,7 +172,9 @@ export function OrderPanel({
                 )}
               >
                 <span className="text-text block text-[10px]">Standard</span>
-                <span className="text-faint font-mono text-[9px]">10s · free</span>
+                <span className="text-faint font-mono text-[9px]">
+                  {(snapshot.table.params.standardDelay * TICK_MILLIS) / 1000}s · free
+                </span>
               </button>
               <button
                 type="button"
@@ -180,7 +188,10 @@ export function OrderPanel({
                   <Zap className="size-3" />
                   Priority
                 </span>
-                <span className="text-faint font-mono text-[9px]">2s · 10 chips</span>
+                <span className="text-faint font-mono text-[9px]">
+                  {(snapshot.table.params.priorityDelay * TICK_MILLIS) / 1000}s ·{" "}
+                  {snapshot.table.params.priorityFee} chips
+                </span>
               </button>
             </div>
           </div>
@@ -195,7 +206,11 @@ export function OrderPanel({
             </div>
             <div className="flex justify-between">
               <span className="text-faint">Est. fee</span>
-              <span>{quote ? `${quote.fee.toString()} chips` : "—"}</span>
+              <span>
+                {quote
+                  ? `${(quote.fee + BigInt(lane === 1 ? snapshot.table.params.priorityFee : 0)).toString()} chips`
+                  : "—"}
+              </span>
             </div>
           </div>
           <Button

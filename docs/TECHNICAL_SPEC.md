@@ -200,7 +200,7 @@ permissions (`Mempool`, `Future`, 6 Leak vaults, 10 Call vaults); teardown uses 
   1.00), reset every round. An order of `s` units fills at the vAMM's average price for `s` plus a
   0.1% fee. A 2,000-unit buy moves the price about 8.5%.
 - **Fundamental path.** `Future.path[t]` is the true value (fixed-point 1e6, `xorshift128+`,
-  around 1.00): two volatility regimes, 2-4 shocks of 3-8% over 3-6 ticks after tick 20, clamped to
+  around 1.00): two volatility regimes, 2-4 shocks of 8-15% over 3-6 ticks after tick 20, clamped to
   [0.5, 2.0].
 - **Arbitrage pull.** After executing orders each tick, the price moves `ARB_PCT` (start 4%) of the
   gap toward `path[tick]` by rebalancing the reserves at constant product (integer sqrt). Flow
@@ -214,7 +214,7 @@ permissions (`Mempool`, `Future`, 6 Leak vaults, 10 Call vaults); teardown uses 
 ### 7.2 Orders and the dark mempool
 
 - `send_order(side_size, lane)` pushes a `PendingOrder` into the private `Mempool`. **Standard**
-  lands at `tick + 20`, **priority** at `tick + 4` for a fee of 10 chips. It writes a public
+  lands at `tick + 20`, **priority** at `tick + 4` for a fee of 3 chips (tuned by gate E1, see [engine.md](engine.md)). It writes a public
   `SendEvent` (seat, lane, tick) to `Tape` and **emits no logs**.
 - `tick` executes every order with `land_tick == tick` in `seq` order against the vAMM (at most 12
   per tick, overflow carries to the next tick in `seq` order) and records a public `Fill`.
@@ -226,13 +226,13 @@ Drops at ticks 10, 30, ..., 150 (eight per round; at most four live at once).
 
 | Rarity | Weight | Family and kinds                                      | Start / floor | Auction  |
 | ------ | ------ | ----------------------------------------------------- | ------------- | -------- |
-| Common | 65%    | Flow: `Flow`. Fundamentals: `Pin`, `Drift`            | 60 / 5        | 12 ticks |
-| Rare   | 30%    | Flow: `Spotlight`, `Whale`. Fundamentals: `Shockwave` | 120 / 10      | 12 ticks |
-| Epic   | 5%     | Flow: `Full Book`. Fundamentals: `Summit`             | 200 / 20      | 12 ticks |
+| Common | 65%    | Flow: `Flow`. Fundamentals: `Pin`, `Drift`            | 8 / 1         | 12 ticks |
+| Rare   | 30%    | Flow: `Spotlight`, `Whale`. Fundamentals: `Shockwave` | 20 / 2        | 12 ticks |
+| Epic   | 5%     | Flow: `Full Book`. Fundamentals: `Summit`             | 60 / 6        | 12 ticks |
 
-Price at tick `t` = `start - (start - floor) * (t - auction_start) / 12`. An unsold Leak at the
+Price at tick `t` = `start - (start - floor) * (t - auction_start) / 11`, so the floor is reachable on the last tick (start + 11). An unsold Leak at the
 floor expires. The 12-tick auction is shorter than the 20-tick standard delay, so a Leak bought at
-any point still shows orders that haven't landed. (Prices are starting values for gate E1.)
+any point still shows orders that haven't landed. (Prices tuned by gate E1; results in [engine.md](engine.md).)
 
 | Kind        | Payload (accurate as of `minted_tick`)                                                 |
 | ----------- | -------------------------------------------------------------------------------------- |

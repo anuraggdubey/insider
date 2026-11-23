@@ -51,15 +51,15 @@ fn bidding_prices_burns_and_rejects_invalid_purchases() {
     let mut board = Board::zeroed();
     let mut buyer = seat(0, 100);
     board.headers[0] = leak(LeakState::Auction, NO_SEAT);
-    assert_eq!(bid(&mut board, 0, 0, &mut buyer, 16).unwrap(), 33);
-    assert_eq!((buyer.chips, buyer.leak_spend), (67, 33));
+    assert_eq!(bid(&mut board, 0, 0, &mut buyer, 16).unwrap(), 30);
+    assert_eq!((buyer.chips, buyer.leak_spend), (70, 30));
     assert_eq!(
         (
             board.headers[0].state,
             board.headers[0].owner_seat,
             board.headers[0].paid
         ),
-        (LeakState::Owned as u8, 0, 33)
+        (LeakState::Owned as u8, 0, 30)
     );
     error(bid(&mut board, 0, 0, &mut buyer, 16), "NotForSale");
     board.headers[1] = leak(LeakState::Auction, NO_SEAT);
@@ -76,7 +76,17 @@ fn bidding_prices_burns_and_rejects_invalid_purchases() {
     board.headers[2] = leak(LeakState::Listed, 0);
     assert_eq!(unopened_count(&board, 0), 2);
     error(bid(&mut board, 1, 0, &mut buyer, 10), "HoardLimit");
-    assert_eq!((buyer.chips, buyer.leak_spend), (100, 33));
+    assert_eq!((buyer.chips, buyer.leak_spend), (100, 30));
+}
+
+#[test]
+fn last_accepted_bid_pays_the_floor() {
+    let mut board = Board::zeroed();
+    board.headers[0] = leak(LeakState::Auction, NO_SEAT);
+    let mut buyer = seat(0, 100);
+    assert_eq!(bid(&mut board, 0, 0, &mut buyer, 21).unwrap(), 5);
+    board.headers[1] = leak(LeakState::Auction, NO_SEAT);
+    error(bid(&mut board, 1, 0, &mut buyer, 22), "AuctionOver");
 }
 
 #[test]

@@ -86,9 +86,9 @@ export function Showcase() {
         </div>
       </Panel>
       <div className="grid gap-4 md:grid-cols-3">
-        <SealedCard kind="Flow window" rarity="common" state="sealed" price={60} />
-        <SealedCard kind="Whale" rarity="rare" state="opened" price={120} />
-        <SealedCard kind="Full book" rarity="epic" state="sealed" price={200} />
+        <SealedCard kind="Flow window" rarity="common" state="sealed" price={8} />
+        <SealedCard kind="Whale" rarity="rare" state="opened" price={20} />
+        <SealedCard kind="Full book" rarity="epic" state="sealed" price={60} />
       </div>
       <GlowBorder>
         <div className="p-5">

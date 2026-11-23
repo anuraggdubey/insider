@@ -109,7 +109,7 @@ export default function Home() {
               kind="Spotlight"
               rarity="rare"
               state="sealed"
-              price={120}
+              price={20}
               className="shadow-[0_25px_80px_rgba(0,0,0,.6)]"
             />
           </div>

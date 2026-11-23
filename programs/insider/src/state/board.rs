@@ -78,17 +78,17 @@ impl Rarity {
 
     pub fn start_price(self) -> u32 {
         match self {
-            Self::Common => 60,
-            Self::Rare => 120,
-            Self::Epic => 200,
+            Self::Common => 8,
+            Self::Rare => 20,
+            Self::Epic => 60,
         }
     }
 
     pub fn floor_price(self) -> u32 {
         match self {
-            Self::Common => 5,
-            Self::Rare => 10,
-            Self::Epic => 20,
+            Self::Common => 1,
+            Self::Rare => 2,
+            Self::Epic => 6,
         }
     }
 }
@@ -214,9 +214,9 @@ mod tests {
     #[test]
     fn rarity_prices_and_bytes() {
         for (rarity, start, floor) in [
-            (Rarity::Common, 60, 5),
-            (Rarity::Rare, 120, 10),
-            (Rarity::Epic, 200, 20),
+            (Rarity::Common, 8, 1),
+            (Rarity::Rare, 20, 2),
+            (Rarity::Epic, 60, 6),
         ] {
             assert_eq!(Rarity::from_u8(rarity as u8), rarity);
             assert_eq!(rarity.start_price(), start);

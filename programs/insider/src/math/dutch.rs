@@ -1,9 +1,9 @@
 use crate::DUTCH_TICKS;
 
 pub fn dutch_price(start: u32, floor: u32, auction_start: u16, tick: u16) -> u32 {
-    let elapsed = tick.saturating_sub(auction_start).min(DUTCH_TICKS);
+    let elapsed = tick.saturating_sub(auction_start).min(DUTCH_TICKS - 1);
     let discount =
-        u64::from(start.saturating_sub(floor)) * u64::from(elapsed) / u64::from(DUTCH_TICKS);
+        u64::from(start.saturating_sub(floor)) * u64::from(elapsed) / u64::from(DUTCH_TICKS - 1);
     start - discount as u32
 }
 
@@ -19,14 +19,15 @@ mod tests {
     fn price_decreases_linearly_and_clamps_at_the_ends() {
         assert_eq!(dutch_price(60, 5, 10, 9), 60);
         assert_eq!(dutch_price(60, 5, 10, 10), 60);
-        assert_eq!(dutch_price(60, 5, 10, 16), 33);
+        assert_eq!(dutch_price(60, 5, 10, 16), 30);
+        assert_eq!(dutch_price(60, 5, 10, 21), 5);
         assert_eq!(dutch_price(60, 5, 10, 22), 5);
         assert_eq!(dutch_price(60, 5, 10, 100), 5);
         assert_eq!(dutch_price(u32::MAX, 0, 0, 12), 0);
     }
 
     #[test]
-    fn auction_ends_at_the_floor_tick() {
+    fn auction_ends_after_the_floor_tick() {
         assert!(!auction_over(10, 9));
         assert!(!auction_over(10, 21));
         assert!(auction_over(10, 22));

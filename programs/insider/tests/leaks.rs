@@ -417,13 +417,38 @@ impl LeakFixture {
 }
 
 #[test]
+fn bid_accepts_floor_on_last_tick_but_rejects_next_tick() {
+    let mut f = LeakFixture::new();
+    let mut table: Table = f.base.read(f.base.table);
+    table.tick = 51;
+    f.base.put_serialized(f.base.table, &table);
+    f.execute(f.action(), instruction::Bid { index: 0, slot: 0 }.data())
+        .unwrap();
+    let seat: Seat = f.base.read(f.base.seat);
+    assert_eq!((seat.chips, seat.leak_spend), (995, 5));
+    assert_eq!(f.read_board().headers[0].paid, 5);
+
+    let mut expired = LeakFixture::new();
+    let mut table: Table = expired.base.read(expired.base.table);
+    table.tick = 52;
+    expired.base.put_serialized(expired.base.table, &table);
+    let err = expired
+        .execute(
+            expired.action(),
+            instruction::Bid { index: 0, slot: 0 }.data(),
+        )
+        .unwrap_err();
+    assert!(format!("{err:?}").contains("AuctionOver"));
+}
+
+#[test]
 fn leak_non_cpi_instructions_update_accounts() {
     use ::insider::LeakState;
     let mut f = LeakFixture::new();
     f.execute(f.action(), instruction::Bid { index: 0, slot: 0 }.data())
         .unwrap();
     let seat: Seat = f.base.read(f.base.seat);
-    assert_eq!((seat.chips, seat.leak_spend), (949, 51));
+    assert_eq!((seat.chips, seat.leak_spend), (950, 50));
     assert_eq!(f.read_board().headers[0].state, LeakState::Owned as u8);
     f.execute(
         f.action(),
@@ -474,7 +499,7 @@ fn leak_non_cpi_instructions_update_accounts() {
     let seller: Seat = f.base.read(f.seller);
     assert_eq!(
         (buyer.chips, buyer.leak_spend, seller.chips),
-        (909, 91, 1_040)
+        (910, 90, 1_040)
     );
     assert_eq!(
         (

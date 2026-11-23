@@ -94,18 +94,20 @@ export function arbPull(reserves: Reserves, targetPrice: number, arbBps: number)
     : { base, quote };
 }
 
+const DUTCH_TICKS = 12;
+
 export function dutchPrice(
   start: number,
   floor: number,
   auctionStart: number,
   tick: number,
 ): number {
-  const elapsed = Math.min(12, Math.max(0, tick - auctionStart));
-  return start - Math.floor((Math.max(0, start - floor) * elapsed) / 12);
+  const elapsed = Math.min(DUTCH_TICKS - 1, Math.max(0, tick - auctionStart));
+  return start - Math.floor((Math.max(0, start - floor) * elapsed) / (DUTCH_TICKS - 1));
 }
 
 export function auctionOver(auctionStart: number, tick: number): boolean {
-  return Math.max(0, tick - auctionStart) >= 12;
+  return Math.max(0, tick - auctionStart) >= DUTCH_TICKS;
 }
 
 export function previewOrder(

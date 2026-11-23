@@ -30,8 +30,8 @@ function fixture() {
     state: 1,
     auctionStart: 8,
     windowEnd: 20,
-    startPrice: 60,
-    floorPrice: 5,
+    startPrice: 8,
+    floorPrice: 1,
   });
   Object.assign(board.headers[1]!, { leakId: 2, kind: 1, state: 2, ownerSeat: 0, windowEnd: 20 });
   Object.assign(board.headers[2]!, {
@@ -164,7 +164,7 @@ describe("deriveTable", () => {
     expect(view.leaks[0]).toMatchObject({
       kindName: "Flow",
       family: "Flow",
-      currentPrice: 51,
+      currentPrice: 7,
       ticksLeft: 10,
       canBid: true,
     });

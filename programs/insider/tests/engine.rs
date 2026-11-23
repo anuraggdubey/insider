@@ -176,7 +176,7 @@ fn random_streams_and_paths_are_deterministic_and_bounded() {
         for shock in shocks {
             assert!((21..=165).contains(&shock.tick));
             assert!((3..=6).contains(&shock.len));
-            assert!((300..=800).contains(&shock.bps.unsigned_abs()));
+            assert!((800..=1_500).contains(&shock.bps.unsigned_abs()));
         }
         assert!(shocks
             .windows(2)
@@ -697,7 +697,7 @@ fn mint_expire_caps_and_opened_slot_is_never_reused() {
             30
         )
     );
-    assert_eq!((h.start_price, h.floor_price), (120, 10));
+    assert_eq!((h.start_price, h.floor_price), (20, 2));
     assert_eq!(f.vaults[0].leak_id, h.leak_id);
     assert_eq!(f.tick(22).expired, 1);
     f.board.headers[0].reader_count = 1;

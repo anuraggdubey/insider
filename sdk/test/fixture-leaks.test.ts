@@ -7,7 +7,7 @@ import {
   type FixtureDrop,
   type FixtureOrder,
 } from "../../app/src/lib/fixture-leaks";
-import { createFixture, fixtureTick } from "../../app/src/lib/fixture";
+import { createFixture, fixtureBid, fixtureTick } from "../../app/src/lib/fixture";
 import vectors from "./fixtures/vectors.json";
 
 const vault = () => decodeAccount("leakVault", utils.bytes.base64.decode(vectors.raw.leakVault));
@@ -27,6 +27,15 @@ const spec = (kind: number, offset = 20, tick = 10): FixtureDrop => ({
 });
 
 describe("fixture leak seeding and payloads", () => {
+  it("sells at the floor on the last accepted tick and expires on the next", () => {
+    const fixture = createFixture();
+    for (let i = 0; i < 21; i++) fixtureTick(fixture);
+    fixtureBid(fixture, 7, 0);
+    expect(fixture.snapshot.board.headers[0]!.paid).toBe(1);
+    const expired = createFixture();
+    for (let i = 0; i < 22; i++) fixtureTick(expired);
+    expect(() => fixtureBid(expired, 7, 0)).toThrow("Auction has ended.");
+  });
   it("maps weighted rarity and equal family choices to valid kinds and offsets", () => {
     const counts = [0, 0, 0];
     for (let roll = 0; roll < 100; roll++)
@@ -155,17 +164,18 @@ describe("fixture leak seeding and payloads", () => {
 
   it("uses the scheduled rarity prices and actual fixture fundamental path", () => {
     const fixture = createFixture();
+    expect(fixture.snapshot.table.params.priorityFee).toBe(3);
     const initial = { base: BigInt(50_000), quote: BigInt(50_000) };
     const expectedArb = arbPull(initial, fixture.path[1]!, fixture.snapshot.table.params.arbBps);
     fixtureTick(fixture);
     expect(fixture.snapshot.market.price).toBe(vammPrice(expectedArb));
     for (let i = 1; i < 10; i++) fixtureTick(fixture);
     const pin = fixture.snapshot.board.headers.find((h) => h.state === 1)!;
-    expect(pin).toMatchObject({ kind: 4, rarity: 0, startPrice: 60, floorPrice: 5 });
+    expect(pin).toMatchObject({ kind: 4, rarity: 0, startPrice: 8, floorPrice: 1 });
     expect(fixture.vaults[0]!.fields[1]).toBe(fixture.path[pin.windowEnd]);
     for (let i = 10; i < 30; i++) fixtureTick(fixture);
     const rare = fixture.snapshot.board.headers.find((h) => h.state === 1)!;
-    expect(rare).toMatchObject({ kind: 1, rarity: 1, startPrice: 120, floorPrice: 10 });
+    expect(rare).toMatchObject({ kind: 1, rarity: 1, startPrice: 20, floorPrice: 2 });
     const largest = fixture.queue
       .filter((order) => order.seat !== WHALE_SEAT)
       .sort(
@@ -191,5 +201,16 @@ describe("fixture leak seeding and payloads", () => {
       flow.windowStart,
       flow.windowEnd,
     ]);
+  });
+
+  it("uses the engine Epic price", () => {
+    const fixture = createFixture();
+    fixture.drops = [{ ...spec(3, 0, 10), rarity: 2 }];
+    for (let i = 0; i < 10; i++) fixtureTick(fixture);
+    expect(fixture.snapshot.board.headers.find((h) => h.state === 1)).toMatchObject({
+      rarity: 2,
+      startPrice: 60,
+      floorPrice: 6,
+    });
   });
 });

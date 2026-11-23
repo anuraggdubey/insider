@@ -60,7 +60,7 @@ you can read it.
    fundamental path, 3-5 hidden whale orders, and the whole Leak drop schedule.
 3. **Send orders into the dark.** Buy or sell. Everyone sees that _Seat 3 sent an order_ and which
    lane it used, never the side or size. The standard lane lands 20 ticks (10 s) later; the
-   priority lane lands in 4 ticks (2 s) and costs 10 chips. Using priority is a tell.
+   priority lane lands in 4 ticks (2 s) and costs 3 chips. Using priority is a tell.
 4. **Leaks drop** every 10 s with a public label and rarity and sealed contents.
 5. **Dutch auction.** The price falls every 500 ms until someone takes it.
 6. **Open, flip or license.** Each is an access-control edit enforced by the TEE.
@@ -82,9 +82,9 @@ push; knowing fundamentals tells you how long a push will last.
 
 | Rarity | Weight | Kinds                       | Start / floor price |
 | ------ | ------ | --------------------------- | ------------------- |
-| Common | 65%    | Flow, Pin, Drift            | 60 / 5 chips        |
-| Rare   | 30%    | Spotlight, Whale, Shockwave | 120 / 10            |
-| Epic   | 5%     | Full Book, Summit           | 200 / 20            |
+| Common | 65%    | Flow, Pin, Drift            | 8 / 1 chips         |
+| Rare   | 30%    | Spotlight, Whale, Shockwave | 20 / 2              |
+| Epic   | 5%     | Full Book, Summit           | 60 / 6              |
 
 (Starting values; the economics gate tunes them.)
 

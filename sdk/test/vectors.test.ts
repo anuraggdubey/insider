@@ -5,6 +5,7 @@ import vectors from "./fixtures/vectors.json";
 import {
   applyFill,
   arbPull,
+  auctionOver,
   decodeAccount,
   decodeFuture,
   dutchPrice,
@@ -62,6 +63,16 @@ describe("shared Rust vectors", () => {
     }
     for (const v of vectors.dutch)
       expect(dutchPrice(v.start, v.floor, v.auctionStart, v.tick)).toBe(v.price);
+    for (const [start, floor] of [
+      [8, 1],
+      [20, 2],
+      [60, 6],
+    ] as const) {
+      expect(dutchPrice(start, floor, 10, 10)).toBe(start);
+      expect(dutchPrice(start, floor, 10, 21)).toBe(floor);
+    }
+    expect(auctionOver(10, 21)).toBe(false);
+    expect(auctionOver(10, 22)).toBe(true);
     expect(isqrt((1n << 128n) - 1n)).toBe((1n << 64n) - 1n);
   });
 
