@@ -57,4 +57,13 @@ pub enum InsiderError {
     ReaderLimit,
     #[msg("Seat is liquidated")]
     Liquidated,
+    // Wiring (Anurag).
+    #[msg("Invalid market kind")]
+    InvalidMarket,
+    #[msg("Not the expected account for this permission")]
+    InvalidPermissionTarget,
+    #[msg("An engine account does not match the table")]
+    InvalidEngineAccount,
+    #[msg("The previous round is not finished and resealed yet")]
+    RoundNotClosed,
 }

@@ -63,6 +63,59 @@ pub mod insider {
         setup::delegate_seat(ctx, index)
     }
 
+    pub fn init_market(ctx: Context<InitMarket>, kind: u8) -> Result<()> {
+        engine_setup::init_market(ctx, kind)
+    }
+
+    pub fn init_mempool(ctx: Context<InitMempool>) -> Result<()> {
+        engine_setup::init_mempool(ctx)
+    }
+
+    pub fn init_future(ctx: Context<InitFuture>) -> Result<()> {
+        engine_setup::init_future(ctx)
+    }
+
+    pub fn init_board(ctx: Context<InitBoard>) -> Result<()> {
+        engine_setup::init_board(ctx)
+    }
+
+    pub fn init_xray(ctx: Context<InitXray>) -> Result<()> {
+        engine_setup::init_xray(ctx)
+    }
+
+    pub fn init_leak_vault(ctx: Context<InitLeakVault>, slot: u8) -> Result<()> {
+        engine_setup::init_leak_vault(ctx, slot)
+    }
+
+    pub fn delegate_market(ctx: Context<DelegateMarket>, kind: u8) -> Result<()> {
+        engine_setup::delegate_market(ctx, kind)
+    }
+
+    pub fn delegate_mempool(ctx: Context<DelegateMempool>) -> Result<()> {
+        engine_setup::delegate_mempool(ctx)
+    }
+
+    pub fn delegate_future(ctx: Context<DelegateFuture>) -> Result<()> {
+        engine_setup::delegate_future(ctx)
+    }
+
+    pub fn delegate_board(ctx: Context<DelegateBoard>) -> Result<()> {
+        engine_setup::delegate_board(ctx)
+    }
+
+    pub fn delegate_xray(ctx: Context<DelegateXray>) -> Result<()> {
+        engine_setup::delegate_xray(ctx)
+    }
+
+    pub fn delegate_leak_vault(ctx: Context<DelegateLeakVault>, slot: u8) -> Result<()> {
+        engine_setup::delegate_leak_vault(ctx, slot)
+    }
+
+    // Permissions (rollup)
+    pub fn init_permission(ctx: Context<InitPermission>, target: u8, slot: u8) -> Result<()> {
+        engine_setup::init_permission(ctx, target, slot)
+    }
+
     // Automation (rollup)
     pub fn schedule_ticks<'info>(
         ctx: Context<'info, ScheduleTicks<'info>>,
@@ -82,7 +135,23 @@ pub mod insider {
         cranks::rearm_ticks(ctx, task_id, interval_millis, iterations)
     }
 
-    pub fn tick(ctx: Context<TickAccounts>) -> Result<()> {
+    // Round seed (VRF)
+    pub fn request_round_seed(ctx: Context<RequestRoundSeed>) -> Result<()> {
+        round_seed::request_round_seed(ctx)
+    }
+
+    pub fn round_seed_callback(
+        ctx: Context<RoundSeedCallback>,
+        randomness: [u8; 32],
+    ) -> Result<()> {
+        round_seed::round_seed_callback(ctx, randomness)
+    }
+
+    pub fn cancel_vrf(ctx: Context<CancelVrf>) -> Result<()> {
+        round_seed::cancel_vrf(ctx)
+    }
+
+    pub fn tick<'info>(ctx: Context<'info, TickAccounts<'info>>) -> Result<()> {
         tick::tick(ctx)
     }
 
