@@ -41,9 +41,11 @@ pub fn finalize_round(
     }
     for seat in seats.iter() {
         if !seat.is_free() {
-            seat.chips
+            let score = seat
+                .chips
                 .checked_sub(BANKROLL_CHIPS)
                 .ok_or(InsiderError::Overflow)?;
+            i32::try_from(score).map_err(|_| InsiderError::Overflow)?;
         }
     }
 
@@ -55,12 +57,17 @@ pub fn finalize_round(
 
     xray.tag_count = 0;
     tag_sandwiches(board, vaults, xray, seats);
-    for seat in seats.iter_mut() {
+    for (index, seat) in seats.iter_mut().enumerate() {
+        xray.seat_owners[index] = seat.owner;
+        xray.seat_kinds[index] = seat.kind as u8;
+        xray.name_idx[index] = seat.name_idx;
+        xray.scores[index] = 0;
         if !seat.is_free() {
             let score = seat
                 .chips
                 .checked_sub(BANKROLL_CHIPS)
                 .ok_or(InsiderError::Overflow)?;
+            xray.scores[index] = i32::try_from(score).map_err(|_| InsiderError::Overflow)?;
             season.record_score(seat.owner, score);
         }
         seat.chips = BANKROLL_CHIPS;

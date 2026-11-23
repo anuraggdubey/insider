@@ -18,6 +18,7 @@ import {
   LEAK_KINDS,
   RARITIES,
   publicPayload,
+  roundSeats,
   sandwichOrders,
   shareDetails,
   traceName,
@@ -25,7 +26,7 @@ import {
 import { ReplayChart } from "./replay-chart";
 
 function Scoreboard({ round }: { round: ArchivedRound }) {
-  const seats = round.seats
+  const seats = roundSeats(round)
     .filter((seat) => !seat.free)
     .sort((a, b) => (b.score ?? -Infinity) - (a.score ?? -Infinity));
   return (
@@ -77,8 +78,7 @@ function Scoreboard({ round }: { round: ArchivedRound }) {
       </div>
       {seats.some((seat) => seat.score === null) && (
         <p className="text-muted px-4 py-3 text-xs">
-          Round scores are available only if this browser saw close-out before finalization. Seat
-          balances are reset on chain.
+          Scores are unavailable in this older browser snapshot.
         </p>
       )}
     </Panel>

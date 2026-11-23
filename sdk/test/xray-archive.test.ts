@@ -1,4 +1,4 @@
-import { BN } from "@anchor-lang/core";
+import { PublicKey } from "@solana/web3.js";
 import { describe, expect, it } from "vitest";
 import { createFixture, fixtureSend, fixtureTick } from "../../app/src/lib/fixture";
 import {
@@ -7,6 +7,7 @@ import {
   loadRounds,
   saveRound,
 } from "../../app/src/lib/xray-archive";
+import { roundSeats } from "../../app/src/lib/xray-data";
 
 function memoryStorage() {
   const values = new Map<string, string>();
@@ -19,24 +20,24 @@ function memoryStorage() {
 }
 
 describe("X-ray archive", () => {
-  it("archives only finalized matching rounds, preserving the witnessed close-out scores", () => {
+  it("archives finalized on-chain scores and identities even when close-out was not observed", () => {
     const store = memoryStorage();
     const fixture = createFixture();
     const snapshot = fixture.snapshot;
     const observe = createRoundObserver(true, store);
     expect(observe(snapshot)).toBeNull();
-    snapshot.table.tick = 180;
-    snapshot.market.lastTick = 180;
-    snapshot.seats.forEach((seat) => {
-      seat.position = 0;
-    });
-    snapshot.seats[0]!.chips = new BN(1_250);
-    expect(observe(snapshot)).toBeNull();
-    snapshot.seats[0]!.chips = new BN(1_000);
+    snapshot.xray!.seatOwners = snapshot.seats.map((seat) => seat.owner);
+    snapshot.xray!.scores[0] = 250;
+    snapshot.xray!.nameIdx[0] = 2;
+    snapshot.xray!.seatKinds[0] = 1;
     snapshot.xray!.finalized = 1;
+    snapshot.seats[0]!.owner = PublicKey.default;
     const archived = observe(snapshot)!;
     expect(archived.seats[0]!.score).toBe(250);
-    expect(archived.seats[7]!.score).toBeNull();
+    expect(archived.seats[0]!.name).toBe("Silver Fox");
+    expect(archived.seats[0]!.kind).toBe("ai");
+    expect(archived.seats[0]!.free).toBe(false);
+    expect(archived.seats[7]!.score).toBe(0);
     expect(archived.fixture).toBe(true);
     expect(findRound(false, undefined, undefined, store)).toBeNull();
     expect(findRound(true, archived.authority, 1, store)).toEqual(archived);
@@ -48,6 +49,23 @@ describe("X-ray archive", () => {
     expect(observe(snapshot)).toBeNull();
   });
 
+  it("keeps older snapshots without on-chain score fields", () => {
+    const store = memoryStorage();
+    const fixture = createFixture();
+    for (let i = 0; i < 181; i++) fixtureTick(fixture);
+    const round = createRoundObserver(true, store)(fixture.snapshot)!;
+    delete round.xray.seatOwners;
+    delete round.xray.scores;
+    delete round.xray.seatKinds;
+    delete round.xray.nameIdx;
+    delete round.xray.seatPad;
+    round.seats[0]!.score = null;
+    store.setItem("insider:xray:fixture:v1", JSON.stringify([round]));
+    const legacy = findRound(true, round.authority, round.round, store)!;
+    expect(legacy.xray.scores).toBeUndefined();
+    expect(roundSeats(legacy)).toEqual(legacy.seats);
+    expect(roundSeats(legacy)[0]!.score).toBeNull();
+  });
   it("caps snapshots, keeps latest first, and tolerates corrupt or unavailable storage", () => {
     const store = memoryStorage();
     const snapshot = createFixture().snapshot;
@@ -82,18 +100,21 @@ describe("X-ray archive", () => {
   it("drives the fixture through close-out, finalization and a trace-backed sandwich", () => {
     const store = memoryStorage();
     const fixture = createFixture();
-    const observe = createRoundObserver(true, store);
     const before = BigInt(fixture.snapshot.seats[0]!.chips.toString());
     fixtureSend(fixture, 0, 50, 1);
     expect(BigInt(fixture.snapshot.seats[0]!.chips.toString())).toBe(before - 3n);
     for (let i = 0; i < 180; i++) {
       fixtureTick(fixture);
-      observe(fixture.snapshot);
     }
     expect(fixture.snapshot.xray!.finalized).toBe(0);
     expect(fixture.snapshot.seats.every((seat) => seat.position === 0)).toBe(true);
+    const scores = fixture.snapshot.seats.map((seat) =>
+      seat.owner.equals(PublicKey.default) ? 0 : Number(BigInt(seat.chips.toString()) - 1_000n),
+    );
     fixtureTick(fixture);
-    const round = observe(fixture.snapshot)!;
+    const round = createRoundObserver(true, store)(fixture.snapshot)!;
+    expect(round.xray.scores).toEqual(scores);
+    expect(roundSeats(round).map((seat) => seat.score)).toEqual(scores);
     expect(round.xray.finalized).toBe(1);
     expect(round.xray.leaks.length).toBeGreaterThan(0);
     expect(round.xray.tags.length).toBe(1);

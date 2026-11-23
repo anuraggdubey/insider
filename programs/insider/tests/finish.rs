@@ -161,7 +161,34 @@ fn finalization_copies_scores_resets_and_is_idempotent() {
     let mut f = Fixture::new(LeakKind::Spotlight);
     let first_owner = f.seats[0].owner;
     let second_owner = f.seats[1].owner;
+    f.seats[0].name_idx = 9;
+    f.seats[0].kind = SeatKind::Human;
+    f.seats[1].name_idx = 13;
+    f.seats[1].kind = SeatKind::Ai;
+    f.seats[2].chips = -4_000;
+    let expected: Vec<_> = f
+        .seats
+        .iter()
+        .map(|seat| {
+            (
+                seat.owner,
+                if seat.is_free() {
+                    0
+                } else {
+                    (seat.chips - BANKROLL_CHIPS) as i32
+                },
+                seat.kind as u8,
+                seat.name_idx,
+            )
+        })
+        .collect();
     f.finalize().unwrap();
+    for (index, (owner, score, kind, name)) in expected.iter().enumerate() {
+        assert_eq!(f.xray.seat_owners[index], *owner);
+        assert_eq!(f.xray.scores[index], *score);
+        assert_eq!(f.xray.seat_kinds[index], *kind);
+        assert_eq!(f.xray.name_idx[index], *name);
+    }
     assert_eq!(
         (f.xray.finalized, f.xray.round_id, f.xray.leak_count),
         (1, 7, 1)
@@ -205,7 +232,21 @@ fn finalization_copies_scores_resets_and_is_idempotent() {
     f.seats[0].chips = 1_777;
     f.finalize().unwrap();
     assert_eq!(f.seats[0].chips, 1_777);
+    assert_eq!(f.xray.scores[0], 25);
+    assert_eq!(f.xray.seat_owners[0], first_owner);
     assert_eq!(f.season.leaderboard[0].rounds, 1);
+}
+
+#[test]
+fn finalization_accepts_i32_score_boundaries_and_ignores_free_balance() {
+    let mut f = Fixture::new(LeakKind::Spotlight);
+    f.seats[0].chips = i64::from(i32::MAX) + BANKROLL_CHIPS;
+    f.seats[1].chips = i64::from(i32::MIN) + BANKROLL_CHIPS;
+    f.seats[2].chips = i64::MAX;
+    f.finalize().unwrap();
+    assert_eq!(f.xray.scores[0], i32::MAX);
+    assert_eq!(f.xray.scores[1], i32::MIN);
+    assert_eq!(f.xray.scores[2], 0);
 }
 
 #[test]

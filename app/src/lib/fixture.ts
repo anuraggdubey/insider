@@ -2,6 +2,7 @@ import { BN, utils } from "@anchor-lang/core";
 import {
   applyFill,
   arbPull,
+  BANKROLL_CHIPS,
   decodeAccount,
   dutchPrice,
   LANE_PRIORITY,
@@ -89,6 +90,11 @@ export function createFixture(): Fixture {
   xray.orderCount = 0;
   xray.leakCount = 0;
   xray.tagCount = 0;
+  xray.seatOwners.fill(zero);
+  xray.scores.fill(0);
+  xray.seatKinds.fill(0);
+  xray.nameIdx.fill(0);
+  xray.seatPad.fill(0);
   const table = {
     authority: new PublicKey(new Uint8Array(32).fill(1)),
     epoch: 0,
@@ -429,7 +435,14 @@ export function fixtureTick(fixture: Fixture) {
       }
     }
     for (const seat of seats) {
-      seat.chips = bn(1_000);
+      const index = seat.index;
+      xray.seatOwners[index] = seat.owner;
+      xray.scores[index] = seat.owner.equals(zero)
+        ? 0
+        : Number(BigInt(seat.chips.toString()) - BigInt(BANKROLL_CHIPS));
+      xray.seatKinds[index] = "bot" in seat.kind ? 0 : "ai" in seat.kind ? 1 : 2;
+      xray.nameIdx[index] = seat.nameIdx;
+      seat.chips = bn(BANKROLL_CHIPS);
       seat.feesPaid = bn(0);
       seat.leakSpend = bn(0);
     }

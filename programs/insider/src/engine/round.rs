@@ -69,5 +69,11 @@ pub fn begin_round(
         *leak = bytemuck::Zeroable::zeroed();
     }
     xray.tags.fill(SandwichTag::default());
+    xray.seat_owners
+        .fill(anchor_lang::prelude::Pubkey::default());
+    xray.scores.fill(0);
+    xray.seat_kinds.fill(0);
+    xray.name_idx.fill(0);
+    xray._seat_pad.fill(0);
     Ok(())
 }

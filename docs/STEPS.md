@@ -486,6 +486,9 @@ that are easy to unit-test. Use `cd programs && cargo test -p insider --test eng
   end, run `finish_round` before `commit_epoch` (it writes `Season`).
 - `seats.rs`: displacing an idle bot mid-round resets `chips`/`position` while it may hold a position or pending orders in the mempool. Suggest blocking
   displacement while `position != 0 || pending_count > 0`, or only displacing between rounds.
+- Gate E1 tuning (docs/engine.md): initialise the table with `priority_fee = 3` (please change `Params::default()` in `table.rs`, it still says 10).
+  Leak prices are now 8/1, 20/2, 60/6 and shocks 8-15%; the Dutch floor is reachable on the last auction tick.
+- `Xray` grew to `SPACE = 6,516` bytes (it now stores each seat's owner, kind, name and round score at `finish_round`).
 - Instruction account lists (S signer, W writable): `send_order(index, side_size, lane)`: owner(S), table, seat(W), market, mempool(W), tape(W).
   `bid` / `list_leak` / `offer_license`: owner(S), table, seat(W), board(W). `open_leak`: owner(S), table, seat(W), board(W), vault(W), permission(W),
   permission_program, ephemeral_vault(W), magic_program. `buy_listed`: + seller_seat(W). `buy_license`: + license_owner(W), vault(W), permission(W),
@@ -510,10 +513,10 @@ that are easy to unit-test. Use `cd programs && cargo test -p insider --test eng
 - [x] **B-1.4 Orders (4 h).** `state/mempool.rs`, `instructions/orders.rs`: `send_order` (two lanes,
       fee, limits of 2,000 units per order, 5,000 position, 4 pending per seat), public `SendEvent`,
       **no logs**. Tests in `tests/leaks.rs`.
-- [ ] **B-1.5 SDK v0 (4 h, handoff H1).** Account decode from the IDL, instruction builders,
+- [x] **B-1.5 SDK v0 (4 h, handoff H1).** Account decode from the IDL, instruction builders,
       websocket subscriptions, `table` view-model, `vamm` (TS port of the Rust math for price-impact
       previews, cross-checked with shared test vectors).
-- [ ] **B-1.6 Floor UI start (2 h).** `components/floor/*` with typed fixtures: `GhostOrder`,
+- [x] **B-1.6 Floor UI start (2 h).** `components/floor/*` with typed fixtures: `GhostOrder`,
       `PriceChart` (landing markers), `SeatRail`, `OrderPanel`, `PhaseBar`.
 
 ### Block 2: Leaks, X-ray and the trading UI (28 h)
@@ -523,46 +526,46 @@ that are easy to unit-test. Use `cd programs && cargo test -p insider --test eng
       seat's 2-unopened-Leaks limit. Tests.
 - [x] **B-2.2 `finish_round` and sandwiches (4 h).** `state/xray.rs`, `finish_round.rs`: write the
       order log and payloads, **sandwich tags**, clear members, score into `Season`, reset seats.
-- [ ] **B-2.3 `/table` live (5 h).** Read live accounts through the SDK with websocket updates at 2
+- [x] **B-2.3 `/table` live (5 h).** Read live accounts through the SDK with websocket updates at 2
       Hz and no layout jitter; the order panel with lane choice, fee and impact preview; ghost orders
       drifting toward the chart (from client memory); phase bar driven by `Table.tick`.
-- [ ] **B-2.4 Onboarding (3 h).** Guest key (in `localStorage`, exportable), seat claim, TEE login,
+- [x] **B-2.4 Onboarding (3 h).** Guest key (in `localStorage`, exportable), seat claim, TEE login,
       chip balance, "you are seat 4". Follow gate G3 for funding.
-- [ ] **B-2.5 Leak board and crack-open (5 h).** Auction cards with the falling price, rarity
+- [x] **B-2.5 Leak board and crack-open (5 h).** Auction cards with the falling price, rarity
       styling, family badge (Flow or Fundamentals), sealed state; **the crack-open animation** (the
       purchase, the TEE login, the payload revealed on the chart).
-- [ ] **B-2.6 Two-browser test page (2 h).** A page or documented procedure for the privacy demo.
+- [x] **B-2.6 Two-browser test page (2 h).** A page or documented procedure for the privacy demo.
 - [ ] **B-2.7 Playtest and fixes (2 h).** Play the live table (H3) and send findings to Anurag (H4).
 
 ### Block 3: Exchange depth and the economics gate (18 h)
 
 - [x] **B-3.1 Flip and license (5 h).** `list_leak`, `buy_listed`, `offer_license`, `buy_license`
       (members up to 4), hoard limit. Tests.
-- [ ] **B-3.2 Economics gate E1 (5 h).** `tests/economics.rs` plus a printed table: the six agents
+- [x] **B-3.2 Economics gate E1 (5 h).** `tests/economics.rs` plus a printed table: the six agents
       (Blind, Front-runner, Fundamentalist, Hoarder, Flipper, Crowd) over thousands of seeded rounds;
       tune `ARB_PCT`, fees, depth and Leak prices until all six E1 checks pass (spec section 10).
       Results into `docs/engine.md`.
-- [ ] **B-3.3 X-ray screen (6 h).** `xray/*` and `/xray/[round]`: every order (sent to landed),
+- [x] **B-3.3 X-ray screen (6 h).** `xray/*` and `/xray/[round]`: every order (sent to landed),
       every Leak and who held it, sandwich arrows, scrubbable, ending in the score; the same component
       inline at round end.
-- [ ] **B-3.4 Flip and license UI (2 h).** Sell sealed, offer and buy a license, readers list, a
+- [x] **B-3.4 Flip and license UI (2 h).** Sell sealed, offer and buy a license, readers list, a
       live "edge left" indicator from readers and impact.
 
 ### Block 4: Identity and polish (11 h)
 
 - [ ] **B-4.1 Wallet and session UI (3 h, if G7 passes).** Connect, create session, revoke,
       leaderboard under your key (install `@magicblock-labs/gum-react-sdk` then).
-- [ ] **B-4.2 Share data and activity feed (2 h).** Activity feed (who sent which lane, who opened
+- [x] **B-4.2 Share data and activity feed (2 h).** Activity feed (who sent which lane, who opened
       what, copy and fade shortcuts); expose the data Anurag's share-card route needs.
-- [ ] **B-4.3 Polish (6 h).** Motion pass, mobile layout, empty, loading and error states,
+- [x] **B-4.3 Polish (6 h).** Motion pass, mobile layout, empty, loading and error states,
       accessibility, 16:9 recording mode for the table.
 
 ### Block 5: Ship (10 h)
 
-- [ ] **B-5.1 Engine docs (1 h).** `docs/engine.md`: formulas, parameters, E1 results.
+- [x] **B-5.1 Engine docs (1 h).** `docs/engine.md`: formulas, parameters, E1 results.
 - [ ] **B-5.2 QA sweep (6 h).** Cold-visitor test on a clean browser profile, bug fixes in own
       areas, README screenshots.
-- [ ] **B-5.3 `/watch` and share cards (3 h).** The broadcast view (auto-camera on the biggest
+- [x] **B-5.3 `/watch` and share cards (3 h).** The broadcast view (auto-camera on the biggest
       event, live captions from Anurag's commentary service, no controls, 16:9 mode) and the share-card
       image route `app/src/app/api/og/` ("I read a Full Book Leak for 120 and front-ran a whale for
       +412"), used by the X-ray and the Desk.

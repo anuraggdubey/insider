@@ -2,7 +2,7 @@ use anchor_lang::prelude::*;
 
 use crate::{
     state::{LeakHeader, PendingOrder},
-    DROPS_PER_ROUND, LEAK_PAYLOAD_FIELDS, LEAK_PAYLOAD_ORDERS, XRAY_ORDERS, XRAY_TAGS,
+    DROPS_PER_ROUND, LEAK_PAYLOAD_FIELDS, LEAK_PAYLOAD_ORDERS, SEAT_COUNT, XRAY_ORDERS, XRAY_TAGS,
 };
 
 #[zero_copy]
@@ -54,6 +54,11 @@ pub struct Xray {
     pub orders: [XrayOrder; XRAY_ORDERS],
     pub leaks: [XrayLeak; DROPS_PER_ROUND],
     pub tags: [SandwichTag; XRAY_TAGS],
+    pub seat_owners: [Pubkey; SEAT_COUNT],
+    pub scores: [i32; SEAT_COUNT],
+    pub seat_kinds: [u8; SEAT_COUNT],
+    pub name_idx: [u8; SEAT_COUNT],
+    pub _seat_pad: [u8; 4],
 }
 
 impl Xray {
@@ -69,7 +74,7 @@ mod tests {
         assert_eq!(core::mem::size_of::<XrayOrder>(), 12);
         assert_eq!(core::mem::size_of::<XrayLeak>(), 452);
         assert_eq!(core::mem::size_of::<SandwichTag>(), 12);
-        assert_eq!(core::mem::size_of::<Xray>(), 6124);
-        assert_eq!(Xray::SPACE, 6132);
+        assert_eq!(core::mem::size_of::<Xray>(), 6508);
+        assert_eq!(Xray::SPACE, 6516);
     }
 }

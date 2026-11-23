@@ -755,6 +755,26 @@ impl FinishFixture {
 fn finish_round_fits_transaction_and_finalizes_without_active_permissions() {
     use ::insider::{Season, Xray};
     let mut f = FinishFixture::new();
+    for (index, address) in f.seats.iter().enumerate() {
+        let mut seat: Seat = f.leak.base.read(*address);
+        seat.chips = match index {
+            0 => 1_250,
+            1 => 750,
+            _ => -4_000,
+        };
+        seat.name_idx = (10 + index) as u8;
+        seat.kind = match index % 3 {
+            0 => ::insider::SeatKind::Bot,
+            1 => ::insider::SeatKind::Ai,
+            _ => ::insider::SeatKind::Human,
+        };
+        f.leak.base.put_serialized(*address, &seat);
+    }
+    let before: Vec<Seat> = f
+        .seats
+        .iter()
+        .map(|address| f.leak.base.read(*address))
+        .collect();
     let meta = f.run().unwrap();
     println!(
         "finish_round without permission updates: {} CU",
@@ -763,6 +783,21 @@ fn finish_round_fits_transaction_and_finalizes_without_active_permissions() {
     let xray_account = f.leak.base.svm.get_account(&f.xray).unwrap();
     let xray: &Xray = bytemuck::from_bytes(&xray_account.data[8..]);
     assert_eq!((xray.finalized, xray.leak_count), (1, 1));
+    for (index, seat) in before.iter().enumerate() {
+        assert_eq!(xray.seat_owners[index], seat.owner);
+        assert_eq!(xray.seat_kinds[index], seat.kind as u8);
+        assert_eq!(xray.name_idx[index], seat.name_idx);
+        assert_eq!(
+            xray.scores[index],
+            if seat.is_free() {
+                0
+            } else {
+                i32::try_from(seat.chips - 1_000).unwrap()
+            }
+        );
+        let reset: Seat = f.leak.base.read(f.seats[index]);
+        assert_eq!(reset.chips, 1_000);
+    }
     let season: Season = f.leak.base.read(f.season);
     assert_eq!(season.leaderboard[0].owner, f.leak.base.owner.pubkey());
     f.leak.base.svm.expire_blockhash();

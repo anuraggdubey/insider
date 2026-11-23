@@ -86,12 +86,16 @@ export function GET(request: Request) {
           {pnl !== undefined && (
             <div
               style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 10,
                 color: Number(pnl) >= 0 ? "#3ddc97" : "#ff5c6c",
                 fontSize: 26,
                 fontWeight: 700,
               }}
             >
-              {`${Number(pnl) > 0 ? "+" : ""}${pnl} CHIPS`}
+              <span style={{ color: "#a5aeba", fontSize: 14 }}>ROUND P&amp;L</span>
+              <span>{`${Number(pnl) > 0 ? "+" : ""}${pnl} CHIPS`}</span>
             </div>
           )}
         </div>

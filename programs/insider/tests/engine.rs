@@ -451,6 +451,11 @@ fn round_reset_preserves_bumps_and_next_leak_id() {
     f.board.next_leak_id = 42;
     f.board.headers[0].state = LeakState::Opened as u8;
     f.xray.order_count = 5;
+    f.xray.seat_owners[0] = Pubkey::new_unique();
+    f.xray.scores[0] = 41;
+    f.xray.seat_kinds[0] = 2;
+    f.xray.name_idx[0] = 9;
+    f.xray._seat_pad = [1; 4];
     f.market.liquidated_mask = 1023;
     begin_round(
         &f.table,
@@ -487,6 +492,15 @@ fn round_reset_preserves_bumps_and_next_leak_id() {
         (PRICE_ONE, PRICE_ONE, 0)
     );
     assert_eq!(f.xray.order_count, 0);
+    assert!(f
+        .xray
+        .seat_owners
+        .iter()
+        .all(|owner| *owner == Pubkey::default()));
+    assert!(f.xray.scores.iter().all(|score| *score == 0));
+    assert!(f.xray.seat_kinds.iter().all(|kind| *kind == 0));
+    assert!(f.xray.name_idx.iter().all(|name| *name == 0));
+    assert_eq!(f.xray._seat_pad, [0; 4]);
     assert_eq!(f.market.round_id, f.table.round_id);
     assert_eq!(f.future.round_id, f.table.round_id);
     assert_eq!(f.board.round_id, f.table.round_id);
@@ -923,6 +937,35 @@ fn full_round_xray_contains_every_minted_leak_exactly_once() {
         assert_eq!(matching[0].fields, fields);
         assert_eq!(matching[0].orders, orders);
         assert_eq!(matching[0].order_count, order_count);
+    }
+}
+
+#[test]
+fn finalization_rejects_scores_outside_i32_without_mutation() {
+    for chips in [i64::from(i32::MIN) + 999, i64::from(i32::MAX) + 1_001] {
+        let mut f = Fixture::new();
+        f.seats[0].chips = chips;
+        let mut season = Season {
+            epoch: 0,
+            rounds_played: 0,
+            leaderboard: [ScoreEntry::default(); LEADERBOARD_SIZE],
+            analysts: [AnalystStats::default(); SEAT_COUNT],
+            bump: 0,
+        };
+        let vaults: Vec<_> = f.vaults.iter().collect();
+        let mut seats: Vec<_> = f.seats.iter_mut().collect();
+        assert!(finalize_round(
+            &f.table,
+            &f.board,
+            &vaults,
+            &mut f.xray,
+            &mut seats,
+            &mut season,
+        )
+        .is_err());
+        assert_eq!(seats[0].chips, chips);
+        assert_eq!(f.xray.finalized, 0);
+        assert_eq!(season.rounds_played, 0);
     }
 }
 

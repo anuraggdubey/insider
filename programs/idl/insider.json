@@ -3900,6 +3900,51 @@
                 16
               ]
             }
+          },
+          {
+            "name": "seat_owners",
+            "type": {
+              "array": [
+                "pubkey",
+                10
+              ]
+            }
+          },
+          {
+            "name": "scores",
+            "type": {
+              "array": [
+                "i32",
+                10
+              ]
+            }
+          },
+          {
+            "name": "seat_kinds",
+            "type": {
+              "array": [
+                "u8",
+                10
+              ]
+            }
+          },
+          {
+            "name": "name_idx",
+            "type": {
+              "array": [
+                "u8",
+                10
+              ]
+            }
+          },
+          {
+            "name": "_seat_pad",
+            "type": {
+              "array": [
+                "u8",
+                4
+              ]
+            }
           }
         ]
       }

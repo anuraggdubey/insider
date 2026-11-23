@@ -1,11 +1,6 @@
-import {
-  BANKROLL_CHIPS,
-  CLOSING_END_TICK,
-  seatName,
-  type TableSnapshot,
-  type XrayAccount,
-} from "@insider/sdk";
+import { CLOSING_END_TICK, type TableSnapshot, type XrayAccount } from "@insider/sdk";
 import { PublicKey } from "@solana/web3.js";
+import { seatsFromXray } from "./xray-seats";
 
 type Header = XrayAccount["leaks"][number]["header"];
 export type ArchivedHeader = Omit<Header, "readers"> & { readers: string[] };
@@ -20,7 +15,17 @@ export type ArchivedLeak = Omit<XrayAccount["leaks"][number], "header" | "orders
   header: ArchivedHeader;
   orders: PayloadOrder[];
 };
-export type ArchivedXray = Omit<XrayAccount, "leaks"> & { leaks: ArchivedLeak[] };
+export type ArchivedXray = Omit<
+  XrayAccount,
+  "leaks" | "seatOwners" | "scores" | "seatKinds" | "nameIdx" | "seatPad"
+> & {
+  leaks: ArchivedLeak[];
+  seatOwners?: string[];
+  scores?: number[];
+  seatKinds?: number[];
+  nameIdx?: number[];
+  seatPad?: number[];
+};
 export type ArchivedSeat = {
   index: number;
   owner: string;
@@ -41,12 +46,6 @@ export type ArchivedRound = {
 };
 
 type StorageLike = Pick<Storage, "getItem" | "setItem">;
-type ClosingScores = {
-  round: number;
-  authority: string;
-  owners: string[];
-  scores: (number | null)[];
-};
 const LIMIT = 30;
 
 const key = (fixture: boolean) => `insider:xray:${fixture ? "fixture:" : ""}v1`;
@@ -156,9 +155,8 @@ export function createRoundObserver(
   fixture: boolean,
   storage: StorageLike | null = browserStorage(),
 ) {
-  let closing: ClosingScores | null = null;
   return (snapshot: TableSnapshot): ArchivedRound | null => {
-    const { table, market, board, seats, xray } = snapshot;
+    const { table, market, board, xray } = snapshot;
     if (
       !xray ||
       xray.roundId !== table.roundId ||
@@ -167,26 +165,7 @@ export function createRoundObserver(
     )
       return null;
     const authority = table.authority.toBase58();
-    if (
-      !xray.finalized &&
-      table.tick >= CLOSING_END_TICK &&
-      market.lastTick >= CLOSING_END_TICK &&
-      seats.every((seat) => seat.position === 0)
-    ) {
-      closing = {
-        round: table.roundId,
-        authority,
-        owners: seats.map((seat) => seat.owner.toBase58()),
-        scores: seats.map((seat) =>
-          seat.owner.equals(PublicKey.default)
-            ? null
-            : Number(BigInt(seat.chips.toString()) - BigInt(BANKROLL_CHIPS)),
-        ),
-      };
-    }
     if (!xray.finalized) return null;
-    const validScores =
-      closing?.round === table.roundId && closing.authority === authority ? closing : null;
     const record: ArchivedRound = {
       round: xray.roundId,
       authority,
@@ -194,6 +173,11 @@ export function createRoundObserver(
       capturedAt: Date.now(),
       xray: {
         ...xray,
+        seatOwners: xray.seatOwners.map((owner) => owner.toBase58()),
+        scores: [...xray.scores],
+        seatKinds: [...xray.seatKinds],
+        nameIdx: [...xray.nameIdx],
+        seatPad: [...xray.seatPad],
         orders: xray.orders.slice(0, xray.orderCount).map((order) => ({ ...order })),
         leaks: xray.leaks.slice(0, xray.leakCount).map((leak) => ({
           ...leak,
@@ -206,17 +190,7 @@ export function createRoundObserver(
         tags: xray.tags.slice(0, xray.tagCount).map((tag) => ({ ...tag })),
       },
       history: market.history.slice(0, CLOSING_END_TICK + 1),
-      seats: seats.map((seat, index) => ({
-        index: seat.index,
-        owner: seat.owner.toBase58(),
-        name: seatName(seat.nameIdx),
-        kind: Object.keys(seat.kind)[0] ?? "unknown",
-        free: seat.owner.equals(PublicKey.default),
-        score:
-          validScores?.owners[index] === seat.owner.toBase58()
-            ? (validScores.scores[index] ?? null)
-            : null,
-      })),
+      seats: seatsFromXray(xray),
       headers: board.headers.map(publicHeader),
     };
     saveRound(record, storage);

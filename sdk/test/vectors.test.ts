@@ -8,6 +8,7 @@ import {
   auctionOver,
   decodeAccount,
   decodeFuture,
+  decodeXray,
   dutchPrice,
   isqrt,
 } from "../src/index.js";
@@ -30,6 +31,17 @@ describe("shared Rust vectors", () => {
     }
   });
 
+  it("decodes finalized X-ray seat identities and signed scores from the expanded account", () => {
+    const data = Buffer.from(vectors.raw.xray, "base64");
+    expect(data.length).toBe(6516);
+    const xray = decodeXray(data);
+    expect(xray.finalized).toBe(1);
+    expect(xray.scores[3]).toBe(-125);
+    expect(xray.seatOwners[4]!.equals(PublicKey.default)).toBe(true);
+    expect(xray.scores[4]).toBe(0);
+    expect(xray.seatKinds.slice(5, 7)).toEqual([1, 2]);
+    expect(xray.nameIdx.slice(5, 7)).toEqual([5, 6]);
+  });
   it("matches the Rust vAMM fills and reserve changes exactly", () => {
     for (const v of vectors.vamm) {
       const fill = applyFill(

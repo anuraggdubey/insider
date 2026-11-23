@@ -15,7 +15,7 @@ import { PhaseBar } from "@/components/ui/phase-bar";
 import { useToast } from "@/components/ui/toast";
 import { restoreVault } from "@/lib/floor-actions";
 import { useFloorStore } from "@/lib/floor-store";
-import { findRound } from "@/lib/xray-archive";
+import { seatsFromXray } from "@/lib/xray-seats";
 import { cn } from "@/lib/cn";
 import { reducedTransition, spring } from "@/lib/motion";
 import { Feed } from "./feed";
@@ -89,20 +89,16 @@ export function Floor() {
   if (!snapshot || !view) return <TableOffline />;
   const phaseLabel =
     view.phase === "xray" ? "X-ray" : view.phase[0]?.toUpperCase() + view.phase.slice(1);
-  const archived =
-    view.phase === "xray" && snapshot.xray?.finalized
-      ? findRound(
-          fixtureMode,
-          fixtureMode ? undefined : config.tableAuthority?.toBase58(),
-          view.round,
-        )
+  const finalized =
+    view.phase === "xray" && snapshot.xray?.finalized === 1 && snapshot.xray.roundId === view.round
+      ? snapshot.xray
       : null;
-  const top =
-    archived?.seats
-      .filter((seat) => !seat.free && seat.score !== null)
-      .sort((a, b) => b.score! - a.score!)
-      .slice(0, 3) ?? [];
-  const myScore = archived?.seats.find((seat) => seat.owner === guest?.publicKey.toBase58())?.score;
+  const finalSeats = finalized ? seatsFromXray(finalized) : [];
+  const top = finalSeats
+    .filter((seat) => !seat.free)
+    .sort((a, b) => b.score! - a.score!)
+    .slice(0, 3);
+  const myScore = finalSeats.find((seat) => seat.owner === guest?.publicKey.toBase58())?.score;
   return (
     <main
       className={cn(
@@ -190,7 +186,9 @@ export function Floor() {
                 ? top
                     .map((seat) => `${seat.name} ${seat.score! > 0 ? "+" : ""}${seat.score}`)
                     .join(" · ")
-                : "Scores unavailable until close-out is captured."}
+                : finalized
+                  ? "No occupied seats this round."
+                  : "Finalizing round…"}
             </div>
           </div>
           <div className="text-muted font-mono text-[10px]">

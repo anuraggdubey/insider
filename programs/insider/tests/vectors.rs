@@ -125,9 +125,9 @@ fn xray_json(x: &Xray) -> String {
     )
     });
     format!(
-        "{{\"roundId\":{},\"orderCount\":{},\"droppedOrders\":{},\"leakCount\":{},\"tagCount\":{},\"finalized\":{},\"bump\":{},\"orders\":{},\"leaks\":{},\"tags\":{}}}",
+        "{{\"roundId\":{},\"orderCount\":{},\"droppedOrders\":{},\"leakCount\":{},\"tagCount\":{},\"finalized\":{},\"bump\":{},\"orders\":{},\"leaks\":{},\"tags\":{},\"seatOwners\":{},\"scores\":{},\"seatKinds\":{},\"nameIdx\":{},\"seatPad\":{}}}",
         x.round_id,x.order_count,x.dropped_orders,x.leak_count,x.tag_count,x.finalized,x.bump,
-        orders,array(&x.leaks,xray_leak),tags
+        orders,array(&x.leaks,xray_leak),tags,array(&x.seat_owners,quoted),nums(x.scores),nums(x.seat_kinds),nums(x.name_idx),nums(x._seat_pad)
     )
 }
 fn seat(index: u8) -> Seat {
@@ -267,6 +267,11 @@ fn shared_engine_vectors() {
         )
         .unwrap();
     }
+    seats[3].chips = 875;
+    seats[4].owner = Pubkey::default();
+    seats[4].chips = 22_222;
+    seats[5].kind = SeatKind::Ai;
+    seats[6].kind = SeatKind::Human;
     let mut season = Season {
         epoch: 0,
         rounds_played: 0,

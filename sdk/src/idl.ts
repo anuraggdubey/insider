@@ -3192,6 +3192,36 @@ export type Insider = {
               ];
             };
           },
+          {
+            name: "seatOwners";
+            type: {
+              array: ["pubkey", 10];
+            };
+          },
+          {
+            name: "scores";
+            type: {
+              array: ["i32", 10];
+            };
+          },
+          {
+            name: "seatKinds";
+            type: {
+              array: ["u8", 10];
+            };
+          },
+          {
+            name: "nameIdx";
+            type: {
+              array: ["u8", 10];
+            };
+          },
+          {
+            name: "seatPad";
+            type: {
+              array: ["u8", 4];
+            };
+          },
         ];
       };
     },

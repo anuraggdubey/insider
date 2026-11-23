@@ -1,5 +1,6 @@
-import { PRICE_ONE, WHALE_SEAT } from "@insider/sdk";
-import type { ArchivedLeak, ArchivedRound, ArchivedXray } from "./xray-archive";
+import { PRICE_ONE, SEAT_COUNT, WHALE_SEAT } from "@insider/sdk";
+import type { ArchivedLeak, ArchivedRound, ArchivedSeat, ArchivedXray } from "./xray-archive";
+import { seatsFromXray } from "./xray-seats";
 
 export const LEAK_KINDS = [
   "Flow",
@@ -15,10 +16,29 @@ export const RARITIES = ["Common", "Rare", "Epic"] as const;
 export type TraceOrder = ArchivedXray["orders"][number];
 export type TraceTag = ArchivedXray["tags"][number];
 
+export function roundSeats(round: ArchivedRound): ArchivedSeat[] {
+  const { seatOwners, scores, seatKinds, nameIdx } = round.xray;
+  if (
+    !Array.isArray(seatOwners) ||
+    !Array.isArray(scores) ||
+    !Array.isArray(seatKinds) ||
+    !Array.isArray(nameIdx) ||
+    [seatOwners.length, scores.length, seatKinds.length, nameIdx.length].some(
+      (length) => length !== SEAT_COUNT,
+    ) ||
+    !seatOwners.every((owner) => typeof owner === "string") ||
+    !scores.every((score) => Number.isInteger(score)) ||
+    !seatKinds.every((kind) => Number.isInteger(kind)) ||
+    !nameIdx.every((index) => Number.isInteger(index))
+  )
+    return round.seats;
+  return seatsFromXray({ seatOwners, scores, seatKinds, nameIdx });
+}
+
 export function traceName(round: ArchivedRound, seat: number): string {
   return seat === WHALE_SEAT
     ? "Whale"
-    : (round.seats.find((item) => item.index === seat)?.name ?? `Seat ${seat + 1}`);
+    : (roundSeats(round).find((item) => item.index === seat)?.name ?? `Seat ${seat + 1}`);
 }
 
 export function sandwichOrders(tag: TraceTag, orders: TraceOrder[]) {
@@ -109,11 +129,22 @@ export function shareDetails(round: ArchivedRound) {
   const tag = round.xray.tags[0];
   const leak = tag ? tagLeak(round, tag) : undefined;
   const kind = leak ? (LEAK_KINDS[leak.header.kind] ?? "Leak") : undefined;
-  const seat = tag ? traceName(round, tag.front) : undefined;
+  const scoredSeat = tag
+    ? roundSeats(round).find((item) => item.index === tag.front)
+    : roundSeats(round)
+        .filter((item) => !item.free && item.score !== null)
+        .sort((a, b) => b.score! - a.score!)[0];
+  const seat = scoredSeat?.name;
   const paid = tag && leak && leak.header.ownerSeat === tag.front ? ` for ${leak.header.paid}` : "";
   const line =
     tag && leak
       ? `${seat} read ${kind}${paid} and front-ran ${traceName(round, tag.victim)} for ${tag.profitEstimate > 0 ? "+" : ""}${tag.profitEstimate} chips · INSIDER round ${round.round}`
       : `The tape is public · INSIDER round ${round.round}`;
-  return { title: `Round ${round.round}, revealed`, line, kind, seat, pnl: tag?.profitEstimate };
+  return {
+    title: `Round ${round.round}, revealed`,
+    line,
+    kind,
+    seat,
+    pnl: scoredSeat?.score ?? undefined,
+  };
 }
