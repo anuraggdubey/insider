@@ -40,7 +40,10 @@ pub fn claim_seat(ctx: Context<ClaimSeat>, index: u8) -> Result<()> {
 
     if !seat.is_free() && seat.owner != owner {
         let idle = tick.saturating_sub(seat.last_seen_tick) >= SEAT_IDLE_TICKS;
-        let displaceable = seat.kind == SeatKind::Bot && idle;
+        // Never hand a bot's open position or queued orders to a newcomer: resetting `chips` and
+        // `position` mid-round would erase them while orders still sit in the mempool.
+        let flat = seat.position == 0 && seat.pending_count == 0;
+        let displaceable = seat.kind == SeatKind::Bot && idle && flat;
         require!(displaceable, InsiderError::SeatTaken);
     }
 
