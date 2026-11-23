@@ -5,8 +5,11 @@ use anchor_lang::prelude::*;
 
 use crate::{
     constants::CRANK_PROGRAM_ID,
-    state::{Phase, Table},
-    MAX_CATCH_UP_TICKS, ROUND_TICKS,
+    error::InsiderError,
+    engine::{self, step::StepAccounts},
+    state::{Board, Future, LeakVault, Market, Mempool, Phase, Seat, Table, Tape, Xray},
+    BOARD_SEED, FUTURE_SEED, LEAK_SEED, LEAK_SLOTS, MARKET_FLOOR, MARKET_SEED, MAX_CATCH_UP_TICKS,
+    MEMPOOL_SEED, ROUND_TICKS, SEAT_COUNT, SEAT_SEED, TAPE_SEED, XRAY_SEED,
 };
 
 /// The only signer the crank scheduler adds to a scheduled instruction: a PDA of the crank
@@ -65,26 +68,131 @@ pub fn advance_ticks(
     })
 }
 
+/// Named accounts of one tick. The six vaults and ten seats follow as remaining accounts: a
+/// struct with all 26 does not fit the SBF stack frame when Anchor deserialises it.
+///
+/// The scheduler lists these after `[table, scheduler, crank_signer]` (see `cranks.rs`), in exactly
+/// this order, so the order is part of the client contract: market, mempool, future, board, xray,
+/// tape, then vault 0..5, then seat 0..9.
 #[derive(Accounts)]
 pub struct TickAccounts<'info> {
     #[account(mut)]
-    pub table: Account<'info, Table>,
+    pub table: Box<Account<'info, Table>>,
     /// The account that scheduled the crank task. Any key may schedule (`rearm_ticks` is
     /// permissionless); the signer below proves the call came from the scheduler.
     /// CHECK: only used to derive the expected crank signer.
     pub scheduler: UncheckedAccount<'info>,
     #[account(address = crank_signer_pda(&scheduler.key()))]
     pub crank_signer: Signer<'info>,
+    #[account(mut, seeds = [MARKET_SEED, table.key().as_ref(), &[MARKET_FLOOR]], bump = market.load()?.bump)]
+    pub market: AccountLoader<'info, Market>,
+    #[account(mut, seeds = [MEMPOOL_SEED, table.key().as_ref()], bump = mempool.load()?.bump)]
+    pub mempool: AccountLoader<'info, Mempool>,
+    #[account(seeds = [FUTURE_SEED, table.key().as_ref()], bump = future.load()?.bump)]
+    pub future: AccountLoader<'info, Future>,
+    #[account(mut, seeds = [BOARD_SEED, table.key().as_ref()], bump = board.load()?.bump)]
+    pub board: AccountLoader<'info, Board>,
+    #[account(mut, seeds = [XRAY_SEED, table.key().as_ref()], bump = xray.load()?.bump)]
+    pub xray: AccountLoader<'info, Xray>,
+    #[account(mut, seeds = [TAPE_SEED, table.key().as_ref()], bump = tape.bump)]
+    pub tape: Box<Account<'info, Tape>>,
 }
 
-/// Scheduled by `schedule_ticks` and `rearm_ticks`. Engine accounts (market, mempool, future,
-/// board, vaults) arrive as remaining accounts once the engine is wired.
-pub fn tick(ctx: Context<TickAccounts>) -> Result<()> {
+/// A leak vault passed as a remaining account: owned by this program, writable and at the PDA of
+/// its slot. The stored bump makes the check one hash instead of a bump search.
+fn checked_vault<'info>(
+    info: &'info AccountInfo<'info>,
+    table: &Pubkey,
+    slot: usize,
+) -> Result<AccountLoader<'info, LeakVault>> {
+    require!(info.is_writable, InsiderError::InvalidEngineAccount);
+    let loader = AccountLoader::<LeakVault>::try_from(info)?;
+    let bump = loader.load()?.bump;
+    let expected = Pubkey::create_program_address(
+        &[LEAK_SEED, table.as_ref(), &[slot as u8], &[bump]],
+        &crate::ID,
+    )
+    .map_err(|_| error!(InsiderError::InvalidEngineAccount))?;
+    require_keys_eq!(info.key(), expected, InsiderError::InvalidEngineAccount);
+    Ok(loader)
+}
+
+/// A seat passed as a remaining account, checked the same way.
+fn checked_seat<'info>(
+    info: &'info AccountInfo<'info>,
+    table: &Pubkey,
+    index: usize,
+) -> Result<Account<'info, Seat>> {
+    require!(info.is_writable, InsiderError::InvalidEngineAccount);
+    let seat = Account::<Seat>::try_from(info)?;
+    let expected = Pubkey::create_program_address(
+        &[SEAT_SEED, table.as_ref(), &[index as u8], &[seat.bump]],
+        &crate::ID,
+    )
+    .map_err(|_| error!(InsiderError::InvalidEngineAccount))?;
+    require_keys_eq!(info.key(), expected, InsiderError::InvalidEngineAccount);
+    Ok(seat)
+}
+
+/// Scheduled by `schedule_ticks` and `rearm_ticks`: runs `engine::step` once for every tick the
+/// rollup clock has passed (at most `MAX_CATCH_UP_TICKS`), then moves the phase.
+pub fn tick<'info>(ctx: Context<'info, TickAccounts<'info>>) -> Result<()> {
     let slot = Clock::get()?.slot;
-    advance_ticks(&mut ctx.accounts.table, slot, |_table, _tick| {
-        // engine::step(...) is called here (handoff H-API).
-        Ok(())
-    })?;
+    let remaining = ctx.remaining_accounts;
+    let accounts = ctx.accounts;
+    require!(
+        remaining.len() == LEAK_SLOTS + SEAT_COUNT,
+        InsiderError::InvalidEngineAccount
+    );
+    if !matches!(
+        accounts.table.phase,
+        Phase::Live | Phase::Closing | Phase::Xray
+    ) {
+        return Ok(());
+    }
+    let table_key = accounts.table.key();
+    let vault_loaders = remaining[..LEAK_SLOTS]
+        .iter()
+        .enumerate()
+        .map(|(slot, info)| checked_vault(info, &table_key, slot))
+        .collect::<Result<Vec<_>>>()?;
+    let mut seat_accounts = remaining[LEAK_SLOTS..]
+        .iter()
+        .enumerate()
+        .map(|(index, info)| checked_seat(info, &table_key, index))
+        .collect::<Result<Vec<_>>>()?;
+
+    {
+        let mut market = accounts.market.load_mut()?;
+        let mut mempool = accounts.mempool.load_mut()?;
+        let future = accounts.future.load()?;
+        let mut board = accounts.board.load_mut()?;
+        let mut xray = accounts.xray.load_mut()?;
+        let mut vault_guards = vault_loaders
+            .iter()
+            .map(|loader| loader.load_mut())
+            .collect::<Result<Vec<_>>>()?;
+        let mut vaults: Vec<&mut LeakVault> = vault_guards.iter_mut().map(|g| &mut **g).collect();
+        let mut seats: Vec<&mut Seat> = seat_accounts.iter_mut().map(|a| &mut **a).collect();
+        let mut step_accounts = StepAccounts {
+            market: &mut market,
+            mempool: &mut mempool,
+            future: &future,
+            board: &mut board,
+            vaults: &mut vaults,
+            seats: &mut seats,
+            tape: &mut accounts.tape,
+            xray: &mut xray,
+        };
+        advance_ticks(&mut accounts.table, slot, |table, tick| {
+            engine::step::step(table, tick, &mut step_accounts)?;
+            Ok(())
+        })?;
+    }
+    // remaining accounts are not written back by Anchor's exit
+    for seat in &seat_accounts {
+        seat.exit(&crate::ID)?;
+    }
     Ok(())
 }
 
