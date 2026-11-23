@@ -3,13 +3,14 @@
 import { type InsiderConfig, type TableView } from "@insider/sdk";
 import { Download, KeyRound, Settings2, X } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button, buttonStyles } from "@/components/ui/button";
 import { useToast } from "@/components/ui/toast";
 import { joinFloor } from "@/lib/floor-actions";
-import { updateFloor, useFloorStore } from "@/lib/floor-store";
+import { selectGuest, updateFloor, useFloorStore } from "@/lib/floor-store";
 import { createGuest, exportGuest, importGuest } from "@/lib/guest";
 import { friendlyError } from "@/lib/errors";
+import { WalletPlayButton } from "./wallet";
 
 export function PlayButton() {
   return (
@@ -18,20 +19,22 @@ export function PlayButton() {
       className={buttonStyles({ size: "lg", className: "min-w-36" })}
       onClick={(event) => {
         try {
-          updateFloor({ guest: createGuest() });
+          selectGuest(createGuest());
         } catch (error) {
           event.preventDefault();
           useToast.getState().add(friendlyError(error));
         }
       }}
     >
-      Play <span aria-hidden>→</span>
+      Play as guest <span aria-hidden>→</span>
     </Link>
   );
 }
 
 export function GuestControls({ config, view }: { config: InsiderConfig; view: TableView }) {
   const guest = useFloorStore((state) => state.guest);
+  const identity = useFloorStore((state) => state.identity);
+  const joinRequested = useFloorStore((state) => state.joinRequested);
   const tutorial = useFloorStore((state) => state.tutorial);
   const [settings, setSettings] = useState(false);
   const [importText, setImportText] = useState("");
@@ -40,6 +43,7 @@ export function GuestControls({ config, view }: { config: InsiderConfig; view: T
   const join = async () => {
     setBusy(true);
     try {
+      selectGuest(createGuest());
       await joinFloor(config);
     } catch (error) {
       fail(error);
@@ -47,6 +51,11 @@ export function GuestControls({ config, view }: { config: InsiderConfig; view: T
       setBusy(false);
     }
   };
+  useEffect(() => {
+    if (!joinRequested || identity !== "wallet") return;
+    updateFloor({ joinRequested: false });
+    void joinFloor(config).catch((error) => useToast.getState().add(friendlyError(error)));
+  }, [config, identity, joinRequested]);
   const download = () => {
     if (!guest) return;
     const url = URL.createObjectURL(new Blob([exportGuest(guest)], { type: "application/json" }));
@@ -67,20 +76,38 @@ export function GuestControls({ config, view }: { config: InsiderConfig; view: T
             <span>{view.mine.chips.toLocaleString()} CHIPS</span>
           </div>
         ) : (
-          <Button size="sm" onClick={() => void join()} loading={busy}>
-            Take a seat
+          <div className="flex flex-wrap items-center gap-2">
+            <Button size="sm" onClick={() => void join()} loading={busy}>
+              Play as guest
+            </Button>
+            <WalletPlayButton size="sm" onReady={() => joinFloor(config)} />
+          </div>
+        )}
+        {view.mine && identity === "guest" && (
+          <WalletPlayButton size="sm" onReady={() => joinFloor(config)} />
+        )}
+        {view.mine && identity === "wallet" && (
+          <Button size="sm" variant="outline" onClick={() => void join()} loading={busy}>
+            Play as guest
           </Button>
         )}
-        <button
-          type="button"
-          aria-label="Guest key settings"
-          aria-expanded={settings}
-          className="border-line-strong text-muted hover:text-text grid size-8 place-items-center rounded border"
-          onClick={() => setSettings(!settings)}
-        >
-          <Settings2 className="size-3.5" />
-        </button>
-        {settings && (
+        {identity === "wallet" && (
+          <span className="text-muted hidden text-[10px] lg:inline">
+            Each action asks your wallet
+          </span>
+        )}
+        {identity === "guest" && (
+          <button
+            type="button"
+            aria-label="Guest key settings"
+            aria-expanded={settings}
+            className="border-line-strong text-muted hover:text-text grid size-8 place-items-center rounded border"
+            onClick={() => setSettings(!settings)}
+          >
+            <Settings2 className="size-3.5" />
+          </button>
+        )}
+        {identity === "guest" && settings && (
           <div className="border-line-strong bg-surface absolute top-10 right-0 z-40 w-72 rounded-lg border p-4 text-left shadow-2xl">
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium">Guest key</span>
@@ -137,7 +164,7 @@ export function GuestControls({ config, view }: { config: InsiderConfig; view: T
               onClick={() => {
                 try {
                   const key = importGuest(importText);
-                  updateFloor({ guest: key, pending: [], vaults: {} });
+                  selectGuest(key);
                   setImportText("");
                   setSettings(false);
                   useToast.getState().add("Guest key imported.");
@@ -171,7 +198,12 @@ export function GuestControls({ config, view }: { config: InsiderConfig; view: T
             <h2 className="mt-2 text-xl font-medium">
               You are seat {view.mine.index + 1} · {view.mine.name}
             </h2>
-            <p className="text-muted mt-2 text-sm">1,000 chips. Your key stays on this device.</p>
+            <p className="text-muted mt-2 text-sm">
+              1,000 chips.{" "}
+              {identity === "wallet"
+                ? "Each action asks your wallet."
+                : "Your key stays on this device."}
+            </p>
             <div className="border-line mt-6 space-y-4 border-t pt-5">
               {[
                 ["01", "Send into the dark", "Orders wait in a sealed mempool."],

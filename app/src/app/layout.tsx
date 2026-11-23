@@ -18,6 +18,7 @@ export const viewport: Viewport = { themeColor: "#07080A" };
 const nav = [
   ["Floor", "/table"],
   ["X-ray", "/xray"],
+  ["Season", "/season"],
   ["Rules", "/rules"],
   ["Watch", "/watch"],
   ["Desk", "/desk"],

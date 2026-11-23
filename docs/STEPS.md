@@ -553,7 +553,7 @@ that are easy to unit-test. Use `cd programs && cargo test -p insider --test eng
 
 ### Block 4: Identity and polish (11 h)
 
-- [ ] **B-4.1 Wallet and session UI (3 h, if G7 passes).** Connect, create session, revoke,
+- [x] **B-4.1 Wallet and session UI (3 h, if G7 passes).** Connect, create session, revoke,
       leaderboard under your key (install `@magicblock-labs/gum-react-sdk` then).
 - [x] **B-4.2 Share data and activity feed (2 h).** Activity feed (who sent which lane, who opened
       what, copy and fade shortcuts); expose the data Anurag's share-card route needs.

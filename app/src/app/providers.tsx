@@ -1,11 +1,12 @@
 "use client";
 
 import { createConfig, type InsiderConfig } from "@insider/sdk";
-import { ConnectionProvider, WalletProvider } from "@solana/wallet-adapter-react";
+import { ConnectionProvider, WalletProvider, useWallet } from "@solana/wallet-adapter-react";
 import { WalletModalProvider } from "@solana/wallet-adapter-react-ui";
 import { PublicKey } from "@solana/web3.js";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { createContext, useContext, useMemo, useState, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+import { restoreIdentity, syncWallet } from "@/lib/floor-store";
 
 const InsiderContext = createContext<InsiderConfig | null>(null);
 
@@ -23,6 +24,23 @@ export function InsiderProvider({
   children: ReactNode;
 }) {
   return <InsiderContext.Provider value={config}>{children}</InsiderContext.Provider>;
+}
+
+function WalletBridge() {
+  const { connected, publicKey, signMessage, signTransaction } = useWallet();
+  useEffect(() => {
+    restoreIdentity();
+  }, []);
+  useEffect(() => {
+    const key = connected ? publicKey : null;
+    syncWallet(
+      key,
+      key && signMessage && signTransaction
+        ? { publicKey: key, signMessage, signTransaction }
+        : null,
+    );
+  }, [connected, publicKey, signMessage, signTransaction]);
+  return null;
 }
 
 export function Providers({ children }: { children: ReactNode }) {
@@ -47,8 +65,9 @@ export function Providers({ children }: { children: ReactNode }) {
   return (
     <QueryClientProvider client={queryClient}>
       <ConnectionProvider endpoint={config.baseRpcUrl}>
-        <WalletProvider wallets={wallets} autoConnect={false}>
+        <WalletProvider wallets={wallets} autoConnect>
           <WalletModalProvider>
+            <WalletBridge />
             <InsiderProvider config={config}>{children}</InsiderProvider>
           </WalletModalProvider>
         </WalletProvider>

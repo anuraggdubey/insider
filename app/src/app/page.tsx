@@ -2,6 +2,7 @@ import { E1_PRIORITY_FEE_CHIPS } from "@insider/sdk";
 import { Eye, LockKeyhole, MoveUpRight, ScanLine } from "lucide-react";
 import Link from "next/link";
 import { PlayButton } from "@/components/onboarding/guest";
+import { FastModeToggle, WalletPlayButton } from "@/components/onboarding/wallet";
 import { buttonStyles } from "@/components/ui/button";
 import { SealedCard } from "@/components/ui/sealed-card";
 
@@ -58,9 +59,14 @@ export default function Home() {
           </p>
           <div className="mt-9 flex flex-wrap items-center gap-3">
             <PlayButton />
+            <WalletPlayButton />
             <Link href="/rules" className={buttonStyles({ variant: "outline", size: "lg" })}>
               How it works <MoveUpRight aria-hidden="true" className="text-muted size-4" />
             </Link>
+          </div>
+          <p className="text-muted mt-3 text-xs">Wallet play: each action asks your wallet.</p>
+          <div className="mt-2">
+            <FastModeToggle />
           </div>
           <p className="text-faint mt-10 font-mono text-[10px] leading-5 tracking-[.12em] uppercase">
             Solana devnet <span className="text-line-strong mx-1">·</span> MagicBlock Private

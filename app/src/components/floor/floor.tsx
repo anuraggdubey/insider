@@ -14,7 +14,7 @@ import { Badge } from "@/components/ui/badge";
 import { PhaseBar } from "@/components/ui/phase-bar";
 import { useToast } from "@/components/ui/toast";
 import { restoreVault } from "@/lib/floor-actions";
-import { useFloorStore } from "@/lib/floor-store";
+import { updateFloor, useFloorStore } from "@/lib/floor-store";
 import { seatsFromXray } from "@/lib/xray-seats";
 import { cn } from "@/lib/cn";
 import { reducedTransition, spring } from "@/lib/motion";
@@ -40,21 +40,31 @@ export function Floor() {
   const snapshot = useFloorStore((state) => state.snapshot);
   const status = useFloorStore((state) => state.status);
   const guest = useFloorStore((state) => state.guest);
+  const identity = useFloorStore((state) => state.identity);
+  const walletKey = useFloorStore((state) => state.walletKey);
+  const player = useMemo(
+    () => (identity === "wallet" ? walletKey : (guest?.publicKey ?? null)),
+    [guest, identity, walletKey],
+  );
   const pending = useFloorStore((state) => state.pending);
   const vaults = useFloorStore((state) => state.vaults);
   const error = useFloorStore((state) => state.error);
+  const joinRequested = useFloorStore((state) => state.joinRequested);
   const attempted = useRef(new Set<string>());
   const view = useMemo(
-    () => snapshot && deriveTable(snapshot, { me: guest?.publicKey, pending }),
-    [snapshot, guest, pending],
+    () => snapshot && deriveTable(snapshot, { me: player ?? undefined, pending }),
+    [snapshot, player, pending],
   );
   useEffect(() => {
     if (error) useToast.getState().add(error);
   }, [error]);
   useEffect(() => {
-    if (!view || !guest) return;
+    if (status === "offline" && joinRequested) updateFloor({ joinRequested: false });
+  }, [status, joinRequested]);
+  useEffect(() => {
+    if (!view || !player) return;
     for (const leak of view.leaks) {
-      const key = `${view.round}:${leak.leakId}:${guest.publicKey.toBase58()}`;
+      const key = `${view.round}:${leak.leakId}:${player.toBase58()}`;
       if (leak.isReader && !vaults[leak.leakId] && !attempted.current.has(key)) {
         attempted.current.add(key);
         void restoreVault(config, leak.slot, leak.leakId).catch(() => {
@@ -62,7 +72,7 @@ export function Floor() {
         });
       }
     }
-  }, [config, guest, view, vaults]);
+  }, [config, player, view, vaults]);
   useEffect(() => {
     if (!view?.mine) return;
     const events = [
@@ -98,7 +108,7 @@ export function Floor() {
     .filter((seat) => !seat.free)
     .sort((a, b) => b.score! - a.score!)
     .slice(0, 3);
-  const myScore = finalSeats.find((seat) => seat.owner === guest?.publicKey.toBase58())?.score;
+  const myScore = finalSeats.find((seat) => seat.owner === player?.toBase58())?.score;
   return (
     <main
       className={cn(

@@ -1,0 +1,12 @@
+import { Suspense } from "react";
+import { SeasonView } from "@/components/season/season-view";
+
+export default function SeasonPage() {
+  return (
+    <Suspense
+      fallback={<main className="mx-auto w-full max-w-7xl px-6 py-16">Loading season…</main>}
+    >
+      <SeasonView />
+    </Suspense>
+  );
+}

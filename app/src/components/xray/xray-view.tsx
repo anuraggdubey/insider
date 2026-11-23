@@ -158,6 +158,7 @@ export function XrayView({ roundNumber }: { roundNumber?: number }) {
   const config = useInsider();
   const params = useSearchParams();
   const fixture = process.env.NODE_ENV !== "production" && params.get("fixture") === "1";
+  const selectedAuthority = params.get("authority");
   useFloor(config, fixture);
   const snapshot = useFloorStore((state) => state.snapshot);
   const status = useFloorStore((state) => state.status);
@@ -170,9 +171,11 @@ export function XrayView({ roundNumber }: { roundNumber?: number }) {
   useEffect(() => {
     let cancelled = false;
     const refresh = async () => {
-      const authority = fixture ? undefined : config.tableAuthority?.toBase58();
+      const authority =
+        selectedAuthority ?? (fixture ? undefined : config.tableAuthority?.toBase58());
       const matches =
         snapshot?.xray?.finalized === 1 &&
+        (!authority || snapshot.table.authority.toBase58() === authority) &&
         (roundNumber === undefined || snapshot.xray.roundId === roundNumber);
       const direct = matches && snapshot ? createRoundObserver(fixture)(snapshot) : null;
       const saved = findRound(fixture, authority, roundNumber);
@@ -185,7 +188,7 @@ export function XrayView({ roundNumber }: { roundNumber?: number }) {
     return () => {
       cancelled = true;
     };
-  }, [config.tableAuthority, fixture, roundNumber, snapshot]);
+  }, [config.tableAuthority, fixture, roundNumber, selectedAuthority, snapshot]);
   useEffect(() => {
     if (!playing) return;
     const timer = setInterval(
