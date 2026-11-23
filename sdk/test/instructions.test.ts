@@ -6,10 +6,12 @@ import {
 import { Keypair, PublicKey, type TransactionInstruction } from "@solana/web3.js";
 import { describe, expect, it } from "vitest";
 import {
+  EPHEMERAL_VRF_QUEUE,
   MAGIC_PROGRAM_ID,
   PERMISSION_PROGRAM_ID,
   bid,
   buyLicense,
+  cancelVrf,
   buyListed,
   claimSeat,
   createConfig,
@@ -18,6 +20,7 @@ import {
   offerLicense,
   openLeak,
   ping,
+  requestRoundSeed,
   resealLeaks,
   sendOrder,
   tableAccounts,
@@ -141,5 +144,26 @@ describe("instruction builders", () => {
     expect(() => resealLeaks(config, owner, 0, 7)).toThrow();
     expect(tx().instructions).toHaveLength(0);
     expect(tx(claimSeat(config, owner, 7), ping(config, owner, 7)).instructions).toHaveLength(2);
+  });
+});
+
+describe("round seed builders", () => {
+  it("requests the round seed with the engine accounts the callback will write", () => {
+    const ix = requestRoundSeed(config, owner);
+    const names = ix.keys.map((key) => key.pubkey.toBase58());
+    expect(names.slice(0, 7)).toEqual(
+      [owner, p.table, p.board, p.xray, p.floor, p.mempool, p.future].map((key) => key.toBase58()),
+    );
+    expect(ix.keys[7]!.pubkey.equals(EPHEMERAL_VRF_QUEUE)).toBe(true);
+    expect(coder.decode(ix.data)).toEqual({ name: "requestRoundSeed", data: {} });
+    // only the payer signs; the table and the queue are written
+    expect(ix.keys.filter((key) => key.isSigner).map((key) => key.pubkey.toBase58())).toEqual([
+      owner.toBase58(),
+    ]);
+    expect(ix.keys[1]!.isWritable && ix.keys[7]!.isWritable).toBe(true);
+  });
+
+  it("cancels a stuck request with just a payer and the table", () => {
+    check(cancelVrf(config, owner), [owner, p.table], ["s-", "-w"], "cancelVrf", {});
   });
 });

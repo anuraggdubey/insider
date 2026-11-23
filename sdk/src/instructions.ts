@@ -5,7 +5,12 @@ import {
 } from "@magicblock-labs/ephemeral-rollups-sdk";
 import { PublicKey, Transaction, TransactionInstruction, type AccountMeta } from "@solana/web3.js";
 import rawIdl from "../../programs/idl/insider.json" with { type: "json" };
-import { MAGIC_PROGRAM_ID, PERMISSION_PROGRAM_ID, type InsiderConfig } from "./config";
+import {
+  EPHEMERAL_VRF_QUEUE,
+  MAGIC_PROGRAM_ID,
+  PERMISSION_PROGRAM_ID,
+  type InsiderConfig,
+} from "./config";
 import { LEAK_SLOTS } from "./constants";
 import { tableAccounts } from "./pdas";
 
@@ -209,3 +214,38 @@ export const tx = (...instructions: TransactionInstruction[]) => {
   if (instructions.length) transaction.add(...instructions);
   return transaction;
 };
+
+/**
+ * Starts the next round through the VRF (table `Idle`, previous round scored and resealed).
+ * Anyone may send it; the oracle's callback runs `engine::begin_round` and the round goes `Live`.
+ */
+export function requestRoundSeed(
+  config: InsiderConfig,
+  payer: PublicKey,
+  oracleQueue: PublicKey = EPHEMERAL_VRF_QUEUE,
+) {
+  const p = addresses(config);
+  return build(
+    config,
+    "requestRoundSeed",
+    {},
+    {
+      payer,
+      table: p.table,
+      board: p.board,
+      xray: p.xray,
+      market: p.floor,
+      mempool: p.mempool,
+      future: p.future,
+      oracleQueue,
+      programIdentity: PublicKey.findProgramAddressSync(
+        [new TextEncoder().encode("identity")],
+        config.programId,
+      )[0],
+    },
+  );
+}
+
+/** Frees a table whose seed request never came back (after `VRF_TIMEOUT_TICKS` of silence). */
+export const cancelVrf = (config: InsiderConfig, payer: PublicKey) =>
+  build(config, "cancelVrf", {}, { payer, table: addresses(config).table });
