@@ -4170,6 +4170,79 @@ export type Insider = {
       args: [];
     },
     {
+      name: "requestUndelegation";
+      discriminator: [112, 95, 76, 186, 67, 33, 59, 199];
+      accounts: [
+        {
+          name: "authority";
+          docs: ["The table authority. It is also the rent payer the delegation recorded."];
+          writable: true;
+          signer: true;
+        },
+        {
+          name: "table";
+          pda: {
+            seeds: [
+              {
+                kind: "const";
+                value: [116, 97, 98, 108, 101];
+              },
+              {
+                kind: "account";
+                path: "authority";
+              },
+            ];
+          };
+        },
+        {
+          name: "target";
+          writable: true;
+        },
+        {
+          name: "undelegationRequest";
+          writable: true;
+        },
+        {
+          name: "delegationRecord";
+          writable: true;
+        },
+        {
+          name: "delegationMetadata";
+          writable: true;
+        },
+        {
+          name: "commitState";
+          writable: true;
+        },
+        {
+          name: "commitRecord";
+          writable: true;
+        },
+        {
+          name: "delegationProgram";
+          address: "DELeGGvXpWV2fqJUhqcF5ZSYMS4JTLjteaAMARRSaeSh";
+        },
+        {
+          name: "ownerProgram";
+          address: "7mTtHsFMYnZRnhd3SRzhj8Nm1U2T3s33dnbJwa9zBErW";
+        },
+        {
+          name: "systemProgram";
+          address: "11111111111111111111111111111111";
+        },
+      ];
+      args: [
+        {
+          name: "kind";
+          type: "u8";
+        },
+        {
+          name: "slot";
+          type: "u8";
+        },
+      ];
+    },
+    {
       name: "resealLeaks";
       discriminator: [17, 35, 11, 191, 25, 211, 239, 131];
       accounts: [
@@ -4232,6 +4305,79 @@ export type Insider = {
         },
         {
           name: "slotTo";
+          type: "u8";
+        },
+      ];
+    },
+    {
+      name: "rollbackUndelegation";
+      discriminator: [26, 196, 199, 213, 60, 67, 145, 154];
+      accounts: [
+        {
+          name: "authority";
+          docs: ["The table authority. It is also the rent payer the delegation recorded."];
+          writable: true;
+          signer: true;
+        },
+        {
+          name: "table";
+          pda: {
+            seeds: [
+              {
+                kind: "const";
+                value: [116, 97, 98, 108, 101];
+              },
+              {
+                kind: "account";
+                path: "authority";
+              },
+            ];
+          };
+        },
+        {
+          name: "target";
+          writable: true;
+        },
+        {
+          name: "undelegationRequest";
+          writable: true;
+        },
+        {
+          name: "delegationRecord";
+          writable: true;
+        },
+        {
+          name: "delegationMetadata";
+          writable: true;
+        },
+        {
+          name: "commitState";
+          writable: true;
+        },
+        {
+          name: "commitRecord";
+          writable: true;
+        },
+        {
+          name: "delegationProgram";
+          address: "DELeGGvXpWV2fqJUhqcF5ZSYMS4JTLjteaAMARRSaeSh";
+        },
+        {
+          name: "ownerProgram";
+          address: "7mTtHsFMYnZRnhd3SRzhj8Nm1U2T3s33dnbJwa9zBErW";
+        },
+        {
+          name: "systemProgram";
+          address: "11111111111111111111111111111111";
+        },
+      ];
+      args: [
+        {
+          name: "kind";
+          type: "u8";
+        },
+        {
+          name: "slot";
           type: "u8";
         },
       ];
@@ -4486,6 +4632,44 @@ export type Insider = {
         {
           name: "authorIndex";
           type: "u8";
+        },
+      ];
+    },
+    {
+      name: "teardown";
+      discriminator: [128, 58, 84, 243, 124, 124, 252, 238];
+      accounts: [
+        {
+          name: "payer";
+          writable: true;
+          signer: true;
+        },
+        {
+          name: "table";
+          writable: true;
+        },
+        {
+          name: "magicProgram";
+          address: "Magic11111111111111111111111111111111111111";
+        },
+        {
+          name: "magicContext";
+          writable: true;
+          address: "MagicContext1111111111111111111111111111111";
+        },
+      ];
+      args: [
+        {
+          name: "kinds";
+          type: "bytes";
+        },
+        {
+          name: "slots";
+          type: "bytes";
+        },
+        {
+          name: "force";
+          type: "bool";
         },
       ];
     },
@@ -4879,6 +5063,16 @@ export type Insider = {
       code: 6045;
       name: "cupNotReady";
       msg: "The cup is not ready for this";
+    },
+    {
+      code: 6046;
+      name: "invalidRecoveryTarget";
+      msg: "This is not a valid recovery target for this table";
+    },
+    {
+      code: 6047;
+      name: "notDelegated";
+      msg: "The account is not delegated";
     },
   ];
   types: [

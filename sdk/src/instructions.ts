@@ -7,6 +7,7 @@ import {
 import { PublicKey, Transaction, TransactionInstruction, type AccountMeta } from "@solana/web3.js";
 import rawIdl from "../../programs/idl/insider.json" with { type: "json" };
 import {
+  DELEGATION_PROGRAM_ID,
   EPHEMERAL_VRF_QUEUE,
   ORACLE_FEED,
   MAGIC_CONTEXT_ID,
@@ -28,7 +29,7 @@ function addresses(config: InsiderConfig) {
 function build(
   config: InsiderConfig,
   name: string,
-  args: Record<string, number | BN>,
+  args: Record<string, number | boolean | BN | Buffer>,
   values: Record<string, PublicKey>,
   remaining: AccountMeta[] = [],
 ): TransactionInstruction {
@@ -471,3 +472,174 @@ export function cupClose(config: InsiderConfig, operator: PublicKey) {
   const p = addresses(config);
   return build(config, "cupClose", {}, { operator, table: p.table, cup: p.cup });
 }
+
+// ---- recovery ----------------------------------------------------------------------------------
+
+/** Mirrors the `KIND_*` constants of `recovery.rs`. The slot is the market kind, vault slot or seat. */
+export const RECOVERY_KIND = {
+  table: 0,
+  tape: 1,
+  callBook: 2,
+  season: 3,
+  market: 4,
+  cup: 5,
+  mempool: 6,
+  future: 7,
+  board: 8,
+  xray: 9,
+  leakVault: 10,
+  callVault: 11,
+  seat: 12,
+} as const;
+
+export type RecoveryTarget = { kind: number; slot: number };
+
+/** Most accounts one teardown intent may hold (the TEE hangs at ten). */
+export const MAX_TEARDOWN_GROUP = 8;
+
+/** The address a recovery target names. */
+export function recoveryAddress(config: InsiderConfig, target: RecoveryTarget): PublicKey {
+  const p = addresses(config);
+  const { kind, slot } = target;
+  const pick = <T>(list: T[]): T => {
+    const found = list[slot];
+    if (found === undefined) throw new RangeError("Invalid recovery slot");
+    return found;
+  };
+  switch (kind) {
+    case RECOVERY_KIND.table:
+      return p.table;
+    case RECOVERY_KIND.tape:
+      return p.tape;
+    case RECOVERY_KIND.callBook:
+      return p.callBook;
+    case RECOVERY_KIND.season:
+      return p.season;
+    case RECOVERY_KIND.market:
+      return pick([p.floor, p.desk]);
+    case RECOVERY_KIND.cup:
+      return p.cup;
+    case RECOVERY_KIND.mempool:
+      return p.mempool;
+    case RECOVERY_KIND.future:
+      return p.future;
+    case RECOVERY_KIND.board:
+      return p.board;
+    case RECOVERY_KIND.xray:
+      return p.xray;
+    case RECOVERY_KIND.leakVault:
+      return pick(p.leakVaults);
+    case RECOVERY_KIND.callVault:
+      return pick(p.callVaults);
+    case RECOVERY_KIND.seat:
+      return pick(p.seats);
+    default:
+      throw new RangeError("Invalid recovery kind");
+  }
+}
+
+/** Every account of the table, in the order a teardown should take them (the table last). */
+export function allRecoveryTargets(): RecoveryTarget[] {
+  const targets: RecoveryTarget[] = [
+    ...[RECOVERY_KIND.tape, RECOVERY_KIND.callBook, RECOVERY_KIND.season, RECOVERY_KIND.cup],
+    RECOVERY_KIND.mempool,
+    RECOVERY_KIND.future,
+    RECOVERY_KIND.board,
+    RECOVERY_KIND.xray,
+  ].map((kind) => ({ kind, slot: 0 }));
+  targets.push({ kind: RECOVERY_KIND.market, slot: 0 }, { kind: RECOVERY_KIND.market, slot: 1 });
+  for (let i = 0; i < 6; i++) targets.push({ kind: RECOVERY_KIND.leakVault, slot: i });
+  for (let i = 0; i < 10; i++) targets.push({ kind: RECOVERY_KIND.callVault, slot: i });
+  for (let i = 0; i < 10; i++) targets.push({ kind: RECOVERY_KIND.seat, slot: i });
+  targets.push({ kind: RECOVERY_KIND.table, slot: 0 });
+  return targets;
+}
+
+/**
+ * Rollup, authority: commit and undelegate up to eight accounts in one intent. The table is the
+ * named account; every other target follows as a remaining account, in order. Without `force` the
+ * table must be idle.
+ */
+export function teardown(
+  config: InsiderConfig,
+  payer: PublicKey,
+  targets: RecoveryTarget[],
+  force = false,
+) {
+  if (targets.length === 0 || targets.length > MAX_TEARDOWN_GROUP) {
+    throw new RangeError("A teardown group holds one to eight accounts");
+  }
+  const p = addresses(config);
+  const remaining: AccountMeta[] = targets
+    .filter((target) => target.kind !== RECOVERY_KIND.table)
+    .map((target) => ({
+      pubkey: recoveryAddress(config, target),
+      isSigner: false,
+      isWritable: true,
+    }));
+  return build(
+    config,
+    "teardown",
+    {
+      kinds: Buffer.from(targets.map((target) => target.kind)),
+      slots: Buffer.from(targets.map((target) => target.slot)),
+      force,
+    },
+    { payer, table: p.table, magicContext: MAGIC_CONTEXT_ID },
+    remaining,
+  );
+}
+
+const dlpAddress = (tag: string, delegated: PublicKey) =>
+  PublicKey.findProgramAddressSync(
+    [new TextEncoder().encode(tag), delegated.toBytes()],
+    DELEGATION_PROGRAM_ID,
+  )[0];
+
+/** The Delegation program's PDAs for one delegated account. */
+export function delegationAccounts(delegated: PublicKey) {
+  return {
+    undelegationRequest: dlpAddress("undelegation-request", delegated),
+    delegationRecord: dlpAddress("delegation", delegated),
+    delegationMetadata: dlpAddress("delegation-metadata", delegated),
+    commitState: dlpAddress("state-diff", delegated),
+    commitRecord: dlpAddress("commit-state-record", delegated),
+  };
+}
+
+function recover(
+  name: "requestUndelegation" | "rollbackUndelegation",
+  config: InsiderConfig,
+  authority: PublicKey,
+  target: RecoveryTarget,
+) {
+  const target_ = recoveryAddress(config, target);
+  return build(
+    config,
+    name,
+    { kind: target.kind, slot: target.slot },
+    {
+      authority,
+      table: addresses(config).table,
+      target: target_,
+      ...delegationAccounts(target_),
+    },
+  );
+}
+
+/**
+ * Base layer, authority: asks the Delegation program to undelegate one account (for a rollup that
+ * is not answering). The validator normally returns the account to the base layer.
+ */
+export const requestUndelegation = (
+  config: InsiderConfig,
+  authority: PublicKey,
+  target: RecoveryTarget,
+) => recover("requestUndelegation", config, authority, target);
+
+/** Base layer, authority: after the request's timeout, takes the account back at its last commit. */
+export const rollbackUndelegation = (
+  config: InsiderConfig,
+  authority: PublicKey,
+  target: RecoveryTarget,
+) => recover("rollbackUndelegation", config, authority, target);

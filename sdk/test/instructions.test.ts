@@ -13,7 +13,15 @@ import {
   buyLicense,
   cancelVrf,
   commitEpoch,
+  allRecoveryTargets,
   cupClose,
+  delegationAccounts,
+  MAX_TEARDOWN_GROUP,
+  RECOVERY_KIND,
+  recoveryAddress,
+  requestUndelegation,
+  rollbackUndelegation,
+  teardown,
   cupJoin,
   cupRecord,
   cupSettle,
@@ -290,5 +298,85 @@ describe("the Alpha Cup builders", () => {
       expect(cup.isWritable).toBe(true);
       expect(ix.keys.filter((key) => key.isSigner)).toHaveLength(1);
     }
+  });
+});
+
+describe("the recovery builders", () => {
+  it("lists every account of the table once, the table last", () => {
+    const targets = allRecoveryTargets();
+    const addresses = targets.map((target) => recoveryAddress(config, target).toBase58());
+    expect(new Set(addresses).size).toBe(addresses.length);
+    // 10 singles (tape, call book, season, cup, mempool, future, board, X-ray, 2 markets) + 6 + 10 + 10 + the table
+    expect(targets).toHaveLength(8 + 2 + 6 + 10 + 10 + 1);
+    expect(targets.at(-1)).toEqual({ kind: RECOVERY_KIND.table, slot: 0 });
+    expect(recoveryAddress(config, { kind: RECOVERY_KIND.market, slot: 1 }).equals(p.desk)).toBe(
+      true,
+    );
+    expect(recoveryAddress(config, { kind: RECOVERY_KIND.seat, slot: 4 }).equals(p.seats[4]!)).toBe(
+      true,
+    );
+    expect(() => recoveryAddress(config, { kind: RECOVERY_KIND.seat, slot: 10 })).toThrow(
+      RangeError,
+    );
+    expect(() => recoveryAddress(config, { kind: 99, slot: 0 })).toThrow(RangeError);
+  });
+
+  it("builds a teardown with the table named and the rest as writable remaining accounts in order", () => {
+    const group = [
+      { kind: RECOVERY_KIND.xray, slot: 0 },
+      { kind: RECOVERY_KIND.seat, slot: 2 },
+      { kind: RECOVERY_KIND.table, slot: 0 },
+    ];
+    const ix = teardown(config, owner, group, true);
+    const keys = ix.keys.map((key) => key.pubkey.toBase58());
+    expect(keys.slice(0, 2)).toEqual([owner, p.table].map((k) => k.toBase58()));
+    expect(keys.slice(-2)).toEqual([p.xray, p.seats[2]!].map((k) => k.toBase58()));
+    expect(ix.keys.slice(-2).every((key) => key.isWritable && !key.isSigner)).toBe(true);
+    expect(ix.keys.filter((key) => key.isSigner).map((key) => key.pubkey.toBase58())).toEqual([
+      owner.toBase58(),
+    ]);
+    const decoded = coder.decode(ix.data) as {
+      name: string;
+      data: { kinds: Buffer; slots: Buffer; force: boolean };
+    };
+    expect(decoded.name).toBe("teardown");
+    expect([...decoded.data.kinds]).toEqual([
+      RECOVERY_KIND.xray,
+      RECOVERY_KIND.seat,
+      RECOVERY_KIND.table,
+    ]);
+    expect([...decoded.data.slots]).toEqual([0, 2, 0]);
+    expect(decoded.data.force).toBe(true);
+  });
+
+  it("refuses an empty group and a group of nine", () => {
+    expect(() => teardown(config, owner, [])).toThrow(RangeError);
+    const nine = Array.from({ length: 9 }, (_, slot) => ({ kind: RECOVERY_KIND.callVault, slot }));
+    expect(() => teardown(config, owner, nine)).toThrow(RangeError);
+    expect(MAX_TEARDOWN_GROUP).toBe(8);
+  });
+
+  it("asks the Delegation program for one account with its own PDAs", () => {
+    const target = { kind: RECOVERY_KIND.cup, slot: 0 };
+    const ix = requestUndelegation(config, owner, target);
+    const dlp = delegationAccounts(p.cup);
+    const keys = ix.keys.map((key) => key.pubkey.toBase58());
+    expect(keys.slice(0, 3)).toEqual([owner, p.table, p.cup].map((k) => k.toBase58()));
+    for (const key of [
+      dlp.undelegationRequest,
+      dlp.delegationRecord,
+      dlp.delegationMetadata,
+      dlp.commitState,
+      dlp.commitRecord,
+    ]) {
+      expect(keys).toContain(key.toBase58());
+    }
+    expect(coder.decode(ix.data)).toEqual({
+      name: "requestUndelegation",
+      data: { kind: RECOVERY_KIND.cup, slot: 0 },
+    });
+    expect(coder.decode(rollbackUndelegation(config, owner, target).data)?.name).toBe(
+      "rollbackUndelegation",
+    );
   });
 });
