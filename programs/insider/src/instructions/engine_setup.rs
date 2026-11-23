@@ -176,12 +176,10 @@ pub fn init_xray(ctx: Context<InitXray>) -> Result<()> {
 pub struct InitMarket<'info> {
     #[account(mut)]
     pub authority: Signer<'info>,
-    #[account(
-        seeds = [TABLE_SEED, authority.key().as_ref()],
-        bump = table.bump,
-        has_one = authority @ InsiderError::NotAuthority,
-    )]
-    pub table: Account<'info, Table>,
+    /// CHECK: the table. It is delegated after setup, so it cannot be deserialised on the base
+    /// layer; its seeds tie it to `authority`, which is what the old `has_one` proved.
+    #[account(seeds = [TABLE_SEED, authority.key().as_ref()], bump)]
+    pub table: UncheckedAccount<'info>,
     #[account(
         init,
         payer = authority,
@@ -478,12 +476,10 @@ pub fn delegate_leak_vault(ctx: Context<DelegateLeakVault>, slot: u8) -> Result<
 pub struct InitCallVault<'info> {
     #[account(mut)]
     pub authority: Signer<'info>,
-    #[account(
-        seeds = [TABLE_SEED, authority.key().as_ref()],
-        bump = table.bump,
-        has_one = authority @ InsiderError::NotAuthority,
-    )]
-    pub table: Account<'info, Table>,
+    /// CHECK: the table. It is delegated after setup, so it cannot be deserialised on the base
+    /// layer; its seeds tie it to `authority`, which is what the old `has_one` proved.
+    #[account(seeds = [TABLE_SEED, authority.key().as_ref()], bump)]
+    pub table: UncheckedAccount<'info>,
     #[account(
         init,
         payer = authority,

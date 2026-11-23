@@ -6,7 +6,7 @@ use crate::{
         Board, LeakHeader, LeakKind, LeakState, LeakVault, SandwichTag, Season, Seat, Table, Xray,
         XrayOrder,
     },
-    BANKROLL_CHIPS, DROPS_PER_ROUND, LANE_PRIORITY, LANE_STANDARD, LEAK_PAYLOAD_ORDERS,
+    BANKROLL_CHIPS, DESK_BANKROLL, DROPS_PER_ROUND, LANE_PRIORITY, LANE_STANDARD, LEAK_PAYLOAD_ORDERS,
     LEAK_READERS, LEAK_SLOTS, PRICE_ONE, SANDWICH_WINDOW_TICKS, SEAT_COUNT, XRAY_ORDERS, XRAY_TAGS,
 };
 
@@ -76,6 +76,10 @@ pub fn finalize_round(
         seat.fees_paid = 0;
         seat.leak_spend = 0;
         seat.pending_count = 0;
+        // Desk chips are play money: a seat that ran low starts the next round topped up
+        if !seat.is_free() && seat.desk_chips < DESK_BANKROLL {
+            seat.desk_chips = DESK_BANKROLL;
+        }
     }
     season.rounds_played = season.rounds_played.saturating_add(1);
     xray.round_id = table.round_id;

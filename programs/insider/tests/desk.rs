@@ -512,3 +512,47 @@ impl World {
         write(&mut self.svm, key, value)
     }
 }
+
+#[test]
+fn new_accounts_can_be_created_while_the_table_is_delegated() {
+    // after setup the table is owned by the delegation program; init_market and init_call_vault
+    // must not need to deserialise it (this broke the first live upgrade)
+    let so = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../target/deploy/insider.so");
+    let mut svm = LiteSVM::new();
+    svm.add_program_from_file(insider::ID, &so).unwrap();
+    let authority = Keypair::new();
+    svm.airdrop(&authority.pubkey(), 10_000_000_000).unwrap();
+    let a = authority.pubkey();
+    let table = pda(&[TABLE_SEED, a.as_ref()]);
+    let init = Instruction {
+        program_id: insider::ID,
+        accounts: accounts::InitTable { authority: a, table, system_program: system_program::ID }
+            .to_account_metas(None),
+        data: instruction::InitTable { params: None }.data(),
+    };
+    send(&mut svm, &[&authority], init).unwrap();
+    let mut account = svm.get_account(&table).unwrap();
+    account.owner = "DELeGGvXpWV2fqJUhqcF5ZSYMS4JTLjteaAMARRSaeSh".parse().unwrap();
+    svm.set_account(table, account).unwrap();
+
+    send(&mut svm, &[&authority], init_vault_ix(&a, &table, 3)).unwrap();
+    let market = Instruction {
+        program_id: insider::ID,
+        accounts: accounts::InitMarket {
+            authority: a,
+            table,
+            market: pda(&[MARKET_SEED, table.as_ref(), &[MARKET_DESK]]),
+            system_program: system_program::ID,
+        }
+        .to_account_metas(None),
+        data: instruction::InitMarket { kind: MARKET_DESK }.data(),
+    };
+    send(&mut svm, &[&authority], market).unwrap();
+
+    // someone else's authority key cannot create accounts under this table
+    let stranger = Keypair::new();
+    svm.airdrop(&stranger.pubkey(), 1_000_000_000).unwrap();
+    let mut ix = init_vault_ix(&stranger.pubkey(), &table, 4);
+    ix.accounts[1].pubkey = table;
+    assert!(send(&mut svm, &[&stranger], ix).is_err());
+}

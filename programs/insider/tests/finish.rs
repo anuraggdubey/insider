@@ -242,6 +242,8 @@ fn finalization_copies_scores_resets_and_is_idempotent() {
     assert_eq!(f.xray.seat_owners[0], first_owner);
     assert_eq!(f.season.leaderboard[0].rounds, 1);
     assert_eq!(f.season.rounds_played, 1);
+    // a seat that ran out of Desk chips is topped up; a free seat is left alone
+    assert!(f.seats.iter().filter(|s| !s.is_free()).all(|s| s.desk_chips >= DESK_BANKROLL));
 }
 
 #[test]
