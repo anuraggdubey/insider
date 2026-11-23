@@ -1,5 +1,6 @@
 use ::insider::{
     engine::{
+        finish::finalize_round,
         orders::push_order,
         round::begin_round,
         step::{step, StepAccounts, StepReport},
@@ -113,7 +114,7 @@ impl Fixture {
         }
     }
 
-    fn tick(&mut self, tick: u16) -> StepReport {
+    fn try_tick(&mut self, tick: u16) -> anchor_lang::Result<StepReport> {
         let mut vaults: Vec<_> = self.vaults.iter_mut().collect();
         let mut seats: Vec<_> = self.seats.iter_mut().collect();
         step(
@@ -130,7 +131,10 @@ impl Fixture {
                 xray: &mut self.xray,
             },
         )
-        .unwrap()
+    }
+
+    fn tick(&mut self, tick: u16) -> StepReport {
+        self.try_tick(tick).unwrap()
     }
 }
 
@@ -497,6 +501,39 @@ fn round_reset_preserves_bumps_and_next_leak_id() {
 }
 
 #[test]
+fn next_round_waits_for_all_vaults_to_be_resealed() {
+    let mut f = Fixture::new();
+    f.board.headers[0].reader_count = 1;
+    f.board.headers[0].readers[0] = Pubkey::new_unique();
+    let old_round = f.market.round_id;
+    f.table.round_id += 1;
+    let result = begin_round(
+        &f.table,
+        &[9; 32],
+        &mut f.market,
+        &mut f.mempool,
+        &mut f.future,
+        &mut f.board,
+        &mut f.xray,
+    );
+    assert!(result.is_err());
+    assert_eq!(f.market.round_id, old_round);
+    assert_eq!(f.board.headers[0].reader_count, 1);
+    f.board.headers[0].reader_count = 0;
+    begin_round(
+        &f.table,
+        &[9; 32],
+        &mut f.market,
+        &mut f.mempool,
+        &mut f.future,
+        &mut f.board,
+        &mut f.xray,
+    )
+    .unwrap();
+    assert_eq!(f.board.round_id, f.table.round_id);
+}
+
+#[test]
 fn payload_caps_clamping_and_empty_cases() {
     let mut f = Fixture::new();
     f.clear_orders();
@@ -686,6 +723,207 @@ fn mint_expire_caps_and_opened_slot_is_never_reused() {
     f.mempool.drops[2].tick = 50;
     assert_eq!(f.tick(50).minted, 0);
     assert_eq!(f.board.drop_index, 3);
+}
+
+#[test]
+fn unread_expired_leak_is_archived_only_after_its_window() {
+    let mut f = Fixture::new();
+    f.clear_orders();
+    f.mempool.orders[0] = order(1, 123, 30, 7);
+    f.mempool.count = 1;
+    f.seats[1].pending_count = 1;
+    f.mempool.drops[0] = DropSpec {
+        tick: 10,
+        kind: LeakKind::Spotlight as u8,
+        ..DropSpec::default()
+    };
+    for (index, tick) in [(1, 25), (2, 30), (3, 31)] {
+        f.mempool.drops[index] = DropSpec {
+            tick,
+            kind: LeakKind::Pin as u8,
+            window_offset: 30,
+            ..DropSpec::default()
+        };
+    }
+    assert_eq!(f.tick(10).minted, 1);
+    let original_header = f.board.headers[0];
+    let original_fields = f.vaults[0].fields;
+    let original_orders = f.vaults[0].orders;
+    let original_order_count = f.vaults[0].order_count;
+    assert_eq!(original_header.window_end, 30);
+    assert_eq!(original_order_count, 1);
+    assert_eq!(f.tick(22).expired, 1);
+    for tick in [25, 30] {
+        assert_eq!(f.tick(tick).minted, 1);
+        assert_eq!(f.board.headers[0].leak_id, original_header.leak_id);
+        assert_eq!(f.xray.leak_count, 0, "payload exposed at tick {tick}");
+    }
+    assert_eq!(f.tick(31).minted, 1);
+    assert_ne!(f.board.headers[0].leak_id, original_header.leak_id);
+    assert_eq!(f.xray.leak_count, 1);
+    let archived = &f.xray.leaks[0];
+    assert_eq!(archived.header.leak_id, original_header.leak_id);
+    assert_eq!(archived.header.state, LeakState::Expired as u8);
+    assert_eq!(archived.header.window_end, 30);
+    assert_eq!(archived.fields, original_fields);
+    assert_eq!(archived.orders, original_orders);
+    assert_eq!(archived.order_count, original_order_count);
+}
+
+#[test]
+fn no_reuse_when_all_expired_slots_are_still_private_or_have_readers() {
+    let mut f = Fixture::new();
+    f.clear_orders();
+    for slot in 0..LEAK_SLOTS {
+        f.board.headers[slot] = LeakHeader {
+            leak_id: slot as u32,
+            state: LeakState::Expired as u8,
+            window_end: 100,
+            ..LeakHeader::default()
+        };
+        f.vaults[slot].leak_id = slot as u32;
+        f.vaults[slot].round_id = f.table.round_id;
+    }
+    f.board.headers[0].reader_count = 1;
+    f.mempool.drops[0].tick = 99;
+    f.mempool.drops[1].tick = 100;
+    f.mempool.drops[2].tick = 101;
+    for tick in [99, 100] {
+        assert_eq!(f.tick(tick).minted, 0);
+        assert_eq!(f.xray.leak_count, 0);
+    }
+    assert_eq!(f.tick(101).minted, 1);
+    assert_eq!(f.board.headers[0].state, LeakState::Expired as u8);
+    assert_eq!(f.xray.leaks[0].header.leak_id, 1);
+}
+
+#[test]
+fn step_rejects_xray_from_a_different_round() {
+    let mut f = Fixture::new();
+    f.xray.round_id += 1;
+    let error = f.try_tick(10).unwrap_err();
+    assert!(format!("{error:?}").contains("WrongPhase"));
+    assert_eq!(f.board.drop_index, 0);
+    assert_eq!(f.xray.leak_count, 0);
+}
+
+#[test]
+fn step_does_not_overwrite_a_leak_when_the_archive_is_full() {
+    let mut f = Fixture::new();
+    f.clear_orders();
+    f.board.headers[0] = LeakHeader {
+        leak_id: 99,
+        state: LeakState::Expired as u8,
+        window_end: 9,
+        ..LeakHeader::default()
+    };
+    f.vaults[0].leak_id = 99;
+    f.vaults[0].round_id = f.table.round_id;
+    f.vaults[0].fields[0] = 123;
+    f.xray.leak_count = DROPS_PER_ROUND as u8;
+    for (i, leak) in f.xray.leaks.iter_mut().enumerate() {
+        leak.header.leak_id = i as u32;
+    }
+    f.mempool.drops[0].tick = 10;
+    let error = f.try_tick(10).unwrap_err();
+    assert!(format!("{error:?}").contains("Overflow"));
+    assert_eq!(f.board.headers[0].leak_id, 99);
+    assert_eq!(f.vaults[0].fields[0], 123);
+    assert_eq!(usize::from(f.xray.leak_count), DROPS_PER_ROUND);
+}
+
+#[test]
+fn step_does_not_archive_the_same_leak_twice() {
+    let mut f = Fixture::new();
+    f.clear_orders();
+    f.board.headers[0] = LeakHeader {
+        leak_id: 99,
+        state: LeakState::Expired as u8,
+        window_end: 9,
+        ..LeakHeader::default()
+    };
+    f.vaults[0].leak_id = 99;
+    f.vaults[0].round_id = f.table.round_id;
+    f.xray.leak_count = 1;
+    f.xray.leaks[0].header = f.board.headers[0];
+    f.xray.leaks[0].fields[0] = 123;
+    f.mempool.drops[0].tick = 10;
+    assert_eq!(f.tick(10).minted, 1);
+    assert_eq!(f.xray.leak_count, 1);
+    assert_eq!(f.xray.leaks[0].fields[0], 123);
+    assert_ne!(f.board.headers[0].leak_id, 99);
+}
+
+#[test]
+fn full_round_xray_contains_every_minted_leak_exactly_once() {
+    let mut f = Fixture::new();
+    f.clear_orders();
+    for (i, drop) in f.mempool.drops.iter_mut().enumerate() {
+        *drop = DropSpec {
+            tick: FIRST_DROP_TICK + i as u16 * DROP_EVERY_TICKS,
+            kind: LeakKind::Pin as u8,
+            window_offset: if i == 0 { 30 } else { 15 },
+            ..DropSpec::default()
+        };
+    }
+    let mut minted = Vec::new();
+    for tick in 1..ROUND_TICKS {
+        if f.tick(tick).minted != 0 {
+            let (slot, header) = f
+                .board
+                .headers
+                .iter()
+                .enumerate()
+                .find(|(_, header)| header.minted_tick == tick)
+                .unwrap();
+            let vault = &f.vaults[slot];
+            minted.push((
+                header.leak_id,
+                vault.fields,
+                vault.orders,
+                vault.order_count,
+            ));
+        }
+        for leak in &f.xray.leaks[..usize::from(f.xray.leak_count)] {
+            assert!(
+                tick > leak.header.window_end,
+                "early disclosure at tick {tick}"
+            );
+        }
+    }
+    assert_eq!(minted.len(), DROPS_PER_ROUND);
+    assert!(f.xray.leak_count > 0);
+    f.table.phase = Phase::Xray;
+    f.table.tick = CLOSING_END_TICK;
+    let mut season = Season {
+        epoch: 0,
+        rounds_played: 0,
+        leaderboard: [ScoreEntry::default(); LEADERBOARD_SIZE],
+        analysts: [AnalystStats::default(); SEAT_COUNT],
+        bump: 0,
+    };
+    let vaults: Vec<_> = f.vaults.iter().collect();
+    let mut seats: Vec<_> = f.seats.iter_mut().collect();
+    finalize_round(
+        &f.table,
+        &f.board,
+        &vaults,
+        &mut f.xray,
+        &mut seats,
+        &mut season,
+    )
+    .unwrap();
+    assert_eq!(usize::from(f.xray.leak_count), minted.len());
+    for (leak_id, fields, orders, order_count) in minted {
+        let matching: Vec<_> = f.xray.leaks[..usize::from(f.xray.leak_count)]
+            .iter()
+            .filter(|leak| leak.header.leak_id == leak_id)
+            .collect();
+        assert_eq!(matching.len(), 1, "leak {leak_id}");
+        assert_eq!(matching[0].fields, fields);
+        assert_eq!(matching[0].orders, orders);
+        assert_eq!(matching[0].order_count, order_count);
+    }
 }
 
 #[test]

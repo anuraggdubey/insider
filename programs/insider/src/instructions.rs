@@ -3,12 +3,18 @@
 #![allow(ambiguous_glob_reexports)]
 
 pub mod cranks;
+pub mod finish_round;
+pub mod leaks;
+pub mod licenses;
 pub mod orders;
 pub mod seats;
 pub mod setup;
 pub mod tick;
 
 pub use cranks::*;
+pub use finish_round::*;
+pub use leaks::*;
+pub use licenses::*;
 pub use orders::*;
 pub use seats::*;
 pub use setup::*;

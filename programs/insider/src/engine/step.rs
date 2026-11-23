@@ -1,6 +1,7 @@
 use anchor_lang::prelude::*;
 
 use crate::{
+    engine::finish::archive_leak,
     error::InsiderError,
     math::{
         arb::arb_pull,
@@ -43,6 +44,10 @@ pub fn step(table: &Table, tick: u16, accounts: &mut StepAccounts) -> Result<Ste
     require!(
         accounts.seats.len() == SEAT_COUNT && accounts.vaults.len() == LEAK_SLOTS,
         InsiderError::InvalidSeat
+    );
+    require!(
+        accounts.xray.round_id == table.round_id,
+        InsiderError::WrongPhase
     );
     let mut report = StepReport::default();
     let mut mature = [0usize; MEMPOOL_SLOTS];
@@ -138,15 +143,20 @@ pub fn step(table: &Table, tick: u16, accounts: &mut StepAccounts) -> Result<Ste
             .count();
         let slot = accounts.board.headers.iter().position(|h| {
             h.state == LeakState::Empty as u8
-                || (h.state == LeakState::Expired as u8 && h.reader_count == 0)
+                || (h.state == LeakState::Expired as u8
+                    && h.reader_count == 0
+                    && tick > h.window_end)
         });
         if live < MAX_LIVE_LEAKS {
             if let Some(slot) = slot {
+                let vault = &mut accounts.vaults[slot];
+                if accounts.board.headers[slot].state == LeakState::Expired as u8 {
+                    archive_leak(accounts.xray, &accounts.board.headers[slot], vault)?;
+                }
                 let spec = accounts.mempool.drops[drop_index];
                 let leak_id = accounts.board.next_leak_id;
                 accounts.board.next_leak_id =
                     leak_id.checked_add(1).ok_or(InsiderError::Overflow)?;
-                let vault = &mut accounts.vaults[slot];
                 vault.leak_id = leak_id;
                 vault.round_id = table.round_id;
                 vault.slot = slot as u8;

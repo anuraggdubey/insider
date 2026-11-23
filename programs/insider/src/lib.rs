@@ -91,6 +91,43 @@ pub mod insider {
         orders::send_order(ctx, index, side_size, lane)
     }
 
+    // Leaks (Misbah)
+    pub fn bid(ctx: Context<LeakAction>, index: u8, slot: u8) -> Result<()> {
+        leaks::bid(ctx, index, slot)
+    }
+
+    pub fn open_leak(ctx: Context<OpenLeak>, index: u8, slot: u8) -> Result<()> {
+        leaks::open_leak(ctx, index, slot)
+    }
+
+    pub fn list_leak(ctx: Context<LeakAction>, index: u8, slot: u8, ask: u32) -> Result<()> {
+        leaks::list_leak(ctx, index, slot, ask)
+    }
+
+    pub fn buy_listed(ctx: Context<BuyListed>, index: u8, slot: u8, seller_index: u8) -> Result<()> {
+        leaks::buy_listed(ctx, index, slot, seller_index)
+    }
+
+    pub fn offer_license(ctx: Context<LeakAction>, index: u8, slot: u8, ask: u32) -> Result<()> {
+        licenses::offer_license(ctx, index, slot, ask)
+    }
+
+    pub fn buy_license(ctx: Context<BuyLicense>, index: u8, slot: u8, owner_index: u8) -> Result<()> {
+        licenses::buy_license(ctx, index, slot, owner_index)
+    }
+
+    pub fn finish_round(ctx: Context<FinishRound>) -> Result<()> {
+        finish_round::finish_round(ctx)
+    }
+
+    pub fn reseal_leaks<'info>(
+        ctx: Context<'info, ResealLeaks<'info>>,
+        slot_from: u8,
+        slot_to: u8,
+    ) -> Result<()> {
+        finish_round::reseal_leaks(ctx, slot_from, slot_to)
+    }
+
     // Seats (rollup)
     pub fn claim_seat(ctx: Context<ClaimSeat>, index: u8) -> Result<()> {
         seats::claim_seat(ctx, index)

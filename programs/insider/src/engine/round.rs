@@ -1,6 +1,7 @@
-use anchor_lang::prelude::Result;
+use anchor_lang::prelude::{require, Result};
 
 use crate::{
+    error::InsiderError,
     math::{seed::seed_round, vamm::Vamm},
     state::{
         Board, Future, LeakHeader, Market, Mempool, PendingOrder, SandwichTag, Table, Xray,
@@ -19,6 +20,10 @@ pub fn begin_round(
     board: &mut Board,
     xray: &mut Xray,
 ) -> Result<()> {
+    require!(
+        board.headers.iter().all(|header| header.reader_count == 0),
+        InsiderError::WrongPhase
+    );
     market.round_id = table.round_id;
     market.base = table.params.vamm_base;
     market.quote = table.params.vamm_quote;

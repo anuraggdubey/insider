@@ -14,6 +14,188 @@ export type Insider = {
   };
   instructions: [
     {
+      name: "bid";
+      discriminator: [199, 56, 85, 38, 146, 243, 37, 158];
+      accounts: [
+        {
+          name: "owner";
+          signer: true;
+        },
+        {
+          name: "table";
+        },
+        {
+          name: "seat";
+          writable: true;
+        },
+        {
+          name: "board";
+          writable: true;
+          pda: {
+            seeds: [
+              {
+                kind: "const";
+                value: [98, 111, 97, 114, 100];
+              },
+              {
+                kind: "account";
+                path: "table";
+              },
+            ];
+          };
+        },
+      ];
+      args: [
+        {
+          name: "index";
+          type: "u8";
+        },
+        {
+          name: "slot";
+          type: "u8";
+        },
+      ];
+    },
+    {
+      name: "buyLicense";
+      discriminator: [255, 81, 129, 152, 169, 201, 232, 105];
+      accounts: [
+        {
+          name: "owner";
+          signer: true;
+        },
+        {
+          name: "table";
+        },
+        {
+          name: "seat";
+          writable: true;
+        },
+        {
+          name: "board";
+          writable: true;
+          pda: {
+            seeds: [
+              {
+                kind: "const";
+                value: [98, 111, 97, 114, 100];
+              },
+              {
+                kind: "account";
+                path: "table";
+              },
+            ];
+          };
+        },
+        {
+          name: "licenseOwner";
+          writable: true;
+        },
+        {
+          name: "vault";
+          writable: true;
+        },
+        {
+          name: "permission";
+          writable: true;
+          pda: {
+            seeds: [
+              {
+                kind: "const";
+                value: [112, 101, 114, 109, 105, 115, 115, 105, 111, 110, 58];
+              },
+              {
+                kind: "account";
+                path: "vault";
+              },
+            ];
+            program: {
+              kind: "account";
+              path: "permissionProgram";
+            };
+          };
+        },
+        {
+          name: "permissionProgram";
+          address: "ACLseoPoyC3cBqoUtkbjZ4aDrkurZW86v19pXz2XQnp1";
+        },
+        {
+          name: "ephemeralVault";
+          writable: true;
+          address: "MagicVau1t999999999999999999999999999999999";
+        },
+        {
+          name: "magicProgram";
+          address: "Magic11111111111111111111111111111111111111";
+        },
+      ];
+      args: [
+        {
+          name: "index";
+          type: "u8";
+        },
+        {
+          name: "slot";
+          type: "u8";
+        },
+        {
+          name: "ownerIndex";
+          type: "u8";
+        },
+      ];
+    },
+    {
+      name: "buyListed";
+      discriminator: [75, 236, 50, 95, 167, 79, 50, 201];
+      accounts: [
+        {
+          name: "owner";
+          signer: true;
+        },
+        {
+          name: "table";
+        },
+        {
+          name: "seat";
+          writable: true;
+        },
+        {
+          name: "board";
+          writable: true;
+          pda: {
+            seeds: [
+              {
+                kind: "const";
+                value: [98, 111, 97, 114, 100];
+              },
+              {
+                kind: "account";
+                path: "table";
+              },
+            ];
+          };
+        },
+        {
+          name: "sellerSeat";
+          writable: true;
+        },
+      ];
+      args: [
+        {
+          name: "index";
+          type: "u8";
+        },
+        {
+          name: "slot";
+          type: "u8";
+        },
+        {
+          name: "sellerIndex";
+          type: "u8";
+        },
+      ];
+    },
+    {
       name: "claimSeat";
       discriminator: [47, 217, 3, 139, 51, 238, 55, 107];
       accounts: [
@@ -855,6 +1037,125 @@ export type Insider = {
       args: [];
     },
     {
+      name: "finishRound";
+      discriminator: [23, 104, 163, 186, 110, 225, 11, 242];
+      accounts: [
+        {
+          name: "payer";
+          signer: true;
+        },
+        {
+          name: "table";
+        },
+        {
+          name: "board";
+          pda: {
+            seeds: [
+              {
+                kind: "const";
+                value: [98, 111, 97, 114, 100];
+              },
+              {
+                kind: "account";
+                path: "table";
+              },
+            ];
+          };
+        },
+        {
+          name: "xray";
+          writable: true;
+          pda: {
+            seeds: [
+              {
+                kind: "const";
+                value: [120, 114, 97, 121];
+              },
+              {
+                kind: "account";
+                path: "table";
+              },
+            ];
+          };
+        },
+        {
+          name: "seat0";
+          writable: true;
+        },
+        {
+          name: "seat1";
+          writable: true;
+        },
+        {
+          name: "seat2";
+          writable: true;
+        },
+        {
+          name: "seat3";
+          writable: true;
+        },
+        {
+          name: "seat4";
+          writable: true;
+        },
+        {
+          name: "seat5";
+          writable: true;
+        },
+        {
+          name: "seat6";
+          writable: true;
+        },
+        {
+          name: "seat7";
+          writable: true;
+        },
+        {
+          name: "seat8";
+          writable: true;
+        },
+        {
+          name: "seat9";
+          writable: true;
+        },
+        {
+          name: "season";
+          writable: true;
+          pda: {
+            seeds: [
+              {
+                kind: "const";
+                value: [115, 101, 97, 115, 111, 110];
+              },
+              {
+                kind: "account";
+                path: "table";
+              },
+            ];
+          };
+        },
+        {
+          name: "vault0";
+        },
+        {
+          name: "vault1";
+        },
+        {
+          name: "vault2";
+        },
+        {
+          name: "vault3";
+        },
+        {
+          name: "vault4";
+        },
+        {
+          name: "vault5";
+        },
+      ];
+      args: [];
+    },
+    {
       name: "initCallBook";
       discriminator: [101, 221, 116, 40, 21, 29, 243, 44];
       accounts: [
@@ -1083,6 +1384,180 @@ export type Insider = {
       args: [];
     },
     {
+      name: "listLeak";
+      discriminator: [196, 50, 174, 101, 144, 87, 37, 28];
+      accounts: [
+        {
+          name: "owner";
+          signer: true;
+        },
+        {
+          name: "table";
+        },
+        {
+          name: "seat";
+          writable: true;
+        },
+        {
+          name: "board";
+          writable: true;
+          pda: {
+            seeds: [
+              {
+                kind: "const";
+                value: [98, 111, 97, 114, 100];
+              },
+              {
+                kind: "account";
+                path: "table";
+              },
+            ];
+          };
+        },
+      ];
+      args: [
+        {
+          name: "index";
+          type: "u8";
+        },
+        {
+          name: "slot";
+          type: "u8";
+        },
+        {
+          name: "ask";
+          type: "u32";
+        },
+      ];
+    },
+    {
+      name: "offerLicense";
+      discriminator: [228, 168, 148, 84, 48, 180, 80, 211];
+      accounts: [
+        {
+          name: "owner";
+          signer: true;
+        },
+        {
+          name: "table";
+        },
+        {
+          name: "seat";
+          writable: true;
+        },
+        {
+          name: "board";
+          writable: true;
+          pda: {
+            seeds: [
+              {
+                kind: "const";
+                value: [98, 111, 97, 114, 100];
+              },
+              {
+                kind: "account";
+                path: "table";
+              },
+            ];
+          };
+        },
+      ];
+      args: [
+        {
+          name: "index";
+          type: "u8";
+        },
+        {
+          name: "slot";
+          type: "u8";
+        },
+        {
+          name: "ask";
+          type: "u32";
+        },
+      ];
+    },
+    {
+      name: "openLeak";
+      discriminator: [205, 164, 100, 169, 16, 51, 221, 121];
+      accounts: [
+        {
+          name: "owner";
+          signer: true;
+        },
+        {
+          name: "table";
+        },
+        {
+          name: "seat";
+          writable: true;
+        },
+        {
+          name: "board";
+          writable: true;
+          pda: {
+            seeds: [
+              {
+                kind: "const";
+                value: [98, 111, 97, 114, 100];
+              },
+              {
+                kind: "account";
+                path: "table";
+              },
+            ];
+          };
+        },
+        {
+          name: "vault";
+          writable: true;
+        },
+        {
+          name: "permission";
+          writable: true;
+          pda: {
+            seeds: [
+              {
+                kind: "const";
+                value: [112, 101, 114, 109, 105, 115, 115, 105, 111, 110, 58];
+              },
+              {
+                kind: "account";
+                path: "vault";
+              },
+            ];
+            program: {
+              kind: "account";
+              path: "permissionProgram";
+            };
+          };
+        },
+        {
+          name: "permissionProgram";
+          address: "ACLseoPoyC3cBqoUtkbjZ4aDrkurZW86v19pXz2XQnp1";
+        },
+        {
+          name: "ephemeralVault";
+          writable: true;
+          address: "MagicVau1t999999999999999999999999999999999";
+        },
+        {
+          name: "magicProgram";
+          address: "Magic11111111111111111111111111111111111111";
+        },
+      ];
+      args: [
+        {
+          name: "index";
+          type: "u8";
+        },
+        {
+          name: "slot";
+          type: "u8";
+        },
+      ];
+    },
+    {
       name: "ping";
       discriminator: [173, 0, 94, 236, 73, 133, 225, 153];
       accounts: [
@@ -1236,6 +1711,73 @@ export type Insider = {
       ];
     },
     {
+      name: "resealLeaks";
+      discriminator: [17, 35, 11, 191, 25, 211, 239, 131];
+      accounts: [
+        {
+          name: "payer";
+          signer: true;
+        },
+        {
+          name: "table";
+        },
+        {
+          name: "board";
+          writable: true;
+          pda: {
+            seeds: [
+              {
+                kind: "const";
+                value: [98, 111, 97, 114, 100];
+              },
+              {
+                kind: "account";
+                path: "table";
+              },
+            ];
+          };
+        },
+        {
+          name: "xray";
+          pda: {
+            seeds: [
+              {
+                kind: "const";
+                value: [120, 114, 97, 121];
+              },
+              {
+                kind: "account";
+                path: "table";
+              },
+            ];
+          };
+        },
+        {
+          name: "permissionProgram";
+          address: "ACLseoPoyC3cBqoUtkbjZ4aDrkurZW86v19pXz2XQnp1";
+        },
+        {
+          name: "ephemeralVault";
+          writable: true;
+          address: "MagicVau1t999999999999999999999999999999999";
+        },
+        {
+          name: "magicProgram";
+          address: "Magic11111111111111111111111111111111111111";
+        },
+      ];
+      args: [
+        {
+          name: "slotFrom";
+          type: "u8";
+        },
+        {
+          name: "slotTo";
+          type: "u8";
+        },
+      ];
+    },
+    {
       name: "scheduleTicks";
       discriminator: [243, 206, 0, 155, 207, 136, 85, 251];
       accounts: [
@@ -1360,8 +1902,16 @@ export type Insider = {
   ];
   accounts: [
     {
+      name: "board";
+      discriminator: [79, 48, 160, 63, 153, 132, 240, 56];
+    },
+    {
       name: "callBook";
       discriminator: [52, 34, 142, 98, 147, 247, 104, 191];
+    },
+    {
+      name: "leakVault";
+      discriminator: [145, 136, 13, 176, 123, 105, 196, 118];
     },
     {
       name: "market";
@@ -1386,6 +1936,10 @@ export type Insider = {
     {
       name: "tape";
       discriminator: [60, 19, 137, 0, 97, 74, 23, 131];
+    },
+    {
+      name: "xray";
+      discriminator: [235, 83, 196, 147, 76, 118, 128, 245];
     },
   ];
   errors: [
@@ -1551,6 +2105,54 @@ export type Insider = {
           {
             name: "profit";
             type: "i64";
+          },
+        ];
+      };
+    },
+    {
+      name: "board";
+      docs: ["Public leak headers, indexed by vault slot."];
+      serialization: "bytemuck";
+      repr: {
+        kind: "c";
+      };
+      type: {
+        kind: "struct";
+        fields: [
+          {
+            name: "roundId";
+            type: "u32";
+          },
+          {
+            name: "nextLeakId";
+            type: "u32";
+          },
+          {
+            name: "dropIndex";
+            type: "u8";
+          },
+          {
+            name: "bump";
+            type: "u8";
+          },
+          {
+            name: "pad";
+            type: {
+              array: ["u8", 6];
+            };
+          },
+          {
+            name: "headers";
+            type: {
+              array: [
+                {
+                  defined: {
+                    name: "leakHeader";
+                  };
+                },
+                6,
+              ];
+            };
           },
         ];
       };
@@ -1737,6 +2339,170 @@ export type Insider = {
           {
             name: "landedTick";
             type: "u16";
+          },
+        ];
+      };
+    },
+    {
+      name: "leakHeader";
+      serialization: "bytemuck";
+      repr: {
+        kind: "c";
+      };
+      type: {
+        kind: "struct";
+        fields: [
+          {
+            name: "leakId";
+            type: "u32";
+          },
+          {
+            name: "kind";
+            type: "u8";
+          },
+          {
+            name: "rarity";
+            type: "u8";
+          },
+          {
+            name: "state";
+            type: "u8";
+          },
+          {
+            name: "ownerSeat";
+            type: "u8";
+          },
+          {
+            name: "windowStart";
+            type: "u16";
+          },
+          {
+            name: "windowEnd";
+            type: "u16";
+          },
+          {
+            name: "mintedTick";
+            type: "u16";
+          },
+          {
+            name: "auctionStart";
+            type: "u16";
+          },
+          {
+            name: "startPrice";
+            type: "u32";
+          },
+          {
+            name: "floorPrice";
+            type: "u32";
+          },
+          {
+            name: "paid";
+            type: "u32";
+          },
+          {
+            name: "ask";
+            type: "u32";
+          },
+          {
+            name: "licenseAsk";
+            type: "u32";
+          },
+          {
+            name: "openedTick";
+            type: "u16";
+          },
+          {
+            name: "flips";
+            type: "u8";
+          },
+          {
+            name: "readerCount";
+            type: "u8";
+          },
+          {
+            name: "readers";
+            type: {
+              array: ["pubkey", 4];
+            };
+          },
+        ];
+      };
+    },
+    {
+      name: "leakVault";
+      docs: [
+        "Private payload, sealed until opened.",
+        "",
+        "`fields` by kind:",
+        "- Flow: net units, order count, window start, window end, 0, 0.",
+        "- Spotlight: unused; `orders[0]` is the order if `order_count` is nonzero.",
+        "- Whale: unused; `orders[0]` is the next whale within 60 ticks, if any.",
+        "- FullBook: unused; `orders[..order_count]` contains the pending orders.",
+        "- Pin: target tick, fundamental price (1e6), 0, 0, 0, 0.",
+        "- Drift: from tick, to tick, direction (+1/-1/0), bucket (0:<1%, 1:1-3%, 2:>3%), move bps, 0.",
+        "- Shockwave: has shock (0/1), shock tick, sign (+1/-1), window end, 0, 0.",
+        "- Summit: high (1e6), high tick, low (1e6), low tick, window start, window end.",
+      ];
+      serialization: "bytemuck";
+      repr: {
+        kind: "c";
+      };
+      type: {
+        kind: "struct";
+        fields: [
+          {
+            name: "leakId";
+            type: "u32";
+          },
+          {
+            name: "roundId";
+            type: "u32";
+          },
+          {
+            name: "mintedTick";
+            type: "u16";
+          },
+          {
+            name: "kind";
+            type: "u8";
+          },
+          {
+            name: "orderCount";
+            type: "u8";
+          },
+          {
+            name: "slot";
+            type: "u8";
+          },
+          {
+            name: "bump";
+            type: "u8";
+          },
+          {
+            name: "pad";
+            type: {
+              array: ["u8", 2];
+            };
+          },
+          {
+            name: "fields";
+            type: {
+              array: ["i32", 6];
+            };
+          },
+          {
+            name: "orders";
+            type: {
+              array: [
+                {
+                  defined: {
+                    name: "pendingOrder";
+                  };
+                },
+                32,
+              ];
+            };
           },
         ];
       };
@@ -1982,6 +2748,46 @@ export type Insider = {
           },
           {
             name: "xray";
+          },
+        ];
+      };
+    },
+    {
+      name: "sandwichTag";
+      serialization: "bytemuck";
+      repr: {
+        kind: "c";
+      };
+      type: {
+        kind: "struct";
+        fields: [
+          {
+            name: "front";
+            type: "u8";
+          },
+          {
+            name: "victim";
+            type: "u8";
+          },
+          {
+            name: "leakSlot";
+            type: "u8";
+          },
+          {
+            name: "pad";
+            type: "u8";
+          },
+          {
+            name: "frontTick";
+            type: "u16";
+          },
+          {
+            name: "victimTick";
+            type: "u16";
+          },
+          {
+            name: "profitEstimate";
+            type: "i32";
           },
         ];
       };
@@ -2305,6 +3111,171 @@ export type Insider = {
           {
             name: "bump";
             type: "u8";
+          },
+        ];
+      };
+    },
+    {
+      name: "xray";
+      docs: ["Public end-of-round trace."];
+      serialization: "bytemuck";
+      repr: {
+        kind: "c";
+      };
+      type: {
+        kind: "struct";
+        fields: [
+          {
+            name: "roundId";
+            type: "u32";
+          },
+          {
+            name: "orderCount";
+            type: "u16";
+          },
+          {
+            name: "droppedOrders";
+            type: "u16";
+          },
+          {
+            name: "leakCount";
+            type: "u8";
+          },
+          {
+            name: "tagCount";
+            type: "u8";
+          },
+          {
+            name: "finalized";
+            type: "u8";
+          },
+          {
+            name: "bump";
+            type: "u8";
+          },
+          {
+            name: "orders";
+            type: {
+              array: [
+                {
+                  defined: {
+                    name: "xrayOrder";
+                  };
+                },
+                192,
+              ];
+            };
+          },
+          {
+            name: "leaks";
+            type: {
+              array: [
+                {
+                  defined: {
+                    name: "xrayLeak";
+                  };
+                },
+                8,
+              ];
+            };
+          },
+          {
+            name: "tags";
+            type: {
+              array: [
+                {
+                  defined: {
+                    name: "sandwichTag";
+                  };
+                },
+                16,
+              ];
+            };
+          },
+        ];
+      };
+    },
+    {
+      name: "xrayLeak";
+      serialization: "bytemuck";
+      repr: {
+        kind: "c";
+      };
+      type: {
+        kind: "struct";
+        fields: [
+          {
+            name: "header";
+            type: {
+              defined: {
+                name: "leakHeader";
+              };
+            };
+          },
+          {
+            name: "fields";
+            type: {
+              array: ["i32", 6];
+            };
+          },
+          {
+            name: "orders";
+            type: {
+              array: [
+                {
+                  defined: {
+                    name: "pendingOrder";
+                  };
+                },
+                32,
+              ];
+            };
+          },
+          {
+            name: "orderCount";
+            type: "u8";
+          },
+          {
+            name: "pad";
+            type: {
+              array: ["u8", 3];
+            };
+          },
+        ];
+      };
+    },
+    {
+      name: "xrayOrder";
+      serialization: "bytemuck";
+      repr: {
+        kind: "c";
+      };
+      type: {
+        kind: "struct";
+        fields: [
+          {
+            name: "seat";
+            type: "u8";
+          },
+          {
+            name: "lane";
+            type: "u8";
+          },
+          {
+            name: "sideSize";
+            type: "i16";
+          },
+          {
+            name: "sentTick";
+            type: "u16";
+          },
+          {
+            name: "landTick";
+            type: "u16";
+          },
+          {
+            name: "fillPrice";
+            type: "u32";
           },
         ];
       };
