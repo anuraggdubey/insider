@@ -14,6 +14,10 @@ export type OraclePrice = {
   publishTime: number;
 };
 
+/** A little-endian i64 as a Number: exact below 2^53, far above any price or timestamp here. */
+const readI64 = (view: DataView, offset: number) =>
+  view.getInt32(offset + 4, true) * 2 ** 32 + view.getUint32(offset, true);
+
 export function decodeOraclePrice(data: Uint8Array): OraclePrice | undefined {
   const view = new DataView(data.buffer, data.byteOffset, data.byteLength);
   let offset = 8 + 32;
@@ -21,10 +25,10 @@ export function decodeOraclePrice(data: Uint8Array): OraclePrice | undefined {
   offset += data[offset] === 0 ? 2 : 1;
   offset += 32;
   if (data.length < offset + 8 + 8 + 4 + 8) return undefined;
-  const raw = view.getBigInt64(offset, true);
+  const raw = readI64(view, offset);
   offset += 8 + 8 + 4;
-  const publishTime = Number(view.getBigInt64(offset, true));
-  const fixed = raw / 100n;
-  if (fixed <= 0n) return undefined;
-  return { usd: Number(fixed) / 1e6, price: Number(fixed), publishTime };
+  const publishTime = readI64(view, offset);
+  const fixed = Math.floor(raw / 100);
+  if (fixed <= 0) return undefined;
+  return { usd: fixed / 1e6, price: fixed, publishTime };
 }
