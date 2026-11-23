@@ -460,33 +460,54 @@ that are easy to unit-test. Use `cd programs && cargo test -p insider --test eng
 
 ### Block 0: Foundation (14 h)
 
-- [ ] **B-0.1 Machine setup (2 h).** Everything in 4.2, then `pnpm tsx scripts/check-setup.ts` all
+- [x] **B-0.1 Machine setup (2 h).** Everything in 4.2, then `pnpm tsx scripts/check-setup.ts` all
       `ok`, `pnpm program:check`, `pnpm dev` shows the starter page.
-- [ ] **B-SDK-1 SDK skeleton (3 h).** Create `sdk/` (4.4). Move `config`, `client`, `rpc`, `tee`,
+- [x] **B-SDK-1 SDK skeleton (3 h).** Create `sdk/` (4.4). Move `config`, `client`, `rpc`, `tee`,
       `explorer` from `scripts/src/lib`, and restore the send helper and program factory from the tag
       (`git show phase-2-lab:scripts/src/lib/client.ts`). Export typed `connection`, `teeAuth`, `send`.
       Add Vitest tests.
-- [ ] **B-0.2 Design system (5 h).** `app/src/components/ui`: tokens (dark terminal, cold blue for
+- [x] **B-0.2 Design system (5 h).** `app/src/components/ui`: tokens (dark terminal, cold blue for
       sealed, hot amber for opened, rarity colours grey/cyan/magenta, mono numerals), type scale,
       spacing, motion rules, `prefers-reduced-motion`. Wire Tailwind, replace the starter styles.
-- [ ] **B-0.3 Landing (2 h).** `page.tsx`: the sealed-card hero, one-line pitch, **Play** button.
-- [ ] **B-0.4 Providers (2 h).** Wallet adapter, query client, SDK context; `transpilePackages`.
+- [x] **B-0.3 Landing (2 h).** `page.tsx`: the sealed-card hero, one-line pitch, **Play** button.
+- [x] **B-0.4 Providers (2 h).** Wallet adapter, query client, SDK context; `transpilePackages`.
+
+**Handoff notes for Anurag (Misbah, pushed in 9b71b6f, 0feb331, 754c317):**
+
+- `engine::step(table, tick, &mut StepAccounts { market, mempool, future, board, vaults: &mut [&mut LeakVault; 6], seats: &mut [&mut Seat; 10], tape, xray })`
+  goes in the `advance_ticks` hook in `tick.rs`; phases stay in `advance_ticks`. `engine::begin_round(table, randomness, market, mempool, future, board, xray)`
+  goes in `round_seed_callback` (it rejects a new round while any vault still has readers, so run `reseal_leaks` first).
+- Engine accounts are zero-copy (`AccountLoader`), each with `SPACE`: `Market` `[b"market", table, [kind]]` (832 bytes incl. discriminator; has
+  `liquidated_mask`), `Mempool` `[b"mempool", table]`, `Future` `[b"future", table]`, `Board` `[b"board", table]`, `LeakVault`
+  `[b"leak", table, [slot]]` (6), `Xray` `[b"xray", table]`. Create each in its own instruction.
+- `init_permissions`: `Mempool`, `Future` and the 6 vaults private with `[nobody]` (`[b"nobody"]` under our program). Pre-fund each vault PDA's rent
+  for 4 members (licenses). Never close or make public during play.
+- Round end order: `finish_round` (scores, X-ray, seat reset) then `reseal_leaks(0, 6)` (permission updates), then `request_round_seed`. During an epoch
+  end, run `finish_round` before `commit_epoch` (it writes `Season`).
+- `seats.rs`: displacing an idle bot mid-round resets `chips`/`position` while it may hold a position or pending orders in the mempool. Suggest blocking
+  displacement while `position != 0 || pending_count > 0`, or only displacing between rounds.
+- Instruction account lists (S signer, W writable): `send_order(index, side_size, lane)`: owner(S), table, seat(W), market, mempool(W), tape(W).
+  `bid` / `list_leak` / `offer_license`: owner(S), table, seat(W), board(W). `open_leak`: owner(S), table, seat(W), board(W), vault(W), permission(W),
+  permission_program, ephemeral_vault(W), magic_program. `buy_listed`: + seller_seat(W). `buy_license`: + license_owner(W), vault(W), permission(W),
+  permission_program, ephemeral_vault(W), magic_program. `finish_round`: payer(S), table, board, xray(W), seat_0..seat_9(W), season(W), vault_0..vault_5.
+  `reseal_leaks(slot_from, slot_to)`: payer(S), table, board(W), xray, permission_program, ephemeral_vault(W), magic_program, then (vault(W), permission(W))
+  pairs. The SDK builds all of these (`sdk/src/instructions.ts`).
 
 ### Block 1: Market engine (the Rust core) and SDK v0 (24 h)
 
-- [ ] **B-1.1 Engine API stubs (2 h, handoff H-API).** Create `math/` and `engine/` with the
+- [x] **B-1.1 Engine API stubs (2 h, handoff H-API).** Create `math/` and `engine/` with the
       public function signatures and `state/` structs (spec section 5), bodies as `todo!()`. Push
       within the first 4 hours so Anurag can wire.
-- [ ] **B-1.2 `math/` (8 h).** `prng.rs` (`xorshift128+`), `path.rs` (fundamental path: two regimes,
+- [x] **B-1.2 `math/` (8 h).** `prng.rs` (`xorshift128+`), `path.rs` (fundamental path: two regimes,
       2-4 shocks, clamp), `vamm.rs` (fills, fee, price impact, `u128` intermediates), `arb.rs`
       (arbitrage pull by integer sqrt), `dutch.rs`, `seed.rs` (fills future, whales and drop schedule
       from the 32-byte VRF output), `payloads.rs` (all eight Leak kinds). **Unit tests first** in
       `tests/engine.rs`: deterministic per seed, bounded, shock counts, payload matches source,
       fixed-point edge cases.
-- [ ] **B-1.3 `engine/step.rs` (4 h).** The pure per-tick function: mature orders in `seq` order (at
+- [x] **B-1.3 `engine/step.rs` (4 h).** The pure per-tick function: mature orders in `seq` order (at
       most 12 per tick), apply arbitrage, mint and step drops, step auctions, expire Leaks, liquidate,
       advance phases. Fully unit-tested.
-- [ ] **B-1.4 Orders (4 h).** `state/mempool.rs`, `instructions/orders.rs`: `send_order` (two lanes,
+- [x] **B-1.4 Orders (4 h).** `state/mempool.rs`, `instructions/orders.rs`: `send_order` (two lanes,
       fee, limits of 2,000 units per order, 5,000 position, 4 pending per seat), public `SendEvent`,
       **no logs**. Tests in `tests/leaks.rs`.
 - [ ] **B-1.5 SDK v0 (4 h, handoff H1).** Account decode from the IDL, instruction builders,
@@ -497,10 +518,10 @@ that are easy to unit-test. Use `cd programs && cargo test -p insider --test eng
 
 ### Block 2: Leaks, X-ray and the trading UI (28 h)
 
-- [ ] **B-2.1 Leaks (7 h).** `state/{board,leak_vault}.rs`, `instructions/leaks.rs`: drops at their
+- [x] **B-2.1 Leaks (7 h).** `state/{board,leak_vault}.rs`, `instructions/leaks.rs`: drops at their
       ticks from the schedule, Dutch `bid`, `open_leak` (members become `[owner]`), expiry, the
       seat's 2-unopened-Leaks limit. Tests.
-- [ ] **B-2.2 `finish_round` and sandwiches (4 h).** `state/xray.rs`, `finish_round.rs`: write the
+- [x] **B-2.2 `finish_round` and sandwiches (4 h).** `state/xray.rs`, `finish_round.rs`: write the
       order log and payloads, **sandwich tags**, clear members, score into `Season`, reset seats.
 - [ ] **B-2.3 `/table` live (5 h).** Read live accounts through the SDK with websocket updates at 2
       Hz and no layout jitter; the order panel with lane choice, fee and impact preview; ghost orders
@@ -515,7 +536,7 @@ that are easy to unit-test. Use `cd programs && cargo test -p insider --test eng
 
 ### Block 3: Exchange depth and the economics gate (18 h)
 
-- [ ] **B-3.1 Flip and license (5 h).** `list_leak`, `buy_listed`, `offer_license`, `buy_license`
+- [x] **B-3.1 Flip and license (5 h).** `list_leak`, `buy_listed`, `offer_license`, `buy_license`
       (members up to 4), hoard limit. Tests.
 - [ ] **B-3.2 Economics gate E1 (5 h).** `tests/economics.rs` plus a printed table: the six agents
       (Blind, Front-runner, Fundamentalist, Hoarder, Flipper, Crowd) over thousands of seeded rounds;
