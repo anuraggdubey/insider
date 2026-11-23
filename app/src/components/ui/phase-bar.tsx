@@ -26,10 +26,22 @@ export function PhaseBar({ tick, className }: { tick: number; className?: string
           style={{ left: `${(current / ROUND_TICKS) * 100}%` }}
         />
       </div>
-      <div className="text-muted mt-2 flex justify-between text-[10px] tracking-wider uppercase">
-        <span>Live</span>
-        <span>Closing</span>
-        <span>X-ray</span>
+      <div className="text-muted mt-2 flex gap-0.5 pb-3 text-[9px] uppercase sm:pb-0 sm:text-[10px]">
+        <span className="min-w-0" style={{ width: `${(LIVE_TICKS / ROUND_TICKS) * 100}%` }}>
+          Live
+        </span>
+        <span
+          className="min-w-0 text-center whitespace-nowrap max-sm:translate-y-3"
+          style={{ width: `${((CLOSING_END_TICK - LIVE_TICKS) / ROUND_TICKS) * 100}%` }}
+        >
+          Closing
+        </span>
+        <span
+          className="min-w-0 text-right whitespace-nowrap"
+          style={{ width: `${((ROUND_TICKS - CLOSING_END_TICK) / ROUND_TICKS) * 100}%` }}
+        >
+          X-ray
+        </span>
       </div>
     </div>
   );

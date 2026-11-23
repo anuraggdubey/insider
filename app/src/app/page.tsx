@@ -1,5 +1,6 @@
-import { ArrowDownRight, ArrowRight, Eye, LockKeyhole, MoveUpRight, ScanLine } from "lucide-react";
+import { ArrowDownRight, Eye, LockKeyhole, MoveUpRight, ScanLine } from "lucide-react";
 import Link from "next/link";
+import { PlayButton } from "@/components/onboarding/guest";
 import { buttonStyles } from "@/components/ui/button";
 import { SealedCard } from "@/components/ui/sealed-card";
 
@@ -55,9 +56,7 @@ export default function Home() {
             <br className="hidden sm:block" /> Buy a look. Jump the line.
           </p>
           <div className="mt-9 flex flex-wrap items-center gap-3">
-            <Link href="/table" className={buttonStyles({ size: "lg", className: "min-w-36" })}>
-              Play <ArrowRight className="size-4" />
-            </Link>
+            <PlayButton />
             <a href="#how-it-works" className={buttonStyles({ variant: "outline", size: "lg" })}>
               How it works <ArrowDownRight className="text-muted size-4" />
             </a>
@@ -107,7 +106,7 @@ export default function Home() {
           </svg>
           <div className="hero-float relative z-10 w-[250px] sm:w-[270px]">
             <SealedCard
-              kind="Flow window"
+              kind="Spotlight"
               rarity="rare"
               state="sealed"
               price={120}

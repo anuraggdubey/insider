@@ -1,0 +1,38 @@
+export const SEAT_NAMES = [
+  "Quiet Heron",
+  "Bold Lynx",
+  "Silver Fox",
+  "Swift Otter",
+  "Amber Wolf",
+  "Calm Raven",
+  "Hidden Tiger",
+  "Lucky Crane",
+  "Scarlet Finch",
+  "Silent Bear",
+  "Clever Badger",
+  "Dusk Falcon",
+  "Golden Jackal",
+  "Still Panther",
+  "Gentle Hawk",
+  "Misty Owl",
+  "Sharp Mantis",
+  "Frost Viper",
+  "Sly Coyote",
+  "Azure Kestrel",
+  "Hollow Stag",
+  "Velvet Hare",
+  "Nimble Robin",
+  "Iron Bison",
+  "Pale Osprey",
+  "Wild Sable",
+  "Brave Stoat",
+  "Bright Gecko",
+  "Cool Egret",
+  "Shadow Leopard",
+  "Rare Marten",
+  "Night Jaguar",
+] as const;
+
+export function seatName(index: number): string {
+  return SEAT_NAMES[index] ?? "Unknown Seat";
+}

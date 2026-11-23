@@ -1,0 +1,211 @@
+import { BorshInstructionCoder, convertIdlToCamelCase, type Idl } from "@anchor-lang/core";
+import {
+  EPHEMERAL_VAULT_ID,
+  permissionPdaFromAccount,
+} from "@magicblock-labs/ephemeral-rollups-sdk";
+import { PublicKey, Transaction, TransactionInstruction, type AccountMeta } from "@solana/web3.js";
+import rawIdl from "../../programs/idl/insider.json" with { type: "json" };
+import { MAGIC_PROGRAM_ID, PERMISSION_PROGRAM_ID, type InsiderConfig } from "./config";
+import { LEAK_SLOTS } from "./constants";
+import { tableAccounts } from "./pdas";
+
+const idl = convertIdlToCamelCase(rawIdl as Idl);
+const coder = new BorshInstructionCoder(idl);
+
+function addresses(config: InsiderConfig) {
+  if (!config.tableAuthority) throw new Error("Table authority is not configured");
+  return tableAccounts(config.tableAuthority, config.programId);
+}
+
+function build(
+  config: InsiderConfig,
+  name: string,
+  args: Record<string, number>,
+  values: Record<string, PublicKey>,
+  remaining: AccountMeta[] = [],
+): TransactionInstruction {
+  const spec = idl.instructions.find((instruction) => instruction.name === name);
+  if (!spec) throw new Error(`Unknown instruction ${name}`);
+  const keys = spec.accounts.map((account) => {
+    if ("accounts" in account) throw new Error("Composite accounts are not supported");
+    const pubkey =
+      values[account.name] ?? (account.address ? new PublicKey(account.address) : undefined);
+    if (!pubkey) throw new Error(`Missing ${name} account ${account.name}`);
+    return { pubkey, isSigner: Boolean(account.signer), isWritable: Boolean(account.writable) };
+  });
+  return new TransactionInstruction({
+    programId: config.programId,
+    keys: [...keys, ...remaining],
+    data: coder.encode(name, args),
+  });
+}
+
+function action(config: InsiderConfig, owner: PublicKey, index: number) {
+  const p = addresses(config);
+  const seat = p.seats[index];
+  if (!seat) throw new RangeError("Invalid seat");
+  return { owner, table: p.table, seat, board: p.board };
+}
+
+function permission(config: InsiderConfig, slot: number) {
+  const vault = addresses(config).leakVaults[slot];
+  if (!vault) throw new RangeError("Invalid leak slot");
+  return {
+    vault,
+    permission: permissionPdaFromAccount(vault),
+    permissionProgram: PERMISSION_PROGRAM_ID,
+    ephemeralVault: EPHEMERAL_VAULT_ID,
+    magicProgram: MAGIC_PROGRAM_ID,
+  };
+}
+
+export const claimSeat = (config: InsiderConfig, owner: PublicKey, index: number) =>
+  build(config, "claimSeat", { index }, action(config, owner, index));
+export const ping = (config: InsiderConfig, owner: PublicKey, index: number) =>
+  build(config, "ping", { index }, action(config, owner, index));
+export const sendOrder = (
+  config: InsiderConfig,
+  owner: PublicKey,
+  index: number,
+  sideSize: number,
+  lane: number,
+) => {
+  const p = addresses(config);
+  return build(
+    config,
+    "sendOrder",
+    { index, sideSize, lane },
+    {
+      ...action(config, owner, index),
+      market: p.floor,
+      mempool: p.mempool,
+      tape: p.tape,
+    },
+  );
+};
+export const bid = (config: InsiderConfig, owner: PublicKey, index: number, slot: number) =>
+  build(config, "bid", { index, slot }, action(config, owner, index));
+export const openLeak = (config: InsiderConfig, owner: PublicKey, index: number, slot: number) =>
+  build(
+    config,
+    "openLeak",
+    { index, slot },
+    { ...action(config, owner, index), ...permission(config, slot) },
+  );
+export const listLeak = (
+  config: InsiderConfig,
+  owner: PublicKey,
+  index: number,
+  slot: number,
+  ask: number,
+) => build(config, "listLeak", { index, slot, ask }, action(config, owner, index));
+export const buyListed = (
+  config: InsiderConfig,
+  owner: PublicKey,
+  index: number,
+  slot: number,
+  sellerIndex: number,
+) => {
+  const sellerSeat = addresses(config).seats[sellerIndex];
+  if (!sellerSeat) throw new RangeError("Invalid seller seat");
+  return build(
+    config,
+    "buyListed",
+    { index, slot, sellerIndex },
+    {
+      ...action(config, owner, index),
+      sellerSeat,
+    },
+  );
+};
+export const offerLicense = (
+  config: InsiderConfig,
+  owner: PublicKey,
+  index: number,
+  slot: number,
+  ask: number,
+) => build(config, "offerLicense", { index, slot, ask }, action(config, owner, index));
+export const buyLicense = (
+  config: InsiderConfig,
+  owner: PublicKey,
+  index: number,
+  slot: number,
+  ownerIndex: number,
+) => {
+  const licenseOwner = addresses(config).seats[ownerIndex];
+  if (!licenseOwner) throw new RangeError("Invalid license owner");
+  return build(
+    config,
+    "buyLicense",
+    { index, slot, ownerIndex },
+    {
+      ...action(config, owner, index),
+      ...permission(config, slot),
+      licenseOwner,
+    },
+  );
+};
+
+export function finishRound(config: InsiderConfig, payer: PublicKey) {
+  const p = addresses(config);
+  const values: Record<string, PublicKey> = {
+    payer,
+    table: p.table,
+    board: p.board,
+    xray: p.xray,
+    season: p.season,
+  };
+  p.seats.forEach((key, index) => {
+    values[`seat${index}`] = key;
+  });
+  p.leakVaults.forEach((key, index) => {
+    values[`vault${index}`] = key;
+  });
+  return build(config, "finishRound", {}, values);
+}
+
+export function resealLeaks(
+  config: InsiderConfig,
+  payer: PublicKey,
+  slotFrom: number,
+  slotTo: number,
+) {
+  if (
+    !Number.isInteger(slotFrom) ||
+    !Number.isInteger(slotTo) ||
+    slotFrom < 0 ||
+    slotTo < slotFrom ||
+    slotTo > LEAK_SLOTS
+  )
+    throw new RangeError("Invalid leak slot range");
+  const p = addresses(config);
+  const remaining: AccountMeta[] = [];
+  for (let slot = slotFrom; slot < slotTo; slot++) {
+    const vault = p.leakVaults[slot]!;
+    remaining.push(
+      { pubkey: vault, isSigner: false, isWritable: true },
+      { pubkey: permissionPdaFromAccount(vault), isSigner: false, isWritable: true },
+    );
+  }
+  return build(
+    config,
+    "resealLeaks",
+    { slotFrom, slotTo },
+    {
+      payer,
+      table: p.table,
+      board: p.board,
+      xray: p.xray,
+      permissionProgram: PERMISSION_PROGRAM_ID,
+      ephemeralVault: EPHEMERAL_VAULT_ID,
+      magicProgram: MAGIC_PROGRAM_ID,
+    },
+    remaining,
+  );
+}
+
+export const tx = (...instructions: TransactionInstruction[]) => {
+  const transaction = new Transaction();
+  if (instructions.length) transaction.add(...instructions);
+  return transaction;
+};

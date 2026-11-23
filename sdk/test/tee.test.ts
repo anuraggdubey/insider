@@ -4,10 +4,32 @@ import { afterEach, expect, it, vi } from "vitest";
 const auth = vi.hoisted(() => vi.fn());
 vi.mock("@magicblock-labs/ephemeral-rollups-sdk", () => ({ getAuthToken: auth }));
 import { teeAuthUrl } from "../src/tee.js";
+import { baseConnection, teeConnection } from "../src/connection.js";
+import { createConfig } from "../src/config.js";
 
 afterEach(() => {
   vi.restoreAllMocks();
   auth.mockReset();
+});
+
+it("creates anonymous and authenticated TEE connections with matching websocket tokens", async () => {
+  const config = createConfig({
+    baseRpcUrl: "https://base.example",
+    teeRpcUrl: "https://tee.example/path",
+  });
+  auth.mockResolvedValue({ token: "token-value", expiresAt: Date.now() + 60_000 });
+  const base = baseConnection(config);
+  expect(base.rpcEndpoint).toBe("https://base.example");
+  const anonymous = await teeConnection(config);
+  expect(anonymous.rpcEndpoint).toBe("https://tee.example/path");
+  expect((anonymous as unknown as { _rpcWsEndpoint: string })._rpcWsEndpoint).toBe(
+    "wss://tee.example/path",
+  );
+  const authenticated = await teeConnection(config, Keypair.generate());
+  expect(authenticated.rpcEndpoint).toBe("https://tee.example/path?token=token-value");
+  expect((authenticated as unknown as { _rpcWsEndpoint: string })._rpcWsEndpoint).toBe(
+    "wss://tee.example/path?token=token-value",
+  );
 });
 
 it("caches by endpoint and public key until expiry and supports wallet signers", async () => {

@@ -24,7 +24,11 @@ const nav = [
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}>
+    <html
+      lang="en"
+      data-scroll-behavior="smooth"
+      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+    >
       <body className="flex min-h-full flex-col">
         <Providers>
           <header className="border-line bg-bg/90 relative z-20 border-b">
@@ -43,6 +47,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
                   <Link
                     key={href}
                     href={href}
+                    prefetch={href === "/desk" || href === "/proof" ? false : undefined}
                     className="text-muted hover:text-text font-mono text-[11px] tracking-wide transition-colors"
                   >
                     {label}
@@ -50,9 +55,6 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
                 ))}
               </nav>
               <div className="ml-auto flex items-center gap-3">
-                <span className="text-faint hidden font-mono text-[10px] tracking-wider uppercase lg:inline">
-                  Seat — · Chips —
-                </span>
                 <WalletButton />
               </div>
             </div>
