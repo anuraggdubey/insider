@@ -1,0 +1,42 @@
+{
+  "name": "@insider/sdk",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./node": "./src/node.ts"
+  },
+  "imports": {
+    "#config": "./src/config.ts",
+    "#constants": "./src/constants.ts",
+    "#explorer": "./src/explorer.ts",
+    "#idl": "./src/idl.ts",
+    "#index": "./src/index.ts",
+    "#pdas": "./src/pdas.ts",
+    "#program": "./src/program.ts",
+    "#rpc": "./src/rpc.ts",
+    "#send": "./src/send.ts",
+    "#tee": "./src/tee.ts"
+  },
+  "scripts": {
+    "idl:type": "anchor idl type ../programs/idl/insider.json | sed 's@target/idl/insider.json@programs/idl/insider.json@' > src/idl.ts && prettier --write src/idl.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@anchor-lang/core": "1.2.2",
+    "@magicblock-labs/ephemeral-rollups-sdk": "0.18.0",
+    "@solana/web3.js": "1.99.0",
+    "bs58": "6.0.0",
+    "dotenv": "18.0.10",
+    "tweetnacl": "1.0.3",
+    "zod": "4.6.7"
+  },
+  "devDependencies": {
+    "@types/node": "24.19.2",
+    "typescript": "5.9.3",
+    "vitest": "5.1.1"
+  }
+}

@@ -1,26 +1,229 @@
+@import "@solana/wallet-adapter-react-ui/styles.css";
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  --color-bg: #07080a;
+  --color-surface: #0c0e11;
+  --color-surface-2: #12151a;
+  --color-line: #1d222a;
+  --color-line-strong: #2a313b;
+  --color-text: #e7e9ec;
+  --color-muted: #8a93a0;
+  --color-faint: #566070;
+  --color-sealed: #5ab4ff;
+  --color-opened: #ffb547;
+  --color-buy: #3ddc97;
+  --color-sell: #ff5c6c;
+  --color-priority: #b58cff;
+  --color-common: #9aa3ae;
+  --color-rare: #3ee6e6;
+  --color-epic: #ff4fd8;
+  --color-whale: #7c8cff;
+  --radius-md: 6px;
+  --radius-lg: 10px;
+  --radius-xl: 14px;
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+:root {
+  color-scheme: dark;
+}
+html {
+  scroll-behavior: smooth;
+}
+body {
+  background: #07080a;
+  color: #e7e9ec;
+  font-family: var(--font-geist-sans), sans-serif;
+}
+body::before {
+  position: fixed;
+  z-index: -1;
+  inset: 0;
+  pointer-events: none;
+  content: "";
+  background-image:
+    radial-gradient(ellipse at 50% 0%, transparent 0%, rgba(7, 8, 10, 0.72) 75%),
+    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    url("data:image/svg+xml,%3Csvg viewBox='0 0 128 128' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.025'/%3E%3C/svg%3E");
+  background-size:
+    auto,
+    24px 24px,
+    24px 24px,
+    128px;
+}
+::selection {
+  background: rgba(90, 180, 255, 0.3);
+  color: white;
+}
+.micro-label {
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  line-height: 1.4;
+  text-transform: uppercase;
+  color: #8a93a0;
+}
+.ticker-track {
+  animation: ticker 28s linear infinite;
+}
+.glow-border {
+  position: relative;
+  overflow: hidden;
+  border-radius: 14px;
+  padding: 1px;
+  background: #1d222a;
+}
+.glow-border::before {
+  content: "";
+  position: absolute;
+  inset: -150%;
+  background: conic-gradient(transparent 0 70%, rgba(90, 180, 255, 0.8), transparent 85%);
+  animation: spin-border 8s linear infinite;
+}
+.glow-border-inner {
+  position: relative;
+  height: 100%;
+  border-radius: 13px;
+  background: #0c0e11;
+}
+.sealed-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 2px;
+  background: #9aa3ae;
+}
+.sealed-card.rarity-rare::before {
+  background: #3ee6e6;
+}
+.sealed-card.rarity-epic::before {
+  background: #ff4fd8;
+}
+.sealed-shimmer {
+  background: linear-gradient(
+    115deg,
+    transparent 15%,
+    rgba(90, 180, 255, 0.08) 47%,
+    transparent 65%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 7s ease-in-out infinite;
+}
+.seal-emblem {
+  position: relative;
+  transition:
+    border-color 0.5s,
+    box-shadow 0.5s;
+}
+.seal-crack {
+  position: absolute;
+  inset: 10px;
+  opacity: 0;
+  border-right: 1px solid #ffb547;
+  transform: rotate(18deg) scaleY(0.6);
+  transition:
+    opacity 0.4s,
+    transform 0.4s;
+  filter: drop-shadow(0 0 6px #ffb547);
+}
+.sealed-card:hover .seal-emblem,
+.sealed-card.is-open .seal-emblem {
+  border-color: rgba(255, 181, 71, 0.5);
+  box-shadow: 0 0 45px rgba(255, 181, 71, 0.18);
+}
+.sealed-card:hover .seal-crack {
+  opacity: 1;
+  transform: rotate(18deg) scaleY(1);
+}
+.hero-float {
+  animation: float 6s ease-in-out infinite;
+}
+.order-drift {
+  animation: drift 7s ease-in-out infinite;
+}
+.skeleton {
+  animation: pulse-skeleton 2s ease-in-out infinite;
+}
+.wallet-adapter-button:not([disabled]) {
+  height: 38px;
+  border: 1px solid #2a313b;
+  border-radius: 6px;
+  background: #12151a;
+  color: #e7e9ec;
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+}
+.wallet-adapter-button:not([disabled]):hover {
+  background: #1d222a;
+}
+.wallet-adapter-modal-wrapper {
+  background: #0c0e11;
+  border: 1px solid #2a313b;
+  color: #e7e9ec;
+}
+.wallet-adapter-modal-title {
+  color: #e7e9ec;
+}
+.wallet-adapter-modal-list .wallet-adapter-button:hover {
+  background: #12151a;
+}
+@keyframes ticker {
+  to {
+    transform: translateX(-50%);
   }
 }
-
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@keyframes spin-border {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes shimmer {
+  0%,
+  100% {
+    background-position: 120% 0;
+  }
+  50% {
+    background-position: -100% 0;
+  }
+}
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+@keyframes drift {
+  0%,
+  100% {
+    transform: translateX(0);
+    opacity: 0.6;
+  }
+  50% {
+    transform: translateX(12px);
+    opacity: 1;
+  }
+}
+@keyframes pulse-skeleton {
+  50% {
+    opacity: 0.45;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
 }

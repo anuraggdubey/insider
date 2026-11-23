@@ -2,6 +2,7 @@ packages:
   - app
   - bots
   - scripts
+  - sdk
 
 ignoredBuiltDependencies:
   - sharp
