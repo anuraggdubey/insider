@@ -241,6 +241,7 @@ fn finalization_copies_scores_resets_and_is_idempotent() {
     assert_eq!(f.xray.scores[0], 25);
     assert_eq!(f.xray.seat_owners[0], first_owner);
     assert_eq!(f.season.leaderboard[0].rounds, 1);
+    assert_eq!(f.season.rounds_played, 1);
 }
 
 #[test]

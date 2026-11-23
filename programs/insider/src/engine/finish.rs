@@ -77,6 +77,7 @@ pub fn finalize_round(
         seat.leak_spend = 0;
         seat.pending_count = 0;
     }
+    season.rounds_played = season.rounds_played.saturating_add(1);
     xray.round_id = table.round_id;
     xray.finalized = 1;
     Ok(())
