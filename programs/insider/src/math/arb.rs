@@ -1,28 +1,52 @@
-use anchor_lang::prelude::Result;
+use anchor_lang::prelude::*;
 
-use crate::math::vamm::Vamm;
+use crate::{error::InsiderError, math::vamm::Vamm, PRICE_ONE};
 
-pub fn isqrt_u128(mut n: u128) -> u128 {
-    let mut result = 0u128;
-    let mut bit = 1u128 << 126;
-    while bit > n {
-        bit >>= 2;
+pub fn isqrt_u128(n: u128) -> u128 {
+    if n < 2 {
+        return n;
     }
-    while bit != 0 {
-        if n >= result + bit {
-            n -= result + bit;
-            result = (result >> 1) + bit;
-        } else {
-            result >>= 1;
+    let mut x = 1u128 << ((128 - n.leading_zeros()).div_ceil(2));
+    loop {
+        let next = (x + n / x) / 2;
+        if next >= x {
+            return x;
         }
-        bit >>= 2;
+        x = next;
     }
-    result
 }
 
 /// Rebalances at constant product toward the target by `arb_bps` of the gap.
-pub fn arb_pull(_vamm: &mut Vamm, _target_price: u32, _arb_bps: u16) -> Result<()> {
-    todo!()
+pub fn arb_pull(vamm: &mut Vamm, target_price: u32, arb_bps: u16) -> Result<()> {
+    let price = vamm.price();
+    if price == target_price || arb_bps == 0 {
+        return Ok(());
+    }
+    let p = i128::from(price)
+        + (i128::from(target_price) - i128::from(price)) * i128::from(arb_bps.min(10_000)) / 10_000;
+    require!(
+        p > 0 && vamm.base > 0 && vamm.quote > 0,
+        InsiderError::Overflow
+    );
+    let k = u128::from(vamm.base) * u128::from(vamm.quote);
+    let scaled = k
+        .checked_mul(u128::from(PRICE_ONE))
+        .ok_or(InsiderError::Overflow)?;
+    let base = isqrt_u128(scaled / p as u128);
+    if base == 0 {
+        return Ok(());
+    }
+    let candidate = Vamm {
+        base: u64::try_from(base).map_err(|_| InsiderError::Overflow)?,
+        quote: u64::try_from(k / base).map_err(|_| InsiderError::Overflow)?,
+    };
+    let next = candidate.price();
+    if (price < target_price && next >= price && next <= target_price)
+        || (price > target_price && next <= price && next >= target_price)
+    {
+        *vamm = candidate;
+    }
+    Ok(())
 }
 
 #[cfg(test)]

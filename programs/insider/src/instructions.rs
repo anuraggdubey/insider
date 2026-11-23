@@ -3,11 +3,13 @@
 #![allow(ambiguous_glob_reexports)]
 
 pub mod cranks;
+pub mod orders;
 pub mod seats;
 pub mod setup;
 pub mod tick;
 
 pub use cranks::*;
+pub use orders::*;
 pub use seats::*;
 pub use setup::*;
 pub use tick::*;

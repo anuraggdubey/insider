@@ -86,6 +86,11 @@ pub mod insider {
         tick::tick(ctx)
     }
 
+    // Orders (Misbah)
+    pub fn send_order(ctx: Context<SendOrder>, index: u8, side_size: i16, lane: u8) -> Result<()> {
+        orders::send_order(ctx, index, side_size, lane)
+    }
+
     // Seats (rollup)
     pub fn claim_seat(ctx: Context<ClaimSeat>, index: u8) -> Result<()> {
         seats::claim_seat(ctx, index)

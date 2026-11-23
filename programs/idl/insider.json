@@ -1603,6 +1603,94 @@
       ]
     },
     {
+      "name": "send_order",
+      "discriminator": [
+        106,
+        200,
+        215,
+        170,
+        187,
+        32,
+        105,
+        150
+      ],
+      "accounts": [
+        {
+          "name": "owner",
+          "signer": true
+        },
+        {
+          "name": "table"
+        },
+        {
+          "name": "seat",
+          "writable": true
+        },
+        {
+          "name": "market"
+        },
+        {
+          "name": "mempool",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  109,
+                  101,
+                  109,
+                  112,
+                  111,
+                  111,
+                  108
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "table"
+              }
+            ]
+          }
+        },
+        {
+          "name": "tape",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  116,
+                  97,
+                  112,
+                  101
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "table"
+              }
+            ]
+          }
+        }
+      ],
+      "args": [
+        {
+          "name": "index",
+          "type": "u8"
+        },
+        {
+          "name": "side_size",
+          "type": "i16"
+        },
+        {
+          "name": "lane",
+          "type": "u8"
+        }
+      ]
+    },
+    {
       "name": "tick",
       "discriminator": [
         92,
@@ -1646,6 +1734,32 @@
         247,
         104,
         191
+      ]
+    },
+    {
+      "name": "Market",
+      "discriminator": [
+        219,
+        190,
+        213,
+        55,
+        0,
+        227,
+        198,
+        154
+      ]
+    },
+    {
+      "name": "Mempool",
+      "discriminator": [
+        52,
+        86,
+        190,
+        94,
+        227,
+        116,
+        179,
+        12
       ]
     },
     {
@@ -2004,6 +2118,47 @@
       }
     },
     {
+      "name": "DropSpec",
+      "serialization": "bytemuck",
+      "repr": {
+        "kind": "c"
+      },
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "tick",
+            "type": "u16"
+          },
+          {
+            "name": "kind",
+            "type": "u8"
+          },
+          {
+            "name": "rarity",
+            "type": "u8"
+          },
+          {
+            "name": "window_offset",
+            "type": "u8"
+          },
+          {
+            "name": "window_len",
+            "type": "u8"
+          },
+          {
+            "name": "_pad",
+            "type": {
+              "array": [
+                "u8",
+                2
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
       "name": "Fill",
       "docs": [
         "A fill executed against the vAMM (public by design)."
@@ -2039,6 +2194,140 @@
           {
             "name": "landed_tick",
             "type": "u16"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Market",
+      "docs": [
+        "Public Floor or Desk market."
+      ],
+      "serialization": "bytemuck",
+      "repr": {
+        "kind": "c"
+      },
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "round_id",
+            "type": "u32"
+          },
+          {
+            "name": "kind",
+            "type": "u8"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          },
+          {
+            "name": "last_tick",
+            "type": "u16"
+          },
+          {
+            "name": "base",
+            "type": "u64"
+          },
+          {
+            "name": "quote",
+            "type": "u64"
+          },
+          {
+            "name": "price",
+            "type": "u32"
+          },
+          {
+            "name": "mark_price",
+            "type": "u32"
+          },
+          {
+            "name": "oracle_ts",
+            "type": "i64"
+          },
+          {
+            "name": "volume",
+            "type": "u64"
+          },
+          {
+            "name": "history",
+            "type": {
+              "array": [
+                "u32",
+                192
+              ]
+            }
+          },
+          {
+            "name": "liquidated_mask",
+            "type": "u16"
+          },
+          {
+            "name": "_pad",
+            "type": {
+              "array": [
+                "u8",
+                6
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "Mempool",
+      "docs": [
+        "Private order queue and drop schedule."
+      ],
+      "serialization": "bytemuck",
+      "repr": {
+        "kind": "c"
+      },
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "round_id",
+            "type": "u32"
+          },
+          {
+            "name": "next_seq",
+            "type": "u16"
+          },
+          {
+            "name": "count",
+            "type": "u8"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          },
+          {
+            "name": "orders",
+            "type": {
+              "array": [
+                {
+                  "defined": {
+                    "name": "PendingOrder"
+                  }
+                },
+                48
+              ]
+            }
+          },
+          {
+            "name": "drops",
+            "type": {
+              "array": [
+                {
+                  "defined": {
+                    "name": "DropSpec"
+                  }
+                },
+                8
+              ]
+            }
           }
         ]
       }
@@ -2118,6 +2407,38 @@
           {
             "name": "vamm_quote",
             "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "PendingOrder",
+      "serialization": "bytemuck",
+      "repr": {
+        "kind": "c"
+      },
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "seat",
+            "type": "u8"
+          },
+          {
+            "name": "lane",
+            "type": "u8"
+          },
+          {
+            "name": "side_size",
+            "type": "i16"
+          },
+          {
+            "name": "land_tick",
+            "type": "u16"
+          },
+          {
+            "name": "seq",
+            "type": "u16"
           }
         ]
       }

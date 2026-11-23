@@ -17,6 +17,8 @@ pub struct Market {
     pub oracle_ts: i64,
     pub volume: u64,
     pub history: [u32; PATH_LEN],
+    pub liquidated_mask: u16,
+    pub _pad: [u8; 6],
 }
 
 impl Market {
@@ -29,7 +31,7 @@ mod tests {
 
     #[test]
     fn size_is_fixed() {
-        assert_eq!(core::mem::size_of::<Market>(), 816);
-        assert_eq!(Market::SPACE, 824);
+        assert_eq!(core::mem::size_of::<Market>(), 824);
+        assert_eq!(Market::SPACE, 832);
     }
 }
