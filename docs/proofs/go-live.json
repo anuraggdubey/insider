@@ -1,0 +1,59 @@
+{
+  "table": "DjnqzKQsUU1fmRztBAiUkPn8VwsnFYgMedcg1BPyA1k",
+  "program": "7mTtHsFMYnZRnhd3SRzhj8Nm1U2T3s33dnbJwa9zBErW",
+  "tableAuthority": "23k9UnCKBkFyci6Sv1RhuFXUXFgTnjV6oeTZyMaxopWm",
+  "watchedRound": 9,
+  "lastRound": 10,
+  "botSeatOwners": [
+    "AaMXPVSC8VGZmJWX4BE6yF3hS2zhiYJaJyEY6Ucs5ZsC",
+    "7FyQbpFQmE971hjfAAzJPfgsVLRtNQdnTR3aArGzFHrt",
+    "9NrRVFNuunu88UNXwCNd19FYaZyBzqhJGYTweNUgi24n"
+  ],
+  "humanOrders": 3,
+  "events": [
+    {
+      "at": "2026-11-23T20:21:11.608Z",
+      "what": "table DjnqzKQsUU1fmRztBAiUkPn8VwsnFYgMedcg1BPyA1k round 9 (live)"
+    },
+    {
+      "at": "2026-11-23T20:21:11.853Z",
+      "what": "watching round 9 from tick 15"
+    },
+    {
+      "at": "2026-11-23T20:21:12.659Z",
+      "what": "human claims seat 7",
+      "url": "https://explorer.solana.com/tx/2pKJr7hRL36dPcRYhzQ3NpoLjsK5MmP1DpPXUvUFePwET9xs6Dtd19uu6TfaJtQEf16B6wLZSPNxRHu7JAKnZ8Z3?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app"
+    },
+    {
+      "at": "2026-11-23T20:21:13.071Z",
+      "what": "human order 1: buy 120",
+      "url": "https://explorer.solana.com/tx/2WnsabPW6iiqM3SVQoR7q4zbKux2horKrJ91p1Z2tAwsWqiyCTpoZSMRprzKciJCmqrW5QnS3aGLEQTJZHHu8SrB?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app"
+    },
+    {
+      "at": "2026-11-23T20:21:22.772Z",
+      "what": "human order 2: sell 120",
+      "url": "https://explorer.solana.com/tx/2kZeKRdaKW9qATMfzmR6r7uHcxCHvrMPutfsEXJzJUMG2zs2FL2a9hEUDp5xhDK4n6TV7wdWp9AXGmexYycGDwQC?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app"
+    },
+    {
+      "at": "2026-11-23T20:21:29.556Z",
+      "what": "round 9 tick 50, bots in seats: 3/3"
+    },
+    {
+      "at": "2026-11-23T20:21:35.858Z",
+      "what": "human order 3: buy 120",
+      "url": "https://explorer.solana.com/tx/5SWpTQz5VJqmA9mbp2WEa8SsTHJGWwNVpmNiR5CS4rXgANxhD2L7vygETDMvTkeYuuqdwqvxf1RbzMEGrDyaodw4?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app"
+    },
+    {
+      "at": "2026-11-23T20:22:36.923Z",
+      "what": "round 9 scored by the bots: 28 orders, 6 leaks, 0 sandwich tag(s)"
+    },
+    {
+      "at": "2026-11-23T20:22:47.123Z",
+      "what": "round 10 tick 0, bots in seats: 3/3"
+    },
+    {
+      "at": "2026-11-23T20:22:47.123Z",
+      "what": "round 10 was seeded and is live: the loop runs by itself"
+    }
+  ]
+}
