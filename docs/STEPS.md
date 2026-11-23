@@ -419,7 +419,7 @@ Needs Misbah's engine stubs (H-API) before wiring.
 
 ### Block 3: Exchange depth (30 h)
 
-- [ ] **A-3.1 Desk program (8 h, if G4 passes).** `mint_call`, `buy_call_license`,
+- [x] **A-3.1 Desk program (8 h, if G4 passes).** _Done: `mint_call`, `buy_call_license`, `settle_call` (permissionless, so no `schedule_settle` crank is needed; bots and analysts settle), `desk_trade` and the analyst stats in `Season`, in `desk.rs` with pure maths in `math/desk.rs`; 10 private call vaults and the Desk market in setup; Desk chips (1,000, topped up at each round end). Tests in `tests/desk.rs` (9). Verified live by `pnpm desk-demo` (proof `docs/proofs/desk.json`): mint, private vault, licence, trade, oracle judgement. Rules: horizons 60/120/180 s, stake 10-200, Right returns stake plus 50%, a Call judged more than 15 s late counts as Wrong, 1 unit = 1/100 SOL._ `mint_call`, `buy_call_license`,
       `schedule_settle` / `settle_due` (reads the oracle, reveals, pays), `desk_trade`, analyst stats in
       `Season`. Tests in `tests/desk.rs`.
 - [x] **A-3.2 Epoch (4 h).** _Done: `commit_epoch` (rollup, anyone, once 10 rounds are scored) and `open_epoch` (base, authority) in `epoch.rs`; bots send the commit, `pnpm operator` opens the next season. Verified live across two epoch boundaries (proof `docs/proofs/epoch.json`). Also fixed `finish_round` to count `Season.rounds_played`. Magic Action on the commit is A-4.2._ `commit_epoch` (commit-and-undelegate `Season`), `open_epoch`

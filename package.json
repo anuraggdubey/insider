@@ -29,6 +29,7 @@
     "simulate-round": "tsx scripts/src/simulate-round.ts",
     "privacy-test": "tsx scripts/src/privacy-test.ts",
     "go-live": "tsx scripts/src/go-live.ts",
+    "desk-demo": "tsx scripts/src/desk-demo.ts",
     "run-table": "tsx scripts/src/vertical-slice.ts --forever",
     "fund": "pnpm --filter bots fund",
     "operator": "pnpm --filter bots operator"

@@ -1,0 +1,97 @@
+{
+  "table": "DjnqzKQsUU1fmRztBAiUkPn8VwsnFYgMedcg1BPyA1k",
+  "program": "7mTtHsFMYnZRnhd3SRzhj8Nm1U2T3s33dnbJwa9zBErW",
+  "verdict": "Right",
+  "mintedPrice": 72.30687,
+  "beforeLicense": {
+    "alice": "reads direction up",
+    "bob": "sees nothing",
+    "carol": "sees nothing",
+    "anonymous": "sees nothing"
+  },
+  "afterLicense": {
+    "alice": "reads direction up",
+    "bob": "reads direction up",
+    "carol": "sees nothing",
+    "anonymous": "sees nothing"
+  },
+  "deskChips": {
+    "before": {
+      "alice": 1075,
+      "bob": 1000
+    },
+    "afterBuy": {
+      "alice": 1045,
+      "bob": 980
+    },
+    "after": {
+      "alice": 1120,
+      "bob": 1000
+    }
+  },
+  "season": {
+    "calls": 3,
+    "hits": 2,
+    "profit": 0
+  },
+  "checks": [
+    {
+      "name": "only Alice reads the vault before the licence",
+      "pass": true
+    },
+    {
+      "name": "after the licence Alice and Bob read it, Carol and anonymous do not",
+      "pass": true
+    },
+    {
+      "name": "the licence moved its price from Bob to Alice",
+      "pass": true
+    },
+    {
+      "name": "the oracle judged the Call and revealed the direction",
+      "pass": true
+    },
+    {
+      "name": "the stake came back with a bonus or was burned",
+      "pass": true
+    },
+    {
+      "name": "Alice's public record counts the Call",
+      "pass": true
+    }
+  ],
+  "steps": [
+    {
+      "what": "alice mints a 60 s Call: up, stake 50, licence 20 (495 ms)",
+      "signature": "4YCW1iw9PXYs7272stTyzJDLCW6KTSsjBuywsxyTE12iLosszC1HpyJqFyoJYXcKTtuKHPyvQ4osGufTvRrpeG5q",
+      "url": "https://explorer.solana.com/tx/4YCW1iw9PXYs7272stTyzJDLCW6KTSsjBuywsxyTE12iLosszC1HpyJqFyoJYXcKTtuKHPyvQ4osGufTvRrpeG5q?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app"
+    },
+    {
+      "what": "Call 2 minted at $72.31, expires 21:59:44"
+    },
+    {
+      "what": "before the licence: {\"alice\":\"reads direction up\",\"bob\":\"sees nothing\",\"carol\":\"sees nothing\",\"anonymous\":\"sees nothing\"}"
+    },
+    {
+      "what": "bob buys the licence from seat 7 for 20 (561 ms)",
+      "signature": "5mUUqgxfSqyCLYYiy24MbyKeUgdG1b7dTmZSnHwffkMQkUz6ArNE8AL6od6VFrE6ffuMy9cwAZ79GrAcDu4EFCaf",
+      "url": "https://explorer.solana.com/tx/5mUUqgxfSqyCLYYiy24MbyKeUgdG1b7dTmZSnHwffkMQkUz6ArNE8AL6od6VFrE6ffuMy9cwAZ79GrAcDu4EFCaf?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app"
+    },
+    {
+      "what": "after the licence: {\"alice\":\"reads direction up\",\"bob\":\"reads direction up\",\"carol\":\"sees nothing\",\"anonymous\":\"sees nothing\"}"
+    },
+    {
+      "what": "bob trades +100 Desk units on the Call (407 ms)",
+      "signature": "4oAHz4BSobpaxxX9DDuhdDVjsLoWXMHRaDsuYWM4LtpKc9QXxri1TLtkcgh3SjfkeUHJXV3T1ohVrKFMBVbkfFvp",
+      "url": "https://explorer.solana.com/tx/4oAHz4BSobpaxxX9DDuhdDVjsLoWXMHRaDsuYWM4LtpKc9QXxri1TLtkcgh3SjfkeUHJXV3T1ohVrKFMBVbkfFvp?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app"
+    },
+    {
+      "what": "carol settles the Call (656 ms)",
+      "signature": "2hrQUT1n7kUEBXaHuZSj99E2vn3qvWngL21HvGzbxZocbduL9Yq2H3GAT2wt8jFcrRjaaPCNG1U4e4dbkuufbgHu",
+      "url": "https://explorer.solana.com/tx/2hrQUT1n7kUEBXaHuZSj99E2vn3qvWngL21HvGzbxZocbduL9Yq2H3GAT2wt8jFcrRjaaPCNG1U4e4dbkuufbgHu?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app"
+    },
+    {
+      "what": "Call judged Right: direction revealed up; Alice's record: 3 calls, 2 hits, profit 0"
+    }
+  ]
+}
