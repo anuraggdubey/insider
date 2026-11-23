@@ -1,4 +1,4 @@
-import { Keypair } from "@solana/web3.js";
+import { Keypair, PublicKey } from "@solana/web3.js";
 import { describe, expect, it } from "vitest";
 
 import { DUTCH_TICKS, buildView, dutchPrice, type Decoded } from "../src/observe.js";
@@ -75,5 +75,76 @@ describe("buildView", () => {
       },
     });
     expect(buildView(taken, me, new Map()).seat.owned).toBe(false);
+  });
+});
+
+describe("buildView for the second wave", () => {
+  it("lists the other seats, the open Calls and the Desk balance", () => {
+    const other = Keypair.generate().publicKey;
+    const view = buildView(
+      decoded({
+        seat: {
+          index: 0,
+          owner: me,
+          chips: 950,
+          position: 120,
+          pendingCount: 1,
+          deskChips: 800,
+          deskPosition: -40,
+        },
+        seats: [
+          { index: 0, owner: me, chips: 950, position: 120 },
+          { index: 1, owner: other, chips: 1_000, position: -300 },
+          { index: 2, owner: PublicKey.default, chips: 0, position: 0 },
+        ],
+        calls: [
+          {
+            callId: 4,
+            authorSeat: 1,
+            state: 1,
+            expiryTs: 5_000,
+            licenseAsk: 25,
+            readers: [me, PublicKey.default],
+          },
+          { callId: 3, authorSeat: 2, state: 2, expiryTs: 100, licenseAsk: 0, readers: [] },
+        ],
+      }),
+      me,
+      new Map(),
+      new Map([[1, 1 as const]]),
+    );
+    expect(view.desk).toEqual({ chips: 800, position: -40 });
+    expect(view.seats.map((s) => [s.index, s.owned, s.position])).toEqual([
+      [0, true, 120],
+      [1, true, -300],
+      [2, false, 0],
+    ]);
+    // a settled Call is not offered
+    expect(view.calls).toEqual([
+      {
+        author: 1,
+        callId: 4,
+        licenseAsk: 25,
+        expiry: 5_000,
+        readerCount: 1,
+        isMine: false,
+        isReader: true,
+      },
+    ]);
+    expect(view.callDirections.get(1)).toBe(1);
+  });
+
+  it("reads what a leak cost and what its licence asks", () => {
+    const view = buildView(
+      decoded({
+        board: {
+          roundId: 2,
+          headers: [header({ state: 4, ownerSeat: 3, paid: 9, licenseAsk: 5 })],
+        },
+      }),
+      me,
+      new Map(),
+    );
+    expect(view.leaks[0]).toMatchObject({ paid: 9, licenseAsk: 5, readerCount: 0 });
   });
 });

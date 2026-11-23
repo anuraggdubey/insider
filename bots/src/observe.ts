@@ -4,7 +4,7 @@ import type { PublicKey } from "@solana/web3.js";
 import { phaseOf } from "@insider/sdk";
 
 import type { Payload } from "./signal.js";
-import type { BotView, LeakView } from "./view.js";
+import type { BotView, CallView, LeakView, SeatView } from "./view.js";
 
 const num = (value: { toString(): string } | number) => Number(value.toString());
 
@@ -14,6 +14,8 @@ export const dutchPrice = (start: number, floor: number, auctionStart: number, t
   const elapsed = Math.min(DUTCH_TICKS - 1, Math.max(0, tick - auctionStart));
   return start - Math.floor((Math.max(0, start - floor) * elapsed) / (DUTCH_TICKS - 1));
 };
+
+type Num = { toString(): string } | number;
 
 export type Decoded = {
   table: { roundId: number; tick: number; phase: Record<string, unknown> };
@@ -29,7 +31,9 @@ export type Decoded = {
       auctionStart: number;
       startPrice: number;
       floorPrice: number;
+      paid?: Num;
       ask: number;
+      licenseAsk?: Num;
       readerCount: number;
       readers: PublicKey[];
     }>;
@@ -37,17 +41,33 @@ export type Decoded = {
   seat: {
     index: number;
     owner: PublicKey;
-    chips: { toString(): string } | number;
+    chips: Num;
     position: number;
     pendingCount: number;
+    deskChips?: Num;
+    deskPosition?: number;
   };
   liquidated: boolean;
+  /** Every seat (this one included), when the persona needs to watch the others. */
+  seats?: Array<{ index: number; owner: PublicKey; chips: Num; position: number }>;
+  /** The call book headers, one per seat. */
+  calls?: Array<{
+    callId: number;
+    authorSeat: number;
+    state: number;
+    expiryTs: Num;
+    licenseAsk: Num;
+    readers: PublicKey[];
+  }>;
 };
+
+const FREE = "11111111111111111111111111111111";
 
 export function buildView(
   decoded: Decoded,
   me: PublicKey,
   payloads: Map<number, Payload>,
+  callDirections: Map<number, 1 | -1> = new Map(),
 ): BotView {
   const { table, market, board, seat } = decoded;
   const tick = table.tick;
@@ -66,6 +86,9 @@ export function buildView(
       state,
       ownerSeat: header.ownerSeat,
       price,
+      paid: header.paid === undefined ? 0 : num(header.paid),
+      licenseAsk: header.licenseAsk === undefined ? 0 : num(header.licenseAsk),
+      readerCount: header.readerCount,
       auctionOver: Math.max(0, tick - header.auctionStart) >= DUTCH_TICKS,
       isMine: header.ownerSeat === index,
       isReader: header.readers.slice(0, header.readerCount).some((reader) => reader.equals(me)),
@@ -73,6 +96,23 @@ export function buildView(
   });
   // leaks of an older round stay on the board until the next seed: only this round's count
   const current = board.roundId === table.roundId ? leaks : [];
+  const seats: SeatView[] = (decoded.seats ?? []).map((s) => ({
+    index: s.index,
+    owned: s.owner.toBase58() !== FREE,
+    position: s.position,
+    chips: num(s.chips),
+  }));
+  const calls: CallView[] = (decoded.calls ?? [])
+    .filter((call) => call.state === 1)
+    .map((call) => ({
+      author: call.authorSeat,
+      callId: call.callId,
+      licenseAsk: num(call.licenseAsk),
+      expiry: num(call.expiryTs),
+      readerCount: call.readers.filter((reader) => reader.toBase58() !== FREE).length,
+      isMine: call.authorSeat === index,
+      isReader: call.readers.some((reader) => reader.equals(me)),
+    }));
   return {
     roundId: table.roundId,
     tick,
@@ -88,7 +128,14 @@ export function buildView(
         .length,
       liquidated: decoded.liquidated,
     },
+    desk: {
+      chips: seat.deskChips === undefined ? 0 : num(seat.deskChips),
+      position: seat.deskPosition ?? 0,
+    },
     leaks: current,
+    seats,
+    calls,
     payloads,
+    callDirections,
   };
 }

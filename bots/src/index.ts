@@ -12,7 +12,10 @@ import { membersFor } from "./roster.js";
 async function main() {
   const log = pino({ level: process.env.LOG_LEVEL || "info" });
   const config = loadConfig();
-  const members = loadAll(config.agentDir, membersFor("v1"));
+  const members = loadAll(
+    config.agentDir,
+    membersFor("all").filter((member) => member.kind === "bot"),
+  );
   log.info(
     {
       table: config.insider.tableAuthority?.toBase58(),
