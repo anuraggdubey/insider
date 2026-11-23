@@ -11,13 +11,14 @@ const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"]
 
 export const metadata: Metadata = {
   title: "INSIDER — Front-running is the game.",
-  description: "Every order waits in a TEE-sealed dark mempool. Buy a look. Jump the line.",
+  description: "Orders wait in a TEE-sealed dark mempool. Buy a look. Jump the line.",
 };
 export const viewport: Viewport = { themeColor: "#07080A" };
 
 const nav = [
   ["Floor", "/table"],
   ["X-ray", "/xray"],
+  ["Rules", "/rules"],
   ["Watch", "/watch"],
   ["Desk", "/desk"],
   ["Proof", "/proof"],

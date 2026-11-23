@@ -5,6 +5,7 @@ import {
   BANKROLL_CHIPS,
   decodeAccount,
   dutchPrice,
+  E1_PRIORITY_FEE_CHIPS,
   LANE_PRIORITY,
   LANE_STANDARD,
   PRICE_ONE,
@@ -110,7 +111,7 @@ export function createFixture(): Fixture {
     params: {
       arbBps: 400,
       feeBps: 10,
-      priorityFee: 3,
+      priorityFee: E1_PRIORITY_FEE_CHIPS,
       standardDelay: 20,
       priorityDelay: 4,
       maxOrderUnits: 2_000,

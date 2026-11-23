@@ -1,4 +1,5 @@
-import { ArrowDownRight, Eye, LockKeyhole, MoveUpRight, ScanLine } from "lucide-react";
+import { E1_PRIORITY_FEE_CHIPS } from "@insider/sdk";
+import { Eye, LockKeyhole, MoveUpRight, ScanLine } from "lucide-react";
 import Link from "next/link";
 import { PlayButton } from "@/components/onboarding/guest";
 import { buttonStyles } from "@/components/ui/button";
@@ -11,7 +12,7 @@ const beats = [
     title: "Send into the dark",
     text: "Your order enters a sealed mempool. Everyone can see that you sent it. Nobody can see what it is.",
     note: "STANDARD / 10S / FREE",
-    extra: "PRIORITY / 2S / 10 CHIPS",
+    extra: `PRIORITY / 2S / ${E1_PRIORITY_FEE_CHIPS} CHIPS`,
   },
   {
     number: "02",
@@ -52,14 +53,14 @@ export default function Home() {
             <span className="text-muted">is the game.</span>
           </h1>
           <p className="text-muted mt-8 max-w-lg text-base leading-7 sm:text-lg">
-            Every order waits 10 seconds in a TEE-sealed dark mempool.
+            Standard orders wait 10 seconds in a TEE-sealed dark mempool.
             <br className="hidden sm:block" /> Buy a look. Jump the line.
           </p>
           <div className="mt-9 flex flex-wrap items-center gap-3">
             <PlayButton />
-            <a href="#how-it-works" className={buttonStyles({ variant: "outline", size: "lg" })}>
-              How it works <ArrowDownRight className="text-muted size-4" />
-            </a>
+            <Link href="/rules" className={buttonStyles({ variant: "outline", size: "lg" })}>
+              How it works <MoveUpRight aria-hidden="true" className="text-muted size-4" />
+            </Link>
           </div>
           <p className="text-faint mt-10 font-mono text-[10px] leading-5 tracking-[.12em] uppercase">
             Solana devnet <span className="text-line-strong mx-1">·</span> MagicBlock Private

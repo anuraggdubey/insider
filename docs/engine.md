@@ -1,5 +1,7 @@
 # Market engine and E1
 
+For client configuration, instructions and account decoding, see the [SDK guide](api.md).
+
 ## Parameters and math
 
 Prices use `PRICE_ONE = 1_000_000`; one tick is 0.5 seconds. The floor starts

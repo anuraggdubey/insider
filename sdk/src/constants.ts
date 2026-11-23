@@ -28,5 +28,6 @@ export const WHALE_SEAT = 255;
 export const NO_SEAT = 254;
 export const BANKROLL_CHIPS = 1_000;
 export const BANKROLL = BANKROLL_CHIPS;
+export const E1_PRIORITY_FEE_CHIPS = 3;
 export const MARKET_FLOOR = 0;
 export const MARKET_DESK = 1;
