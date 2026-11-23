@@ -63,6 +63,8 @@ The Desk: `pnpm desk-demo` runs one Call end to end on the live table (needs the
 
 AI analysts and captions: `pnpm analysts` (needs the table set up; set `ANTHROPIC_API_KEY` in `.env` for the model, `ANALYST_PREDICTOR=heuristic` for a local non-AI test). The caption feed listens on `COMMENTARY_PORT` (8788). `pnpm fund --all` tops up the two analysts and the two v2 bots. Run only one `pnpm bots` at a time: two copies send duplicate transactions.
 
+The Alpha Cup: `pnpm cup-operator` (needs the authority key; keep it running next to `pnpm bots`, which record and settle the cup) serves `GET /cup/status` and `POST /cup/cosign` on `CUP_PORT` (8789). Buy-in 10 tokens, fee 5%, token `CUP_MINT` (default the G5 test mint). `pnpm cup-demo` runs a whole cup with two test players (about ten minutes) and writes `docs/proofs/cup.json`. If the operator is down the cup simply waits: nothing is paid twice after a restart.
+
 Bots: `pnpm fund` (three v1 wallets, 0.05 SOL each), then `pnpm bots`. Each bot logs in to the TEE with its own key, plays its persona (front-runner, flow, baiter) and, like every seat, scores, reseals and starts rounds and re-arms the crank, so no keeper script is needed. `TABLE_AUTHORITY` overrides the table owner (default: the deployer key).
 
 Round end order is `finish_round`, then `reseal_leaks(0, 6)`, then `request_round_seed`

@@ -22,10 +22,13 @@ import {
   cancelVrf,
   claimSeat,
   commitEpoch,
+  cupRecord,
+  cupSettle,
   cycleStateFrom,
   decodeBoard,
   decodeCallBook,
   decodeCallVault,
+  decodeCup,
   decodeLeakVault,
   decodeMarket,
   decodeSeat,
@@ -111,12 +114,12 @@ export class Bot {
   async observe() {
     const connection = await this.connection();
     const p = this.accounts;
-    const keys = [p.table, p.floor, p.board, p.xray, p.callBook, ...p.seats];
+    const keys = [p.table, p.floor, p.board, p.xray, p.callBook, p.cup, ...p.seats];
     const [infos, slot] = await Promise.all([
       connection.getMultipleAccountsInfo(keys),
       connection.getSlot(),
     ]);
-    const [table, market, board, xray, callBook, ...seatInfos] = infos;
+    const [table, market, board, xray, callBook, cup, ...seatInfos] = infos;
     if (!table || !market || !board || !xray || !callBook || seatInfos.some((s) => !s)) {
       throw new Error("table accounts not readable");
     }
@@ -127,6 +130,8 @@ export class Bot {
       board: decodeBoard(board.data),
       xray: decodeXray(xray.data),
       calls: decodeCallBook(callBook.data).headers,
+      // the cup exists once the setup has created it; before that the planner ignores it
+      cup: cup ? decodeCup(cup.data) : undefined,
       seats,
       seat: seats[this.member.seat]!,
       slot,
@@ -282,7 +287,7 @@ export class Bot {
     const { me, config } = this;
 
     if (now - this.lastDrive > DRIVE_COOLDOWN_MS) {
-      const action = nextAction(cycleStateFrom(table, seen.board, seen.xray, slot), {
+      const action = nextAction(cycleStateFrom(table, seen.board, seen.xray, slot, seen.cup), {
         epochs: true,
       });
       if (action !== "wait") {
@@ -299,6 +304,10 @@ export class Bot {
               "request_round_seed",
               requestRoundSeed(config, me, EPHEMERAL_VRF_QUEUE),
             );
+          } else if (action === "cup_record") {
+            await this.send("cup_record", cupRecord(config, me));
+          } else if (action === "cup_settle") {
+            await this.send("cup_settle", cupSettle(config, me));
           } else if (action === "commit_epoch") {
             await this.send("commit_epoch", commitEpoch(config, me));
           } else if (action === "cancel_vrf") {

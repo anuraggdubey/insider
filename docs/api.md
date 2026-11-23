@@ -205,3 +205,23 @@ Poll with the largest `id` you have seen. `paused` is true while the optional mo
 `round-end`, `sandwich`, `leak-drop`, `leak-bought`, `leak-listed`, `leak-flipped`,
 `leak-opened`, `license-sold`, `call-minted`, `call-judged`, `big-fill`. A minted Call never
 names its direction; the judged caption does.
+
+## Alpha Cup
+
+Five rounds, human seats (7 to 9) only, the top three are paid 50/30/20 (60/40 for two, all for
+one) after a 5% platform fee. Players pay the buy-in with a private transfer to the operator
+(Private Payments API, `docs/proofs/gates/g5.json`), then join:
+
+```ts
+import { cupJoin } from "@insider/sdk";
+const tx = new Transaction().add(cupJoin(config, owner, seatIndex)); // owner signs first
+// POST the partially signed transaction; the operator checks it, co-signs and submits it
+await fetch(`${operator}/cup/cosign`, {
+  method: "POST",
+  body: JSON.stringify({ transactionBase64 }),
+});
+```
+
+`GET /cup/status` returns `{ cupId, open, roundsRecorded, settled, entrants, credits, buyIn, feeBps,
+mint, operator, history }`. The `Cup` account (`decodeCup`) is public: entries, scores, and after
+settlement the winners with their shares in basis points.

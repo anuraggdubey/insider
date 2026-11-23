@@ -33,7 +33,9 @@
     "run-table": "tsx scripts/src/vertical-slice.ts --forever",
     "fund": "pnpm --filter bots fund",
     "operator": "pnpm --filter bots operator",
-    "analysts": "pnpm --filter bots analysts"
+    "analysts": "pnpm --filter bots analysts",
+    "cup-operator": "pnpm --filter bots cup-operator",
+    "cup-demo": "pnpm --filter bots cup-demo"
   },
   "prettier": {
     "semi": true,

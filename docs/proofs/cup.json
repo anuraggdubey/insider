@@ -1,0 +1,202 @@
+{
+  "table": "DjnqzKQsUU1fmRztBAiUkPn8VwsnFYgMedcg1BPyA1k",
+  "program": "7mTtHsFMYnZRnhd3SRzhj8Nm1U2T3s33dnbJwa9zBErW",
+  "mint": "2P93g7wmAgD8126oJbNWfHDkejiEyYJCcHYT7UiprLio",
+  "buyIn": "10000000",
+  "players": {
+    "bob": "4fg2pr8RxpkNCBZGoVzwH3BkWJWwSr5sfCKHM2xcoWrG",
+    "carol": "5wdZLLa9EC5MuiRXWxzPSuE8Mx7qGWSB5EFPo1PGApTe"
+  },
+  "payout": {
+    "cup": 1,
+    "entrants": 2,
+    "pot": "20000000",
+    "fee": "1000000",
+    "prizes": [
+      {
+        "to": "5wdZLLa9EC5MuiRXWxzPSuE8Mx7qGWSB5EFPo1PGApTe",
+        "amount": "11400000",
+        "signature": "5H4eU5AcqnJsLXo9VDXxFX6v3f1yKRwuUT6uF8numojgcnEr9S7yUwSBobgycBDtiYJque8wqRULPe8zcm7MdBLj"
+      },
+      {
+        "to": "4fg2pr8RxpkNCBZGoVzwH3BkWJWwSr5sfCKHM2xcoWrG",
+        "amount": "7600000",
+        "signature": "5apsbJgWfXymnquu1gG2cMkhfKSMbbtdiTjD6wX8GYjrLmLvaWiFyfGNcBWt2fpJqndFWHYWLeXd1u768pUj3fjX"
+      }
+    ],
+    "closed": "R95mCnMPaQmCYjQ9t6MFEcH92q4a6HsocpUUcVPghEPRcXspWQdhS1ufK5tQ47TBr2EBtoXMScR6XdTbY5zfsnF"
+  },
+  "received": {
+    "bob": "7600000",
+    "carol": "11400000"
+  },
+  "checks": [
+    {
+      "name": "two entrants joined and the buy-ins were counted",
+      "pass": true
+    },
+    {
+      "name": "the pot is the buy-ins, the fee is 5%",
+      "pass": true
+    },
+    {
+      "name": "two prizes were paid, 60/40 of the pool",
+      "pass": true
+    },
+    {
+      "name": "each winner's private balance rose by exactly the prize",
+      "pass": true
+    },
+    {
+      "name": "the next cup is open",
+      "pass": true
+    }
+  ],
+  "steps": [
+    {
+      "at": "2026-11-23T22:44:48.516Z",
+      "what": "cup 1: buy-in 10 tokens, fee 5%, 0 entrants so far"
+    },
+    {
+      "at": "2026-11-23T22:44:49.858Z",
+      "what": "bob receives 0.06 SOL for fees"
+    },
+    {
+      "at": "2026-11-23T22:44:51.797Z",
+      "what": "bob receives 20 test tokens",
+      "signature": "5GvJmGmRSqNd1W2FvH9MFdcykhXYUuEPZyZjSpYaTBNFep8xo3nbdMuqLjtSc3MUr7ybBrLS9kmRJfFyAKZ5hPx1"
+    },
+    {
+      "at": "2026-11-23T22:44:52.707Z",
+      "what": "carol receives 0.06 SOL for fees"
+    },
+    {
+      "at": "2026-11-23T22:44:54.683Z",
+      "what": "carol receives 20 test tokens",
+      "signature": "66TZKik5bkr9W8LgQb3jsFUA52Nuj8ZRsLZUY714TkpYmwCb7Gs3KLsHSkYtc6bfPt3yJ3KcpBzkb9ngut3W1aaX"
+    },
+    {
+      "at": "2026-11-23T22:44:57.227Z",
+      "what": "bob deposits 10 tokens into the rollup",
+      "signature": "5Sw74PwJv1tRWCkZ5kSpZEn26bGHSasY5ikiLpfAKty3LKJVAXBJwGQ4CmA9Z7yFN3TFuE1t2UEUFkbK5JTsNrhp"
+    },
+    {
+      "at": "2026-11-23T22:44:57.981Z",
+      "what": "bob sends the buy-in privately to the operator",
+      "signature": "ASu9T3xPMb31HVZgaancXmTF9vXSjqCqvQoYLn6kAH2iQtGBoK4NERgsvAKwU8FrExYAEoVDJ8penoEhsEgYDeJ"
+    },
+    {
+      "at": "2026-11-23T22:44:59.791Z",
+      "what": "carol deposits 10 tokens into the rollup",
+      "signature": "4p7ZXS8VxFxsynD5TaoNZQrKB1h2WjmNq7pQpNXjRtvwuEuvmg3ZLb1k2NZmB99Te9Wf3jma2Garbq448CK4QoUh"
+    },
+    {
+      "at": "2026-11-23T22:45:00.349Z",
+      "what": "carol sends the buy-in privately to the operator",
+      "signature": "4ohPqcPuYXgYnwsarEmwfSybdKPYw48VNA6QcnobbH5jRDrFb7sKCdtKbauVS6kE2H5pg49xjYoVp8baJFhcLaw7"
+    },
+    {
+      "at": "2026-11-23T22:45:03.514Z",
+      "what": "the operator has counted both buy-ins"
+    },
+    {
+      "at": "2026-11-23T22:45:05.449Z",
+      "what": "bob joins the cup (the operator co-signed)",
+      "signature": "2z6Wd54Qd49JzBvYeLSkB8jy9vzE7VzWaktGhXPegvtP33qGt1tdgW7hsv2FceccWm2pLHXPyJrAPmhFt5KZNvaP"
+    },
+    {
+      "at": "2026-11-23T22:45:06.436Z",
+      "what": "carol joins the cup (the operator co-signed)",
+      "signature": "4adNvUNckMwZu3z9oWp1EBaHtPyUDC45Xss7bV5cDRGYWHkkp4usrZGMeumRhq61weVPpmyHPtQHAUMkCDTU99n8"
+    },
+    {
+      "at": "2026-11-23T22:45:06.684Z",
+      "what": "a junk transaction is refused (HTTP 400)"
+    },
+    {
+      "at": "2026-11-23T22:45:07.507Z",
+      "what": "round 85 tick 174: cup 1, 0/5 rounds, running"
+    },
+    {
+      "at": "2026-11-23T22:45:13.861Z",
+      "what": "round 85 tick 186: cup 1, 1/5 rounds, running"
+    },
+    {
+      "at": "2026-11-23T22:45:22.310Z",
+      "what": "round 86 tick 0: cup 1, 1/5 rounds, running"
+    },
+    {
+      "at": "2026-11-23T22:45:31.355Z",
+      "what": "bob buys 200 in round 86",
+      "signature": "48qJfe4hWBAVZeRPz652bkuqeFNL65dQB2vBqttDYamz37aYmJAvtDsDv1c2EV8sYiszoWVmLxcu4VAqz3sMMJ5N"
+    },
+    {
+      "at": "2026-11-23T22:45:32.180Z",
+      "what": "carol sells 200 in round 86",
+      "signature": "4RqieA7aW2CPeSVecjoq9qbzBEUAGSR5MHDfa1teRvoU93qdWajsBW9n7aNjFQTNUBrVdmre93zRSty6x4p3NGNf"
+    },
+    {
+      "at": "2026-11-23T22:46:58.712Z",
+      "what": "round 86 tick 194: cup 1, 2/5 rounds, running"
+    },
+    {
+      "at": "2026-11-23T22:47:05.072Z",
+      "what": "round 87 tick 1: cup 1, 2/5 rounds, running"
+    },
+    {
+      "at": "2026-11-23T22:47:14.256Z",
+      "what": "bob buys 200 in round 87",
+      "signature": "rwEKcuDXeKfoicpZK5mFvBKWjDEnFAimZBMQUmfDxqgtWdCG5hkwrmcTJDd7rXhheVXN9Lu6hAz36TdVAWgEDVg"
+    },
+    {
+      "at": "2026-11-23T22:47:14.827Z",
+      "what": "carol sells 200 in round 87",
+      "signature": "2anjheogULL3guSvj8yWttri2BtsBmFsABFnbu6Z4wKDBAfUsM5DzFxGNZeqyWciShkDoZHm35LWzsT9whiKhwoA"
+    },
+    {
+      "at": "2026-11-23T22:48:37.082Z",
+      "what": "round 87 tick 185: cup 1, 3/5 rounds, running"
+    },
+    {
+      "at": "2026-11-23T22:48:45.635Z",
+      "what": "round 88 tick 1: cup 1, 3/5 rounds, running"
+    },
+    {
+      "at": "2026-11-23T22:48:54.679Z",
+      "what": "bob buys 200 in round 88",
+      "signature": "3gyutgyXg7UuFrw9DDFwB793Xw46mZQjgi8MLEEPcTiAeH2QZn21y87G5F9P1ibcjZcW5iPBxDPnF5ykhaP6qKWV"
+    },
+    {
+      "at": "2026-11-23T22:48:55.338Z",
+      "what": "carol sells 200 in round 88",
+      "signature": "2sCfhbNLbQ4gfsMRrVSjKQDBVDX51XWMmskv9Gwfbx3jcVMgQYdkPQL7fCiM83F9VX8eNGQGtkzC4Nvvqd4CwXkP"
+    },
+    {
+      "at": "2026-11-23T22:50:22.120Z",
+      "what": "round 88 tick 194: cup 1, 4/5 rounds, running"
+    },
+    {
+      "at": "2026-11-23T22:50:28.452Z",
+      "what": "round 89 tick 2: cup 1, 4/5 rounds, running"
+    },
+    {
+      "at": "2026-11-23T22:50:35.691Z",
+      "what": "bob buys 200 in round 89",
+      "signature": "4KA2tjJNHKMJjxEZxXifGEgFUL5DaFfzcFgoEEqE5FUU46C4YPCrTc6AYAm7QC7rjoCmx9ceZ8Y9ntagRMHLCr29"
+    },
+    {
+      "at": "2026-11-23T22:50:36.266Z",
+      "what": "carol sells 200 in round 89",
+      "signature": "5Ts6z7KpvDNhTjVVMif4PDChXAC2TZDuaZKRNsT4uALuqgP7ynd2EUpVf7ndmSXZ3DsB8BNixbdt1wodbYMd4hBp"
+    },
+    {
+      "at": "2026-11-23T22:52:05.207Z",
+      "what": "round 89 tick 195: cup 1, 5/5 rounds, settled"
+    },
+    {
+      "at": "2026-11-23T22:52:09.647Z",
+      "what": "cup 1 paid: pot 20, fee 1, cup closed",
+      "signature": "R95mCnMPaQmCYjQ9t6MFEcH92q4a6HsocpUUcVPghEPRcXspWQdhS1ufK5tQ47TBr2EBtoXMScR6XdTbY5zfsnF"
+    }
+  ]
+}

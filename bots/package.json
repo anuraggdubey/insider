@@ -11,17 +11,21 @@
     "test": "vitest run",
     "fund": "tsx src/fund.ts",
     "operator": "tsx src/operator.ts",
-    "analysts": "tsx src/ai/index.ts"
+    "analysts": "tsx src/ai/index.ts",
+    "cup-operator": "tsx src/cup/index.ts",
+    "cup-demo": "tsx src/cup/demo.ts"
   },
   "dependencies": {
     "@anchor-lang/core": "^1.2.2",
     "@anthropic-ai/sdk": "^1.12.0",
     "@insider/sdk": "workspace:*",
     "@magicblock-labs/ephemeral-rollups-sdk": "^0.18.0",
+    "@solana/spl-token": "0.4.15",
     "@solana/web3.js": "^1.99.0",
     "bs58": "^6.0.0",
     "dotenv": "^18.0.10",
     "pino": "^10.4.0",
+    "tweetnacl": "1.0.3",
     "ws": "^8.23.0",
     "zod": "^4.6.7"
   },
