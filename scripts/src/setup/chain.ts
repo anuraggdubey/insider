@@ -10,7 +10,7 @@ import {
   sendAndConfirmTransaction,
 } from "@solana/web3.js";
 
-import { DELEGATION_PROGRAM_ID, PERMISSION_PROGRAM_ID } from "../lib/config.js";
+import { DELEGATION_PROGRAM_ID } from "../lib/config.js";
 import type { TableAccounts } from "../lib/insider.js";
 import { MARKET_FLOOR, permissionPdaFromAccount } from "../lib/insider.js";
 import {
@@ -151,19 +151,22 @@ export async function buildInstruction(
 export const privateAddress = (accounts: TableAccounts, target: PrivateTarget): PublicKey =>
   typeof target === "string" ? accounts[target] : accounts.vaults[target.vault]!;
 
-/** Which private accounts already have a permission account, read on the rollup. */
+/**
+ * Which private accounts are already private. The permission account itself is not readable on
+ * the TEE, but a private account is: the TEE answers `null` for it, even to the table authority
+ * (this is the same check the privacy test makes). Only call this once the accounts are delegated.
+ */
 export async function readPermissions(
   rollup: Connection,
   accounts: TableAccounts,
 ): Promise<PermissionState> {
-  const keys = [
+  const infos = await rollup.getMultipleAccountsInfo([
     accounts.mempool,
     accounts.future,
     ...accounts.vaults,
-  ].map((account) => permissionPdaFromAccount(account));
-  const infos = await rollup.getMultipleAccountsInfo(keys);
-  const has = (i: number) => Boolean(infos[i]?.owner.equals(PERMISSION_PROGRAM_ID));
-  return { mempool: has(0), future: has(1), vaults: accounts.vaults.map((_, i) => has(2 + i)) };
+  ]);
+  const hidden = (i: number) => infos[i] === null;
+  return { mempool: hidden(0), future: hidden(1), vaults: accounts.vaults.map((_, i) => hidden(2 + i)) };
 }
 
 /** `init_permission`: the authority makes one private account private to the keyless member. */
