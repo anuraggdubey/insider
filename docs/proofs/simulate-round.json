@@ -1,0 +1,308 @@
+{
+  "table": "DjnqzKQsUU1fmRztBAiUkPn8VwsnFYgMedcg1BPyA1k",
+  "program": "7mTtHsFMYnZRnhd3SRzhj8Nm1U2T3s33dnbJwa9zBErW",
+  "round": 5,
+  "actors": {
+    "alice": "23k9UnCKBkFyci6Sv1RhuFXUXFgTnjV6oeTZyMaxopWm",
+    "bob": "4fg2pr8RxpkNCBZGoVzwH3BkWJWwSr5sfCKHM2xcoWrG",
+    "carol": "5wdZLLa9EC5MuiRXWxzPSuE8Mx7qGWSB5EFPo1PGApTe"
+  },
+  "checks": [
+    {
+      "name": "the X-ray is the round we played and is scored",
+      "pass": true,
+      "detail": "round 5, finalized true"
+    },
+    {
+      "name": "all eight drops were minted",
+      "pass": true,
+      "detail": "8 leaks recorded"
+    },
+    {
+      "name": "Alice and Carol bought Leaks",
+      "pass": true,
+      "detail": "owners 254, 7, 9"
+    },
+    {
+      "name": "Leaks were opened",
+      "pass": true,
+      "detail": "4 opened"
+    },
+    {
+      "name": "Bob's order landed",
+      "pass": true,
+      "detail": "1 order(s)"
+    },
+    {
+      "name": "Alice front-ran Bob on the priority lane",
+      "pass": true,
+      "detail": "Bob sent at tick 11 and landed at 31; Alice sent at 19 and landed at 23"
+    }
+  ],
+  "privacy": {
+    "vault": "FPab7gbDF6AsHhuR19jbc5i4EVMSCRfjoxSuyeCKuf8D",
+    "aliceCanRead": true,
+    "bobCanRead": false,
+    "anonymousCanRead": false
+  },
+  "xray": {
+    "orders": [
+      {
+        "seat": 7,
+        "lane": 1,
+        "sideSize": 400,
+        "sentTick": 19,
+        "landTick": 23
+      },
+      {
+        "seat": 8,
+        "lane": 0,
+        "sideSize": 600,
+        "sentTick": 11,
+        "landTick": 31
+      },
+      {
+        "seat": 255,
+        "lane": 0,
+        "sideSize": -2304,
+        "sentTick": 0,
+        "landTick": 83
+      },
+      {
+        "seat": 255,
+        "lane": 0,
+        "sideSize": -1721,
+        "sentTick": 0,
+        "landTick": 140
+      },
+      {
+        "seat": 255,
+        "lane": 0,
+        "sideSize": -2401,
+        "sentTick": 0,
+        "landTick": 158
+      },
+      {
+        "seat": 255,
+        "lane": 0,
+        "sideSize": -2771,
+        "sentTick": 0,
+        "landTick": 169
+      }
+    ],
+    "leaks": [
+      {
+        "state": 5,
+        "readerCount": 0,
+        "ownerSeat": 254
+      },
+      {
+        "state": 5,
+        "readerCount": 0,
+        "ownerSeat": 254
+      },
+      {
+        "state": 5,
+        "readerCount": 1,
+        "ownerSeat": 7
+      },
+      {
+        "state": 5,
+        "readerCount": 1,
+        "ownerSeat": 7
+      },
+      {
+        "state": 5,
+        "readerCount": 1,
+        "ownerSeat": 9
+      },
+      {
+        "state": 5,
+        "readerCount": 1,
+        "ownerSeat": 9
+      },
+      {
+        "state": 5,
+        "readerCount": 0,
+        "ownerSeat": 254
+      },
+      {
+        "state": 5,
+        "readerCount": 0,
+        "ownerSeat": 254
+      }
+    ],
+    "sandwichTags": 0
+  },
+  "steps": [
+    {
+      "at": "2026-11-23T19:33:34.340Z",
+      "what": "table DjnqzKQsUU1fmRztBAiUkPn8VwsnFYgMedcg1BPyA1k, actors: alice 23k9UnCKBkFyci6Sv1RhuFXUXFgTnjV6oeTZyMaxopWm, bob 4fg2pr8RxpkNCBZGoVzwH3BkWJWwSr5sfCKHM2xcoWrG, carol 5wdZLLa9EC5MuiRXWxzPSuE8Mx7qGWSB5EFPo1PGApTe"
+    },
+    {
+      "at": "2026-11-23T19:33:35.633Z",
+      "what": "finish_round (previous round) (802 ms)",
+      "actor": "alice",
+      "signature": "31f5ZofrUaRsEXe97wjqCTdngxC3aB4r6moV4qyTcfgpF99WHaoR3BVhhpwWtiVW8kbbN7jCrjgPowrAujp8HRuB",
+      "url": "https://explorer.solana.com/tx/31f5ZofrUaRsEXe97wjqCTdngxC3aB4r6moV4qyTcfgpF99WHaoR3BVhhpwWtiVW8kbbN7jCrjgPowrAujp8HRuB?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app"
+    },
+    {
+      "at": "2026-11-23T19:33:36.147Z",
+      "what": "reseal_leaks (previous round) (237 ms)",
+      "actor": "alice",
+      "signature": "5rN97mW9dTuAV8sLsksd43sH3531JuHQ6boj4AMS4fPFHAZXPFmL61owwGwj6fVGDWBGE4fS3vTjuHYPRxe3BaDS",
+      "url": "https://explorer.solana.com/tx/5rN97mW9dTuAV8sLsksd43sH3531JuHQ6boj4AMS4fPFHAZXPFmL61owwGwj6fVGDWBGE4fS3vTjuHYPRxe3BaDS?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app"
+    },
+    {
+      "at": "2026-11-23T19:33:37.063Z",
+      "what": "request_round_seed (483 ms)",
+      "actor": "alice",
+      "signature": "b5yi6SzxC2T5BAqnwhRrQUqwGs4ahiAoVs9xJLeRwa5ieKurDaa86finVMXEHeSdu92BExuSWTptteS3ZJaqoQf",
+      "url": "https://explorer.solana.com/tx/b5yi6SzxC2T5BAqnwhRrQUqwGs4ahiAoVs9xJLeRwa5ieKurDaa86finVMXEHeSdu92BExuSWTptteS3ZJaqoQf?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app"
+    },
+    {
+      "at": "2026-11-23T19:33:37.149Z",
+      "what": "round 5 is live"
+    },
+    {
+      "at": "2026-11-23T19:33:37.465Z",
+      "what": "claim seat 7 (164 ms)",
+      "actor": "alice",
+      "signature": "5HQNuZLY44AqiVpxtDQrPhqK7piShM4wGGqXeXbQWnpq65jyhquDjCMQ2K3qJq6CrSBs69bPYf95U99cbE3FrMmy",
+      "url": "https://explorer.solana.com/tx/5HQNuZLY44AqiVpxtDQrPhqK7piShM4wGGqXeXbQWnpq65jyhquDjCMQ2K3qJq6CrSBs69bPYf95U99cbE3FrMmy?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app"
+    },
+    {
+      "at": "2026-11-23T19:33:38.373Z",
+      "what": "claim seat 8 (661 ms)",
+      "actor": "bob",
+      "signature": "5rsKhrmPAGqVCtFTvWXX8VvihswJrD8ZyqVi6wnT9uXbe666dTf9AaS19t5E4T71y3yyVjAhY4n7PcMqnZPYvcjc",
+      "url": "https://explorer.solana.com/tx/5rsKhrmPAGqVCtFTvWXX8VvihswJrD8ZyqVi6wnT9uXbe666dTf9AaS19t5E4T71y3yyVjAhY4n7PcMqnZPYvcjc?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app"
+    },
+    {
+      "at": "2026-11-23T19:33:39.274Z",
+      "what": "claim seat 9 (801 ms)",
+      "actor": "carol",
+      "signature": "4aoH8FExWMvRda5e12HrJUAfRQarCUNRw5NUE2R9Bkx8zDnn8RmE355nFiuqEzkZQ53gL44kNj9wgs6sqKkLwymx",
+      "url": "https://explorer.solana.com/tx/4aoH8FExWMvRda5e12HrJUAfRQarCUNRw5NUE2R9Bkx8zDnn8RmE355nFiuqEzkZQ53gL44kNj9wgs6sqKkLwymx?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app"
+    },
+    {
+      "at": "2026-11-23T19:33:43.220Z",
+      "what": "order: buy 600 on the standard lane (411 ms)",
+      "actor": "bob",
+      "signature": "4eRADBsqjydTA4L4JuTKtajNpo9NhtvjLK59chqT653wPcMF1FujA5qQaXWBf6TfdxRTtv1FAv9WMZHujztvRVbw",
+      "url": "https://explorer.solana.com/tx/4eRADBsqjydTA4L4JuTKtajNpo9NhtvjLK59chqT653wPcMF1FujA5qQaXWBf6TfdxRTtv1FAv9WMZHujztvRVbw?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app"
+    },
+    {
+      "at": "2026-11-23T19:33:44.059Z",
+      "what": "bid on slot 0 (kind 0) (671 ms)",
+      "actor": "alice",
+      "signature": "4NmY9aPj5spTjAo9jduLyT8gzSxXoiuV2dvCFNaT5iuUtaguLJYwJpqSBBCnr3kHtByurgQep9S7ysAZZHz1kQGA",
+      "url": "https://explorer.solana.com/tx/4NmY9aPj5spTjAo9jduLyT8gzSxXoiuV2dvCFNaT5iuUtaguLJYwJpqSBBCnr3kHtByurgQep9S7ysAZZHz1kQGA?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app"
+    },
+    {
+      "at": "2026-11-23T19:33:45.605Z",
+      "what": "open slot 0 (637 ms)",
+      "actor": "alice",
+      "signature": "3VX4QMV3hs43X5F3tQ3SjXAxCebWUoiNB5zdY8Kbdg88o2WzkAKUrfH6bmfCtK78ENqr5RVjC8Ru8YgQW68MWi74",
+      "url": "https://explorer.solana.com/tx/3VX4QMV3hs43X5F3tQ3SjXAxCebWUoiNB5zdY8Kbdg88o2WzkAKUrfH6bmfCtK78ENqr5RVjC8Ru8YgQW68MWi74?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app"
+    },
+    {
+      "at": "2026-11-23T19:33:46.682Z",
+      "what": "privacy: Alice reads her vault yes, Bob sees nothing, anonymous sees nothing",
+      "detail": {
+        "vault": "FPab7gbDF6AsHhuR19jbc5i4EVMSCRfjoxSuyeCKuf8D",
+        "aliceCanRead": true,
+        "bobCanRead": false,
+        "anonymousCanRead": false
+      }
+    },
+    {
+      "at": "2026-11-23T19:33:46.683Z",
+      "what": "Alice's payload: kind 0, 0 order(s), fields 0,0,18,27,0,0",
+      "actor": "alice"
+    },
+    {
+      "at": "2026-11-23T19:33:47.434Z",
+      "what": "front-run: buy 400 on the priority lane (568 ms)",
+      "actor": "alice",
+      "signature": "2wAGrK4v3TFUpJ69KXSrYUFXwZ5VCpSjRC73i96D2YkLNbAh9kDP48YVFdGb1TpWLaTsbcV1eYz2mEDqAznWEu9q",
+      "url": "https://explorer.solana.com/tx/2wAGrK4v3TFUpJ69KXSrYUFXwZ5VCpSjRC73i96D2YkLNbAh9kDP48YVFdGb1TpWLaTsbcV1eYz2mEDqAznWEu9q?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app"
+    },
+    {
+      "at": "2026-11-23T19:33:53.192Z",
+      "what": "bid on slot 1 (kind 5) (580 ms)",
+      "actor": "alice",
+      "signature": "61tbnHKjigHr2Mg2tHg6p9HUinbZXvBKuNv12tPx8pAt5xtXzSSucznhxVk5hgjsyNc6835URDYjBfMkaffRahE7",
+      "url": "https://explorer.solana.com/tx/61tbnHKjigHr2Mg2tHg6p9HUinbZXvBKuNv12tPx8pAt5xtXzSSucznhxVk5hgjsyNc6835URDYjBfMkaffRahE7?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app"
+    },
+    {
+      "at": "2026-11-23T19:33:54.488Z",
+      "what": "open slot 1 (549 ms)",
+      "actor": "alice",
+      "signature": "2FZCYkC79Q2zpEgeXAKBcoVMivcWEDLHSYR1GwgDe9obR5rukbgjx4Zy35VZxfEhH2ojyzWjvMhXP6ZxGVS75cTR",
+      "url": "https://explorer.solana.com/tx/2FZCYkC79Q2zpEgeXAKBcoVMivcWEDLHSYR1GwgDe9obR5rukbgjx4Zy35VZxfEhH2ojyzWjvMhXP6ZxGVS75cTR?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app"
+    },
+    {
+      "at": "2026-11-23T19:33:57.552Z",
+      "what": "tick 40"
+    },
+    {
+      "at": "2026-11-23T19:34:03.253Z",
+      "what": "bid on slot 2 (kind 6) (458 ms)",
+      "actor": "carol",
+      "signature": "2JaKKMu8GKyohboUJVU3jNCKSKrMeW59hhyyuZJxxzTyu8xM2vme1WxD1efiSTJ3drqncB78SW9QMW15oEtPwe53",
+      "url": "https://explorer.solana.com/tx/2JaKKMu8GKyohboUJVU3jNCKSKrMeW59hhyyuZJxxzTyu8xM2vme1WxD1efiSTJ3drqncB78SW9QMW15oEtPwe53?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app"
+    },
+    {
+      "at": "2026-11-23T19:34:04.701Z",
+      "what": "open slot 2 (489 ms)",
+      "actor": "carol",
+      "signature": "3mXxKnGJXoKaH8M6ymtWDi2KEdmKBVtwwsw6U8HdJrS9Zn34MCf13kVmZKiAqf7PjqUViQ9X4bqqwNPjTTLyThBz",
+      "url": "https://explorer.solana.com/tx/3mXxKnGJXoKaH8M6ymtWDi2KEdmKBVtwwsw6U8HdJrS9Zn34MCf13kVmZKiAqf7PjqUViQ9X4bqqwNPjTTLyThBz?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app"
+    },
+    {
+      "at": "2026-11-23T19:34:07.164Z",
+      "what": "tick 60"
+    },
+    {
+      "at": "2026-11-23T19:34:13.006Z",
+      "what": "bid on slot 3 (kind 4) (588 ms)",
+      "actor": "carol",
+      "signature": "4Ng8nWaVEcqLj7eRXJTrRxhSfieUeN8BDyBYCCSpSKvuR8GVmJde2x69HhJAwBZ5k2dYzyjXsdY3H9g2LFSdV6ci",
+      "url": "https://explorer.solana.com/tx/4Ng8nWaVEcqLj7eRXJTrRxhSfieUeN8BDyBYCCSpSKvuR8GVmJde2x69HhJAwBZ5k2dYzyjXsdY3H9g2LFSdV6ci?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app"
+    },
+    {
+      "at": "2026-11-23T19:34:14.507Z",
+      "what": "open slot 3 (676 ms)",
+      "actor": "carol",
+      "signature": "4o3EJQuTFC7TKk7AQPPcvWHG13k6jkF7E9hRXFrWVkcSXH8SAH4EmYdsxpDCGynH2yXqbD1kv4RhLdT6ycZXhhVs",
+      "url": "https://explorer.solana.com/tx/4o3EJQuTFC7TKk7AQPPcvWHG13k6jkF7E9hRXFrWVkcSXH8SAH4EmYdsxpDCGynH2yXqbD1kv4RhLdT6ycZXhhVs?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app"
+    },
+    {
+      "at": "2026-11-23T19:34:37.294Z",
+      "what": "tick 120"
+    },
+    {
+      "at": "2026-11-23T19:34:47.386Z",
+      "what": "tick 140"
+    },
+    {
+      "at": "2026-11-23T19:34:57.267Z",
+      "what": "tick 160"
+    },
+    {
+      "at": "2026-11-23T19:35:08.355Z",
+      "what": "finish_round (579 ms)",
+      "actor": "alice",
+      "signature": "hRGHAoPDwNYHKe28fNjN24w9BqJVbMWoPwjpiK9xXV5iTbiMW7krX6vrhf5Rpx1EeF37gJGEwmi4ZedK1bivjmG",
+      "url": "https://explorer.solana.com/tx/hRGHAoPDwNYHKe28fNjN24w9BqJVbMWoPwjpiK9xXV5iTbiMW7krX6vrhf5Rpx1EeF37gJGEwmi4ZedK1bivjmG?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app"
+    },
+    {
+      "at": "2026-11-23T19:35:09.706Z",
+      "what": "reseal_leaks(0, 6) (525 ms)",
+      "actor": "alice",
+      "signature": "4be2Dmr66uWkvKp1sivWpmrsdMhFBWFnA2EVjbUXR2t26Z94u1xcasRK4CfcHieuSQijGxBYtdFSymo67vcN1eL",
+      "url": "https://explorer.solana.com/tx/4be2Dmr66uWkvKp1sivWpmrsdMhFBWFnA2EVjbUXR2t26Z94u1xcasRK4CfcHieuSQijGxBYtdFSymo67vcN1eL?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app"
+    }
+  ]
+}

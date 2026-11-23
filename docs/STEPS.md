@@ -402,7 +402,7 @@ Needs Misbah's engine stubs (H-API) before wiring.
       instructions are unit-tested offline. Runbook: [runbook.md](runbook.md). Now covers all 25 accounts and the private permissions
       (a second plan on the rollup) and **has been run on devnet** (five delegations per
       transaction; six overflowed the packet when seats and vaults were mixed).
-- [ ] **A-2.2 `simulate-round` (4 h).** Full round with three keys: seed, orders, eight drops, bids,
+- [x] **A-2.2 `simulate-round` (4 h).** _Done: `pnpm simulate-round` ran live (round 5): checks in `scripts/src/sim/checks.ts`, proof in `docs/proofs/simulate-round.json` with every explorer link. Alice is the authority key (seat 7), Bob and Carol are keys in `.keys/sim`. It also records the privacy probe on Alice's opened vault._ Full round with three keys: seed, orders, eight drops, bids,
       opens, front-run, X-ray. Prints every explorer link and writes `docs/proofs`.
 - [ ] **A-2.3 Privacy tests (3 h).** Opener reads; a second key and an anonymous call can't read
       the vault, the mempool or the opener's order transactions; the authority can't read sealed

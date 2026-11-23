@@ -53,6 +53,8 @@ pnpm vertical-slice    # one round: request_round_seed, 200 ticks, finish_round,
 pnpm run-table         # rounds back to back, re-arming the crank (keep it running for playtests)
 ```
 
+Proof run: `pnpm simulate-round` (stop the bots first) plays one scripted round with three keys (buy, open, front-run, X-ray) and writes `docs/proofs/simulate-round.json`; it exits non-zero if a check fails.
+
 Bots: `pnpm fund` (three v1 wallets, 0.05 SOL each), then `pnpm bots`. Each bot logs in to the TEE with its own key, plays its persona (front-runner, flow, baiter) and, like every seat, scores, reseals and starts rounds and re-arms the crank, so no keeper script is needed. `TABLE_AUTHORITY` overrides the table owner (default: the deployer key).
 
 Round end order is `finish_round`, then `reseal_leaks(0, 6)`, then `request_round_seed`
