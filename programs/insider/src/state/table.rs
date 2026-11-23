@@ -43,7 +43,8 @@ impl Default for Params {
         Self {
             arb_bps: 400,
             fee_bps: 10,
-            priority_fee: 10,
+            // Gate E1 tuning (docs/engine.md): the economics only pass with a fee of 3.
+            priority_fee: 3,
             standard_delay: 20,
             priority_delay: 4,
             max_order_units: 2_000,
