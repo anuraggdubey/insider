@@ -7,6 +7,8 @@
  *   pnpm vertical-slice                 one round, the authority sits in seat 7 and sends one order
  *   pnpm vertical-slice --rounds 2      several rounds back to back
  *   pnpm vertical-slice --no-order      leave the table empty
+ *   pnpm run-table                      keep the table running for playtests: rounds back to back
+ *                                       forever (same as --forever), re-arming the crank as needed
  *
  * Needs the table set up and the crank armed: `pnpm setup-table --arm`. Writes
  * `docs/proofs/vertical-slice.json`.
@@ -31,17 +33,26 @@ import {
   sendOrder,
   sendTx,
   sleep,
-  tableAccounts,
+  tableAccounts as sdkTableAccounts,
   tx,
 } from "@insider/sdk/node";
 
+import { insiderProgram, tableAccounts } from "./lib/insider.js";
 import { teeAuthUrl } from "./lib/tee.js";
+import { needsArming, rearmCrank } from "./setup/arm.js";
 import { type Action, cycleStateFrom, nextAction } from "./round/cycle.js";
 
 const args = process.argv.slice(2);
-const rounds = args.includes("--rounds") ? Number(args[args.indexOf("--rounds") + 1]) : 1;
-const withOrder = !args.includes("--no-order");
-if (!Number.isInteger(rounds) || rounds < 1) throw new Error("--rounds must be a positive integer");
+const forever = args.includes("--forever");
+const rounds = forever
+  ? Number.POSITIVE_INFINITY
+  : args.includes("--rounds")
+    ? Number(args[args.indexOf("--rounds") + 1])
+    : 1;
+const withOrder = !forever && !args.includes("--no-order");
+if (!forever && (!Number.isInteger(rounds) || rounds < 1)) {
+  throw new Error("--rounds must be a positive integer");
+}
 
 const SEAT = 7;
 const TICK_MS = 500;
@@ -51,7 +62,7 @@ type Step = { at: string; what: string; signature?: string; detail?: unknown };
 async function main() {
   const authority = loadKeypair(baseConfig.walletPath);
   const config = { ...baseConfig, tableAuthority: authority.publicKey };
-  const accounts = tableAccounts(authority.publicKey, config.programId);
+  const accounts = sdkTableAccounts(authority.publicKey, config.programId);
   const url = (await teeAuthUrl(config.teeRpcUrl, authority)).url;
   const rollup = new Connection(url, "confirmed");
   const steps: Step[] = [];
@@ -85,11 +96,19 @@ async function main() {
   let completed = 0;
   let ordered = false;
   let awaiting = false;
+  let lastArmCheck = 0;
   let lastTick = -1;
   const started = Date.now();
   while (completed < rounds) {
-    if (Date.now() - started > (rounds * 260 + 120) * 1000) throw new Error("timed out");
-    const { t, state } = await read();
+    if (!forever && Date.now() - started > (rounds * 260 + 120) * 1000) throw new Error("timed out");
+    const { t, state, slot } = await read();
+    if (forever && Date.now() - lastArmCheck > 30_000) {
+      lastArmCheck = Date.now();
+      if (needsArming(Number(t.armedUntilSlot), slot)) {
+        const signature = await rearmCrank(rollup, insiderProgram(rollup, authority), authority, tableAccounts(authority.publicKey));
+        log("crank re-armed for 1,200 ticks", { signature });
+      }
+    }
     const action: Action = nextAction(state);
 
     if (state.phase === "live" && t.tick !== lastTick && t.tick % 20 === 0) {

@@ -1,0 +1,61 @@
+{
+  "table": "DjnqzKQsUU1fmRztBAiUkPn8VwsnFYgMedcg1BPyA1k",
+  "program": "7mTtHsFMYnZRnhd3SRzhj8Nm1U2T3s33dnbJwa9zBErW",
+  "rounds": 1,
+  "xray": {
+    "round": 1,
+    "orders": 5,
+    "leaks": 8,
+    "finalized": true
+  },
+  "steps": [
+    {
+      "at": "2026-11-23T19:08:40.791Z",
+      "what": "table DjnqzKQsUU1fmRztBAiUkPn8VwsnFYgMedcg1BPyA1k round 0 phase idle"
+    },
+    {
+      "at": "2026-11-23T19:08:41.721Z",
+      "what": "request_round_seed (736 ms)",
+      "signature": "2vFhcEzTQRWyCCqGEqDW9stPoPJuvt2YxYLALJnxQQZZoWnJHoBVxVFPUPhgrLQemNLsYZRhTjHeZhQjgJs8pFrg"
+    },
+    {
+      "at": "2026-11-23T19:08:44.979Z",
+      "what": "seat 7 claimed (367 ms)",
+      "signature": "5KvxBLo7NzHfcyHJLbN2hvs5QRZyFCdDLDrqe97o5UoTbhUzx7ArYGqh7o5xZboBs9SCXhqPhKVmyU9PPFHiiuQF"
+    },
+    {
+      "at": "2026-11-23T19:08:45.246Z",
+      "what": "order sent: buy 100 on the standard lane (152 ms)",
+      "signature": "2Yi7ie2X2FbGrgz7NqV6endZTjxGue4eyNQkqsdbP6gPUL7B3kYa5f5JxgpZqYehY4MDMmtiFAS7r7gogsdNReKo"
+    },
+    {
+      "at": "2026-11-23T19:08:51.758Z",
+      "what": "round 1 tick 20"
+    },
+    {
+      "at": "2026-11-23T19:09:01.852Z",
+      "what": "round 1 tick 40"
+    },
+    {
+      "at": "2026-11-23T19:09:11.806Z",
+      "what": "round 1 tick 60"
+    },
+    {
+      "at": "2026-11-23T19:09:21.898Z",
+      "what": "round 1 tick 80"
+    },
+    {
+      "at": "2026-11-23T19:09:32.026Z",
+      "what": "round 1 tick 100"
+    },
+    {
+      "at": "2026-11-23T19:10:12.370Z",
+      "what": "finish_round (round 1) (646 ms)",
+      "signature": "3wXNsHnQY4dAr2xWmJktyaNXmPPiXrUourH5FUEFVU4Bq96H6Fpd8GCar51Z8TjvZUiVoZH5o6GbB2yJVwKmoZu9"
+    },
+    {
+      "at": "2026-11-23T19:10:22.056Z",
+      "what": "round 1 complete: scored and resealed"
+    }
+  ]
+}
