@@ -2,7 +2,8 @@
 
 import { Eye, LockKeyhole, UnlockKeyhole } from "lucide-react";
 import { useState } from "react";
-import type { InsiderConfig, LeakVaultAccount, TableView } from "@insider/sdk";
+import type { InsiderConfig, LeakVaultAccount, TableSnapshot, TableView } from "@insider/sdk";
+import type { PublicKey } from "@solana/web3.js";
 import { Badge, type BadgeTone } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Num } from "@/components/ui/num";
@@ -11,6 +12,7 @@ import { useToast } from "@/components/ui/toast";
 import { actOnLeak, type LeakAction } from "@/lib/floor-actions";
 import { cn } from "@/lib/cn";
 import { friendlyError } from "@/lib/errors";
+import { leakEdge } from "@/lib/leak-edge";
 import { leakHint } from "./hints";
 import { CrackOpen } from "./crack-open";
 import { payloadLines } from "./payload";
@@ -22,11 +24,13 @@ function LeakCard({
   view,
   vault,
   run,
+  snapshot,
 }: {
   leak: Leak;
   view: TableView;
   vault?: LeakVaultAccount;
   run: (action: LeakAction, leak: Leak, ask?: number) => Promise<void>;
+  snapshot: TableSnapshot;
 }) {
   const [editing, setEditing] = useState<"list" | "offer" | null>(null);
   const [ask, setAsk] = useState(50);
@@ -68,6 +72,17 @@ function LeakCard({
             ? "Not enough chips"
             : "Unavailable";
   const owner = view.seats.find((seat) => seat.index === leak.ownerSeat)?.name ?? "Another seat";
+  const edge =
+    vault && isOpened && leak.isReader
+      ? leakEdge(vault, view.tick, leak.windowEnd, snapshot.market, snapshot.table.params.feeBps)
+      : null;
+  const readers = leak.readers
+    .slice(0, leak.readerCount)
+    .map(
+      (key: PublicKey) =>
+        view.seats.find((seat) => seat.owner.equals(key))?.name ??
+        `${key.toBase58().slice(0, 4)}…${key.toBase58().slice(-4)}`,
+    );
   return (
     <article
       className={cn(
@@ -142,6 +157,32 @@ function LeakCard({
           </div>
         )}
       </div>
+      {edge && (
+        <div className="mt-2" aria-label="Edge left">
+          <div className="text-muted flex justify-between gap-1 font-mono text-[9px]">
+            <span>{leak.readerCount}/4 READERS</span>
+            <span>{edge.ticksLeft} TICKS LEFT</span>
+          </div>
+          <div className="bg-line mt-1 h-1 rounded-full">
+            <div
+              className="bg-opened h-full"
+              style={{
+                width: `${Math.min(100, (edge.ticksLeft / Math.max(1, leak.windowEnd - leak.mintedTick)) * 100)}%`,
+              }}
+            />
+          </div>
+          <div className="text-muted mt-1 font-mono text-[9px]">
+            {edge.impactBps === null
+              ? "NO PENDING ORDER IMPACT"
+              : `IF PENDING: ${(edge.impactBps / 100).toFixed(2)}% IMPACT`}
+          </div>
+        </div>
+      )}
+      {isOpened && readers.length > 0 && (
+        <div className="text-muted mt-1 text-[9px]" title={readers.join(", ")}>
+          Readers: {readers.join(", ")}
+        </div>
+      )}
       <div className="mt-auto pt-2">
         {editing && leak.state !== 5 ? (
           <div className="flex gap-1">
@@ -256,10 +297,12 @@ export function LeakBoard({
   config,
   view,
   vaults,
+  snapshot,
 }: {
   config: InsiderConfig;
   view: TableView;
   vaults: Record<number, LeakVaultAccount>;
+  snapshot: TableSnapshot;
 }) {
   const [crack, setCrack] = useState<{ title: string; lines: string[] } | null>(null);
   const run = async (action: LeakAction, leak: Leak, ask?: number) => {
@@ -276,7 +319,7 @@ export function LeakBoard({
         title="Leak board"
         action={<span className="micro-label">Private until opened · 6 slots</span>}
       >
-        <div className="grid grid-cols-2 gap-2 p-3 md:grid-cols-3 xl:grid-cols-6">
+        <div className="leak-grid grid grid-cols-2 gap-2 p-3 md:grid-cols-3 xl:grid-cols-6">
           {view.leaks.map((leak) => (
             <LeakCard
               key={`${leak.slot}-${leak.leakId}`}
@@ -284,6 +327,7 @@ export function LeakBoard({
               view={view}
               vault={vaults[leak.leakId]}
               run={run}
+              snapshot={snapshot}
             />
           ))}
         </div>

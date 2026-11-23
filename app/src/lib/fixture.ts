@@ -35,6 +35,14 @@ export type Fixture = {
   drops: FixtureDrop[];
   path: number[];
   shocks: FixtureShock[];
+  sandwich: {
+    slot: number;
+    front: number;
+    victim: number;
+    sideSize: number;
+    frontTick: number;
+    victimTick: number;
+  } | null;
 };
 
 export function createFixture(): Fixture {
@@ -154,6 +162,7 @@ export function createFixture(): Fixture {
     drops,
     path,
     shocks,
+    sandwich: null,
   };
 }
 
@@ -180,13 +189,17 @@ export function fixtureSend(
 ): LocalOrder {
   const { table, seats } = fixture.snapshot;
   if (lane === LANE_PRIORITY)
-    seats[index]!.chips = bn(BigInt(seats[index]!.chips.toString()) - BigInt(10));
+    seats[index]!.chips = bn(
+      BigInt(seats[index]!.chips.toString()) - BigInt(table.params.priorityFee),
+    );
   const order = {
     id: `${++fixture.seq}`,
     sideSize,
     lane,
     sentTick: table.tick,
-    landTick: table.tick + (lane === LANE_PRIORITY ? 4 : 20),
+    landTick:
+      table.tick +
+      (lane === LANE_PRIORITY ? table.params.priorityDelay : table.params.standardDelay),
     round: table.roundId,
     seat: index,
   };
@@ -227,23 +240,39 @@ export function fixtureTick(fixture: Fixture) {
           ? { xray: {} }
           : { idle: {} };
   if (tick > 200) return;
+  if (tick === 31) {
+    const slot = board.headers.findIndex((header) => header.state === 1 && header.kind === 1);
+    const target = slot < 0 ? undefined : fixture.vaults[slot]?.orders[0];
+    if (target && target.sideSize !== 0 && target.seat < 7 && target.landTick > tick + 4) {
+      const front = (target.seat + 1) % 7;
+      const size = Math.sign(target.sideSize) * Math.min(200, Math.abs(target.sideSize));
+      fixtureBid(fixture, front, slot);
+      const header = board.headers[slot]!;
+      header.state = 4;
+      header.openedTick = tick;
+      header.readers[0] = seats[front]!.owner;
+      header.readerCount = 1;
+      fixtureSend(fixture, front, size, LANE_PRIORITY);
+      fixture.sandwich = {
+        slot,
+        front,
+        victim: target.seat,
+        sideSize: size,
+        frontTick: tick + 4,
+        victimTick: target.landTick,
+      };
+    }
+  }
+  if (fixture.sandwich?.victimTick === tick) {
+    fixtureSend(fixture, fixture.sandwich.front, -fixture.sandwich.sideSize, LANE_PRIORITY);
+  }
   const fills: { seat: number; size: number; lane: number; sentTick: number; landTick: number }[] =
     [];
   if (tick < 140 && tick % 9 === 1) {
     const seat = Math.floor(tick / 9) % 7;
     const size = (Math.floor(tick / 9) % 3 === 0 ? -1 : 1) * (100 + (tick % 5) * 50);
     const lane = tick % 4 === 1 ? LANE_PRIORITY : LANE_STANDARD;
-    fixture.queue.push({
-      id: `${++fixture.seq}`,
-      seat,
-      sideSize: size,
-      lane,
-      sentTick: tick,
-      landTick: tick + (lane === LANE_PRIORITY ? 4 : 20),
-      round: table.roundId,
-    });
-    seats[seat]!.pendingCount++;
-    pushSend(fixture, seat, lane, tick);
+    fixtureSend(fixture, seat, size, lane);
   }
   const landed = fixture.queue.filter((order) => order.landTick === tick);
   for (const order of landed)
@@ -259,7 +288,7 @@ export function fixtureTick(fixture: Fixture) {
     const result = applyFill(
       { base: BigInt(market.base.toString()), quote: BigInt(market.quote.toString()) },
       fill.size,
-      10,
+      table.params.feeBps,
     );
     market.base = bn(result.base);
     market.quote = bn(result.newQuote);
@@ -353,11 +382,58 @@ export function fixtureTick(fixture: Fixture) {
       (h.state >= 2 && h.state <= 4 && tick > h.windowEnd)
     )
       h.state = 5;
-  if (tick === 180 && xray) {
-    xray.finalized = 1;
+  if (tick === 180) {
+    for (const seat of seats) {
+      seat.chips = bn(
+        BigInt(seat.chips.toString()) +
+          (BigInt(seat.position) * BigInt(market.price)) / BigInt(PRICE_ONE),
+      );
+      seat.position = 0;
+      seat.entry = bn(0);
+      seat.pendingCount = 0;
+    }
+    fixture.queue = [];
+  }
+  if (tick === 181 && xray) {
     board.headers.forEach((header, slot) => {
       if (header.state !== 0) archive(fixture, slot);
     });
+    const candidate = fixture.sandwich;
+    if (candidate) {
+      const orders = xray.orders.slice(0, xray.orderCount);
+      const front = orders.find(
+        (o) => o.seat === candidate.front && o.landTick === candidate.frontTick,
+      );
+      const victim = orders.find(
+        (o) => o.seat === candidate.victim && o.landTick === candidate.victimTick,
+      );
+      const exit = orders.find(
+        (o) => o.seat === candidate.front && o.landTick === candidate.victimTick + 4,
+      );
+      if (front && victim && exit) {
+        const pnl =
+          Math.trunc(
+            ((exit.fillPrice - front.fillPrice) *
+              Math.min(Math.abs(front.sideSize), Math.abs(exit.sideSize))) /
+              PRICE_ONE,
+          ) * Math.sign(front.sideSize);
+        xray.tags[xray.tagCount++] = {
+          front: candidate.front,
+          victim: candidate.victim,
+          leakSlot: candidate.slot,
+          pad: 0,
+          frontTick: candidate.frontTick,
+          victimTick: candidate.victimTick,
+          profitEstimate: pnl,
+        };
+      }
+    }
+    for (const seat of seats) {
+      seat.chips = bn(1_000);
+      seat.feesPaid = bn(0);
+      seat.leakSpend = bn(0);
+    }
+    xray.finalized = 1;
   }
 }
 
@@ -369,5 +445,6 @@ export function fixtureBid(fixture: Fixture, index: number, slot: number) {
     throw new Error("Auction has ended.");
   if (BigInt(seats[index]!.chips.toString()) < BigInt(price)) throw new Error("Not enough chips.");
   seats[index]!.chips = bn(BigInt(seats[index]!.chips.toString()) - BigInt(price));
+  seats[index]!.leakSpend = bn(BigInt(seats[index]!.leakSpend.toString()) + BigInt(price));
   Object.assign(header, { ownerSeat: index, state: 2, paid: price });
 }

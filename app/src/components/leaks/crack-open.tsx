@@ -4,6 +4,7 @@ import { motion, useReducedMotion } from "framer-motion";
 import { LockKeyhole, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { reducedTransition, spring } from "@/lib/motion";
 
 function DecryptedText({ text, reduced }: { text: string; reduced: boolean | null }) {
   const [visible, setVisible] = useState(0);
@@ -60,6 +61,7 @@ export function CrackOpen({
       <motion.div
         initial={{ opacity: 0, scale: reduced ? 1 : 0.96 }}
         animate={{ opacity: 1, scale: 1 }}
+        transition={reduced ? reducedTransition : spring}
         className="border-opened/35 bg-surface relative w-full max-w-md overflow-hidden rounded-xl border p-8 text-center shadow-[0_0_100px_rgba(255,181,71,.12)]"
       >
         <button

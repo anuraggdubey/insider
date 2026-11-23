@@ -9,7 +9,7 @@
   --color-line-strong: #2a313b;
   --color-text: #e7e9ec;
   --color-muted: #8a93a0;
-  --color-faint: #566070;
+  --color-faint: #929cac;
   --color-sealed: #5ab4ff;
   --color-opened: #ffb547;
   --color-buy: #3ddc97;
@@ -36,6 +36,79 @@ body {
   background: #07080a;
   color: #e7e9ec;
   font-family: var(--font-geist-sans), sans-serif;
+}
+body:has(.watch-screen) > header {
+  display: none;
+}
+.watch-record {
+  width: 1920px;
+  min-width: 1920px;
+  height: 1080px;
+  max-width: none;
+  aspect-ratio: 16 / 9;
+}
+.record-floor {
+  display: flex;
+  flex-direction: column;
+  width: 1920px;
+  min-width: 1920px;
+  max-width: none;
+  height: 1015px;
+  flex: none;
+}
+body:has(.record-floor) {
+  width: 1920px;
+  overflow: hidden;
+}
+body:has(.record-floor) nextjs-portal,
+.record-floor .floor-tabs {
+  display: none;
+}
+.record-floor .floor-grid {
+  flex: 1;
+  min-height: 0;
+  grid-template-columns: 220px minmax(0, 1fr) 290px;
+  grid-template-rows: minmax(0, 1fr) auto;
+}
+.record-floor .floor-seats,
+.record-floor .floor-chart,
+.record-floor .floor-aside,
+.record-floor .floor-ticket,
+.record-floor .floor-tape,
+.record-floor .floor-leaks {
+  display: block;
+}
+.record-floor .floor-aside {
+  height: 100%;
+  min-height: 0;
+  grid-row: span 2 / span 2;
+  overflow-y: auto;
+}
+.record-floor .floor-chart {
+  min-height: 0;
+}
+.record-floor .floor-chart > section,
+.record-floor .floor-seats > section {
+  display: flex;
+  height: 100%;
+  min-height: 0;
+  flex-direction: column;
+}
+.record-floor .floor-chart [data-testid="price-chart"],
+.record-floor .floor-seats > section > div:last-child {
+  min-height: 0;
+  flex: 1;
+  overflow: auto;
+}
+.record-floor .leak-grid {
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+}
+.record-floor .floor-leaks {
+  grid-column: span 2 / span 2;
+}
+*:focus-visible {
+  outline: 2px solid #5ab4ff !important;
+  outline-offset: 2px;
 }
 body::before {
   position: fixed;

@@ -18,6 +18,8 @@ import { useToast } from "@/components/ui/toast";
 import { submitOrder } from "@/lib/floor-actions";
 import { cn } from "@/lib/cn";
 import { friendlyError } from "@/lib/errors";
+import { useFloorStore } from "@/lib/floor-store";
+import { reducedTransition, spring } from "@/lib/motion";
 
 export function OrderPanel({
   config,
@@ -32,6 +34,7 @@ export function OrderPanel({
   const [lane, setLane] = useState(0);
   const [size, setSize] = useState(250);
   const [busy, setBusy] = useState(false);
+  const draft = useFloorStore((state) => state.orderDraft);
   const reducedMotion = useReducedMotion();
   const pendingUnits = view.myPending.reduce((sum, order) => sum + order.sideSize, 0);
   const projected = (view.mine?.position ?? 0) + pendingUnits;
@@ -45,6 +48,14 @@ export function OrderPanel({
     ),
   );
   const effectiveSize = Math.min(size, Math.floor(max / 50) * 50);
+  useEffect(() => {
+    if (!draft) return;
+    const timer = setTimeout(() => {
+      setSide(draft.side);
+      setSize(draft.size);
+    }, 0);
+    return () => clearTimeout(timer);
+  }, [draft]);
   const quote = useMemo(() => {
     if (!effectiveSize) return null;
     try {
@@ -77,8 +88,9 @@ export function OrderPanel({
     const keydown = (event: KeyboardEvent) => {
       const target = event.target as HTMLElement | null;
       if (
-        target?.matches("input, textarea, select") ||
+        target?.closest("input, textarea, select, button, a, [role=button], [role=dialog]") ||
         target?.isContentEditable ||
+        event.defaultPrevented ||
         event.metaKey ||
         event.ctrlKey ||
         event.altKey
@@ -244,6 +256,7 @@ export function OrderPanel({
                 initial={reducedMotion ? { opacity: 0 } : { opacity: 0, x: 10 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={reducedMotion ? { opacity: 0 } : { opacity: 0, x: -36, scale: 1.08 }}
+                transition={reducedMotion ? reducedTransition : spring}
                 className="border-priority/20 bg-priority/5 mb-1 flex items-center gap-2 rounded border px-2 py-1"
               >
                 <div

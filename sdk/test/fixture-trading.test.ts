@@ -1,0 +1,48 @@
+import { Keypair } from "@solana/web3.js";
+import { describe, expect, it } from "vitest";
+import { createConfig } from "../src";
+import { createFixture, fixtureClaim, fixtureTick } from "../../app/src/lib/fixture";
+import { actOnLeak } from "../../app/src/lib/floor-actions";
+import { publishFixture, updateFloor } from "../../app/src/lib/floor-store";
+
+describe("fixture flip and license flow", () => {
+  it("lists, delists, flips and licenses with reader and accounting updates", async () => {
+    const fixture = createFixture();
+    const seller = Keypair.fromSeed(new Uint8Array(32).fill(1));
+    const buyer = Keypair.fromSeed(new Uint8Array(32).fill(2));
+    const reader = Keypair.fromSeed(new Uint8Array(32).fill(3));
+    fixtureClaim(fixture, seller.publicKey, 7);
+    fixtureClaim(fixture, buyer.publicKey, 8);
+    fixtureClaim(fixture, reader.publicKey, 9);
+    for (let i = 0; i < 10; i++) fixtureTick(fixture);
+    const slot = fixture.snapshot.board.headers.findIndex((header) => header.state === 1);
+    const header = fixture.snapshot.board.headers[slot]!;
+    publishFixture(fixture);
+    updateFloor({ guest: seller, vaults: {} });
+    const config = createConfig();
+    await actOnLeak(config, "bid", slot);
+    expect(header).toMatchObject({ ownerSeat: 7, state: 2, paid: 8 });
+    await actOnLeak(config, "list", slot, 40);
+    expect(header).toMatchObject({ state: 3, ask: 40 });
+    await actOnLeak(config, "list", slot, 0);
+    expect(header).toMatchObject({ state: 2, ask: 0 });
+    await actOnLeak(config, "list", slot, 40);
+    updateFloor({ guest: buyer, vaults: {} });
+    await actOnLeak(config, "buy", slot);
+    expect(header).toMatchObject({ ownerSeat: 8, state: 2, paid: 40, flips: 1 });
+    expect(fixture.snapshot.seats[7]!.chips.toString()).toBe("1032");
+    expect(fixture.snapshot.seats[8]!.chips.toString()).toBe("960");
+    expect(fixture.snapshot.seats[8]!.leakSpend.toString()).toBe("40");
+    await actOnLeak(config, "open", slot);
+    await actOnLeak(config, "offer", slot, 12);
+    expect(header).toMatchObject({ state: 4, readerCount: 1, licenseAsk: 12 });
+    updateFloor({ guest: reader, vaults: {} });
+    const vault = await actOnLeak(config, "license", slot);
+    expect(vault?.leakId).toBe(header.leakId);
+    expect(header.readerCount).toBe(2);
+    expect(header.readers[1].equals(reader.publicKey)).toBe(true);
+    expect(fixture.snapshot.seats[8]!.chips.toString()).toBe("972");
+    expect(fixture.snapshot.seats[9]!.chips.toString()).toBe("988");
+    expect(fixture.snapshot.seats[9]!.leakSpend.toString()).toBe("12");
+  });
+});

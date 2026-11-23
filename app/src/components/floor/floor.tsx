@@ -2,10 +2,11 @@
 
 import NumberFlow from "@number-flow/react";
 import { deriveTable } from "@insider/sdk";
+import { motion, useReducedMotion } from "framer-motion";
 import { Activity, ArrowUpRight, LockKeyhole } from "lucide-react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useInsider } from "@/app/providers";
 import { LeakBoard } from "@/components/leaks/leak-board";
 import { GuestControls } from "@/components/onboarding/guest";
@@ -14,6 +15,9 @@ import { PhaseBar } from "@/components/ui/phase-bar";
 import { useToast } from "@/components/ui/toast";
 import { restoreVault } from "@/lib/floor-actions";
 import { useFloorStore } from "@/lib/floor-store";
+import { findRound } from "@/lib/xray-archive";
+import { cn } from "@/lib/cn";
+import { reducedTransition, spring } from "@/lib/motion";
 import { Feed } from "./feed";
 import { OrderPanel } from "./order-panel";
 import { PriceChart } from "./price-chart";
@@ -25,6 +29,13 @@ export function Floor() {
   const config = useInsider();
   const params = useSearchParams();
   const fixtureMode = process.env.NODE_ENV !== "production" && params.get("fixture") === "1";
+  const recordMode = params.get("record") === "1";
+  const [mobileTab, setMobileTab] = useState<"Chart" | "Ticket" | "Leaks" | "Seats" | "Tape">(
+    "Chart",
+  );
+  const [announcement, setAnnouncement] = useState("");
+  const reducedMotion = useReducedMotion();
+  const seenAnnouncements = useRef(new Set<string>());
   useFloor(config, fixtureMode);
   const snapshot = useFloorStore((state) => state.snapshot);
   const status = useFloorStore((state) => state.status);
@@ -52,12 +63,56 @@ export function Floor() {
       }
     }
   }, [config, guest, view, vaults]);
+  useEffect(() => {
+    if (!view?.mine) return;
+    const events = [
+      ...view.feed
+        .filter((event) => event.type === "fill" && event.seat === view.mine?.index)
+        .map((event) => ({
+          key: `${view.round}-fill-${event.tick}-${event.type === "fill" ? `${event.side}-${event.size}-${event.price}` : event.order}`,
+          text: `Your order filled at tick ${event.tick}.`,
+        })),
+      ...view.leaks
+        .filter((leak) => leak.isMine && leak.state !== 0)
+        .map((leak) => ({
+          key: `${view.round}-leak-${leak.leakId}-${leak.state}`,
+          text: `${leak.kindName}: ${leak.stateName.toLowerCase()}.`,
+        })),
+    ];
+    const next = events.filter((event) => !seenAnnouncements.current.has(event.key));
+    for (const event of events) seenAnnouncements.current.add(event.key);
+    if (!next.length) return;
+    const timer = setTimeout(() => setAnnouncement(next.map((event) => event.text).join(" ")), 0);
+    return () => clearTimeout(timer);
+  }, [view]);
   if (status === "loading" || (status === "reconnecting" && !snapshot)) return <FloorSkeleton />;
   if (!snapshot || !view) return <TableOffline />;
   const phaseLabel =
     view.phase === "xray" ? "X-ray" : view.phase[0]?.toUpperCase() + view.phase.slice(1);
+  const archived =
+    view.phase === "xray" && snapshot.xray?.finalized
+      ? findRound(
+          fixtureMode,
+          fixtureMode ? undefined : config.tableAuthority?.toBase58(),
+          view.round,
+        )
+      : null;
+  const top =
+    archived?.seats
+      .filter((seat) => !seat.free && seat.score !== null)
+      .sort((a, b) => b.score! - a.score!)
+      .slice(0, 3) ?? [];
+  const myScore = archived?.seats.find((seat) => seat.owner === guest?.publicKey.toBase58())?.score;
   return (
-    <main className="mx-auto w-full max-w-[1600px] flex-1 px-4 py-4 min-[1440px]:flex min-[1440px]:h-[calc(100dvh-4rem-1px)] min-[1440px]:min-h-0 min-[1440px]:flex-none min-[1440px]:flex-col lg:px-6">
+    <main
+      className={cn(
+        "mx-auto w-full max-w-[1600px] flex-1 px-4 pt-4 pb-24 min-[1440px]:flex min-[1440px]:h-[calc(100dvh-4rem-1px)] min-[1440px]:min-h-0 min-[1440px]:flex-none min-[1440px]:flex-col md:pb-4 lg:px-6",
+        recordMode && "record-floor",
+      )}
+    >
+      <div aria-live="polite" className="sr-only">
+        {announcement}
+      </div>
       <div className="border-line bg-surface mb-3 flex min-h-[86px] shrink-0 flex-wrap items-center gap-5 rounded-lg border px-4 py-3">
         <div className="min-w-28">
           <div className="micro-label">
@@ -120,17 +175,86 @@ export function Floor() {
         </div>
       )}
 
-      <div className="grid grid-cols-1 gap-3 min-[1440px]:min-h-0 min-[1440px]:flex-1 min-[1440px]:grid-rows-[minmax(0,1fr)_auto] lg:grid-cols-[210px_minmax(0,1fr)_270px] xl:grid-cols-[220px_minmax(0,1fr)_290px]">
-        <SeatRail view={view} />
-        <PriceChart view={view} vaults={vaults} />
-        <aside className="space-y-3 min-[1440px]:h-full min-[1440px]:overflow-y-auto lg:row-span-2 lg:min-h-0 lg:max-[1439px]:h-0">
-          <OrderPanel config={config} snapshot={snapshot} view={view} />
-          <Feed view={view} />
+      {view.phase === "xray" && (
+        <motion.div
+          initial={{ opacity: 0, y: reducedMotion ? 0 : 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={reducedMotion ? reducedTransition : spring}
+          className="border-priority/30 bg-surface mb-3 flex flex-wrap items-center gap-4 rounded-lg border px-4 py-3"
+          aria-label="Round summary"
+        >
+          <div>
+            <div className="micro-label text-priority">Round complete</div>
+            <div className="mt-1 text-xs">
+              {top.length
+                ? top
+                    .map((seat) => `${seat.name} ${seat.score! > 0 ? "+" : ""}${seat.score}`)
+                    .join(" · ")
+                : "Scores unavailable until close-out is captured."}
+            </div>
+          </div>
+          <div className="text-muted font-mono text-[10px]">
+            {snapshot.xray?.tagCount ?? 0} SANDWICHES · YOUR SCORE{" "}
+            {myScore === null || myScore === undefined ? "—" : myScore}
+          </div>
+          <Link
+            href={fixtureMode ? "/xray?fixture=1" : "/xray"}
+            className="text-sealed ml-auto flex items-center gap-1 text-xs"
+          >
+            Open X-ray <ArrowUpRight className="size-3" />
+          </Link>
+        </motion.div>
+      )}
+      <div className="floor-grid grid grid-cols-1 gap-3 min-[1440px]:min-h-0 min-[1440px]:flex-1 min-[1440px]:grid-rows-[minmax(0,1fr)_auto] lg:grid-cols-[210px_minmax(0,1fr)_270px] xl:grid-cols-[220px_minmax(0,1fr)_290px]">
+        <div className={cn("floor-seats", mobileTab !== "Seats" && "hidden md:block")}>
+          <SeatRail view={view} />
+        </div>
+        <div
+          className={cn(
+            "floor-chart min-h-[400px] min-[1440px]:min-h-0",
+            mobileTab !== "Chart" && "hidden md:block",
+          )}
+        >
+          <PriceChart view={view} vaults={vaults} />
+        </div>
+        <aside
+          className={cn(
+            "floor-aside space-y-3 min-[1440px]:h-full min-[1440px]:overflow-y-auto lg:row-span-2 lg:min-h-0 lg:max-[1439px]:h-0",
+            mobileTab !== "Ticket" && mobileTab !== "Tape" && "hidden md:block",
+          )}
+        >
+          <div className={cn("floor-ticket", mobileTab !== "Ticket" && "hidden md:block")}>
+            <OrderPanel config={config} snapshot={snapshot} view={view} />
+          </div>
+          <div className={cn("floor-tape", mobileTab !== "Tape" && "hidden md:block")}>
+            <Feed view={view} snapshot={snapshot} onPrefill={() => setMobileTab("Ticket")} />
+          </div>
         </aside>
-        <div className="lg:col-span-2">
-          <LeakBoard config={config} view={view} vaults={vaults} />
+        <div
+          className={cn("floor-leaks lg:col-span-2", mobileTab !== "Leaks" && "hidden md:block")}
+        >
+          <LeakBoard config={config} view={view} vaults={vaults} snapshot={snapshot} />
         </div>
       </div>
+      <nav
+        aria-label="Floor panels"
+        className="floor-tabs border-line bg-surface fixed right-0 bottom-0 left-0 z-30 grid grid-cols-5 border-t px-1 pb-[env(safe-area-inset-bottom)] md:hidden"
+      >
+        {(["Chart", "Ticket", "Leaks", "Seats", "Tape"] as const).map((tab) => (
+          <button
+            key={tab}
+            type="button"
+            aria-current={mobileTab === tab ? "page" : undefined}
+            onClick={() => setMobileTab(tab)}
+            className={cn(
+              "min-h-14 font-mono text-[10px]",
+              mobileTab === tab ? "text-sealed" : "text-muted",
+            )}
+          >
+            {tab}
+          </button>
+        ))}
+      </nav>
       <div className="text-faint flex items-center justify-between py-4 font-mono text-[9px] tracking-wider">
         <span className="flex items-center gap-2">
           <Activity className="size-3" />{" "}

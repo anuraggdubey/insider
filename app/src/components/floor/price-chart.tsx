@@ -18,6 +18,7 @@ import { useEffect, useRef, useState } from "react";
 import type { LeakVaultAccount, TableView } from "@insider/sdk";
 import { Num } from "@/components/ui/num";
 import { Panel } from "@/components/ui/panel";
+import { landingFlash } from "@/lib/motion";
 
 const EPOCH = 1_700_000_000;
 const time = (tick: number) => (EPOCH + tick) as UTCTimestamp;
@@ -52,7 +53,7 @@ export function PriceChart({
       height: host.clientHeight,
       layout: {
         background: { type: ColorType.Solid, color: "#0c0e11" },
-        textColor: "#566070",
+        textColor: "#8a93a0",
         fontSize: 10,
         fontFamily: "var(--font-geist-mono), monospace",
         attributionLogo: false,
@@ -321,7 +322,7 @@ export function PriceChart({
               key={`flash-${landing.tick}`}
               initial={{ opacity: 0 }}
               animate={{ opacity: [0, 0.3, 0] }}
-              transition={{ duration: 0.7 }}
+              transition={landingFlash}
               className="absolute inset-0 bg-[#ffb547]"
             />
           )}

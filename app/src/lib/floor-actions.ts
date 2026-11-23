@@ -157,16 +157,23 @@ export async function actOnLeak(config: InsiderConfig, action: LeakAction, slot:
     if (action === "offer") header.licenseAsk = ask;
     if (action === "buy") {
       const seller = state.snapshot.seats[header.ownerSeat]!;
-      seller.chips = new BN((BigInt(seller.chips.toString()) + BigInt(header.ask)).toString());
-      seat.chips = new BN((BigInt(seat.chips.toString()) - BigInt(header.ask)).toString());
+      const price = header.ask;
+      seller.chips = new BN((BigInt(seller.chips.toString()) + BigInt(price)).toString());
+      seat.chips = new BN((BigInt(seat.chips.toString()) - BigInt(price)).toString());
+      seat.leakSpend = new BN((BigInt(seat.leakSpend.toString()) + BigInt(price)).toString());
       header.ownerSeat = seat.index;
       header.state = 2;
       header.ask = 0;
+      header.paid = price;
+      header.flips++;
     }
     if (action === "license") {
       const owner = state.snapshot.seats[header.ownerSeat]!;
       owner.chips = new BN((BigInt(owner.chips.toString()) + BigInt(header.licenseAsk)).toString());
       seat.chips = new BN((BigInt(seat.chips.toString()) - BigInt(header.licenseAsk)).toString());
+      seat.leakSpend = new BN(
+        (BigInt(seat.leakSpend.toString()) + BigInt(header.licenseAsk)).toString(),
+      );
       header.readers[header.readerCount++] = state.guest.publicKey;
     }
     publishFixture(state.fixture);

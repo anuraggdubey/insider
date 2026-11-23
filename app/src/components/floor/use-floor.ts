@@ -6,9 +6,12 @@ import { createFixture, fixtureTick } from "@/lib/fixture";
 import { keepSeatAlive } from "@/lib/floor-actions";
 import { publishFixture, updateFloor, useFloorStore } from "@/lib/floor-store";
 import { loadGuest } from "@/lib/guest";
+import { createRoundObserver } from "@/lib/xray-archive";
 
 export function useFloor(config: InsiderConfig, fixtureMode: boolean) {
   useEffect(() => {
+    const existingFixture = fixtureMode ? useFloorStore.getState().fixture : null;
+    const observe = createRoundObserver(fixtureMode);
     updateFloor({
       status: "loading",
       snapshot: null,
@@ -29,11 +32,13 @@ export function useFloor(config: InsiderConfig, fixtureMode: boolean) {
     let interval: ReturnType<typeof setInterval> | undefined;
     let reconnect: ReturnType<typeof setTimeout> | undefined;
     if (fixtureMode && process.env.NODE_ENV !== "production") {
-      const fixture = createFixture();
+      const fixture = existingFixture ?? createFixture();
+      observe(fixture.snapshot);
       publishFixture(fixture);
       interval = setInterval(() => {
         const state = useFloorStore.getState();
         fixtureTick(fixture);
+        observe(fixture.snapshot);
         publishFixture(fixture);
         updateFloor({
           pending: state.pending.filter((order) => order.landTick > fixture.snapshot.table.tick),
@@ -51,13 +56,17 @@ export function useFloor(config: InsiderConfig, fixtureMode: boolean) {
             updateFloor({ status: "offline", snapshot: null });
             return;
           }
+          observe(snapshot);
           updateFloor({ snapshot, status: "live", error: null });
           unsubscribe = subscribeTable(
             connection,
             config,
             (next) => {
               if (!next) updateFloor({ status: "offline", snapshot: null });
-              else updateFloor({ snapshot: next, status: "live" });
+              else {
+                observe(next);
+                updateFloor({ snapshot: next, status: "live" });
+              }
             },
             () => {
               if (!closed) {

@@ -14,6 +14,7 @@ type FloorState = {
   vaults: Record<number, LeakVaultAccount>;
   tutorial: boolean;
   error: string | null;
+  orderDraft: { side: "buy" | "sell"; size: number; id: number } | null;
 };
 export const useFloorStore = create<FloorState>(() => ({
   status: "loading",
@@ -24,6 +25,7 @@ export const useFloorStore = create<FloorState>(() => ({
   vaults: {},
   tutorial: false,
   error: null,
+  orderDraft: null,
 }));
 
 export function updateFloor(update: Partial<FloorState>) {
