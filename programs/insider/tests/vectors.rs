@@ -114,8 +114,8 @@ fn mempool_json(m: &Mempool) -> String {
 fn xray_json(x: &Xray) -> String {
     let orders = array(&x.orders, |o| {
         format!(
-        "{{\"seat\":{},\"lane\":{},\"sideSize\":{},\"sentTick\":{},\"landTick\":{},\"fillPrice\":{}}}",
-        o.seat,o.lane,o.side_size,o.sent_tick,o.land_tick,o.fill_price
+        "{{\"seat\":{},\"lane\":{},\"sideSize\":{},\"sentTick\":{},\"landTick\":{},\"fillPrice\":{},\"scheduledTick\":{},\"pad\":{}}}",
+        o.seat,o.lane,o.side_size,o.sent_tick,o.land_tick,o.fill_price,o.scheduled_tick,nums(o._pad)
     )
     });
     let tags = array(&x.tags, |t| {

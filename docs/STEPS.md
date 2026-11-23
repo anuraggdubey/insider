@@ -488,7 +488,7 @@ that are easy to unit-test. Use `cd programs && cargo test -p insider --test eng
   displacement while `position != 0 || pending_count > 0`, or only displacing between rounds.
 - Gate E1 tuning (docs/engine.md): initialise the table with `priority_fee = 3` (please change `Params::default()` in `table.rs`, it still says 10).
   Leak prices are now 8/1, 20/2, 60/6 and shocks 8-15%; the Dutch floor is reachable on the last auction tick.
-- `Xray` grew to `SPACE = 6,516` bytes (it now stores each seat's owner, kind, name and round score at `finish_round`).
+- `Xray` grew to `SPACE = 7,284` bytes (it stores each seat's owner, kind, name and round score, and both the scheduled and actual landing tick of every order).
 - Instruction account lists (S signer, W writable): `send_order(index, side_size, lane)`: owner(S), table, seat(W), market, mempool(W), tape(W).
   `bid` / `list_leak` / `offer_license`: owner(S), table, seat(W), board(W). `open_leak`: owner(S), table, seat(W), board(W), vault(W), permission(W),
   permission_program, ephemeral_vault(W), magic_program. `buy_listed`: + seller_seat(W). `buy_license`: + license_owner(W), vault(W), permission(W),

@@ -76,6 +76,8 @@ See [`accounts.ts`](../sdk/src/accounts.ts).
 `nowSlot` refines the phase countdown; `pending` is not recovered from the private
 mempool. Price values are scaled by `PRICE_ONE = 1_000_000`. Equity and P&L in
 this UI view are JavaScript numbers. See [`table.ts`](../sdk/src/table.ts).
+X-ray orders distinguish `scheduledTick` from actual `landTick`: congestion can
+carry a fill beyond its original scheduled tick.
 
 ## Instructions
 

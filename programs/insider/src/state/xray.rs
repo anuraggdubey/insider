@@ -15,6 +15,8 @@ pub struct XrayOrder {
     pub sent_tick: u16,
     pub land_tick: u16,
     pub fill_price: u32,
+    pub scheduled_tick: u16,
+    pub _pad: [u8; 2],
 }
 
 #[zero_copy]
@@ -71,10 +73,10 @@ mod tests {
 
     #[test]
     fn size_is_fixed() {
-        assert_eq!(core::mem::size_of::<XrayOrder>(), 12);
+        assert_eq!(core::mem::size_of::<XrayOrder>(), 16);
         assert_eq!(core::mem::size_of::<XrayLeak>(), 452);
         assert_eq!(core::mem::size_of::<SandwichTag>(), 12);
-        assert_eq!(core::mem::size_of::<Xray>(), 6508);
-        assert_eq!(Xray::SPACE, 6516);
+        assert_eq!(core::mem::size_of::<Xray>(), 7276);
+        assert_eq!(Xray::SPACE, 7284);
     }
 }

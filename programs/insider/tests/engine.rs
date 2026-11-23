@@ -16,8 +16,18 @@ use ::insider::{
     },
     *,
 };
-use anchor_lang::prelude::Pubkey;
+use anchor_lang::{
+    prelude::Pubkey,
+    solana_program::{instruction::Instruction, system_program},
+    AccountSerialize, Discriminator, InstructionData, ToAccountMetas,
+};
 use bytemuck::Zeroable;
+use litesvm::LiteSVM;
+use solana_keypair::Keypair;
+use solana_message::Message;
+use solana_signer::Signer;
+use solana_transaction::Transaction;
+use std::path::PathBuf;
 
 fn table() -> Table {
     Table {
@@ -145,6 +155,86 @@ fn order(seat: u8, side_size: i16, land_tick: u16, seq: u16) -> PendingOrder {
         side_size,
         land_tick,
         seq,
+    }
+}
+
+fn serialized<T: AccountSerialize>(value: &T) -> Vec<u8> {
+    let mut bytes = Vec::new();
+    value.try_serialize(&mut bytes).unwrap();
+    bytes
+}
+
+fn zero_copy_account<T: Discriminator + bytemuck::Pod>(value: &T) -> Vec<u8> {
+    let mut bytes = T::DISCRIMINATOR.to_vec();
+    bytes.extend_from_slice(bytemuck::bytes_of(value));
+    bytes
+}
+
+fn put_account(svm: &mut LiteSVM, key: Pubkey, data: Vec<u8>) {
+    let mut account = svm.get_account(&system_program::ID).unwrap();
+    account.owner = ::insider::ID;
+    account.lamports = 1_000_000_000;
+    account.executable = false;
+    account.data = data;
+    svm.set_account(key, account).unwrap();
+}
+
+fn advance_fixture(
+    f: &mut Fixture,
+    slot: u64,
+    seen: &mut Vec<u16>,
+) -> ::insider::instructions::tick::Advance {
+    let Fixture {
+        table,
+        market,
+        mempool,
+        future,
+        board,
+        vaults,
+        seats,
+        tape,
+        xray,
+    } = f;
+    let mut vaults: Vec<_> = vaults.iter_mut().collect();
+    let mut seats: Vec<_> = seats.iter_mut().collect();
+    ::insider::instructions::tick::advance_ticks(table, slot, |table, tick| {
+        seen.push(tick);
+        step(
+            table,
+            tick,
+            &mut StepAccounts {
+                market: &mut *market,
+                mempool: &mut *mempool,
+                future: &*future,
+                board: &mut *board,
+                vaults: &mut vaults,
+                seats: &mut seats,
+                tape: &mut *tape,
+                xray,
+            },
+        )?;
+        Ok(())
+    })
+    .unwrap()
+}
+
+fn assert_same_fixture(a: &Fixture, b: &Fixture) {
+    assert_eq!(serialized(&a.table), serialized(&b.table));
+    assert_eq!(bytemuck::bytes_of(&a.market), bytemuck::bytes_of(&b.market));
+    assert_eq!(
+        bytemuck::bytes_of(&a.mempool),
+        bytemuck::bytes_of(&b.mempool)
+    );
+    assert_eq!(bytemuck::bytes_of(&a.future), bytemuck::bytes_of(&b.future));
+    assert_eq!(bytemuck::bytes_of(&a.board), bytemuck::bytes_of(&b.board));
+    assert_eq!(bytemuck::bytes_of(&*a.xray), bytemuck::bytes_of(&*b.xray));
+    assert_eq!(
+        bytemuck::cast_slice::<LeakVault, u8>(&a.vaults),
+        bytemuck::cast_slice::<LeakVault, u8>(&b.vaults)
+    );
+    assert_eq!(serialized(&a.tape), serialized(&b.tape));
+    for (left, right) in a.seats.iter().zip(&b.seats) {
+        assert_eq!(serialized(left), serialized(right));
     }
 }
 
@@ -616,8 +706,22 @@ fn step_orders_maturity_cap_carry_whales_and_history() {
     assert_eq!((report.fills, report.carried), (12, 3));
     assert_eq!(f.mempool.count, 3);
     let landed = &f.xray.orders[..12];
-    assert_eq!((landed[0].land_tick, landed[0].seat), (8, 1));
-    assert_eq!((landed[1].land_tick, landed[1].seat), (8, WHALE_SEAT));
+    assert_eq!(
+        (
+            landed[0].scheduled_tick,
+            landed[0].land_tick,
+            landed[0].seat
+        ),
+        (8, 10, 1)
+    );
+    assert_eq!(
+        (
+            landed[1].scheduled_tick,
+            landed[1].land_tick,
+            landed[1].seat
+        ),
+        (8, 10, WHALE_SEAT)
+    );
     assert_eq!(
         landed.iter().map(|o| o.side_size).collect::<Vec<_>>(),
         expected[..12]
@@ -634,6 +738,347 @@ fn step_orders_maturity_cap_carry_whales_and_history() {
     assert_eq!(f.market.last_tick, 10);
     assert_ne!(f.market.price, before);
     assert_eq!(f.tick(11).fills, 3);
+}
+
+#[test]
+fn mempool_full_rejects_the_49th_order_without_mutation() {
+    let mut f = Fixture::new();
+    f.clear_orders();
+    let mut params = f.table.params;
+    params.max_pending = 5;
+    for i in 0..MEMPOOL_SLOTS {
+        let index = i % SEAT_COUNT;
+        let queued = push_order(
+            &params,
+            0,
+            &mut f.seats[index],
+            &mut f.mempool,
+            1,
+            LANE_STANDARD,
+        )
+        .unwrap();
+        assert_eq!(usize::from(queued.seq), i);
+    }
+    assert_eq!(usize::from(f.mempool.count), MEMPOOL_SLOTS);
+    assert!(f.mempool.orders.iter().all(|order| !order.is_empty()));
+    let old_pool = bytemuck::bytes_of(&f.mempool).to_vec();
+    let old_seat = serialized(&f.seats[8]);
+    let error = push_order(
+        &params,
+        0,
+        &mut f.seats[8],
+        &mut f.mempool,
+        1,
+        LANE_STANDARD,
+    )
+    .unwrap_err();
+    assert!(format!("{error:?}").contains("MempoolFull"));
+    assert_eq!(bytemuck::bytes_of(&f.mempool), old_pool);
+    assert_eq!(serialized(&f.seats[8]), old_seat);
+
+    assert_eq!(
+        f.tick(u16::from(params.standard_delay)).fills,
+        MAX_FILLS_PER_TICK as u8
+    );
+    assert_eq!(
+        usize::from(f.mempool.count),
+        MEMPOOL_SLOTS - MAX_FILLS_PER_TICK
+    );
+    assert!(push_order(
+        &params,
+        21,
+        &mut f.seats[8],
+        &mut f.mempool,
+        1,
+        LANE_STANDARD
+    )
+    .is_ok());
+}
+
+#[test]
+fn carried_orders_preserve_maturity_and_sequence_across_ticks() {
+    let mut f = Fixture::new();
+    f.clear_orders();
+    f.table.params.arb_bps = 0;
+    f.mempool.drops.fill(DropSpec::default());
+    for i in 0..30 {
+        let index = i % SEAT_COUNT;
+        let sent_tick = if i < 25 { 0 } else { 1 };
+        let queued = push_order(
+            &f.table.params,
+            sent_tick,
+            &mut f.seats[index],
+            &mut f.mempool,
+            (i + 1) as i16,
+            LANE_STANDARD,
+        )
+        .unwrap();
+        assert_eq!(usize::from(queued.seq), i);
+    }
+    f.mempool.orders[..30].reverse();
+    let due = u16::from(f.table.params.standard_delay);
+    let first = f.tick(due);
+    let second = f.tick(due + 1);
+    let third = f.tick(due + 2);
+    assert_eq!((first.fills, first.carried), (12, 13));
+    assert_eq!((second.fills, second.carried), (12, 6));
+    assert_eq!((third.fills, third.carried), (6, 0));
+    assert_eq!(f.mempool.count, 0);
+    assert_eq!(
+        f.xray.orders[..30]
+            .iter()
+            .map(|order| order.side_size)
+            .collect::<Vec<_>>(),
+        (1..=30).collect::<Vec<i16>>()
+    );
+    assert_eq!(
+        f.tape.fills[..30]
+            .iter()
+            .map(|fill| fill.size)
+            .collect::<Vec<_>>(),
+        (1..=30).collect::<Vec<u16>>()
+    );
+    assert!(f.tape.fills[..12]
+        .iter()
+        .all(|fill| fill.landed_tick == due));
+    assert!(f.tape.fills[12..24]
+        .iter()
+        .all(|fill| fill.landed_tick == due + 1));
+    assert!(f.tape.fills[24..30]
+        .iter()
+        .all(|fill| fill.landed_tick == due + 2));
+    for (trace, fill) in f.xray.orders[..30].iter().zip(&f.tape.fills[..30]) {
+        assert_eq!(trace.land_tick, fill.landed_tick);
+        assert_eq!(
+            trace.scheduled_tick,
+            if trace.side_size <= 25 { due } else { due + 1 }
+        );
+    }
+    assert!(f.seats.iter().all(|seat| seat.pending_count == 0));
+}
+
+#[test]
+fn catch_up_matches_separate_steps_and_duplicate_crank_does_not_call_step() {
+    let mut batch = Fixture::new();
+    let mut separate = Fixture::new();
+    separate.table.authority = batch.table.authority;
+    for (a, b) in batch.seats.iter().zip(separate.seats.iter_mut()) {
+        b.owner = a.owner;
+    }
+    for f in [&mut batch, &mut separate] {
+        f.clear_orders();
+        for tick in 1..=8 {
+            f.tick(tick);
+        }
+        f.table.tick = 8;
+        push_order(
+            &f.table.params,
+            8,
+            &mut f.seats[0],
+            &mut f.mempool,
+            100,
+            LANE_PRIORITY,
+        )
+        .unwrap();
+        push_order(
+            &f.table.params,
+            8,
+            &mut f.seats[1],
+            &mut f.mempool,
+            -50,
+            LANE_PRIORITY,
+        )
+        .unwrap();
+    }
+    assert_same_fixture(&batch, &separate);
+    let mut batch_ticks = Vec::new();
+    let mut separate_ticks = Vec::new();
+    let target = 16 * SLOTS_PER_TICK;
+    assert_eq!(
+        advance_fixture(&mut batch, target, &mut batch_ticks).processed,
+        8
+    );
+    for tick in 9..=16 {
+        assert_eq!(
+            advance_fixture(&mut separate, tick * SLOTS_PER_TICK, &mut separate_ticks).processed,
+            1
+        );
+    }
+    assert_eq!(batch_ticks, (9..=16).collect::<Vec<u16>>());
+    assert_eq!(separate_ticks, batch_ticks);
+    assert_same_fixture(&batch, &separate);
+    let mut repeated_ticks = Vec::new();
+    assert_eq!(
+        advance_fixture(&mut batch, target, &mut repeated_ticks).processed,
+        0
+    );
+    assert_eq!(
+        advance_fixture(&mut batch, target - SLOTS_PER_TICK, &mut repeated_ticks).processed,
+        0
+    );
+    assert!(repeated_ticks.is_empty());
+    assert_same_fixture(&batch, &separate);
+
+    let mut raw = Fixture::new();
+    raw.clear_orders();
+    raw.future.path[1] = PRICE_ONE * 3 / 2;
+    raw.tick(1);
+    let once = raw.market.price;
+    raw.tick(1);
+    assert_ne!(raw.market.price, once);
+}
+
+#[test]
+fn adverse_whale_liquidates_at_mark_cancels_only_its_orders_and_rejects_later_sends() {
+    let mut f = Fixture::new();
+    f.clear_orders();
+    f.mempool.drops.fill(DropSpec::default());
+    f.table.params.arb_bps = 0;
+    let owner = Keypair::new();
+    f.seats[0].owner = owner.pubkey();
+    f.seats[0].chips = 100;
+    push_order(
+        &f.table.params,
+        0,
+        &mut f.seats[0],
+        &mut f.mempool,
+        2_000,
+        LANE_STANDARD,
+    )
+    .unwrap();
+    assert_eq!(f.tick(20).fills, 1);
+    let chips = f.seats[0].chips;
+    let position = f.seats[0].position;
+    assert_eq!(position, 2_000);
+    assert!(
+        i128::from(chips)
+            + i128::from(position) * i128::from(f.market.price) / i128::from(PRICE_ONE)
+            > 0
+    );
+    push_order(
+        &f.table.params,
+        20,
+        &mut f.seats[0],
+        &mut f.mempool,
+        10,
+        LANE_STANDARD,
+    )
+    .unwrap();
+    push_order(
+        &f.table.params,
+        20,
+        &mut f.seats[0],
+        &mut f.mempool,
+        -10,
+        LANE_STANDARD,
+    )
+    .unwrap();
+    push_order(
+        &f.table.params,
+        20,
+        &mut f.seats[1],
+        &mut f.mempool,
+        10,
+        LANE_STANDARD,
+    )
+    .unwrap();
+    let whale = f
+        .mempool
+        .orders
+        .iter_mut()
+        .find(|order| order.is_empty())
+        .unwrap();
+    *whale = order(WHALE_SEAT, -3_000, 30, f.mempool.next_seq);
+    f.mempool.next_seq += 1;
+    f.mempool.count += 1;
+    for tick in 21..30 {
+        assert_eq!(f.tick(tick).liquidated, 0);
+    }
+    let mut expected_vamm = Vamm {
+        base: f.market.base,
+        quote: f.market.quote,
+    };
+    expected_vamm
+        .apply_fill(-3_000, f.table.params.fee_bps)
+        .unwrap();
+    let mark = expected_vamm.price();
+    let expected_chips =
+        chips + (i128::from(position) * i128::from(mark) / i128::from(PRICE_ONE)) as i64;
+    assert!(expected_chips <= 0);
+    let result = f.tick(30);
+    assert_eq!((result.fills, result.liquidated), (1, 1));
+    assert_eq!(f.market.price, mark);
+    assert_eq!(f.market.liquidated_mask, 1);
+    assert_eq!(
+        (
+            f.seats[0].chips,
+            f.seats[0].position,
+            f.seats[0].entry,
+            f.seats[0].pending_count
+        ),
+        (expected_chips, 0, 0, 0)
+    );
+    assert_eq!(f.mempool.count, 1);
+    assert!(f
+        .mempool
+        .orders
+        .iter()
+        .all(|order| order.is_empty() || order.seat == 1));
+    assert_eq!(f.seats[1].pending_count, 1);
+
+    let so = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../target/deploy/insider.so");
+    let mut svm = LiteSVM::new();
+    svm.add_program_from_file(::insider::ID, &so).unwrap();
+    svm.airdrop(&owner.pubkey(), 1_000_000_000).unwrap();
+    let table = Pubkey::new_unique();
+    let (seat, seat_bump) =
+        Pubkey::find_program_address(&[SEAT_SEED, table.as_ref(), &[0]], &::insider::ID);
+    let (market, market_bump) = Pubkey::find_program_address(
+        &[MARKET_SEED, table.as_ref(), &[MARKET_FLOOR]],
+        &::insider::ID,
+    );
+    let (mempool, mempool_bump) =
+        Pubkey::find_program_address(&[MEMPOOL_SEED, table.as_ref()], &::insider::ID);
+    let (tape, tape_bump) =
+        Pubkey::find_program_address(&[TAPE_SEED, table.as_ref()], &::insider::ID);
+    f.table.tick = 30;
+    f.seats[0].bump = seat_bump;
+    f.market.bump = market_bump;
+    f.mempool.bump = mempool_bump;
+    f.tape.bump = tape_bump;
+    let seat_before = serialized(&f.seats[0]);
+    let pool_before = zero_copy_account(&f.mempool);
+    let tape_before = serialized(&f.tape);
+    put_account(&mut svm, table, serialized(&f.table));
+    put_account(&mut svm, seat, seat_before.clone());
+    put_account(&mut svm, market, zero_copy_account(&f.market));
+    put_account(&mut svm, mempool, pool_before.clone());
+    put_account(&mut svm, tape, tape_before.clone());
+    let ix = Instruction {
+        program_id: ::insider::ID,
+        accounts: ::insider::accounts::SendOrder {
+            owner: owner.pubkey(),
+            table,
+            seat,
+            market,
+            mempool,
+            tape,
+        }
+        .to_account_metas(None),
+        data: ::insider::instruction::SendOrder {
+            index: 0,
+            side_size: 50,
+            lane: LANE_STANDARD,
+        }
+        .data(),
+    };
+    let message = Message::new(&[ix], Some(&owner.pubkey()));
+    let tx = Transaction::new(&[&owner], message, svm.latest_blockhash());
+    let error = svm.send_transaction(tx).unwrap_err();
+    assert!(format!("{error:?}").contains("Liquidated"));
+    assert_eq!(svm.get_account(&seat).unwrap().data, seat_before);
+    assert_eq!(svm.get_account(&mempool).unwrap().data, pool_before);
+    assert_eq!(svm.get_account(&tape).unwrap().data, tape_before);
 }
 
 #[test]

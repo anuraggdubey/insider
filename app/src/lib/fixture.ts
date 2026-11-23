@@ -320,8 +320,10 @@ export function fixtureTick(fixture: Fixture) {
         lane: fill.lane,
         sideSize: fill.size,
         sentTick: fill.sentTick,
-        landTick: fill.landTick,
+        landTick: tick,
         fillPrice: result.avgPrice,
+        scheduledTick: fill.landTick,
+        pad: [0, 0],
       };
     }
   }

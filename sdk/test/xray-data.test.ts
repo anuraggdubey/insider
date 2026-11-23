@@ -27,6 +27,23 @@ describe("X-ray replay data", () => {
     const leak = tagLeak(round, tag)!;
     expect(payloadOrders(leak, triple.victim)).toBe(true);
     expect(payloadOrders(leak, triple.front)).toBe(false);
+    const carried = {
+      ...triple.victim,
+      scheduledTick: triple.victim.landTick,
+      landTick: triple.victim.landTick + 2,
+    };
+    expect(payloadOrders(leak, carried)).toBe(true);
+    expect(payloadOrders(leak, { ...carried, scheduledTick: carried.scheduledTick + 1 })).toBe(
+      false,
+    );
+    const legacy = { ...triple.victim, scheduledTick: undefined };
+    expect(payloadOrders(leak, legacy)).toBe(true);
+    const flow = {
+      ...leak,
+      header: { ...leak.header, kind: 0 },
+      fields: [0, 0, carried.scheduledTick, carried.scheduledTick],
+    };
+    expect(payloadOrders(flow, carried)).toBe(true);
     expect(publicPayload(round, leak).join(" ")).toContain("BUY");
     expect(shareDetails(round).line).toContain("INSIDER round 1");
     expect(shareDetails(round).pnl).toBe(round.xray.scores![tag.front]);

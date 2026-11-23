@@ -4036,6 +4036,19 @@
           {
             "name": "fill_price",
             "type": "u32"
+          },
+          {
+            "name": "scheduled_tick",
+            "type": "u16"
+          },
+          {
+            "name": "_pad",
+            "type": {
+              "array": [
+                "u8",
+                2
+              ]
+            }
           }
         ]
       }

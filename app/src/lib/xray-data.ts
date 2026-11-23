@@ -74,18 +74,19 @@ export function tagLeak(round: ArchivedRound, tag: TraceTag): ArchivedLeak | und
 }
 
 export function payloadOrders(leak: ArchivedLeak, order: TraceOrder): boolean {
+  const scheduledTick = order.scheduledTick ?? order.landTick;
   if (leak.header.kind === 0)
     return (
       order.sentTick < leak.header.mintedTick &&
-      order.landTick >= (leak.fields[2] ?? 0) &&
-      order.landTick <= (leak.fields[3] ?? 0)
+      scheduledTick >= (leak.fields[2] ?? 0) &&
+      scheduledTick <= (leak.fields[3] ?? 0)
     );
   return leak.orders.some(
     (item) =>
       item.sideSize !== 0 &&
       item.seat === order.seat &&
       item.sideSize === order.sideSize &&
-      item.landTick === order.landTick &&
+      item.landTick === scheduledTick &&
       item.lane === order.lane,
   );
 }

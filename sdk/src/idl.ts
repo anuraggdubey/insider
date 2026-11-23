@@ -3307,6 +3307,16 @@ export type Insider = {
             name: "fillPrice";
             type: "u32";
           },
+          {
+            name: "scheduledTick";
+            type: "u16";
+          },
+          {
+            name: "pad";
+            type: {
+              array: ["u8", 2];
+            };
+          },
         ];
       };
     },

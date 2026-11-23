@@ -40,6 +40,7 @@ pub struct StepReport {
 
 /// Processes one tick: orders, arbitrage, history, drops, auctions, liquidations, and closeout.
 /// Phase changes remain in `tick::advance_ticks`.
+/// The caller must process each tick once in order; repeated calls are not idempotent.
 pub fn step(table: &Table, tick: u16, accounts: &mut StepAccounts) -> Result<StepReport> {
     require!(
         accounts.seats.len() == SEAT_COUNT && accounts.vaults.len() == LEAK_SLOTS,
@@ -100,8 +101,10 @@ pub fn step(table: &Table, tick: u16, accounts: &mut StepAccounts) -> Result<Ste
                 lane: order.lane,
                 side_size: order.side_size,
                 sent_tick: order.sent_tick(&table.params),
-                land_tick: order.land_tick,
+                land_tick: tick,
                 fill_price: fill.avg_price,
+                scheduled_tick: order.land_tick,
+                _pad: [0; 2],
             };
             accounts.xray.order_count += 1;
         } else {

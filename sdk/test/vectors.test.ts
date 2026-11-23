@@ -33,7 +33,7 @@ describe("shared Rust vectors", () => {
 
   it("decodes finalized X-ray seat identities and signed scores from the expanded account", () => {
     const data = Buffer.from(vectors.raw.xray, "base64");
-    expect(data.length).toBe(6516);
+    expect(data.length).toBe(7284);
     const xray = decodeXray(data);
     expect(xray.finalized).toBe(1);
     expect(xray.scores[3]).toBe(-125);

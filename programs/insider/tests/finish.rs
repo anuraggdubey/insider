@@ -60,6 +60,8 @@ impl Fixture {
             sent_tick: 4,
             land_tick: 8,
             fill_price: 1_000_000,
+            scheduled_tick: 8,
+            _pad: [0; 2],
         };
         xray.orders[1] = XrayOrder {
             seat: 1,
@@ -68,6 +70,8 @@ impl Fixture {
             sent_tick: 0,
             land_tick: 10,
             fill_price: 1_100_000,
+            scheduled_tick: 10,
+            _pad: [0; 2],
         };
         xray.orders[2] = XrayOrder {
             seat: 0,
@@ -76,6 +80,8 @@ impl Fixture {
             sent_tick: 0,
             land_tick: 15,
             fill_price: 1_200_000,
+            scheduled_tick: 15,
+            _pad: [0; 2],
         };
         let mut seats: Vec<_> = (0..SEAT_COUNT as u8)
             .map(|i| {
@@ -309,6 +315,22 @@ fn spotlight_full_book_and_flow_produce_one_sandwich() {
             ),
             (0, 1, 2, 8, 10, 2)
         );
+    }
+}
+
+#[test]
+fn carried_victims_match_scheduled_payloads_but_tags_use_actual_landing_ticks() {
+    for kind in [LeakKind::Spotlight, LeakKind::FullBook, LeakKind::Flow] {
+        let mut carried = Fixture::new(kind);
+        carried.xray.orders[1].land_tick = 12;
+        carried.finalize().unwrap();
+        assert_eq!(carried.xray.tag_count, 1, "{kind:?}");
+        assert_eq!(carried.xray.tags[0].victim_tick, 12);
+
+        let mut too_late = Fixture::new(kind);
+        too_late.xray.orders[1].land_tick = 16;
+        too_late.finalize().unwrap();
+        assert_eq!(too_late.xray.tag_count, 0, "{kind:?}");
     }
 }
 

@@ -209,8 +209,8 @@ fn tag_sandwiches(board: &Board, vaults: &[&LeakVault], xray: &mut Xray, seats: 
 fn contains_victim(vault: &LeakVault, victim: &XrayOrder) -> bool {
     match LeakKind::from_u8(vault.kind) {
         LeakKind::Flow => {
-            i32::from(victim.land_tick) >= vault.fields[2]
-                && i32::from(victim.land_tick) <= vault.fields[3]
+            i32::from(victim.scheduled_tick) >= vault.fields[2]
+                && i32::from(victim.scheduled_tick) <= vault.fields[3]
         }
         LeakKind::Spotlight | LeakKind::FullBook => vault.orders
             [..usize::from(vault.order_count).min(LEAK_PAYLOAD_ORDERS)]
@@ -218,7 +218,7 @@ fn contains_victim(vault: &LeakVault, victim: &XrayOrder) -> bool {
             .any(|order| {
                 order.seat == victim.seat
                     && order.side_size == victim.side_size
-                    && order.land_tick == victim.land_tick
+                    && order.land_tick == victim.scheduled_tick
             }),
         _ => false,
     }

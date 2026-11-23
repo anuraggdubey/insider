@@ -80,6 +80,44 @@ fn bidding_prices_burns_and_rejects_invalid_purchases() {
 }
 
 #[test]
+fn hoard_limit_applies_to_auctions_and_listings_and_frees_on_open() {
+    let mut board = Board::zeroed();
+    let mut buyer = seat(0, 1_000);
+    let mut seller = seat(1, 100);
+    board.headers[0] = leak(LeakState::Auction, NO_SEAT);
+    board.headers[1] = leak(LeakState::Auction, NO_SEAT);
+    board.headers[2] = leak(LeakState::Auction, NO_SEAT);
+    board.headers[3] = leak(LeakState::Listed, 1);
+    board.headers[3].ask = 25;
+    bid(&mut board, 0, 0, &mut buyer, 10).unwrap();
+    bid(&mut board, 1, 0, &mut buyer, 10).unwrap();
+    list(&mut board, 1, 0, 70).unwrap();
+    assert_eq!(unopened_count(&board, 0), 2);
+    let board_before = bytemuck::bytes_of(&board).to_vec();
+    let buyer_before = (buyer.chips, buyer.leak_spend);
+    let seller_before = seller.chips;
+    error(bid(&mut board, 2, 0, &mut buyer, 10), "HoardLimit");
+    error(
+        buy_listed(&mut board, 3, 0, &mut buyer, &mut seller, 10),
+        "HoardLimit",
+    );
+    assert_eq!(bytemuck::bytes_of(&board), board_before);
+    assert_eq!((buyer.chips, buyer.leak_spend), buyer_before);
+    assert_eq!(seller.chips, seller_before);
+
+    open(&mut board, 0, 0, buyer.owner, 10).unwrap();
+    assert_eq!(unopened_count(&board, 0), 1);
+    assert_eq!(
+        buy_listed(&mut board, 3, 0, &mut buyer, &mut seller, 10).unwrap(),
+        25
+    );
+    assert_eq!(unopened_count(&board, 0), 2);
+    assert_eq!(buyer.chips, buyer_before.0 - 25);
+    assert_eq!(seller.chips, seller_before + 25);
+    error(bid(&mut board, 2, 0, &mut buyer, 10), "HoardLimit");
+}
+
+#[test]
 fn last_accepted_bid_pays_the_floor() {
     let mut board = Board::zeroed();
     board.headers[0] = leak(LeakState::Auction, NO_SEAT);
@@ -218,6 +256,105 @@ fn licensing_transfers_chips_and_enforces_reader_and_expiry_limits() {
             &mut owner,
             20,
         ),
+        "NotForSale",
+    );
+}
+
+#[test]
+fn licensing_accepts_three_buyers_and_rejects_duplicates_self_expiry_and_fifth_reader() {
+    let mut board = Board::zeroed();
+    let mut owner = seat(0, 100);
+    let mut readers: Vec<_> = (1..=4).map(|index| seat(index, 100)).collect();
+    board.headers[0] = leak(LeakState::Owned, 0);
+    open(&mut board, 0, 0, owner.owner, 10).unwrap();
+    offer_license(&mut board, 0, 0, 15).unwrap();
+
+    let key = readers[0].owner;
+    buy_license(&mut board, 0, 1, key, &mut readers[0], &mut owner, 100).unwrap();
+    assert_eq!(board.headers[0].reader_count, 2);
+    let before = bytemuck::bytes_of(&board).to_vec();
+    error(
+        buy_license(&mut board, 0, 1, key, &mut readers[0], &mut owner, 100),
+        "ReaderLimit",
+    );
+    let mut self_buyer = seat(0, 100);
+    self_buyer.owner = owner.owner;
+    error(
+        buy_license(
+            &mut board,
+            0,
+            0,
+            owner.owner,
+            &mut self_buyer,
+            &mut owner,
+            100,
+        ),
+        "NotForSale",
+    );
+    self_buyer.index = 8;
+    error(
+        buy_license(
+            &mut board,
+            0,
+            8,
+            owner.owner,
+            &mut self_buyer,
+            &mut owner,
+            100,
+        ),
+        "ReaderLimit",
+    );
+    let key = readers[1].owner;
+    error(
+        buy_license(&mut board, 0, 2, key, &mut readers[1], &mut owner, 101),
+        "NotForSale",
+    );
+    assert_eq!(bytemuck::bytes_of(&board), before);
+    assert_eq!(
+        (
+            owner.chips,
+            readers[0].chips,
+            readers[1].chips,
+            self_buyer.chips
+        ),
+        (115, 85, 100, 100)
+    );
+
+    for (offset, reader) in readers[1..3].iter_mut().enumerate() {
+        let key = reader.owner;
+        let (_, count) = buy_license(
+            &mut board,
+            0,
+            (offset + 2) as u8,
+            key,
+            reader,
+            &mut owner,
+            100,
+        )
+        .unwrap();
+        assert_eq!(count, (offset + 3) as u8);
+    }
+    assert_eq!(board.headers[0].reader_count, 4);
+    assert_eq!(
+        &board.headers[0].readers,
+        &[
+            owner.owner,
+            readers[0].owner,
+            readers[1].owner,
+            readers[2].owner
+        ]
+    );
+    let before = bytemuck::bytes_of(&board).to_vec();
+    let key = readers[3].owner;
+    error(
+        buy_license(&mut board, 0, 4, key, &mut readers[3], &mut owner, 100),
+        "ReaderLimit",
+    );
+    assert_eq!(bytemuck::bytes_of(&board), before);
+    assert_eq!((owner.chips, readers[3].chips), (145, 100));
+    board.headers[0].state = LeakState::Expired as u8;
+    error(
+        buy_license(&mut board, 0, 4, key, &mut readers[3], &mut owner, 100),
         "NotForSale",
     );
 }

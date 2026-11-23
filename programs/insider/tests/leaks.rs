@@ -869,6 +869,8 @@ fn finish_round_handles_a_full_trace_within_the_compute_budget() {
             sent_tick: 0,
             land_tick: (i % 180) as u16,
             fill_price: 1_000_000,
+            scheduled_tick: (i % 180) as u16,
+            _pad: [0; 2],
         };
     }
     f.leak.base.svm.set_account(f.xray, account).unwrap();
@@ -888,6 +890,8 @@ fn finish_round_handles_a_full_trace_within_the_compute_budget() {
         sent_tick: 175,
         land_tick: 180,
         fill_price: 1_000_000,
+        scheduled_tick: 180,
+        _pad: [0; 2],
     };
     xray.orders[1] = XrayOrder {
         seat: 0,
@@ -896,6 +900,8 @@ fn finish_round_handles_a_full_trace_within_the_compute_budget() {
         sent_tick: 160,
         land_tick: 180,
         fill_price: 1_100_000,
+        scheduled_tick: 180,
+        _pad: [0; 2],
     };
     f.leak.base.svm.set_account(f.xray, account).unwrap();
     f.leak.base.svm.expire_blockhash();

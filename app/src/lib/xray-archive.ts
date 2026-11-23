@@ -15,10 +15,15 @@ export type ArchivedLeak = Omit<XrayAccount["leaks"][number], "header" | "orders
   header: ArchivedHeader;
   orders: PayloadOrder[];
 };
+export type ArchivedOrder = Omit<XrayAccount["orders"][number], "scheduledTick" | "pad"> & {
+  scheduledTick?: number;
+  pad?: number[];
+};
 export type ArchivedXray = Omit<
   XrayAccount,
-  "leaks" | "seatOwners" | "scores" | "seatKinds" | "nameIdx" | "seatPad"
+  "orders" | "leaks" | "seatOwners" | "scores" | "seatKinds" | "nameIdx" | "seatPad"
 > & {
+  orders: ArchivedOrder[];
   leaks: ArchivedLeak[];
   seatOwners?: string[];
   scores?: number[];
