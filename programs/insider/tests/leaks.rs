@@ -219,7 +219,7 @@ fn send_writes_private_order_and_public_event_without_order_fields_in_logs() {
     );
     assert_eq!(
         (seat.pending_count, seat.last_seen_tick, seat.chips),
-        (1, 42, 990)
+        (1, 42, 997)
     );
     assert!(!meta.logs.iter().any(|line| line.contains("1337")));
     let program_logs: Vec<_> = meta

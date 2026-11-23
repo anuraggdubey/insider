@@ -1,5 +1,6 @@
 // Shared registry: add your own modules in alphabetical order, never reformat the other person's.
 pub mod board;
+pub mod call_vault;
 pub mod calls;
 pub mod future;
 pub mod leak_vault;
@@ -12,6 +13,7 @@ pub mod tape;
 pub mod xray;
 
 pub use board::*;
+pub use call_vault::*;
 pub use calls::*;
 pub use future::*;
 pub use leak_vault::*;

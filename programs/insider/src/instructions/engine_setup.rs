@@ -25,15 +25,16 @@ use ephemeral_rollups_sdk::{
 
 use crate::{
     error::InsiderError,
-    state::{Board, Future, LeakVault, Market, Mempool, Table, Xray},
-    BOARD_SEED, FUTURE_SEED, LEAK_READERS, LEAK_SEED, LEAK_SLOTS, MARKET_DESK, MARKET_FLOOR,
-    MARKET_SEED, MEMPOOL_SEED, NOBODY_SEED, TABLE_SEED, XRAY_SEED,
+    state::{Board, CallVault, Future, LeakVault, Market, Mempool, Table, Xray},
+    BOARD_SEED, CALLVAULT_SEED, FUTURE_SEED, LEAK_READERS, LEAK_SEED, LEAK_SLOTS, MARKET_DESK, MARKET_FLOOR,
+    MARKET_SEED, MEMPOOL_SEED, NOBODY_SEED, SEAT_COUNT, TABLE_SEED, XRAY_SEED,
 };
 
 /// Which private account `init_permission` protects.
 pub const TARGET_MEMPOOL: u8 = 0;
 pub const TARGET_FUTURE: u8 = 1;
 pub const TARGET_VAULT: u8 = 2;
+pub const TARGET_CALL_VAULT: u8 = 3;
 
 /// Lamports that must sit in a private account before delegation so its permission can be created.
 pub fn permission_rent() -> u64 {
@@ -282,6 +283,10 @@ pub fn init_permission(ctx: Context<InitPermission>, target: u8, slot: u8) -> Re
             require!(usize::from(slot) < LEAK_SLOTS, InsiderError::InvalidLeakSlot);
             vec![LEAK_SEED, table_key.as_ref(), &slot_seed]
         }
+        TARGET_CALL_VAULT => {
+            require!(usize::from(slot) < SEAT_COUNT, InsiderError::InvalidSeat);
+            vec![CALLVAULT_SEED, table_key.as_ref(), &slot_seed]
+        }
         _ => return err!(InsiderError::InvalidPermissionTarget),
     };
     let (expected, bump) = Pubkey::find_program_address(&seeds, ctx.program_id);
@@ -461,6 +466,67 @@ pub fn delegate_leak_vault(ctx: Context<DelegateLeakVault>, slot: u8) -> Result<
     ctx.accounts.delegate_vault(
         &ctx.accounts.payer,
         &[LEAK_SEED, table.as_ref(), &[slot]],
+        config,
+    )?;
+    Ok(())
+}
+
+// ---- call vaults (the Desk) --------------------------------------------------------------------
+
+#[derive(Accounts)]
+#[instruction(slot: u8)]
+pub struct InitCallVault<'info> {
+    #[account(mut)]
+    pub authority: Signer<'info>,
+    #[account(
+        seeds = [TABLE_SEED, authority.key().as_ref()],
+        bump = table.bump,
+        has_one = authority @ InsiderError::NotAuthority,
+    )]
+    pub table: Account<'info, Table>,
+    #[account(
+        init,
+        payer = authority,
+        space = CallVault::SPACE,
+        seeds = [CALLVAULT_SEED, table.key().as_ref(), &[slot]],
+        bump,
+    )]
+    pub vault: AccountLoader<'info, CallVault>,
+    pub system_program: Program<'info, System>,
+}
+
+/// One private vault per seat, with its permission rent pre-funded.
+pub fn init_call_vault(ctx: Context<InitCallVault>, slot: u8) -> Result<()> {
+    require!(usize::from(slot) < SEAT_COUNT, InsiderError::InvalidSeat);
+    ctx.accounts.vault.load_init()?.bump = ctx.bumps.vault;
+    prefund(
+        &ctx.accounts.authority,
+        ctx.accounts.vault.to_account_info(),
+        &ctx.accounts.system_program,
+    )
+}
+
+#[delegate]
+#[derive(Accounts)]
+#[instruction(slot: u8)]
+pub struct DelegateCallVault<'info> {
+    #[account(mut)]
+    pub payer: Signer<'info>,
+    /// CHECK: the table, only used to derive the vault seeds.
+    #[account(seeds = [TABLE_SEED, payer.key().as_ref()], bump)]
+    pub table: UncheckedAccount<'info>,
+    /// CHECK: the call vault PDA being delegated.
+    #[account(mut, del, seeds = [CALLVAULT_SEED, table.key().as_ref(), &[slot]], bump)]
+    pub vault: UncheckedAccount<'info>,
+}
+
+pub fn delegate_call_vault(ctx: Context<DelegateCallVault>, slot: u8) -> Result<()> {
+    require!(usize::from(slot) < SEAT_COUNT, InsiderError::InvalidSeat);
+    let table = ctx.accounts.table.key();
+    let config = config(ctx.remaining_accounts);
+    ctx.accounts.delegate_vault(
+        &ctx.accounts.payer,
+        &[CALLVAULT_SEED, table.as_ref(), &[slot]],
         config,
     )?;
     Ok(())

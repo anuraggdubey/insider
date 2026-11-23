@@ -135,6 +135,43 @@ pub mod insider {
         cranks::rearm_ticks(ctx, task_id, interval_millis, iterations)
     }
 
+    // Desk
+    pub fn mint_call(
+        ctx: Context<MintCall>,
+        index: u8,
+        direction: i8,
+        horizon: u16,
+        stake: u64,
+        license_ask: u64,
+        confidence: u8,
+    ) -> Result<()> {
+        desk::mint_call(ctx, index, direction, horizon, stake, license_ask, confidence)
+    }
+
+    pub fn buy_call_license(
+        ctx: Context<BuyCallLicense>,
+        index: u8,
+        author_index: u8,
+    ) -> Result<()> {
+        desk::buy_call_license(ctx, index, author_index)
+    }
+
+    pub fn settle_call(ctx: Context<SettleCall>, author_index: u8) -> Result<()> {
+        desk::settle_call(ctx, author_index)
+    }
+
+    pub fn desk_trade(ctx: Context<DeskTrade>, index: u8, size: i16) -> Result<()> {
+        desk::desk_trade(ctx, index, size)
+    }
+
+    pub fn init_call_vault(ctx: Context<InitCallVault>, slot: u8) -> Result<()> {
+        engine_setup::init_call_vault(ctx, slot)
+    }
+
+    pub fn delegate_call_vault(ctx: Context<DelegateCallVault>, slot: u8) -> Result<()> {
+        engine_setup::delegate_call_vault(ctx, slot)
+    }
+
     // Epoch
     pub fn commit_epoch(ctx: Context<CommitEpoch>) -> Result<()> {
         epoch::commit_epoch(ctx)

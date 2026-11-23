@@ -66,6 +66,120 @@
       ]
     },
     {
+      "name": "buy_call_license",
+      "discriminator": [
+        235,
+        182,
+        237,
+        251,
+        248,
+        111,
+        60,
+        56
+      ],
+      "accounts": [
+        {
+          "name": "owner",
+          "signer": true
+        },
+        {
+          "name": "table"
+        },
+        {
+          "name": "seat",
+          "writable": true
+        },
+        {
+          "name": "author_seat",
+          "writable": true
+        },
+        {
+          "name": "call_book",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  97,
+                  108,
+                  108,
+                  98,
+                  111,
+                  111,
+                  107
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "table"
+              }
+            ]
+          }
+        },
+        {
+          "name": "vault",
+          "writable": true
+        },
+        {
+          "name": "permission",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  101,
+                  114,
+                  109,
+                  105,
+                  115,
+                  115,
+                  105,
+                  111,
+                  110,
+                  58
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "vault"
+              }
+            ],
+            "program": {
+              "kind": "account",
+              "path": "permission_program"
+            }
+          }
+        },
+        {
+          "name": "permission_program",
+          "address": "ACLseoPoyC3cBqoUtkbjZ4aDrkurZW86v19pXz2XQnp1"
+        },
+        {
+          "name": "ephemeral_vault",
+          "writable": true,
+          "address": "MagicVau1t999999999999999999999999999999999"
+        },
+        {
+          "name": "magic_program",
+          "address": "Magic11111111111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "index",
+          "type": "u8"
+        },
+        {
+          "name": "author_index",
+          "type": "u8"
+        }
+      ]
+    },
+    {
       "name": "buy_license",
       "discriminator": [
         255,
@@ -795,6 +909,200 @@
         }
       ],
       "args": []
+    },
+    {
+      "name": "delegate_call_vault",
+      "discriminator": [
+        219,
+        8,
+        69,
+        56,
+        28,
+        51,
+        43,
+        203
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "table",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  116,
+                  97,
+                  98,
+                  108,
+                  101
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "payer"
+              }
+            ]
+          }
+        },
+        {
+          "name": "buffer_vault",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  117,
+                  102,
+                  102,
+                  101,
+                  114
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "vault"
+              }
+            ],
+            "program": {
+              "kind": "const",
+              "value": [
+                100,
+                138,
+                19,
+                74,
+                196,
+                109,
+                85,
+                33,
+                73,
+                28,
+                184,
+                108,
+                4,
+                90,
+                142,
+                233,
+                103,
+                187,
+                253,
+                10,
+                187,
+                122,
+                89,
+                9,
+                217,
+                28,
+                57,
+                82,
+                39,
+                210,
+                207,
+                107
+              ]
+            }
+          }
+        },
+        {
+          "name": "delegation_record_vault",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  100,
+                  101,
+                  108,
+                  101,
+                  103,
+                  97,
+                  116,
+                  105,
+                  111,
+                  110
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "vault"
+              }
+            ],
+            "program": {
+              "kind": "account",
+              "path": "delegation_program"
+            }
+          }
+        },
+        {
+          "name": "delegation_metadata_vault",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  100,
+                  101,
+                  108,
+                  101,
+                  103,
+                  97,
+                  116,
+                  105,
+                  111,
+                  110,
+                  45,
+                  109,
+                  101,
+                  116,
+                  97,
+                  100,
+                  97,
+                  116,
+                  97
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "vault"
+              }
+            ],
+            "program": {
+              "kind": "account",
+              "path": "delegation_program"
+            }
+          }
+        },
+        {
+          "name": "vault",
+          "writable": true
+        },
+        {
+          "name": "owner_program",
+          "address": "7mTtHsFMYnZRnhd3SRzhj8Nm1U2T3s33dnbJwa9zBErW"
+        },
+        {
+          "name": "delegation_program",
+          "address": "DELeGGvXpWV2fqJUhqcF5ZSYMS4JTLjteaAMARRSaeSh"
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "slot",
+          "type": "u8"
+        }
+      ]
     },
     {
       "name": "delegate_future",
@@ -2602,6 +2910,50 @@
       "args": []
     },
     {
+      "name": "desk_trade",
+      "discriminator": [
+        179,
+        183,
+        95,
+        239,
+        152,
+        236,
+        145,
+        252
+      ],
+      "accounts": [
+        {
+          "name": "owner",
+          "signer": true
+        },
+        {
+          "name": "table"
+        },
+        {
+          "name": "seat",
+          "writable": true
+        },
+        {
+          "name": "market",
+          "writable": true
+        },
+        {
+          "name": "oracle",
+          "address": "ENYwebBThHzmzwPLAQvCucUTsjyfBSZdD9ViXksS4jPu"
+        }
+      ],
+      "args": [
+        {
+          "name": "index",
+          "type": "u8"
+        },
+        {
+          "name": "size",
+          "type": "i16"
+        }
+      ]
+    },
+    {
       "name": "finish_round",
       "discriminator": [
         23,
@@ -2891,6 +3243,64 @@
         }
       ],
       "args": []
+    },
+    {
+      "name": "init_call_vault",
+      "discriminator": [
+        5,
+        62,
+        60,
+        184,
+        146,
+        93,
+        15,
+        57
+      ],
+      "accounts": [
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true,
+          "relations": [
+            "table"
+          ]
+        },
+        {
+          "name": "table",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  116,
+                  97,
+                  98,
+                  108,
+                  101
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "authority"
+              }
+            ]
+          }
+        },
+        {
+          "name": "vault",
+          "writable": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "slot",
+          "type": "u8"
+        }
+      ]
     },
     {
       "name": "init_future",
@@ -3624,6 +4034,136 @@
         {
           "name": "ask",
           "type": "u32"
+        }
+      ]
+    },
+    {
+      "name": "mint_call",
+      "discriminator": [
+        151,
+        77,
+        187,
+        126,
+        171,
+        240,
+        56,
+        1
+      ],
+      "accounts": [
+        {
+          "name": "owner",
+          "signer": true
+        },
+        {
+          "name": "table"
+        },
+        {
+          "name": "seat",
+          "writable": true
+        },
+        {
+          "name": "call_book",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  97,
+                  108,
+                  108,
+                  98,
+                  111,
+                  111,
+                  107
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "table"
+              }
+            ]
+          }
+        },
+        {
+          "name": "vault",
+          "writable": true
+        },
+        {
+          "name": "permission",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  101,
+                  114,
+                  109,
+                  105,
+                  115,
+                  115,
+                  105,
+                  111,
+                  110,
+                  58
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "vault"
+              }
+            ],
+            "program": {
+              "kind": "account",
+              "path": "permission_program"
+            }
+          }
+        },
+        {
+          "name": "permission_program",
+          "address": "ACLseoPoyC3cBqoUtkbjZ4aDrkurZW86v19pXz2XQnp1"
+        },
+        {
+          "name": "ephemeral_vault",
+          "writable": true,
+          "address": "MagicVau1t999999999999999999999999999999999"
+        },
+        {
+          "name": "magic_program",
+          "address": "Magic11111111111111111111111111111111111111"
+        },
+        {
+          "name": "oracle",
+          "address": "ENYwebBThHzmzwPLAQvCucUTsjyfBSZdD9ViXksS4jPu"
+        }
+      ],
+      "args": [
+        {
+          "name": "index",
+          "type": "u8"
+        },
+        {
+          "name": "direction",
+          "type": "i8"
+        },
+        {
+          "name": "horizon",
+          "type": "u16"
+        },
+        {
+          "name": "stake",
+          "type": "u64"
+        },
+        {
+          "name": "license_ask",
+          "type": "u64"
+        },
+        {
+          "name": "confidence",
+          "type": "u8"
         }
       ]
     },
@@ -4686,6 +5226,93 @@
       ]
     },
     {
+      "name": "settle_call",
+      "discriminator": [
+        58,
+        230,
+        6,
+        58,
+        104,
+        245,
+        154,
+        227
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "signer": true
+        },
+        {
+          "name": "table"
+        },
+        {
+          "name": "author_seat",
+          "writable": true
+        },
+        {
+          "name": "call_book",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  97,
+                  108,
+                  108,
+                  98,
+                  111,
+                  111,
+                  107
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "table"
+              }
+            ]
+          }
+        },
+        {
+          "name": "vault"
+        },
+        {
+          "name": "season",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  115,
+                  101,
+                  97,
+                  115,
+                  111,
+                  110
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "table"
+              }
+            ]
+          }
+        },
+        {
+          "name": "oracle",
+          "address": "ENYwebBThHzmzwPLAQvCucUTsjyfBSZdD9ViXksS4jPu"
+        }
+      ],
+      "args": [
+        {
+          "name": "author_index",
+          "type": "u8"
+        }
+      ]
+    },
+    {
       "name": "tick",
       "discriminator": [
         92,
@@ -4856,6 +5483,19 @@
         247,
         104,
         191
+      ]
+    },
+    {
+      "name": "CallVault",
+      "discriminator": [
+        111,
+        128,
+        241,
+        54,
+        167,
+        247,
+        70,
+        21
       ]
     },
     {
@@ -5141,6 +5781,46 @@
       "code": 6032,
       "name": "SeasonDelegated",
       "msg": "The season is still delegated to the rollup"
+    },
+    {
+      "code": 6033,
+      "name": "InvalidCall",
+      "msg": "Invalid Call: direction, horizon, stake, license price or confidence"
+    },
+    {
+      "code": 6034,
+      "name": "CallSlotBusy",
+      "msg": "This seat already has an open Call"
+    },
+    {
+      "code": 6035,
+      "name": "NoOpenCall",
+      "msg": "No open Call here"
+    },
+    {
+      "code": 6036,
+      "name": "CallNotDue",
+      "msg": "The Call is not due yet"
+    },
+    {
+      "code": 6037,
+      "name": "OracleInvalid",
+      "msg": "The oracle feed is invalid"
+    },
+    {
+      "code": 6038,
+      "name": "OracleStale",
+      "msg": "The oracle feed is stale"
+    },
+    {
+      "code": 6039,
+      "name": "LicenseUnavailable",
+      "msg": "This Call cannot be licensed"
+    },
+    {
+      "code": 6040,
+      "name": "DeskLimit",
+      "msg": "Desk order or position limit"
     }
   ],
   "types": [
@@ -5357,6 +6037,48 @@
                 4
               ]
             }
+          }
+        ]
+      }
+    },
+    {
+      "name": "CallVault",
+      "docs": [
+        "The private part of a Desk Call: its direction and confidence. Readable by the author, then by",
+        "licensees; the direction becomes public in the header when the Call is judged."
+      ],
+      "serialization": "bytemuck",
+      "repr": {
+        "kind": "c"
+      },
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "call_id",
+            "type": "u32"
+          },
+          {
+            "name": "direction",
+            "docs": [
+              "+1 up, -1 down, 0 empty."
+            ],
+            "type": "i8"
+          },
+          {
+            "name": "confidence",
+            "docs": [
+              "0 to 100."
+            ],
+            "type": "u8"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          },
+          {
+            "name": "_pad",
+            "type": "u8"
           }
         ]
       }

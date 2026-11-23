@@ -70,4 +70,20 @@ pub enum InsiderError {
     EpochNotOver,
     #[msg("The season is still delegated to the rollup")]
     SeasonDelegated,
+    #[msg("Invalid Call: direction, horizon, stake, license price or confidence")]
+    InvalidCall,
+    #[msg("This seat already has an open Call")]
+    CallSlotBusy,
+    #[msg("No open Call here")]
+    NoOpenCall,
+    #[msg("The Call is not due yet")]
+    CallNotDue,
+    #[msg("The oracle feed is invalid")]
+    OracleInvalid,
+    #[msg("The oracle feed is stale")]
+    OracleStale,
+    #[msg("This Call cannot be licensed")]
+    LicenseUnavailable,
+    #[msg("Desk order or position limit")]
+    DeskLimit,
 }

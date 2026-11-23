@@ -57,6 +57,90 @@ export type Insider = {
       ];
     },
     {
+      name: "buyCallLicense";
+      discriminator: [235, 182, 237, 251, 248, 111, 60, 56];
+      accounts: [
+        {
+          name: "owner";
+          signer: true;
+        },
+        {
+          name: "table";
+        },
+        {
+          name: "seat";
+          writable: true;
+        },
+        {
+          name: "authorSeat";
+          writable: true;
+        },
+        {
+          name: "callBook";
+          writable: true;
+          pda: {
+            seeds: [
+              {
+                kind: "const";
+                value: [99, 97, 108, 108, 98, 111, 111, 107];
+              },
+              {
+                kind: "account";
+                path: "table";
+              },
+            ];
+          };
+        },
+        {
+          name: "vault";
+          writable: true;
+        },
+        {
+          name: "permission";
+          writable: true;
+          pda: {
+            seeds: [
+              {
+                kind: "const";
+                value: [112, 101, 114, 109, 105, 115, 115, 105, 111, 110, 58];
+              },
+              {
+                kind: "account";
+                path: "vault";
+              },
+            ];
+            program: {
+              kind: "account";
+              path: "permissionProgram";
+            };
+          };
+        },
+        {
+          name: "permissionProgram";
+          address: "ACLseoPoyC3cBqoUtkbjZ4aDrkurZW86v19pXz2XQnp1";
+        },
+        {
+          name: "ephemeralVault";
+          writable: true;
+          address: "MagicVau1t999999999999999999999999999999999";
+        },
+        {
+          name: "magicProgram";
+          address: "Magic11111111111111111111111111111111111111";
+        },
+      ];
+      args: [
+        {
+          name: "index";
+          type: "u8";
+        },
+        {
+          name: "authorIndex";
+          type: "u8";
+        },
+      ];
+    },
+    {
       name: "buyLicense";
       discriminator: [255, 81, 129, 152, 169, 201, 232, 105];
       accounts: [
@@ -624,6 +708,167 @@ export type Insider = {
         },
       ];
       args: [];
+    },
+    {
+      name: "delegateCallVault";
+      discriminator: [219, 8, 69, 56, 28, 51, 43, 203];
+      accounts: [
+        {
+          name: "payer";
+          writable: true;
+          signer: true;
+        },
+        {
+          name: "table";
+          pda: {
+            seeds: [
+              {
+                kind: "const";
+                value: [116, 97, 98, 108, 101];
+              },
+              {
+                kind: "account";
+                path: "payer";
+              },
+            ];
+          };
+        },
+        {
+          name: "bufferVault";
+          writable: true;
+          pda: {
+            seeds: [
+              {
+                kind: "const";
+                value: [98, 117, 102, 102, 101, 114];
+              },
+              {
+                kind: "account";
+                path: "vault";
+              },
+            ];
+            program: {
+              kind: "const";
+              value: [
+                100,
+                138,
+                19,
+                74,
+                196,
+                109,
+                85,
+                33,
+                73,
+                28,
+                184,
+                108,
+                4,
+                90,
+                142,
+                233,
+                103,
+                187,
+                253,
+                10,
+                187,
+                122,
+                89,
+                9,
+                217,
+                28,
+                57,
+                82,
+                39,
+                210,
+                207,
+                107,
+              ];
+            };
+          };
+        },
+        {
+          name: "delegationRecordVault";
+          writable: true;
+          pda: {
+            seeds: [
+              {
+                kind: "const";
+                value: [100, 101, 108, 101, 103, 97, 116, 105, 111, 110];
+              },
+              {
+                kind: "account";
+                path: "vault";
+              },
+            ];
+            program: {
+              kind: "account";
+              path: "delegationProgram";
+            };
+          };
+        },
+        {
+          name: "delegationMetadataVault";
+          writable: true;
+          pda: {
+            seeds: [
+              {
+                kind: "const";
+                value: [
+                  100,
+                  101,
+                  108,
+                  101,
+                  103,
+                  97,
+                  116,
+                  105,
+                  111,
+                  110,
+                  45,
+                  109,
+                  101,
+                  116,
+                  97,
+                  100,
+                  97,
+                  116,
+                  97,
+                ];
+              },
+              {
+                kind: "account";
+                path: "vault";
+              },
+            ];
+            program: {
+              kind: "account";
+              path: "delegationProgram";
+            };
+          };
+        },
+        {
+          name: "vault";
+          writable: true;
+        },
+        {
+          name: "ownerProgram";
+          address: "7mTtHsFMYnZRnhd3SRzhj8Nm1U2T3s33dnbJwa9zBErW";
+        },
+        {
+          name: "delegationProgram";
+          address: "DELeGGvXpWV2fqJUhqcF5ZSYMS4JTLjteaAMARRSaeSh";
+        },
+        {
+          name: "systemProgram";
+          address: "11111111111111111111111111111111";
+        },
+      ];
+      args: [
+        {
+          name: "slot";
+          type: "u8";
+        },
+      ];
     },
     {
       name: "delegateFuture";
@@ -2102,6 +2347,41 @@ export type Insider = {
       args: [];
     },
     {
+      name: "deskTrade";
+      discriminator: [179, 183, 95, 239, 152, 236, 145, 252];
+      accounts: [
+        {
+          name: "owner";
+          signer: true;
+        },
+        {
+          name: "table";
+        },
+        {
+          name: "seat";
+          writable: true;
+        },
+        {
+          name: "market";
+          writable: true;
+        },
+        {
+          name: "oracle";
+          address: "ENYwebBThHzmzwPLAQvCucUTsjyfBSZdD9ViXksS4jPu";
+        },
+      ];
+      args: [
+        {
+          name: "index";
+          type: "u8";
+        },
+        {
+          name: "size";
+          type: "i16";
+        },
+      ];
+    },
+    {
       name: "finishRound";
       discriminator: [23, 104, 163, 186, 110, 225, 11, 242];
       accounts: [
@@ -2315,6 +2595,47 @@ export type Insider = {
         },
       ];
       args: [];
+    },
+    {
+      name: "initCallVault";
+      discriminator: [5, 62, 60, 184, 146, 93, 15, 57];
+      accounts: [
+        {
+          name: "authority";
+          writable: true;
+          signer: true;
+          relations: ["table"];
+        },
+        {
+          name: "table";
+          pda: {
+            seeds: [
+              {
+                kind: "const";
+                value: [116, 97, 98, 108, 101];
+              },
+              {
+                kind: "account";
+                path: "authority";
+              },
+            ];
+          };
+        },
+        {
+          name: "vault";
+          writable: true;
+        },
+        {
+          name: "systemProgram";
+          address: "11111111111111111111111111111111";
+        },
+      ];
+      args: [
+        {
+          name: "slot";
+          type: "u8";
+        },
+      ];
     },
     {
       name: "initFuture";
@@ -2827,6 +3148,106 @@ export type Insider = {
         {
           name: "ask";
           type: "u32";
+        },
+      ];
+    },
+    {
+      name: "mintCall";
+      discriminator: [151, 77, 187, 126, 171, 240, 56, 1];
+      accounts: [
+        {
+          name: "owner";
+          signer: true;
+        },
+        {
+          name: "table";
+        },
+        {
+          name: "seat";
+          writable: true;
+        },
+        {
+          name: "callBook";
+          writable: true;
+          pda: {
+            seeds: [
+              {
+                kind: "const";
+                value: [99, 97, 108, 108, 98, 111, 111, 107];
+              },
+              {
+                kind: "account";
+                path: "table";
+              },
+            ];
+          };
+        },
+        {
+          name: "vault";
+          writable: true;
+        },
+        {
+          name: "permission";
+          writable: true;
+          pda: {
+            seeds: [
+              {
+                kind: "const";
+                value: [112, 101, 114, 109, 105, 115, 115, 105, 111, 110, 58];
+              },
+              {
+                kind: "account";
+                path: "vault";
+              },
+            ];
+            program: {
+              kind: "account";
+              path: "permissionProgram";
+            };
+          };
+        },
+        {
+          name: "permissionProgram";
+          address: "ACLseoPoyC3cBqoUtkbjZ4aDrkurZW86v19pXz2XQnp1";
+        },
+        {
+          name: "ephemeralVault";
+          writable: true;
+          address: "MagicVau1t999999999999999999999999999999999";
+        },
+        {
+          name: "magicProgram";
+          address: "Magic11111111111111111111111111111111111111";
+        },
+        {
+          name: "oracle";
+          address: "ENYwebBThHzmzwPLAQvCucUTsjyfBSZdD9ViXksS4jPu";
+        },
+      ];
+      args: [
+        {
+          name: "index";
+          type: "u8";
+        },
+        {
+          name: "direction";
+          type: "i8";
+        },
+        {
+          name: "horizon";
+          type: "u16";
+        },
+        {
+          name: "stake";
+          type: "u64";
+        },
+        {
+          name: "licenseAsk";
+          type: "u64";
+        },
+        {
+          name: "confidence";
+          type: "u8";
         },
       ];
     },
@@ -3643,6 +4064,68 @@ export type Insider = {
       ];
     },
     {
+      name: "settleCall";
+      discriminator: [58, 230, 6, 58, 104, 245, 154, 227];
+      accounts: [
+        {
+          name: "payer";
+          signer: true;
+        },
+        {
+          name: "table";
+        },
+        {
+          name: "authorSeat";
+          writable: true;
+        },
+        {
+          name: "callBook";
+          writable: true;
+          pda: {
+            seeds: [
+              {
+                kind: "const";
+                value: [99, 97, 108, 108, 98, 111, 111, 107];
+              },
+              {
+                kind: "account";
+                path: "table";
+              },
+            ];
+          };
+        },
+        {
+          name: "vault";
+        },
+        {
+          name: "season";
+          writable: true;
+          pda: {
+            seeds: [
+              {
+                kind: "const";
+                value: [115, 101, 97, 115, 111, 110];
+              },
+              {
+                kind: "account";
+                path: "table";
+              },
+            ];
+          };
+        },
+        {
+          name: "oracle";
+          address: "ENYwebBThHzmzwPLAQvCucUTsjyfBSZdD9ViXksS4jPu";
+        },
+      ];
+      args: [
+        {
+          name: "authorIndex";
+          type: "u8";
+        },
+      ];
+    },
+    {
       name: "tick";
       discriminator: [92, 79, 44, 8, 101, 80, 63, 15];
       accounts: [
@@ -3756,6 +4239,10 @@ export type Insider = {
     {
       name: "callBook";
       discriminator: [52, 34, 142, 98, 147, 247, 104, 191];
+    },
+    {
+      name: "callVault";
+      discriminator: [111, 128, 241, 54, 167, 247, 70, 21];
     },
     {
       name: "future";
@@ -3960,6 +4447,46 @@ export type Insider = {
       name: "seasonDelegated";
       msg: "The season is still delegated to the rollup";
     },
+    {
+      code: 6033;
+      name: "invalidCall";
+      msg: "Invalid Call: direction, horizon, stake, license price or confidence";
+    },
+    {
+      code: 6034;
+      name: "callSlotBusy";
+      msg: "This seat already has an open Call";
+    },
+    {
+      code: 6035;
+      name: "noOpenCall";
+      msg: "No open Call here";
+    },
+    {
+      code: 6036;
+      name: "callNotDue";
+      msg: "The Call is not due yet";
+    },
+    {
+      code: 6037;
+      name: "oracleInvalid";
+      msg: "The oracle feed is invalid";
+    },
+    {
+      code: 6038;
+      name: "oracleStale";
+      msg: "The oracle feed is stale";
+    },
+    {
+      code: 6039;
+      name: "licenseUnavailable";
+      msg: "This Call cannot be licensed";
+    },
+    {
+      code: 6040;
+      name: "deskLimit";
+      msg: "Desk order or position limit";
+    },
   ];
   types: [
     {
@@ -4151,6 +4678,44 @@ export type Insider = {
             type: {
               array: ["pubkey", 4];
             };
+          },
+        ];
+      };
+    },
+    {
+      name: "callVault";
+      docs: [
+        "The private part of a Desk Call: its direction and confidence. Readable by the author, then by",
+        "licensees; the direction becomes public in the header when the Call is judged.",
+      ];
+      serialization: "bytemuck";
+      repr: {
+        kind: "c";
+      };
+      type: {
+        kind: "struct";
+        fields: [
+          {
+            name: "callId";
+            type: "u32";
+          },
+          {
+            name: "direction";
+            docs: ["+1 up, -1 down, 0 empty."];
+            type: "i8";
+          },
+          {
+            name: "confidence";
+            docs: ["0 to 100."];
+            type: "u8";
+          },
+          {
+            name: "bump";
+            type: "u8";
+          },
+          {
+            name: "pad";
+            type: "u8";
           },
         ];
       };

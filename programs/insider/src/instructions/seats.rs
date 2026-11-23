@@ -5,7 +5,7 @@ use anchor_lang::prelude::*;
 use crate::{
     error::InsiderError,
     state::{Seat, SeatKind, Table},
-    BANKROLL_CHIPS, SEAT_COUNT, SEAT_IDLE_TICKS, SEAT_SEED,
+    BANKROLL_CHIPS, DESK_BANKROLL, SEAT_COUNT, SEAT_IDLE_TICKS, SEAT_SEED,
 };
 
 /// Number of entries in the fixed name list the app ships (no free text on chain).
@@ -56,7 +56,7 @@ pub fn claim_seat(ctx: Context<ClaimSeat>, index: u8) -> Result<()> {
         seat.fees_paid = 0;
         seat.leak_spend = 0;
         seat.pending_count = 0;
-        seat.desk_chips = 0;
+        seat.desk_chips = DESK_BANKROLL;
         seat.desk_position = 0;
         seat.claims = seat.claims.checked_add(1).ok_or(InsiderError::Overflow)?;
     }

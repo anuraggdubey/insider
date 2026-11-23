@@ -83,3 +83,27 @@ pub const XRAY_TAGS: usize = 16;
 pub const SANDWICH_WINDOW_TICKS: u16 = 6;
 pub const MARKET_FLOOR: u8 = 0;
 pub const MARKET_DESK: u8 = 1;
+
+// The Desk (oracle-settled Calls), spec section 8.
+pub const CALLVAULT_SEED: &[u8] = b"callvault";
+/// SOL/USD feed of the pricing oracle (gate G4): PDA ["price_feed", "pyth-lazer", "6"].
+pub const ORACLE_FEED: Pubkey = pubkey!("ENYwebBThHzmzwPLAQvCucUTsjyfBSZdD9ViXksS4jPu");
+pub const ORACLE_PROGRAM_ID: Pubkey = pubkey!("PriCems5tHihc6UDXDjzjeawomAwBduWMGAi8ZUjppd");
+/// A feed older than this many seconds is not used.
+pub const ORACLE_MAX_AGE_SECS: i64 = 30;
+/// Desk chips a seat gets when it sits down (a separate balance from Floor chips).
+pub const DESK_BANKROLL: i64 = 1_000;
+pub const CALL_HORIZONS: [u16; 3] = [60, 120, 180];
+pub const CALL_MIN_STAKE: u64 = 10;
+pub const CALL_MAX_STAKE: u64 = 200;
+pub const CALL_MAX_LICENSE: u64 = 100;
+/// A Right Call returns its stake plus this share of it.
+pub const CALL_BONUS_PCT: u64 = 50;
+/// Seconds after expiry in which a Call can still be judged; later it counts as Wrong. Keeps an
+/// author from waiting for a favourable price.
+pub const CALL_GRACE_SECS: i64 = 15;
+pub const DESK_FEE_BPS: u64 = 10;
+/// One Desk unit is 1/100 of a SOL, so 1,000 chips buy a useful position at about $70.
+pub const DESK_UNIT_DIVISOR: i128 = 100;
+pub const MAX_DESK_POSITION: i32 = 2_000;
+pub const MAX_DESK_ORDER: i16 = 500;
