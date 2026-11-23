@@ -16,6 +16,7 @@ import {
   MAX_TASK_ITERATIONS,
   SLOTS_PER_TICK,
   TICK_MILLIS,
+  tickAccountList,
   type TableAccounts,
 } from "../lib/insider.js";
 
@@ -36,6 +37,18 @@ const meta = (pubkey: PublicKey, isSigner: boolean, isWritable: boolean) => ({
   isWritable,
 });
 
+/**
+ * Remaining accounts of `schedule_ticks` / `rearm_ticks`: the payer, the Magic program and the
+ * table again (the SDK borrows long-lived accounts), then the accounts `tick` needs, in the
+ * program order. Every one is writable except the future (read-only for the tick).
+ */
+export const scheduleRemaining = (payer: PublicKey, accounts: TableAccounts) => [
+  meta(payer, true, true),
+  meta(MAGIC_PROGRAM_ID, false, false),
+  meta(accounts.table, false, true),
+  ...tickAccountList(accounts).map((account) => meta(account, false, !account.equals(accounts.future))),
+];
+
 /** Schedules one finite tick task (`iterations` at `intervalMillis`). */
 export async function armCrank(
   connection: Connection,
@@ -54,13 +67,32 @@ export async function armCrank(
         table: accounts.table,
         magicProgram: MAGIC_PROGRAM_ID,
       })
-      // the SDK borrows long-lived accounts, so the same three come again as remaining accounts
-      .remainingAccounts([
-        meta(authority.publicKey, true, true),
-        meta(MAGIC_PROGRAM_ID, false, false),
-        meta(accounts.table, false, true),
-      ])
+      .remainingAccounts(scheduleRemaining(authority.publicKey, accounts))
       .transaction(),
   );
   return sendAndConfirmTransaction(connection, tx, [authority], { commitment: "confirmed" });
+}
+
+/** Permissionless: any seat keeps the crank alive once less than the rearm window is left. */
+export async function rearmCrank(
+  connection: Connection,
+  program: Program,
+  payer: Keypair,
+  accounts: TableAccounts,
+  iterations = MAX_TASK_ITERATIONS,
+  intervalMillis = TICK_MILLIS,
+): Promise<string> {
+  const taskId = Date.now() % 1_000_000_000;
+  const tx = new Transaction().add(
+    await program.methods
+      .rearmTicks(new BN(taskId), new BN(intervalMillis), new BN(iterations))
+      .accounts({
+        payer: payer.publicKey,
+        table: accounts.table,
+        magicProgram: MAGIC_PROGRAM_ID,
+      })
+      .remainingAccounts(scheduleRemaining(payer.publicKey, accounts))
+      .transaction(),
+  );
+  return sendAndConfirmTransaction(connection, tx, [payer], { commitment: "confirmed" });
 }
