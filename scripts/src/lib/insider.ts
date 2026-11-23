@@ -16,6 +16,7 @@ export { permissionPdaFromAccount };
 // Mirrors of the Rust constants. `scripts/test/insider.test.ts` checks they have not drifted.
 export const SEEDS = {
   board: "board",
+  callVault: "callvault",
   future: "future",
   leak: "leak",
   market: "market",
@@ -67,11 +68,13 @@ export type TableAccounts = {
   callBook: PublicKey;
   season: PublicKey;
   market: PublicKey;
+  desk: PublicKey;
   mempool: PublicKey;
   future: PublicKey;
   board: PublicKey;
   xray: PublicKey;
   vaults: PublicKey[];
+  callVaults: PublicKey[];
   seats: PublicKey[];
 };
 
@@ -83,17 +86,22 @@ export function tableAccounts(authority: PublicKey, programId = config.programId
     callBook: callBookPda(table, programId),
     season: seasonPda(table, programId),
     market: marketPda(table, MARKET_FLOOR, programId),
+    desk: marketPda(table, MARKET_DESK, programId),
     mempool: mempoolPda(table, programId),
     future: futurePda(table, programId),
     board: boardPda(table, programId),
     xray: xrayPda(table, programId),
     vaults: Array.from({ length: LEAK_SLOTS }, (_, i) => leakVaultPda(table, i, programId)),
+    callVaults: Array.from({ length: SEAT_COUNT }, (_, i) => callVaultPda(table, i, programId)),
     seats: Array.from({ length: SEAT_COUNT }, (_, i) => seatPda(table, i, programId)),
   };
 }
 
 export const marketPda = (table: PublicKey, kind = MARKET_FLOOR, programId = config.programId) =>
   find([Buffer.from(SEEDS.market), table.toBuffer(), Buffer.from([kind])], programId);
+
+export const callVaultPda = (table: PublicKey, slot: number, programId = config.programId) =>
+  find([Buffer.from(SEEDS.callVault), table.toBuffer(), Buffer.from([slot])], programId);
 
 export const mempoolPda = (table: PublicKey, programId = config.programId) =>
   find([Buffer.from(SEEDS.mempool), table.toBuffer()], programId);

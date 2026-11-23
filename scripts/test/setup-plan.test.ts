@@ -21,6 +21,7 @@ const done = (): TableState => {
     state[key] = { exists: true, delegated: true };
   }
   state.vaults = state.vaults.map(() => ({ exists: true, delegated: true }));
+  state.callVaults = state.callVaults.map(() => ({ exists: true, delegated: true }));
   state.seats = state.seats.map(() => ({ exists: true, delegated: true }));
   return state;
 };
@@ -58,14 +59,14 @@ describe("planSetup from scratch", () => {
     const seatBatches = batches.filter((b) => b.label.startsWith("create seats"));
     expect(seatBatches).toHaveLength(2);
     seatBatches.forEach((b) => expect(b.steps).toHaveLength(SEATS_PER_INIT_TX));
-    expect(count(batches, "init")).toBe(1 + 3 + 11 + 10);
+    expect(count(batches, "init")).toBe(1 + 3 + 22 + 10);
   });
 
-  it("delegates all twenty-five accounts, five per transaction, table first and season last", () => {
+  it("delegates all thirty-six accounts, five per transaction, table first and season last", () => {
     const delegations = batches.filter((b) => b.label.startsWith("delegate"));
-    expect(count(batches, "delegate")).toBe(25);
+    expect(count(batches, "delegate")).toBe(36);
     delegations.forEach((b) => expect(b.steps.length).toBeLessThanOrEqual(DELEGATIONS_PER_TX));
-    expect(delegations).toHaveLength(5);
+    expect(delegations).toHaveLength(8);
     const flat = delegations.flatMap((b) => b.steps.map((s) => describeTarget(s.target)));
     expect(flat[0]).toBe("table");
     expect(flat.at(-1)).toBe("season");
@@ -96,13 +97,14 @@ describe("planSetup resumes", () => {
   it("plans only the delegation when everything exists but is not delegated yet", () => {
     const state = done();
     state.vaults.forEach((vault) => (vault.delegated = false));
+    state.callVaults.forEach((vault) => (vault.delegated = false));
     for (const key of SINGLE_ACCOUNTS) {
       state[key].delegated = false;
     }
     state.seats.forEach((seat) => (seat.delegated = false));
     const batches = planSetup(state);
     expect(count(batches, "init")).toBe(0);
-    expect(count(batches, "delegate")).toBe(25);
+    expect(count(batches, "delegate")).toBe(36);
   });
 
   it("continues a half-finished delegation without repeating finished accounts", () => {
@@ -118,12 +120,13 @@ describe("planSetup resumes", () => {
 describe("engine accounts in the plan", () => {
   const batches = planSetup(emptyState());
 
-  it("creates market, mempool, future, board, X-ray and six vaults, three per transaction", () => {
+  it("creates both markets, mempool, future, board, X-ray, six vaults and ten call vaults, three per transaction", () => {
     const engine = batches.filter((b) => b.label.startsWith("create engine accounts"));
-    expect(engine).toHaveLength(4);
+    expect(engine).toHaveLength(8);
     engine.forEach((b) => expect(b.steps.length).toBeLessThanOrEqual(ENGINE_PER_INIT_TX));
     expect(engine.flatMap((b) => b.steps.map((s) => describeTarget(s.target)))).toEqual([
       "market",
+      "desk",
       "mempool",
       "future",
       "board",
@@ -134,6 +137,7 @@ describe("engine accounts in the plan", () => {
       "vault 3",
       "vault 4",
       "vault 5",
+      ...Array.from({ length: 10 }, (_, i) => `call vault ${i}`),
     ]);
   });
 
@@ -147,13 +151,14 @@ describe("engine accounts in the plan", () => {
 });
 
 describe("planPermissions", () => {
-  it("makes the mempool, the future and all six vaults private, four per transaction", () => {
+  it("makes the mempool, the future, six vaults and ten call vaults private, four per transaction", () => {
     const plan = planPermissions(emptyPermissions());
-    expect(plan.map((b) => b.targets.length)).toEqual([4, 4]);
+    expect(plan.map((b) => b.targets.length)).toEqual([4, 4, 4, 4, 2]);
     expect(plan.flatMap((b) => b.targets)).toEqual([
       "mempool",
       "future",
       ...[0, 1, 2, 3, 4, 5].map((vault) => ({ vault })),
+      ...Array.from({ length: 10 }, (_, callVault) => ({ callVault })),
     ]);
   });
 
@@ -161,8 +166,14 @@ describe("planPermissions", () => {
     const state = emptyPermissions();
     state.mempool = true;
     state.vaults = state.vaults.map((_, i) => i < 5);
+    state.callVaults = state.callVaults.map(() => true);
     expect(planPermissions(state).flatMap((b) => b.targets)).toEqual(["future", { vault: 5 }]);
-    const all = { mempool: true, future: true, vaults: state.vaults.map(() => true) };
+    const all = {
+      mempool: true,
+      future: true,
+      vaults: state.vaults.map(() => true),
+      callVaults: state.callVaults.map(() => true),
+    };
     expect(planPermissions(all)).toEqual([]);
   });
 });

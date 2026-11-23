@@ -45,6 +45,7 @@ describe("insider client mirrors the Rust program", () => {
     expect(SEEDS.table).toBe(rustSeed("TABLE_SEED"));
     expect(SEEDS.tape).toBe(rustSeed("TAPE_SEED"));
     expect(SEEDS.board).toBe(rustSeed("BOARD_SEED"));
+    expect(SEEDS.callVault).toBe(rustSeed("CALLVAULT_SEED"));
     expect(SEEDS.future).toBe(rustSeed("FUTURE_SEED"));
     expect(SEEDS.leak).toBe(rustSeed("LEAK_SEED"));
     expect(SEEDS.market).toBe(rustSeed("MARKET_SEED"));
@@ -68,15 +69,17 @@ describe("account derivation", () => {
         accounts.callBook,
         accounts.season,
         accounts.market,
+        accounts.desk,
         accounts.mempool,
         accounts.future,
         accounts.board,
         accounts.xray,
         ...accounts.vaults,
+        ...accounts.callVaults,
         ...accounts.seats,
       ].map((k) => k.toBase58()),
     );
-    expect(keys.size).toBe(9 + LEAK_SLOTS + SEAT_COUNT);
+    expect(keys.size).toBe(10 + LEAK_SLOTS + SEAT_COUNT + SEAT_COUNT);
     expect(accounts.seats[3]!.equals(seatPda(accounts.table, 3, program))).toBe(true);
   });
 

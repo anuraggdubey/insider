@@ -12,7 +12,7 @@ import {
 
 import { DELEGATION_PROGRAM_ID } from "../lib/config.js";
 import type { TableAccounts } from "../lib/insider.js";
-import { MARKET_FLOOR, permissionPdaFromAccount } from "../lib/insider.js";
+import { MARKET_DESK, MARKET_FLOOR, permissionPdaFromAccount } from "../lib/insider.js";
 import {
   SINGLE_ACCOUNTS,
   type AccountState,
@@ -25,11 +25,12 @@ import {
 } from "./plan.js";
 
 /** Mirrors `TARGET_*` in `engine_setup.rs`. */
-const TARGET_CODE = { mempool: 0, future: 1, vault: 2 } as const;
+const TARGET_CODE = { mempool: 0, future: 1, vault: 2, callVault: 3 } as const;
 
 export const accountList = (accounts: TableAccounts) => [
   ...SINGLE_ACCOUNTS.map((name) => accounts[name]),
   ...accounts.vaults,
+  ...accounts.callVaults,
   ...accounts.seats,
 ];
 
@@ -54,13 +55,19 @@ export async function readState(
   return {
     ...single,
     vaults: accounts.vaults.map((_, i) => state(offset + i)),
-    seats: accounts.seats.map((_, i) => state(offset + accounts.vaults.length + i)),
+    callVaults: accounts.callVaults.map((_, i) => state(offset + accounts.vaults.length + i)),
+    seats: accounts.seats.map((_, i) =>
+      state(offset + accounts.vaults.length + accounts.callVaults.length + i),
+    ),
   };
 }
 
 export const addressOf = (accounts: TableAccounts, target: Target): PublicKey => {
   if (typeof target === "string") return accounts[target];
-  return "seat" in target ? accounts.seats[target.seat]! : accounts.vaults[target.vault]!;
+  if ("seat" in target) return accounts.seats[target.seat]!;
+  return "vault" in target
+    ? accounts.vaults[target.vault]!
+    : accounts.callVaults[target.callVault]!;
 };
 
 /** The instruction for one plan step. Delegation names the validator as a remaining account. */
@@ -79,15 +86,22 @@ export async function buildInstruction(
   if (step.kind === "init") {
     const base = { authority, table };
     if (typeof target !== "string") {
-      return "seat" in target
-        ? methods
-            .initSeat(target.seat)
-            .accounts({ ...base, seat: accounts.seats[target.seat]! })
-            .instruction()
-        : methods
-            .initLeakVault(target.vault)
-            .accounts({ ...base, vault: accounts.vaults[target.vault]! })
-            .instruction();
+      if ("seat" in target) {
+        return methods
+          .initSeat(target.seat)
+          .accounts({ ...base, seat: accounts.seats[target.seat]! })
+          .instruction();
+      }
+      if ("callVault" in target) {
+        return methods
+          .initCallVault(target.callVault)
+          .accounts({ ...base, vault: accounts.callVaults[target.callVault]! })
+          .instruction();
+      }
+      return methods
+        .initLeakVault(target.vault)
+        .accounts({ ...base, vault: accounts.vaults[target.vault]! })
+        .instruction();
     }
     switch (target) {
       case "table":
@@ -111,6 +125,11 @@ export async function buildInstruction(
         return methods
           .initMarket(MARKET_FLOOR)
           .accounts({ ...base, market: accounts.market })
+          .instruction();
+      case "desk":
+        return methods
+          .initMarket(MARKET_DESK)
+          .accounts({ ...base, market: accounts.desk })
           .instruction();
       case "mempool":
         return methods
@@ -137,17 +156,25 @@ export async function buildInstruction(
 
   const base = { payer: authority, table };
   if (typeof target !== "string") {
-    return "seat" in target
-      ? methods
-          .delegateSeat(target.seat)
-          .accounts({ ...base, seat: accounts.seats[target.seat]! })
-          .remainingAccounts(remaining)
-          .instruction()
-      : methods
-          .delegateLeakVault(target.vault)
-          .accounts({ ...base, vault: accounts.vaults[target.vault]! })
-          .remainingAccounts(remaining)
-          .instruction();
+    if ("seat" in target) {
+      return methods
+        .delegateSeat(target.seat)
+        .accounts({ ...base, seat: accounts.seats[target.seat]! })
+        .remainingAccounts(remaining)
+        .instruction();
+    }
+    if ("callVault" in target) {
+      return methods
+        .delegateCallVault(target.callVault)
+        .accounts({ ...base, vault: accounts.callVaults[target.callVault]! })
+        .remainingAccounts(remaining)
+        .instruction();
+    }
+    return methods
+      .delegateLeakVault(target.vault)
+      .accounts({ ...base, vault: accounts.vaults[target.vault]! })
+      .remainingAccounts(remaining)
+      .instruction();
   }
   switch (target) {
     case "table":
@@ -174,6 +201,12 @@ export async function buildInstruction(
       return methods
         .delegateMarket(MARKET_FLOOR)
         .accounts({ ...base, market: accounts.market })
+        .remainingAccounts(remaining)
+        .instruction();
+    case "desk":
+      return methods
+        .delegateMarket(MARKET_DESK)
+        .accounts({ ...base, market: accounts.desk })
         .remainingAccounts(remaining)
         .instruction();
     case "mempool":
@@ -206,7 +239,11 @@ export async function buildInstruction(
 // ---- permissions (rollup) ----------------------------------------------------------------------
 
 export const privateAddress = (accounts: TableAccounts, target: PrivateTarget): PublicKey =>
-  typeof target === "string" ? accounts[target] : accounts.vaults[target.vault]!;
+  typeof target === "string"
+    ? accounts[target]
+    : "vault" in target
+      ? accounts.vaults[target.vault]!
+      : accounts.callVaults[target.callVault]!;
 
 /**
  * Which private accounts are already private. The permission account itself is not readable on
@@ -221,12 +258,15 @@ export async function readPermissions(
     accounts.mempool,
     accounts.future,
     ...accounts.vaults,
+    ...accounts.callVaults,
   ]);
   const hidden = (i: number) => infos[i] === null;
+  const n = accounts.vaults.length;
   return {
     mempool: hidden(0),
     future: hidden(1),
     vaults: accounts.vaults.map((_, i) => hidden(2 + i)),
+    callVaults: accounts.callVaults.map((_, i) => hidden(2 + n + i)),
   };
 }
 
@@ -239,7 +279,11 @@ export async function buildPermissionInstruction(
 ): Promise<TransactionInstruction> {
   const address = privateAddress(accounts, target);
   const [code, slot] =
-    typeof target === "string" ? [TARGET_CODE[target], 0] : [TARGET_CODE.vault, target.vault];
+    typeof target === "string"
+      ? [TARGET_CODE[target], 0]
+      : "vault" in target
+        ? [TARGET_CODE.vault, target.vault]
+        : [TARGET_CODE.callVault, target.callVault];
   return program.methods
     .initPermission(code, slot)
     .accounts({

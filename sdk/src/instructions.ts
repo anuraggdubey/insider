@@ -8,6 +8,7 @@ import { PublicKey, Transaction, TransactionInstruction, type AccountMeta } from
 import rawIdl from "../../programs/idl/insider.json" with { type: "json" };
 import {
   EPHEMERAL_VRF_QUEUE,
+  ORACLE_FEED,
   MAGIC_CONTEXT_ID,
   MAGIC_PROGRAM_ID,
   PERMISSION_PROGRAM_ID,
@@ -312,5 +313,124 @@ export function commitEpoch(config: InsiderConfig, payer: PublicKey) {
     "commitEpoch",
     {},
     { payer, table: p.table, xray: p.xray, season: p.season, magicContext: MAGIC_CONTEXT_ID },
+  );
+}
+
+// ---- the Desk ----------------------------------------------------------------------------------
+
+function callVaultPermission(config: InsiderConfig, slot: number) {
+  const vault = addresses(config).callVaults[slot];
+  if (!vault) throw new RangeError("Invalid seat");
+  return {
+    vault,
+    permission: permissionPdaFromAccount(vault),
+    permissionProgram: PERMISSION_PROGRAM_ID,
+    ephemeralVault: EPHEMERAL_VAULT_ID,
+    magicProgram: MAGIC_PROGRAM_ID,
+  };
+}
+
+/** Horizons a Call may have, in seconds. */
+export const CALL_HORIZONS = [60, 120, 180] as const;
+
+/**
+ * Commits to "up" (+1) or "down" (-1) on SOL/USD. The stake (10 to 200 Desk chips) leaves the seat
+ * now; a Right Call returns it with a 50% bonus. The direction is private until the Call is judged.
+ */
+export function mintCall(
+  config: InsiderConfig,
+  owner: PublicKey,
+  index: number,
+  call: {
+    direction: 1 | -1;
+    horizon: number;
+    stake: number;
+    licenseAsk?: number;
+    confidence?: number;
+  },
+) {
+  const p = addresses(config);
+  const seat = p.seats[index];
+  if (!seat) throw new RangeError("Invalid seat");
+  return build(
+    config,
+    "mintCall",
+    {
+      index,
+      direction: call.direction,
+      horizon: call.horizon,
+      stake: new BN(call.stake),
+      licenseAsk: new BN(call.licenseAsk ?? 0),
+      confidence: call.confidence ?? 50,
+    },
+    {
+      owner,
+      table: p.table,
+      seat,
+      callBook: p.callBook,
+      ...callVaultPermission(config, index),
+      oracle: ORACLE_FEED,
+    },
+  );
+}
+
+/** Pays the author's asking price in Desk chips and joins the readers of an open Call. */
+export function buyCallLicense(
+  config: InsiderConfig,
+  owner: PublicKey,
+  index: number,
+  authorIndex: number,
+) {
+  const p = addresses(config);
+  const seat = p.seats[index];
+  const authorSeat = p.seats[authorIndex];
+  if (!seat || !authorSeat) throw new RangeError("Invalid seat");
+  return build(
+    config,
+    "buyCallLicense",
+    { index, authorIndex },
+    {
+      owner,
+      table: p.table,
+      seat,
+      authorSeat,
+      callBook: p.callBook,
+      ...callVaultPermission(config, authorIndex),
+    },
+  );
+}
+
+/** Anyone: judges a Call that is due against the oracle and updates the author's record. */
+export function settleCall(config: InsiderConfig, payer: PublicKey, authorIndex: number) {
+  const p = addresses(config);
+  const authorSeat = p.seats[authorIndex];
+  const vault = p.callVaults[authorIndex];
+  if (!authorSeat || !vault) throw new RangeError("Invalid seat");
+  return build(
+    config,
+    "settleCall",
+    { authorIndex },
+    {
+      payer,
+      table: p.table,
+      authorSeat,
+      callBook: p.callBook,
+      vault,
+      season: p.season,
+      oracle: ORACLE_FEED,
+    },
+  );
+}
+
+/** Trades Desk units (1/100 SOL each, negative sells) at the oracle price. */
+export function deskTrade(config: InsiderConfig, owner: PublicKey, index: number, size: number) {
+  const p = addresses(config);
+  const seat = p.seats[index];
+  if (!seat) throw new RangeError("Invalid seat");
+  return build(
+    config,
+    "deskTrade",
+    { index, size },
+    { owner, table: p.table, seat, market: p.desk, oracle: ORACLE_FEED },
   );
 }

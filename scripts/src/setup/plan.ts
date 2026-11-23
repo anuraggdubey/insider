@@ -16,11 +16,13 @@ export type TableState = {
   callBook: AccountState;
   season: AccountState;
   market: AccountState;
+  desk: AccountState;
   mempool: AccountState;
   future: AccountState;
   board: AccountState;
   xray: AccountState;
   vaults: AccountState[];
+  callVaults: AccountState[];
   seats: AccountState[];
 };
 
@@ -30,6 +32,7 @@ export const SINGLE_ACCOUNTS = [
   "callBook",
   "season",
   "market",
+  "desk",
   "mempool",
   "future",
   "board",
@@ -37,7 +40,7 @@ export const SINGLE_ACCOUNTS = [
 ] as const;
 export type SingleAccount = (typeof SINGLE_ACCOUNTS)[number];
 
-export type Target = SingleAccount | { seat: number } | { vault: number };
+export type Target = SingleAccount | { seat: number } | { vault: number } | { callVault: number };
 
 export type Step = { kind: "init" | "delegate"; target: Target };
 
@@ -62,11 +65,13 @@ export const emptyState = (): TableState => ({
   callBook: none(),
   season: none(),
   market: none(),
+  desk: none(),
   mempool: none(),
   future: none(),
   board: none(),
   xray: none(),
   vaults: Array.from({ length: LEAK_SLOTS }, none),
+  callVaults: Array.from({ length: SEAT_COUNT }, none),
   seats: Array.from({ length: SEAT_COUNT }, none),
 });
 
@@ -79,7 +84,8 @@ export function chunk<T>(items: T[], size: number): T[][] {
 
 export const describeTarget = (target: Target) => {
   if (typeof target === "string") return target;
-  return "seat" in target ? `seat ${target.seat}` : `vault ${target.vault}`;
+  if ("seat" in target) return `seat ${target.seat}`;
+  return "vault" in target ? `vault ${target.vault}` : `call vault ${target.callVault}`;
 };
 
 /**
@@ -103,13 +109,17 @@ export function planSetup(state: TableState): Batch[] {
   if (big.length > 0) batches.push({ label: "create tape, call book, season", steps: big });
 
   const engine: Step[] = [
-    ...(["market", "mempool", "future", "board", "xray"] as const)
+    ...(["market", "desk", "mempool", "future", "board", "xray"] as const)
       .filter((name) => !state[name].exists)
       .map((name): Step => ({ kind: "init", target: name })),
     ...state.vaults
       .map((vault, index) => ({ vault, index }))
       .filter(({ vault }) => !vault.exists)
       .map(({ index }): Step => ({ kind: "init", target: { vault: index } })),
+    ...state.callVaults
+      .map((vault, index) => ({ vault, index }))
+      .filter(({ vault }) => !vault.exists)
+      .map(({ index }): Step => ({ kind: "init", target: { callVault: index } })),
   ];
   chunk(engine, ENGINE_PER_INIT_TX).forEach((steps, i, all) =>
     batches.push({ label: `create engine accounts (${i + 1}/${all.length})`, steps }),
@@ -132,6 +142,7 @@ export function planSetup(state: TableState): Batch[] {
     if (name !== "season") consider(name, state[name]);
   }
   state.vaults.forEach((vault, index) => consider({ vault: index }, vault));
+  state.callVaults.forEach((vault, index) => consider({ callVault: index }, vault));
   state.seats.forEach((seat, index) => consider({ seat: index }, seat));
   consider("season", state.season);
   chunk(delegate, DELEGATIONS_PER_TX).forEach((steps, i, all) =>
@@ -147,26 +158,32 @@ export const isComplete = (state: TableState) => planSetup(state).length === 0;
 // ---- permissions (rollup) ----------------------------------------------------------------------
 
 /** Accounts that must be private to the keyless `nobody` member while a round is played. */
-export type PrivateTarget = "mempool" | "future" | { vault: number };
+export type PrivateTarget = "mempool" | "future" | { vault: number } | { callVault: number };
 
 /** Which of those already have a permission account on the rollup. */
 export type PermissionState = {
   mempool: boolean;
   future: boolean;
   vaults: boolean[];
+  callVaults: boolean[];
 };
 
 export const emptyPermissions = (): PermissionState => ({
   mempool: false,
   future: false,
   vaults: Array.from({ length: LEAK_SLOTS }, () => false),
+  callVaults: Array.from({ length: SEAT_COUNT }, () => false),
 });
 
 /** Permissions per rollup transaction (each creates an ephemeral account, so keep it small). */
 export const PERMISSIONS_PER_TX = 4;
 
 export const describePrivate = (target: PrivateTarget) =>
-  typeof target === "string" ? target : `vault ${target.vault}`;
+  typeof target === "string"
+    ? target
+    : "vault" in target
+      ? `vault ${target.vault}`
+      : `call vault ${target.callVault}`;
 
 /** Rollup batches: one `init_permission` for each private account that has none yet. */
 export function planPermissions(state: PermissionState): Array<{
@@ -178,6 +195,9 @@ export function planPermissions(state: PermissionState): Array<{
   if (!state.future) missing.push("future");
   state.vaults.forEach((has, index) => {
     if (!has) missing.push({ vault: index });
+  });
+  state.callVaults.forEach((has, index) => {
+    if (!has) missing.push({ callVault: index });
   });
   return chunk(missing, PERMISSIONS_PER_TX).map((targets, i, all) => ({
     label: `private permissions (${i + 1}/${all.length})`,

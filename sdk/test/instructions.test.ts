@@ -13,6 +13,11 @@ import {
   buyLicense,
   cancelVrf,
   commitEpoch,
+  deskTrade,
+  mintCall,
+  buyCallLicense,
+  settleCall,
+  ORACLE_FEED,
   buyListed,
   claimSeat,
   createConfig,
@@ -195,5 +200,62 @@ describe("commitEpoch", () => {
     expect(keys).toContain(MAGIC_PROGRAM_ID.toBase58());
     expect(coder.decode(ix.data)?.name).toBe("commitEpoch");
     expect(ix.keys.filter((key) => key.isSigner)).toHaveLength(1);
+  });
+});
+
+describe("the Desk builders", () => {
+  it("mints a Call with the call book, its private vault and the oracle", () => {
+    const ix = mintCall(config, owner, 8, {
+      direction: -1,
+      horizon: 120,
+      stake: 50,
+      licenseAsk: 20,
+    });
+    const keys = ix.keys.map((key) => key.pubkey.toBase58());
+    expect(keys.slice(0, 5)).toEqual(
+      [owner, p.table, p.seats[8]!, p.callBook, p.callVaults[8]!].map((k) => k.toBase58()),
+    );
+    expect(keys).toContain(ORACLE_FEED.toBase58());
+    expect(keys).toContain(permissionPdaFromAccount(p.callVaults[8]!).toBase58());
+    const decoded = coder.decode(ix.data) as { name: string; data: Record<string, unknown> };
+    expect(decoded.name).toBe("mintCall");
+    expect(decoded.data).toMatchObject({ index: 8, direction: -1, horizon: 120, confidence: 50 });
+    expect(String(decoded.data.stake)).toBe("50");
+    expect(String(decoded.data.licenseAsk)).toBe("20");
+    expect(ix.keys.filter((key) => key.isSigner)).toHaveLength(1);
+  });
+
+  it("buys a licence on the author's vault and settles with the season", () => {
+    const buy = buyCallLicense(config, owner, 7, 8);
+    const keys = buy.keys.map((key) => key.pubkey.toBase58());
+    expect(keys.slice(0, 6)).toEqual(
+      [owner, p.table, p.seats[7]!, p.seats[8]!, p.callBook, p.callVaults[8]!].map((k) =>
+        k.toBase58(),
+      ),
+    );
+    expect(coder.decode(buy.data)).toEqual({
+      name: "buyCallLicense",
+      data: { index: 7, authorIndex: 8 },
+    });
+
+    const settle = settleCall(config, owner, 8);
+    expect(settle.keys.map((key) => key.pubkey.toBase58())).toEqual(
+      [owner, p.table, p.seats[8]!, p.callBook, p.callVaults[8]!, p.season, ORACLE_FEED].map((k) =>
+        k.toBase58(),
+      ),
+    );
+    expect(settle.keys.filter((key) => key.isWritable).map((key) => key.pubkey.toBase58())).toEqual(
+      [p.seats[8]!, p.callBook, p.season].map((k) => k.toBase58()),
+    );
+  });
+
+  it("trades on the Desk market and rejects an unknown seat", () => {
+    const ix = deskTrade(config, owner, 8, -250);
+    expect(ix.keys[3]!.pubkey.equals(p.desk)).toBe(true);
+    expect(coder.decode(ix.data)).toEqual({ name: "deskTrade", data: { index: 8, size: -250 } });
+    expect(() => deskTrade(config, owner, 10, 1)).toThrow(RangeError);
+    expect(() => mintCall(config, owner, 10, { direction: 1, horizon: 60, stake: 10 })).toThrow(
+      RangeError,
+    );
   });
 });

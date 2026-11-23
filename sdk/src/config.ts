@@ -4,6 +4,8 @@ export const DELEGATION_PROGRAM_ID = new PublicKey("DELeGGvXpWV2fqJUhqcF5ZSYMS4J
 export const MAGIC_PROGRAM_ID = new PublicKey("Magic11111111111111111111111111111111111111");
 export const MAGIC_CONTEXT_ID = new PublicKey("MagicContext1111111111111111111111111111111");
 export const PERMISSION_PROGRAM_ID = new PublicKey("ACLseoPoyC3cBqoUtkbjZ4aDrkurZW86v19pXz2XQnp1");
+/** SOL/USD feed of the pricing oracle (the Desk settles against it). */
+export const ORACLE_FEED = new PublicKey("ENYwebBThHzmzwPLAQvCucUTsjyfBSZdD9ViXksS4jPu");
 export const EPHEMERAL_VRF_QUEUE = new PublicKey("5hBR571xnXppuCPveTrctfTU7tJLSN94nq7kv7FRK5Tc");
 export const VALIDATORS = {
   er: new PublicKey("MAS1Dt9qreoRMQ14YQuhg8UTZMMzDdKhmkZMECCzk57"),
