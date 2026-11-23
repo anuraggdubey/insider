@@ -246,6 +246,11 @@ body::before {
 .wallet-adapter-modal-list .wallet-adapter-button:hover {
   background: #12151a;
 }
+@media (max-width: 767px) {
+  .wallet-adapter-button:not([disabled]) {
+    padding: 0 10px;
+  }
+}
 @keyframes ticker {
   to {
     transform: translateX(-50%);

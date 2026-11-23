@@ -4,7 +4,7 @@ import { CLOSING_END_TICK } from "@insider/sdk";
 import { ArrowLeft, ArrowUpRight, Copy, Pause, Play, RotateCcw, Share2 } from "lucide-react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useInsider } from "@/app/providers";
 import { FloorSkeleton } from "@/components/floor/states";
 import { useFloor } from "@/components/floor/use-floor";
@@ -13,6 +13,8 @@ import { Button } from "@/components/ui/button";
 import { Panel } from "@/components/ui/panel";
 import { useToast } from "@/components/ui/toast";
 import { useFloorStore } from "@/lib/floor-store";
+import { playSound } from "@/lib/sound";
+import { crossedSandwich } from "@/lib/sound-events";
 import { createRoundObserver, findRound, type ArchivedRound } from "@/lib/xray-archive";
 import {
   LEAK_KINDS,
@@ -168,6 +170,7 @@ export function XrayView({ roundNumber }: { roundNumber?: number }) {
   const [playing, setPlaying] = useState(false);
   const [speed, setSpeed] = useState<1 | 4 | 16>(1);
   const [selectedId, setSelectedId] = useState<number | null>(null);
+  const previousReplay = useRef<{ round: string; tick: number } | null>(null);
   useEffect(() => {
     let cancelled = false;
     const refresh = async () => {
@@ -203,6 +206,23 @@ export function XrayView({ roundNumber }: { roundNumber?: number }) {
       return () => clearTimeout(timer);
     }
   }, [tick, playing]);
+  useEffect(() => {
+    if (!round) return;
+    const key = `${round.authority}:${round.round}`;
+    const previous = previousReplay.current;
+    if (
+      crossedSandwich(
+        previous?.round === key ? previous.tick : -1,
+        tick,
+        round.xray.tags.flatMap((tag) => {
+          const orders = sandwichOrders(tag, round.xray.orders);
+          return orders ? [orders.exit.landTick] : [];
+        }),
+      )
+    )
+      playSound("sandwich");
+    previousReplay.current = { round: key, tick };
+  }, [round, tick]);
   const selected = useMemo(
     () => round?.xray.leaks.find((leak) => leak.header.leakId === selectedId),
     [round, selectedId],

@@ -18,6 +18,8 @@ import { updateFloor, useFloorStore } from "@/lib/floor-store";
 import { seatsFromXray } from "@/lib/xray-seats";
 import { cn } from "@/lib/cn";
 import { reducedTransition, spring } from "@/lib/motion";
+import { playSound } from "@/lib/sound";
+import { floorSoundEvents, type FloorSoundState } from "@/lib/sound-events";
 import { Feed } from "./feed";
 import { OrderPanel } from "./order-panel";
 import { PriceChart } from "./price-chart";
@@ -36,6 +38,7 @@ export function Floor() {
   const [announcement, setAnnouncement] = useState("");
   const reducedMotion = useReducedMotion();
   const seenAnnouncements = useRef(new Set<string>());
+  const soundState = useRef<FloorSoundState | null>(null);
   useFloor(config, fixtureMode);
   const snapshot = useFloorStore((state) => state.snapshot);
   const status = useFloorStore((state) => state.status);
@@ -61,6 +64,13 @@ export function Floor() {
   useEffect(() => {
     if (status === "offline" && joinRequested) updateFloor({ joinRequested: false });
   }, [status, joinRequested]);
+  useEffect(() => {
+    if (!snapshot || !view) return;
+    const events = floorSoundEvents(soundState.current, snapshot, view.mine?.index);
+    soundState.current = events.next;
+    if (events.drop) playSound("drop");
+    if (events.fill) playSound("fill");
+  }, [snapshot, view]);
   useEffect(() => {
     if (!view || !player) return;
     for (const leak of view.leaks) {

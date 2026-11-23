@@ -13,6 +13,7 @@ import { actOnLeak, type LeakAction } from "@/lib/floor-actions";
 import { cn } from "@/lib/cn";
 import { friendlyError } from "@/lib/errors";
 import { leakEdge } from "@/lib/leak-edge";
+import { playSound } from "@/lib/sound";
 import { leakHint } from "./hints";
 import { CrackOpen } from "./crack-open";
 import { payloadLines } from "./payload";
@@ -85,6 +86,8 @@ function LeakCard({
     );
   return (
     <article
+      tabIndex={-1}
+      aria-label={`${leak.kindName} Leak`}
       className={cn(
         "sealed-card relative flex min-h-[180px] flex-col overflow-hidden rounded-md border p-3",
         isOpened && leak.isReader
@@ -204,7 +207,12 @@ function LeakCard({
             >
               Set
             </Button>
-            <button type="button" className="text-faint px-1" onClick={() => setEditing(null)}>
+            <button
+              type="button"
+              aria-label="Cancel editing"
+              className="text-faint px-1"
+              onClick={() => setEditing(null)}
+            >
               ×
             </button>
           </div>
@@ -215,6 +223,7 @@ function LeakCard({
               className="h-7 w-full text-[10px]"
               disabled={!canBid}
               title={!canBid ? reason : "Buy sealed leak"}
+              aria-label={`Buy for ${leak.currentPrice} chips, ${leak.kindName} Leak`}
               loading={busy}
               onClick={() => void perform("bid")}
             >
@@ -304,11 +313,19 @@ export function LeakBoard({
   vaults: Record<number, LeakVaultAccount>;
   snapshot: TableSnapshot;
 }) {
-  const [crack, setCrack] = useState<{ title: string; lines: string[] } | null>(null);
+  const [crack, setCrack] = useState<{
+    title: string;
+    lines: string[];
+    returnFocus: HTMLElement | null;
+  } | null>(null);
   const run = async (action: LeakAction, leak: Leak, ask?: number) => {
+    const returnFocus = document.activeElement?.closest("article") ?? null;
     try {
       const vault = await actOnLeak(config, action, leak.slot, ask);
-      if (vault) setCrack({ title: leak.kindName, lines: payloadLines(vault, view) });
+      if (vault) {
+        playSound("crack");
+        setCrack({ title: leak.kindName, lines: payloadLines(vault, view), returnFocus });
+      }
     } catch (error) {
       useToast.getState().add(friendlyError(error));
     }
@@ -332,7 +349,14 @@ export function LeakBoard({
           ))}
         </div>
       </Panel>
-      {crack && <CrackOpen title={crack.title} lines={crack.lines} close={() => setCrack(null)} />}
+      {crack && (
+        <CrackOpen
+          title={crack.title}
+          lines={crack.lines}
+          returnFocus={crack.returnFocus}
+          close={() => setCrack(null)}
+        />
+      )}
     </>
   );
 }

@@ -1,7 +1,9 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import Link from "next/link";
+import { MobileNav } from "@/components/ui/mobile-nav";
 import { Toaster } from "@/components/ui/toast";
+import { SoundButton } from "@/components/ui/sound-button";
 import { WalletButton } from "@/components/ui/wallet-button";
 import { Providers } from "./providers";
 import "./globals.css";
@@ -35,16 +37,17 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <body className="flex min-h-full flex-col">
         <Providers>
           <header className="border-line bg-bg/90 relative z-20 border-b">
-            <div className="mx-auto flex h-16 max-w-7xl items-center gap-6 px-5 sm:px-8">
+            <div className="mx-auto flex h-16 max-w-7xl items-center gap-2 px-4 sm:px-8 md:gap-6">
               <Link
                 href="/"
-                className="text-text mr-2 flex items-center gap-2.5 font-mono text-sm font-bold tracking-[.18em]"
+                className="text-text flex shrink-0 items-center gap-2.5 font-mono text-sm font-bold tracking-[.18em] md:mr-2"
               >
                 <span className="border-sealed text-sealed flex size-5 items-center justify-center border text-[10px]">
                   I
                 </span>
                 INSIDER
               </Link>
+              <MobileNav items={nav} />
               <nav aria-label="Main navigation" className="hidden items-center gap-6 md:flex">
                 {nav.map(([label, href]) => (
                   <Link
@@ -58,6 +61,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
                 ))}
               </nav>
               <div className="ml-auto flex items-center gap-3">
+                <SoundButton />
                 <WalletButton />
               </div>
             </div>

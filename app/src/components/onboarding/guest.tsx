@@ -10,6 +10,7 @@ import { joinFloor } from "@/lib/floor-actions";
 import { selectGuest, updateFloor, useFloorStore } from "@/lib/floor-store";
 import { createGuest, exportGuest, importGuest } from "@/lib/guest";
 import { friendlyError } from "@/lib/errors";
+import { useDialogFocus } from "@/lib/dialog-focus";
 import { WalletPlayButton } from "./wallet";
 
 export function PlayButton() {
@@ -39,6 +40,9 @@ export function GuestControls({ config, view }: { config: InsiderConfig; view: T
   const [settings, setSettings] = useState(false);
   const [importText, setImportText] = useState("");
   const [busy, setBusy] = useState(false);
+  const dialog = useDialogFocus(Boolean(tutorial && view.mine), () =>
+    updateFloor({ tutorial: false }),
+  );
   const fail = (error: unknown) => useToast.getState().add(friendlyError(error));
   const join = async () => {
     setBusy(true);
@@ -184,6 +188,8 @@ export function GuestControls({ config, view }: { config: InsiderConfig; view: T
           role="dialog"
           aria-modal="true"
           aria-label="Welcome to the floor"
+          ref={dialog}
+          tabIndex={-1}
         >
           <div className="border-line-strong bg-surface relative w-full max-w-md rounded-xl border p-8 shadow-2xl">
             <button

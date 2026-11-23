@@ -20,6 +20,7 @@ import { cn } from "@/lib/cn";
 import { friendlyError } from "@/lib/errors";
 import { useFloorStore } from "@/lib/floor-store";
 import { reducedTransition, spring } from "@/lib/motion";
+import { playSound } from "@/lib/sound";
 
 export function OrderPanel({
   config,
@@ -33,6 +34,7 @@ export function OrderPanel({
   const [side, setSide] = useState<"buy" | "sell">("buy");
   const [lane, setLane] = useState(0);
   const [size, setSize] = useState(250);
+  const [sizeInput, setSizeInput] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const draft = useFloorStore((state) => state.orderDraft);
   const reducedMotion = useReducedMotion();
@@ -77,6 +79,7 @@ export function OrderPanel({
     setBusy(true);
     try {
       await submitOrder(config, (side === "buy" ? 1 : -1) * effectiveSize, lane);
+      playSound(lane === 1 ? "priority" : "order");
     } catch (error) {
       useToast.getState().add(friendlyError(error));
     } finally {
@@ -115,6 +118,7 @@ export function OrderPanel({
               <button
                 key={value}
                 type="button"
+                aria-pressed={side === value}
                 onClick={() => setSide(value)}
                 className={cn(
                   "flex h-8 items-center justify-center gap-1.5 rounded font-mono text-[11px] uppercase transition-colors",
@@ -148,12 +152,15 @@ export function OrderPanel({
                 min={0}
                 max={max}
                 step={50}
-                value={effectiveSize}
-                onChange={(event) =>
+                value={sizeInput ?? effectiveSize}
+                onFocus={() => setSizeInput(String(effectiveSize))}
+                onBlur={() => setSizeInput(null)}
+                onChange={(event) => {
+                  setSizeInput(event.target.value);
                   setSize(
                     Math.max(0, Math.min(max, Math.round(Number(event.target.value) / 50) * 50)),
-                  )
-                }
+                  );
+                }}
                 className="text-text w-full bg-transparent font-mono text-sm outline-none"
               />
               <span className="text-faint font-mono text-[9px]">UNITS</span>
@@ -177,6 +184,7 @@ export function OrderPanel({
             <div className="grid grid-cols-2 gap-1.5">
               <button
                 type="button"
+                aria-pressed={lane === 0}
                 onClick={() => setLane(0)}
                 className={cn(
                   "rounded border px-2 py-1.5 text-left",
@@ -190,6 +198,7 @@ export function OrderPanel({
               </button>
               <button
                 type="button"
+                aria-pressed={lane === 1}
                 onClick={() => setLane(1)}
                 className={cn(
                   "rounded border px-2 py-1.5 text-left",

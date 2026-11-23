@@ -44,6 +44,7 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
   }
   return {
     title: parsed.success ? `Round ${round} X-ray | INSIDER` : "X-ray | INSIDER",
+    description: "Replay the public record of orders, Leaks and sandwiches after the round.",
     openGraph: { images: [{ url: image, width: 1200, height: 630 }] },
   };
 }
