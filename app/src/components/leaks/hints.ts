@@ -1,4 +1,4 @@
-import { TICK_MILLIS } from "@insider/sdk";
+import { TICK_MILLIS } from "@insider/sdk/constants";
 
 export function leakHint(
   leak: { kind: number; windowStart: number; windowEnd: number },

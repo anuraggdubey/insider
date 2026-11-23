@@ -1,4 +1,4 @@
-import { PRICE_ONE, SEAT_COUNT, WHALE_SEAT } from "@insider/sdk";
+import { PRICE_ONE, SEAT_COUNT, WHALE_SEAT } from "@insider/sdk/constants";
 import type { ArchivedLeak, ArchivedRound, ArchivedSeat, ArchivedXray } from "./xray-archive";
 import { seatsFromXray } from "./xray-seats";
 

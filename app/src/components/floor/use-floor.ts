@@ -1,9 +1,7 @@
 "use client";
 
-import { fetchTable, subscribeTable, teeConnection, type InsiderConfig } from "@insider/sdk";
+import type { InsiderConfig } from "@insider/sdk";
 import { useEffect } from "react";
-import { createFixture, fixtureTick } from "@/lib/fixture";
-import { keepSeatAlive } from "@/lib/floor-actions";
 import { publishFixture, updateFloor, useFloorStore } from "@/lib/floor-store";
 import { loadGuest } from "@/lib/guest";
 import { createRoundObserver } from "@/lib/xray-archive";
@@ -32,23 +30,40 @@ export function useFloor(config: InsiderConfig, fixtureMode: boolean) {
     let interval: ReturnType<typeof setInterval> | undefined;
     let reconnect: ReturnType<typeof setTimeout> | undefined;
     if (fixtureMode && process.env.NODE_ENV !== "production") {
-      const fixture = existingFixture ?? createFixture();
-      observe(fixture.snapshot);
-      publishFixture(fixture);
-      interval = setInterval(() => {
-        const state = useFloorStore.getState();
-        fixtureTick(fixture);
-        observe(fixture.snapshot);
-        publishFixture(fixture);
-        updateFloor({
-          pending: state.pending.filter((order) => order.landTick > fixture.snapshot.table.tick),
+      void import("@/lib/fixture")
+        .then(({ createFixture, fixtureTick }) => {
+          if (closed) return;
+          const fixture = existingFixture ?? createFixture();
+          observe(fixture.snapshot);
+          publishFixture(fixture);
+          interval = setInterval(() => {
+            const state = useFloorStore.getState();
+            fixtureTick(fixture);
+            observe(fixture.snapshot);
+            publishFixture(fixture);
+            updateFloor({
+              pending: state.pending.filter(
+                (order) => order.landTick > fixture.snapshot.table.tick,
+              ),
+            });
+          }, 500);
+        })
+        .catch((error: unknown) => {
+          if (!closed)
+            updateFloor({
+              status: "offline",
+              error: error instanceof Error ? error.message : "Could not load the fixture.",
+            });
         });
-      }, 500);
     } else if (!config.tableAuthority) {
       updateFloor({ status: "offline" });
     } else {
       const connect = async () => {
         try {
+          const [{ teeConnection }, { fetchTable, subscribeTable }] = await Promise.all([
+            import("@insider/sdk/connection"),
+            import("@insider/sdk/accounts"),
+          ]);
           const connection = await teeConnection(config);
           const snapshot = await fetchTable(connection, config);
           if (closed) return;
@@ -98,7 +113,17 @@ export function useFloor(config: InsiderConfig, fixtureMode: boolean) {
 
   useEffect(() => {
     const timer = setInterval(() => {
-      if (document.visibilityState === "visible") void keepSeatAlive(config).catch(() => {});
+      const state = useFloorStore.getState();
+      if (
+        document.visibilityState === "visible" &&
+        state.snapshot &&
+        state.identity === "guest" &&
+        state.guest &&
+        !state.fixture
+      )
+        void import("@/lib/floor-actions")
+          .then(({ keepSeatAlive }) => keepSeatAlive(config))
+          .catch(() => {});
     }, 20_000);
     return () => clearInterval(timer);
   }, [config]);

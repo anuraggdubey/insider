@@ -21,7 +21,6 @@ import {
 } from "@insider/sdk";
 import { Keypair, PublicKey } from "@solana/web3.js";
 import { createGuest } from "./guest";
-import { fixtureBid, fixtureClaim, fixtureSend } from "./fixture";
 import {
   playerKey,
   publishFixture,
@@ -84,7 +83,8 @@ export async function joinFloor(config: InsiderConfig) {
     .sort((a, b) => a.lastSeenTick - b.lastSeenTick);
   const selected = human ?? bots[0];
   if (!selected) throw new Error("No human seat or idle bot seat is available.");
-  if (state.fixture) {
+  if (process.env.NODE_ENV !== "production" && state.fixture) {
+    const { fixtureClaim } = await import("./fixture");
     fixtureClaim(state.fixture, player.publicKey, selected.index);
     publishFixture(state.fixture);
   } else {
@@ -113,7 +113,8 @@ export async function submitOrder(config: InsiderConfig, sideSize: number, lane:
   const params = state.snapshot.table.params;
   if (Math.abs(position) > params.maxPositionUnits) throw new Error("Position limit exceeded.");
   if (seat.pendingCount >= params.maxPending) throw new Error("Too many pending orders.");
-  if (state.fixture) {
+  if (process.env.NODE_ENV !== "production" && state.fixture) {
+    const { fixtureSend } = await import("./fixture");
     const order = fixtureSend(state.fixture, seat.index, sideSize, lane);
     publishFixture(state.fixture);
     updateFloor({ pending: [...pending, order] });
@@ -142,7 +143,7 @@ async function fetchVault(config: InsiderConfig, slot: number, leakId: number) {
   const state = current();
   const player = currentPlayer();
   let vault;
-  if (state.fixture) {
+  if (process.env.NODE_ENV !== "production" && state.fixture) {
     vault = state.fixture.vaults[slot];
   } else {
     if (!config.tableAuthority) throw new Error("Table authority is not configured.");
@@ -169,7 +170,8 @@ export async function actOnLeak(config: InsiderConfig, action: LeakAction, slot:
   const header = state.snapshot.board.headers[slot];
   if (!header) throw new Error("Invalid leak slot.");
   const id = header.leakId;
-  if (state.fixture) {
+  if (process.env.NODE_ENV !== "production" && state.fixture) {
+    const { fixtureBid } = await import("./fixture");
     if (action === "bid") fixtureBid(state.fixture, seat.index, slot);
     if (action === "open") {
       header.state = 4;

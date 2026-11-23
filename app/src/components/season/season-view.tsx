@@ -1,7 +1,6 @@
 "use client";
 
 import { teeConnection } from "@insider/sdk";
-import { useWallet } from "@solana/wallet-adapter-react";
 import { type PublicKey } from "@solana/web3.js";
 import { ArrowUpRight, RefreshCw } from "lucide-react";
 import Link from "next/link";
@@ -13,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Num } from "@/components/ui/num";
 import { useFloorStore } from "@/lib/floor-store";
 import { loadGuest } from "@/lib/guest";
-import { deriveSeason, fetchSeason, fixtureSeason, shortKey, type SeasonData } from "@/lib/season";
+import { deriveSeason, fetchSeason, shortKey, type SeasonData } from "@/lib/season";
 import { loadRounds, type ArchivedRound } from "@/lib/xray-archive";
 
 const signed = (value: bigint) => `${value > BigInt(0) ? "+" : ""}${value.toLocaleString("en-US")}`;
@@ -23,7 +22,7 @@ export function SeasonView() {
   const params = useSearchParams();
   const fixture = process.env.NODE_ENV !== "production" && params.get("fixture") === "1";
   const guest = useFloorStore((state) => state.guest);
-  const { publicKey: walletKey, connected } = useWallet();
+  const walletKey = useFloorStore((state) => state.walletKey);
   const [storedGuest, setStoredGuest] = useState<PublicKey | null>(null);
   const [data, setData] = useState<SeasonData | null>(null);
   const [status, setStatus] = useState<"loading" | "online" | "offline">("loading");
@@ -42,11 +41,15 @@ export function SeasonView() {
       setRounds(loadRounds(fixture));
       setStatus("loading");
       try {
-        const result = fixture
-          ? fixtureSeason(useFloorStore.getState().fixture?.snapshot.seats, walletKey ?? savedGuest)
-          : config.tableAuthority
-            ? await fetchSeason(await teeConnection(config), config)
-            : null;
+        const result =
+          process.env.NODE_ENV !== "production" && fixture
+            ? (await import("@/lib/season-fixture")).fixtureSeason(
+                useFloorStore.getState().fixture?.snapshot.seats,
+                walletKey ?? savedGuest,
+              )
+            : config.tableAuthority
+              ? await fetchSeason(await teeConnection(config), config)
+              : null;
         if (closed) return;
         setData(result);
         setStatus(result ? "online" : "offline");
@@ -63,11 +66,11 @@ export function SeasonView() {
     };
   }, [config, fixture, refresh, walletKey]);
   const season = useMemo(() => {
-    const identities = [guest?.publicKey ?? storedGuest, connected ? walletKey : null].filter(
+    const identities = [guest?.publicKey ?? storedGuest, walletKey].filter(
       (key): key is PublicKey => Boolean(key),
     );
     return data ? deriveSeason(data, identities) : null;
-  }, [data, guest, storedGuest, connected, walletKey]);
+  }, [data, guest, storedGuest, walletKey]);
 
   return (
     <main className="mx-auto w-full max-w-7xl flex-1 px-5 py-10 sm:px-8 lg:py-14">

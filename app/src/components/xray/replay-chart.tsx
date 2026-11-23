@@ -1,6 +1,6 @@
 "use client";
 
-import { PRICE_ONE, WHALE_SEAT } from "@insider/sdk";
+import { PRICE_ONE, WHALE_SEAT } from "@insider/sdk/constants";
 import type { ArchivedLeak, ArchivedRound } from "@/lib/xray-archive";
 import { payloadOrders, sandwichOrders, traceName } from "@/lib/xray-data";
 

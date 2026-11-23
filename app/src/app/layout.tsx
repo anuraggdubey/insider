@@ -53,7 +53,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
                   <Link
                     key={href}
                     href={href}
-                    prefetch={href === "/desk" || href === "/proof" ? false : undefined}
+                    prefetch={false}
                     className="text-muted hover:text-text font-mono text-[11px] tracking-wide transition-colors"
                   >
                     {label}

@@ -1,4 +1,5 @@
-import { CLOSING_END_TICK, type TableSnapshot, type XrayAccount } from "@insider/sdk";
+import type { TableSnapshot, XrayAccount } from "@insider/sdk";
+import { CLOSING_END_TICK } from "@insider/sdk/constants";
 import { PublicKey } from "@solana/web3.js";
 import { seatsFromXray } from "./xray-seats";
 

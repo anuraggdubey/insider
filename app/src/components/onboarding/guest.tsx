@@ -2,35 +2,14 @@
 
 import { type InsiderConfig, type TableView } from "@insider/sdk";
 import { Download, KeyRound, Settings2, X } from "lucide-react";
-import Link from "next/link";
-import { useEffect, useState } from "react";
-import { Button, buttonStyles } from "@/components/ui/button";
+import { useCallback, useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/toast";
-import { joinFloor } from "@/lib/floor-actions";
 import { selectGuest, updateFloor, useFloorStore } from "@/lib/floor-store";
 import { createGuest, exportGuest, importGuest } from "@/lib/guest";
 import { friendlyError } from "@/lib/errors";
 import { useDialogFocus } from "@/lib/dialog-focus";
 import { WalletPlayButton } from "./wallet";
-
-export function PlayButton() {
-  return (
-    <Link
-      href="/table"
-      className={buttonStyles({ size: "lg", className: "min-w-36" })}
-      onClick={(event) => {
-        try {
-          selectGuest(createGuest());
-        } catch (error) {
-          event.preventDefault();
-          useToast.getState().add(friendlyError(error));
-        }
-      }}
-    >
-      Play as guest <span aria-hidden>→</span>
-    </Link>
-  );
-}
 
 export function GuestControls({ config, view }: { config: InsiderConfig; view: TableView }) {
   const guest = useFloorStore((state) => state.guest);
@@ -44,11 +23,15 @@ export function GuestControls({ config, view }: { config: InsiderConfig; view: T
     updateFloor({ tutorial: false }),
   );
   const fail = (error: unknown) => useToast.getState().add(friendlyError(error));
+  const joinFloor = useCallback(
+    async () => (await import("@/lib/floor-actions")).joinFloor(config),
+    [config],
+  );
   const join = async () => {
     setBusy(true);
     try {
       selectGuest(createGuest());
-      await joinFloor(config);
+      await joinFloor();
     } catch (error) {
       fail(error);
     } finally {
@@ -58,8 +41,8 @@ export function GuestControls({ config, view }: { config: InsiderConfig; view: T
   useEffect(() => {
     if (!joinRequested || identity !== "wallet") return;
     updateFloor({ joinRequested: false });
-    void joinFloor(config).catch((error) => useToast.getState().add(friendlyError(error)));
-  }, [config, identity, joinRequested]);
+    void joinFloor().catch((error) => useToast.getState().add(friendlyError(error)));
+  }, [identity, joinRequested, joinFloor]);
   const download = () => {
     if (!guest) return;
     const url = URL.createObjectURL(new Blob([exportGuest(guest)], { type: "application/json" }));
@@ -84,12 +67,10 @@ export function GuestControls({ config, view }: { config: InsiderConfig; view: T
             <Button size="sm" onClick={() => void join()} loading={busy}>
               Play as guest
             </Button>
-            <WalletPlayButton size="sm" onReady={() => joinFloor(config)} />
+            <WalletPlayButton size="sm" onReady={joinFloor} />
           </div>
         )}
-        {view.mine && identity === "guest" && (
-          <WalletPlayButton size="sm" onReady={() => joinFloor(config)} />
-        )}
+        {view.mine && identity === "guest" && <WalletPlayButton size="sm" onReady={joinFloor} />}
         {view.mine && identity === "wallet" && (
           <Button size="sm" variant="outline" onClick={() => void join()} loading={busy}>
             Play as guest

@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import { FloorSkeleton } from "@/components/floor/states";
 import { WatchView } from "@/components/watch/watch-view";
+import { GameProvider } from "@/app/game-provider";
 
 export const metadata = {
   title: "Watch — INSIDER",
@@ -10,7 +11,9 @@ export const metadata = {
 export default function WatchPage() {
   return (
     <Suspense fallback={<FloorSkeleton />}>
-      <WatchView />
+      <GameProvider>
+        <WatchView />
+      </GameProvider>
     </Suspense>
   );
 }

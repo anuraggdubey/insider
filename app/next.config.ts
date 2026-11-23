@@ -9,6 +9,7 @@ const nextConfig: NextConfig = {
   turbopack: {
     resolveAlias: {
       fs: { browser: "./src/lib/browser-fs.ts" },
+      buffer: { browser: "next/dist/compiled/buffer" },
     },
     rules: {
       "*.css": {

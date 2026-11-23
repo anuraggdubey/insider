@@ -41,7 +41,7 @@ export function MobileNav({ items }: { items: string[][] }) {
             <Link
               key={href}
               href={href!}
-              prefetch={href === "/desk" || href === "/proof" ? false : undefined}
+              prefetch={false}
               onClick={() => setOpen(false)}
               className="text-muted hover:text-text hover:bg-surface-2 rounded px-3 py-2 font-mono text-xs"
             >

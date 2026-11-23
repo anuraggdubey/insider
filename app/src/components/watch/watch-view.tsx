@@ -1,13 +1,14 @@
 "use client";
 
 import NumberFlow from "@number-flow/react";
-import { deriveTable, type TableView } from "@insider/sdk";
+import type { TableView } from "@insider/sdk";
+import { deriveTable } from "@insider/sdk/view";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { useInsider } from "@/app/providers";
 import { FloorSkeleton, TableOffline } from "@/components/floor/states";
 import { useFloor } from "@/components/floor/use-floor";
-import { PriceChart } from "@/components/floor/price-chart";
+import { PriceChart } from "@/components/floor/lazy-price-chart";
 import { Badge } from "@/components/ui/badge";
 import { cameraEvent, caption } from "@/lib/captions";
 import { useFloorStore } from "@/lib/floor-store";

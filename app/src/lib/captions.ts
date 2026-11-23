@@ -1,4 +1,5 @@
-import { WHALE_SEAT, type TableSnapshot, type TableView } from "@insider/sdk";
+import type { TableSnapshot, TableView } from "@insider/sdk";
+import { WHALE_SEAT } from "@insider/sdk/constants";
 
 export type CameraEvent =
   | {

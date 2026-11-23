@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import { Floor } from "@/components/floor/floor";
+import { TableEntry } from "@/components/floor/table-entry";
 import { FloorSkeleton } from "@/components/floor/states";
 
 export const metadata = {
@@ -10,7 +10,7 @@ export const metadata = {
 export default function TablePage() {
   return (
     <Suspense fallback={<FloorSkeleton />}>
-      <Floor />
+      <TableEntry />
     </Suspense>
   );
 }

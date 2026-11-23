@@ -1,4 +1,5 @@
-import { seatName, type LeakVaultAccount, type TableView } from "@insider/sdk";
+import type { LeakVaultAccount, TableView } from "@insider/sdk";
+import { seatName } from "@insider/sdk/names";
 
 const price = (value: number) => (value / 1_000_000).toFixed(4);
 const signed = (value: number) => `${value > 0 ? "+" : ""}${value}`;

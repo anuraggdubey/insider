@@ -1,7 +1,7 @@
 "use client";
 
 import NumberFlow from "@number-flow/react";
-import { deriveTable } from "@insider/sdk";
+import { deriveTable } from "@insider/sdk/view";
 import { motion, useReducedMotion } from "framer-motion";
 import { Activity, ArrowUpRight, LockKeyhole } from "lucide-react";
 import Link from "next/link";
@@ -13,7 +13,6 @@ import { GuestControls } from "@/components/onboarding/guest";
 import { Badge } from "@/components/ui/badge";
 import { PhaseBar } from "@/components/ui/phase-bar";
 import { useToast } from "@/components/ui/toast";
-import { restoreVault } from "@/lib/floor-actions";
 import { updateFloor, useFloorStore } from "@/lib/floor-store";
 import { seatsFromXray } from "@/lib/xray-seats";
 import { cn } from "@/lib/cn";
@@ -22,7 +21,7 @@ import { playSound } from "@/lib/sound";
 import { floorSoundEvents, type FloorSoundState } from "@/lib/sound-events";
 import { Feed } from "./feed";
 import { OrderPanel } from "./order-panel";
-import { PriceChart } from "./price-chart";
+import { PriceChart } from "./lazy-price-chart";
 import { SeatRail } from "./seat-rail";
 import { FloorSkeleton, TableOffline } from "./states";
 import { useFloor } from "./use-floor";
@@ -77,9 +76,11 @@ export function Floor() {
       const key = `${view.round}:${leak.leakId}:${player.toBase58()}`;
       if (leak.isReader && !vaults[leak.leakId] && !attempted.current.has(key)) {
         attempted.current.add(key);
-        void restoreVault(config, leak.slot, leak.leakId).catch(() => {
-          setTimeout(() => attempted.current.delete(key), 4_000);
-        });
+        void import("@/lib/floor-actions")
+          .then(({ restoreVault }) => restoreVault(config, leak.slot, leak.leakId))
+          .catch(() => {
+            setTimeout(() => attempted.current.delete(key), 4_000);
+          });
       }
     }
   }, [config, player, view, vaults]);
@@ -184,6 +185,7 @@ export function Floor() {
           </div>
           <Link
             href={fixtureMode ? "/xray?fixture=1" : "/xray"}
+            prefetch={false}
             className="text-sealed flex items-center gap-1 font-mono text-[10px]"
           >
             LAST X-RAY <ArrowUpRight className="size-3" />
@@ -217,6 +219,7 @@ export function Floor() {
           </div>
           <Link
             href={fixtureMode ? "/xray?fixture=1" : "/xray"}
+            prefetch={false}
             className="text-sealed ml-auto flex items-center gap-1 text-xs"
           >
             Open X-ray <ArrowUpRight className="size-3" />
@@ -286,6 +289,7 @@ export function Floor() {
           </Link>
           <Link
             href={fixtureMode ? "/xray?fixture=1" : "/xray"}
+            prefetch={false}
             className="hover:text-sealed flex items-center gap-1"
           >
             X-RAY <ArrowUpRight className="size-3" />

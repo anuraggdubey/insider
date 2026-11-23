@@ -1,12 +1,8 @@
 "use client";
 
-import {
-  previewOrder,
-  TICK_MILLIS,
-  type InsiderConfig,
-  type TableSnapshot,
-  type TableView,
-} from "@insider/sdk";
+import type { InsiderConfig, TableSnapshot, TableView } from "@insider/sdk";
+import { TICK_MILLIS } from "@insider/sdk/constants";
+import { previewOrder } from "@insider/sdk/vamm";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { ArrowDownLeft, ArrowUpRight, Zap } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -15,7 +11,6 @@ import { Kbd } from "@/components/ui/kbd";
 import { Num } from "@/components/ui/num";
 import { Panel } from "@/components/ui/panel";
 import { useToast } from "@/components/ui/toast";
-import { submitOrder } from "@/lib/floor-actions";
 import { cn } from "@/lib/cn";
 import { friendlyError } from "@/lib/errors";
 import { useFloorStore } from "@/lib/floor-store";
@@ -78,6 +73,7 @@ export function OrderPanel({
       return;
     setBusy(true);
     try {
+      const { submitOrder } = await import("@/lib/floor-actions");
       await submitOrder(config, (side === "buy" ? 1 : -1) * effectiveSize, lane);
       playSound(lane === 1 ? "priority" : "order");
     } catch (error) {

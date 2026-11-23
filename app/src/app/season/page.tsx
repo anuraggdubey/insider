@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import { SeasonView } from "@/components/season/season-view";
+import { GameProvider } from "@/app/game-provider";
 
 export const metadata = {
   title: "Season — INSIDER",
@@ -11,7 +12,9 @@ export default function SeasonPage() {
     <Suspense
       fallback={<main className="mx-auto w-full max-w-7xl px-6 py-16">Loading season…</main>}
     >
-      <SeasonView />
+      <GameProvider>
+        <SeasonView />
+      </GameProvider>
     </Suspense>
   );
 }

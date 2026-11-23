@@ -1,4 +1,4 @@
-import idl from "../../../programs/idl/insider.json";
+import idl from "../../../programs/idl/insider.json" with { type: "json" };
 
 const messages = new Map(
   idl.errors.flatMap((entry) => [

@@ -1,4 +1,5 @@
-import { previewOrder, type LeakVaultAccount, type MarketAccount } from "@insider/sdk";
+import type { LeakVaultAccount, MarketAccount } from "@insider/sdk";
+import { previewOrder } from "@insider/sdk/vamm";
 
 export function leakEdge(
   vault: LeakVaultAccount,

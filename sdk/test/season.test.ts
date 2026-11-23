@@ -2,7 +2,8 @@ import { BN, BorshAccountsCoder, convertIdlToCamelCase, type Idl } from "@anchor
 import { createConfig, decodeSeason, tableAccounts } from "@insider/sdk";
 import { type Connection, Keypair, PublicKey } from "@solana/web3.js";
 import { describe, expect, it, vi } from "vitest";
-import { deriveSeason, fetchSeason, fixtureSeason, shortKey } from "../../app/src/lib/season";
+import { deriveSeason, fetchSeason, shortKey } from "../../app/src/lib/season";
+import { fixtureSeason } from "../../app/src/lib/season-fixture";
 import idl from "../../programs/idl/insider.json";
 
 const coder = new BorshAccountsCoder(convertIdlToCamelCase(idl as Idl));

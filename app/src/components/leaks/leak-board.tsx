@@ -1,6 +1,7 @@
 "use client";
 
 import { Eye, LockKeyhole, UnlockKeyhole } from "lucide-react";
+import dynamic from "next/dynamic";
 import { useState } from "react";
 import type { InsiderConfig, LeakVaultAccount, TableSnapshot, TableView } from "@insider/sdk";
 import type { PublicKey } from "@solana/web3.js";
@@ -9,16 +10,18 @@ import { Button } from "@/components/ui/button";
 import { Num } from "@/components/ui/num";
 import { Panel } from "@/components/ui/panel";
 import { useToast } from "@/components/ui/toast";
-import { actOnLeak, type LeakAction } from "@/lib/floor-actions";
+import type { LeakAction } from "@/lib/floor-actions";
 import { cn } from "@/lib/cn";
 import { friendlyError } from "@/lib/errors";
 import { leakEdge } from "@/lib/leak-edge";
 import { playSound } from "@/lib/sound";
 import { leakHint } from "./hints";
-import { CrackOpen } from "./crack-open";
 import { payloadLines } from "./payload";
 
 type Leak = TableView["leaks"][number];
+const CrackOpen = dynamic(() => import("./crack-open").then((module) => module.CrackOpen), {
+  ssr: false,
+});
 
 function LeakCard({
   leak,
@@ -321,6 +324,7 @@ export function LeakBoard({
   const run = async (action: LeakAction, leak: Leak, ask?: number) => {
     const returnFocus = document.activeElement?.closest("article") ?? null;
     try {
+      const { actOnLeak } = await import("@/lib/floor-actions");
       const vault = await actOnLeak(config, action, leak.slot, ask);
       if (vault) {
         playSound("crack");

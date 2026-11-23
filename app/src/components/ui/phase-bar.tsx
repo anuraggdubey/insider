@@ -1,4 +1,4 @@
-import { CLOSING_END_TICK, LIVE_TICKS, ROUND_TICKS } from "@insider/sdk";
+import { CLOSING_END_TICK, LIVE_TICKS, ROUND_TICKS } from "@insider/sdk/constants";
 import { cn } from "@/lib/cn";
 
 export function PhaseBar({ tick, className }: { tick: number; className?: string }) {

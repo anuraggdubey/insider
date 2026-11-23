@@ -1,4 +1,4 @@
-import { seatName } from "@insider/sdk";
+import { seatName } from "@insider/sdk/names";
 import { PublicKey } from "@solana/web3.js";
 import type { ArchivedSeat } from "./xray-archive";
 

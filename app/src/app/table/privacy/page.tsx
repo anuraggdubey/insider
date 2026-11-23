@@ -6,6 +6,7 @@ import { ArrowLeft, ShieldCheck } from "lucide-react";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { useInsider } from "@/app/providers";
+import { GameProvider } from "@/app/game-provider";
 import { FloorSkeleton, TableOffline } from "@/components/floor/states";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -24,7 +25,7 @@ async function probe(connection: Connection, address: PublicKey): Promise<Result
   }
 }
 
-export default function PrivacyPage() {
+function PrivacyContent() {
   const config = useInsider();
   const [state, setState] = useState<"loading" | "offline" | "ready" | "error">("loading");
   const [guest, setGuest] = useState<Keypair | null>(null);
@@ -200,5 +201,13 @@ export default function PrivacyPage() {
         </ol>
       </div>
     </main>
+  );
+}
+
+export default function PrivacyPage() {
+  return (
+    <GameProvider>
+      <PrivacyContent />
+    </GameProvider>
   );
 }

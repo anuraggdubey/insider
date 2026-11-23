@@ -4,6 +4,7 @@ import { Suspense } from "react";
 import { FloorSkeleton } from "@/components/floor/states";
 import { XrayView } from "@/components/xray/xray-view";
 import { parseOgParams } from "@/lib/og";
+import { GameProvider } from "@/app/game-provider";
 
 type Props = {
   params: Promise<{ round: string }>;
@@ -53,7 +54,11 @@ async function RoundContent({ params }: Pick<Props, "params">) {
   const { round } = await params;
   const parsed = parseOgParams(new URLSearchParams({ round }));
   const roundNumber = parsed.success ? Number(round) : -1;
-  return <XrayView roundNumber={roundNumber} />;
+  return (
+    <GameProvider>
+      <XrayView roundNumber={roundNumber} />
+    </GameProvider>
+  );
 }
 
 export default function RoundPage({ params }: Props) {

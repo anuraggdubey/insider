@@ -1,6 +1,6 @@
 "use client";
 
-import { CLOSING_END_TICK } from "@insider/sdk";
+import { CLOSING_END_TICK } from "@insider/sdk/constants";
 import { ArrowLeft, ArrowUpRight, Copy, Pause, Play, RotateCcw, Share2 } from "lucide-react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";

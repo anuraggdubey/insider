@@ -1,15 +1,13 @@
 "use client";
-import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
-import { useSyncExternalStore } from "react";
 import { useFloorStore } from "@/lib/floor-store";
-import { Num } from "./num";
+import { requestWallet, useWalletUi } from "@/lib/wallet-ui";
+import dynamic from "next/dynamic";
 
-const subscribe = () => () => {};
-const clientSnapshot = () => true;
-const serverSnapshot = () => false;
+const Num = dynamic(() => import("./num").then((module) => module.Num), { ssr: false });
 
 export function WalletButton() {
-  const mounted = useSyncExternalStore(subscribe, clientSnapshot, serverSnapshot);
+  const ready = useWalletUi((state) => state.ready);
+  const active = useWalletUi((state) => state.active);
   const guest = useFloorStore((state) => state.guest);
   const identity = useFloorStore((state) => state.identity);
   const walletKey = useFloorStore((state) => state.walletKey);
@@ -28,16 +26,17 @@ export function WalletButton() {
           <Num value={Number(mine.chips.toString())} className="text-text" />
         </span>
       )}
-      {mounted ? (
-        <WalletMultiButton />
-      ) : (
-        <span
-          aria-hidden
-          className="border-line-strong text-muted rounded border px-4 py-3 font-mono text-[10px]"
+      {!ready && (
+        <button
+          type="button"
+          className="wallet-adapter-button"
+          disabled={active}
+          onClick={() => requestWallet("select")}
         >
-          Select Wallet
-        </span>
+          {active ? "Loading wallet…" : "Select Wallet"}
+        </button>
       )}
+      <span id="insider-wallet-button" />
     </div>
   );
 }

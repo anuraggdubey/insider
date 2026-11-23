@@ -63,7 +63,7 @@ describe("sound cues", () => {
     for (const cue of ["order", "priority", "fill", "drop", "crack", "sandwich"] as const)
       sound.playSound(cue);
     expect(constructor).toHaveBeenCalledTimes(1);
-    expect(oscillators).toHaveLength(9);
+    await vi.waitFor(() => expect(oscillators).toHaveLength(9));
     expect(oscillators.map((osc) => osc.frequency.setValueAtTime.mock.calls[0]![0])).toEqual([
       520, 920, 620, 830, 240, 360, 460, 880, 105,
     ]);
@@ -85,6 +85,24 @@ describe("sound cues", () => {
     expect(sound.useSoundStore.getState().enabled).toBe(true);
     sound.playSound("drop");
     expect(constructor).not.toHaveBeenCalled();
+  });
+
+  it("discards a queued cue if muted before the sound engine loads", async () => {
+    const createOscillator = vi.fn();
+    vi.stubGlobal("window", {
+      AudioContext: vi.fn(function () {
+        return { state: "running", createOscillator };
+      }),
+      localStorage: { getItem: () => null, setItem: vi.fn() },
+    });
+    const sound = await import("../../app/src/lib/sound");
+    sound.initializeSound();
+    sound.setSoundEnabled(true);
+    sound.soundGesture();
+    sound.playSound("order");
+    sound.setSoundEnabled(false);
+    await vi.dynamicImportSettled();
+    expect(createOscillator).not.toHaveBeenCalled();
   });
 
   it("signals only new drops and the player's new fills, including ring wrap", () => {

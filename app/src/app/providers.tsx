@@ -1,12 +1,17 @@
 "use client";
 
-import { createConfig, type InsiderConfig } from "@insider/sdk";
-import { ConnectionProvider, WalletProvider, useWallet } from "@solana/wallet-adapter-react";
-import { WalletModalProvider } from "@solana/wallet-adapter-react-ui";
-import { PublicKey } from "@solana/web3.js";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
-import { restoreIdentity, syncWallet } from "@/lib/floor-store";
+import type { InsiderConfig } from "@insider/sdk";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  type ComponentType,
+  type ReactNode,
+} from "react";
+import { useToast } from "@/components/ui/toast";
+import { restoreIdentity } from "@/lib/floor-store";
+import { activateWallet, useWalletUi } from "@/lib/wallet-ui";
 
 const InsiderContext = createContext<InsiderConfig | null>(null);
 
@@ -26,52 +31,36 @@ export function InsiderProvider({
   return <InsiderContext.Provider value={config}>{children}</InsiderContext.Provider>;
 }
 
-function WalletBridge() {
-  const { connected, publicKey, signMessage, signTransaction } = useWallet();
+export function Providers({ children }: { children: ReactNode }) {
+  const active = useWalletUi((state) => state.active);
+  const [WalletRuntime, setWalletRuntime] = useState<ComponentType | null>(null);
   useEffect(() => {
     restoreIdentity();
+    try {
+      if (JSON.parse(window.localStorage.getItem("walletName") ?? "null")) activateWallet();
+    } catch {}
   }, []);
   useEffect(() => {
-    const key = connected ? publicKey : null;
-    syncWallet(
-      key,
-      key && signMessage && signTransaction
-        ? { publicKey: key, signMessage, signTransaction }
-        : null,
-    );
-  }, [connected, publicKey, signMessage, signTransaction]);
-  return null;
-}
-
-export function Providers({ children }: { children: ReactNode }) {
-  const [queryClient] = useState(() => new QueryClient());
-  const config = useMemo(
-    () =>
-      createConfig({
-        baseRpcUrl: process.env.NEXT_PUBLIC_SOLANA_RPC_URL || undefined,
-        routerUrl: process.env.NEXT_PUBLIC_MAGIC_ROUTER_URL || undefined,
-        routerWsUrl: process.env.NEXT_PUBLIC_MAGIC_ROUTER_WS_URL || undefined,
-        teeRpcUrl: process.env.NEXT_PUBLIC_TEE_RPC_URL || undefined,
-        programId: process.env.NEXT_PUBLIC_INSIDER_PROGRAM_ID
-          ? new PublicKey(process.env.NEXT_PUBLIC_INSIDER_PROGRAM_ID)
-          : undefined,
-        tableAuthority: process.env.NEXT_PUBLIC_TABLE_AUTHORITY
-          ? new PublicKey(process.env.NEXT_PUBLIC_TABLE_AUTHORITY)
-          : undefined,
-      }),
-    [],
-  );
-  const wallets = useMemo(() => [], []);
+    if (!active || WalletRuntime) return;
+    let closed = false;
+    void import("@/components/onboarding/wallet-runtime")
+      .then((module) => {
+        if (!closed) setWalletRuntime(() => module.WalletRuntime);
+      })
+      .catch(() => {
+        if (!closed) {
+          useWalletUi.setState({ active: false, request: null, busy: false });
+          useToast.getState().add("Could not load the wallet selector. Please try again.");
+        }
+      });
+    return () => {
+      closed = true;
+    };
+  }, [active, WalletRuntime]);
   return (
-    <QueryClientProvider client={queryClient}>
-      <ConnectionProvider endpoint={config.baseRpcUrl}>
-        <WalletProvider wallets={wallets} autoConnect>
-          <WalletModalProvider>
-            <WalletBridge />
-            <InsiderProvider config={config}>{children}</InsiderProvider>
-          </WalletModalProvider>
-        </WalletProvider>
-      </ConnectionProvider>
-    </QueryClientProvider>
+    <>
+      {children}
+      {active && WalletRuntime && <WalletRuntime />}
+    </>
   );
 }

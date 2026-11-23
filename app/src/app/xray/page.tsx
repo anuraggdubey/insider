@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import { FloorSkeleton } from "@/components/floor/states";
 import { XrayView } from "@/components/xray/xray-view";
+import { GameProvider } from "@/app/game-provider";
 
 export const metadata = {
   title: "X-ray — INSIDER",
@@ -10,7 +11,9 @@ export const metadata = {
 export default function XrayPage() {
   return (
     <Suspense fallback={<FloorSkeleton />}>
-      <XrayView />
+      <GameProvider>
+        <XrayView />
+      </GameProvider>
     </Suspense>
   );
 }

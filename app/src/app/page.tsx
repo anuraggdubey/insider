@@ -1,7 +1,7 @@
 import { E1_PRIORITY_FEE_CHIPS } from "@insider/sdk";
 import { Eye, LockKeyhole, MoveUpRight, ScanLine } from "lucide-react";
 import Link from "next/link";
-import { PlayButton } from "@/components/onboarding/guest";
+import { PlayButton } from "@/components/onboarding/play-button";
 import { FastModeToggle, WalletPlayButton } from "@/components/onboarding/wallet";
 import { buttonStyles } from "@/components/ui/button";
 import { SealedCard } from "@/components/ui/sealed-card";
@@ -172,6 +172,7 @@ export default function Home() {
           </div>
           <Link
             href="/proof"
+            prefetch={false}
             className="text-muted hover:text-sealed inline-flex items-center gap-2 font-mono text-[11px]"
           >
             EXPLORE THE PROOF <MoveUpRight className="size-3.5" />
