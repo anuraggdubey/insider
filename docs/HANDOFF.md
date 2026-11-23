@@ -47,6 +47,10 @@ Submission checklist (STEPS.md section 13): live URL, honest README, demo video,
 3. **While the soak runs, do the other open work** (A-4.2 SOAR, A-4.1 session keys if not done, anything else), but do not redeploy the program or restart/stop services during the soak. Check on it every so often and note anomalies.
 4. Afterwards fix what the soak found (mostly backend: crank, bots, operator) in 2 to 4 commits, update STEPS.md, push.
 
+## Model provider: Grok, not Anthropic
+
+The user has no Anthropic key and will provide a Grok (xAI) API key. The analysts and the optional caption rewording currently call Anthropic (`bots/src/ai/predictor.ts`, `AnthropicPredictor`; `rewriter()` in `bots/src/ai/index.ts`). Add a `GrokPredictor` behind the same `Predictor` interface (xAI exposes an OpenAI-compatible chat completions API; confirm the base URL and model id from its docs, keep the key in `.env` as `XAI_API_KEY`), choose the provider by which key is set, reuse `parseDecision`, and cover it with a fake-client unit test like the Anthropic one. Update the runbook and `.env.example`.
+
 ## Ask the user for
 
-`ANTHROPIC_API_KEY` (analysts, soak), a dedicated devnet RPC URL, a host account (Railway or Fly), and a go/no-go on cutting SOAR. Confirm whether `/desk`, `/cup`, `/proof` go to Misbah.
+The Grok (xAI) API key (analysts, soak; see above), a dedicated devnet RPC URL, a host account (Railway or Fly), and a go/no-go on cutting SOAR. Confirm whether `/desk`, `/cup`, `/proof` go to Misbah.
