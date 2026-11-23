@@ -8,6 +8,8 @@
  *   pnpm setup-table                 run the plan with the deployer wallet as the table authority
  *   pnpm setup-table --validator er  delegate to the public ER instead of the TEE
  *   pnpm setup-table --arm           also schedule the tick crank on the TEE once delegated
+ *   pnpm setup-table --force-arm     schedule it even if the table says it is armed (after a teardown the
+ *                                    scheduled task is gone but the table still remembers its end)
  */
 import { Connection } from "@solana/web3.js";
 
@@ -30,7 +32,8 @@ import {
 
 const args = process.argv.slice(2);
 const dryRun = args.includes("--dry-run");
-const arm = args.includes("--arm");
+const forceArm = args.includes("--force-arm");
+const arm = args.includes("--arm") || forceArm;
 const statusOnly = args.includes("--status");
 const kind = args.includes("--validator") ? args[args.indexOf("--validator") + 1] : "tee";
 if (kind !== "tee" && kind !== "er") throw new Error("--validator must be tee or er");
@@ -78,7 +81,7 @@ async function main() {
       if (!status.isDelegated || !status.fqdn)
         throw new Error("the router does not serve the table");
       await permissionsOnRollup(status.fqdn, authority, accounts);
-      if (arm) await armOnRollup(status.fqdn, authority, accounts);
+      if (arm) await armOnRollup(status.fqdn, authority, accounts, forceArm);
     }
     return;
   }
@@ -121,7 +124,9 @@ async function main() {
   console.log("setup complete");
 
   await permissionsOnRollup(status.fqdn!, authority, accounts);
-  if (arm) await armOnRollup(status.fqdn!, authority, accounts);
+  // freshly delegated: the scheduled tick task of an earlier delegation is gone even though the table
+  // still remembers when it was due to run out, so arm again whatever it says
+  if (arm) await armOnRollup(status.fqdn!, authority, accounts, true);
 }
 
 /** Makes the Mempool, the Future and the six vaults private to the keyless member (rollup). */
@@ -157,6 +162,7 @@ async function armOnRollup(
   endpoint: string,
   authority: ReturnType<typeof loadKeypair>,
   accounts: ReturnType<typeof tableAccounts>,
+  force = false,
 ) {
   const url = endpoint.includes("tee") ? (await teeAuthUrl(endpoint, authority)).url : endpoint;
   const rollup = new Connection(url, "confirmed");
@@ -167,7 +173,7 @@ async function armOnRollup(
     armedUntilSlot: { toNumber(): number };
   };
   const slot = await rollup.getSlot();
-  if (!needsArming(table.armedUntilSlot.toNumber(), slot)) {
+  if (!force && !needsArming(table.armedUntilSlot.toNumber(), slot)) {
     console.log("crank is already armed");
     return;
   }

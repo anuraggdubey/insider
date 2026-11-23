@@ -88,11 +88,12 @@ Use this to fix a bad state, redeploy the setup or move the table.
 # 1. stop pnpm bots, pnpm operator, pnpm cup-operator and pnpm analysts (or the table starts a new round)
 pnpm teardown --dry-run   # which accounts are delegated, and the groups
 pnpm teardown             # waits for the table to go Idle, then undelegates in groups, the table last
-pnpm setup-table --arm    # delegate everything again, private permissions, re-arm the crank
+pnpm setup-table --arm    # delegate everything again, private permissions, re-arm the crank (always: the scheduled
+                          # task is gone after a teardown although the table still remembers when it was due to end)
 # 2. start pnpm bots, pnpm operator and pnpm cup-operator again
 ```
 
-`pnpm teardown --force` skips the Idle check for a table stuck in a round. The TEE refuses an intent
+If the tick counter does not move after a recovery, `pnpm setup-table --force-arm` schedules the crank again. `pnpm teardown --force` skips the Idle check for a table stuck in a round. The TEE refuses an intent
 that is too big for one base-layer transaction (`0xa0000002`, nothing is sent); the script starts
 with groups of about 1.5 KB and splits a refused group in half until it passes.
 
