@@ -30,7 +30,8 @@
     "privacy-test": "tsx scripts/src/privacy-test.ts",
     "go-live": "tsx scripts/src/go-live.ts",
     "run-table": "tsx scripts/src/vertical-slice.ts --forever",
-    "fund": "pnpm --filter bots fund"
+    "fund": "pnpm --filter bots fund",
+    "operator": "pnpm --filter bots operator"
   },
   "prettier": {
     "semi": true,

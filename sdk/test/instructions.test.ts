@@ -12,6 +12,7 @@ import {
   bid,
   buyLicense,
   cancelVrf,
+  commitEpoch,
   buyListed,
   claimSeat,
   createConfig,
@@ -183,5 +184,16 @@ describe("rearmTicks", () => {
     const future = ix.keys.find((key, i) => i >= 6 && key.pubkey.equals(p.future))!;
     expect(future.isWritable).toBe(false);
     expect(coder.decode(ix.data)?.name).toBe("rearmTicks");
+  });
+});
+
+describe("commitEpoch", () => {
+  it("names the payer, table, X-ray, season and the Magic accounts", () => {
+    const ix = commitEpoch(config, owner);
+    const keys = ix.keys.map((key) => key.pubkey.toBase58());
+    expect(keys.slice(0, 4)).toEqual([owner, p.table, p.xray, p.season].map((k) => k.toBase58()));
+    expect(keys).toContain(MAGIC_PROGRAM_ID.toBase58());
+    expect(coder.decode(ix.data)?.name).toBe("commitEpoch");
+    expect(ix.keys.filter((key) => key.isSigner)).toHaveLength(1);
   });
 });

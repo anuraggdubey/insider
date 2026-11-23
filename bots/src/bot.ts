@@ -17,6 +17,7 @@ import {
   bid,
   cancelVrf,
   claimSeat,
+  commitEpoch,
   cycleStateFrom,
   decodeBoard,
   decodeLeakVault,
@@ -194,7 +195,9 @@ export class Bot {
     const { me, config } = this;
 
     if (now - this.lastDrive > DRIVE_COOLDOWN_MS) {
-      const action = nextAction(cycleStateFrom(table, seen.board, seen.xray, slot));
+      const action = nextAction(cycleStateFrom(table, seen.board, seen.xray, slot), {
+        epochs: true,
+      });
       if (action !== "wait") {
         // a random hold-off so several bots do not all send the same transaction at once
         this.lastDrive = now + Math.random() * 2_000;
@@ -209,6 +212,8 @@ export class Bot {
               "request_round_seed",
               requestRoundSeed(config, me, EPHEMERAL_VRF_QUEUE),
             );
+          } else if (action === "commit_epoch") {
+            await this.send("commit_epoch", commitEpoch(config, me));
           } else if (action === "cancel_vrf") {
             await this.send("cancel_vrf", cancelVrf(config, me));
           }

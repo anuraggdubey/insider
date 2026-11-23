@@ -7,6 +7,7 @@ import {
   cycleStateFrom,
   nextAction,
   phaseOf,
+  shouldOpenEpoch,
   vrfTimedOut,
   wallTick,
   type CycleState,
@@ -109,5 +110,15 @@ describe("cycleStateFrom", () => {
 
   it("rejects a phase it does not know", () => {
     expect(() => phaseOf({ weird: {} })).toThrow();
+  });
+});
+
+describe("shouldOpenEpoch", () => {
+  it("opens only when the season is back on base and one epoch behind the table", () => {
+    expect(shouldOpenEpoch(true, 3, 2)).toBe(true);
+    // still delegated, already opened, or never committed
+    expect(shouldOpenEpoch(false, 3, 2)).toBe(false);
+    expect(shouldOpenEpoch(true, 3, 3)).toBe(false);
+    expect(shouldOpenEpoch(true, 3, 1)).toBe(false);
   });
 });

@@ -8,6 +8,7 @@ import { PublicKey, Transaction, TransactionInstruction, type AccountMeta } from
 import rawIdl from "../../programs/idl/insider.json" with { type: "json" };
 import {
   EPHEMERAL_VRF_QUEUE,
+  MAGIC_CONTEXT_ID,
   MAGIC_PROGRAM_ID,
   PERMISSION_PROGRAM_ID,
   type InsiderConfig,
@@ -297,5 +298,19 @@ export function rearmTicks(
       meta(p.table, false, true),
       ...engine.map((key) => meta(key, false, !key.equals(p.future))),
     ],
+  );
+}
+
+/**
+ * Rollup, anyone: once the epoch is over and its last round is scored, commits `Season` to the base
+ * layer and undelegates it. The operator then runs `open_epoch` on the base layer.
+ */
+export function commitEpoch(config: InsiderConfig, payer: PublicKey) {
+  const p = addresses(config);
+  return build(
+    config,
+    "commitEpoch",
+    {},
+    { payer, table: p.table, xray: p.xray, season: p.season, magicContext: MAGIC_CONTEXT_ID },
   );
 }

@@ -114,3 +114,14 @@ export const REARM_WINDOW_TICKS = 600;
 /** True when the crank has less than the rearm window left (or was never armed). */
 export const needsArming = (armedUntilSlot: number, currentSlot: number) =>
   armedUntilSlot <= currentSlot + REARM_WINDOW_TICKS * SLOTS_PER_TICK;
+
+/**
+ * Operator rule for `open_epoch` (base layer): the season is back on the base layer (owned by the
+ * program) and the table has already moved to the next epoch, but the season has not. Comparing the
+ * two numbers makes the call idempotent: after it runs, they are equal.
+ */
+export const shouldOpenEpoch = (
+  seasonOwnedByProgram: boolean,
+  tableEpoch: number,
+  seasonEpoch: number,
+) => seasonOwnedByProgram && tableEpoch === seasonEpoch + 1;
