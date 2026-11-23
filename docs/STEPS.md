@@ -396,7 +396,7 @@ Needs Misbah's engine stubs (H-API) before wiring.
 
 ### Block 2: Live table, bots, proofs (21 h)
 
-- [ ] **A-2.1 Setup script (3 h).** _Done for my accounts:_ `pnpm setup-table` (`--dry-run`,
+- [x] **A-2.1 Setup script (3 h).** _Done for my accounts:_ `pnpm setup-table` (`--dry-run`,
       `--arm`, `--validator`) reads chain state, plans only the missing work (create, batch, delegate
       six per transaction) and is idempotent and resumable; the plan, the client helpers and all 28
       instructions are unit-tested offline. Runbook: [runbook.md](runbook.md). Now covers all 25 accounts and the private permissions
@@ -407,7 +407,7 @@ Needs Misbah's engine stubs (H-API) before wiring.
 - [ ] **A-2.3 Privacy tests (3 h).** Opener reads; a second key and an anonymous call can't read
       the vault, the mempool or the opener's order transactions; the authority can't read sealed
       vaults.
-- [ ] **A-2.4 Bots v1 (8 h).** _Started:_ the roster (7 identities, seat classes checked against the
+- [x] **A-2.4 Bots v1 (8 h).** _Done: `pnpm bots` runs the three v1 personas (live-verified: seats, bids, opens, trades from payloads, `finish_round`, `reseal_leaks`, `request_round_seed`, `rearm_ticks`, `cancel_vrf` with no manual steps). Code in `bots/src`: `signal`, `view`, `observe`, `strategies`, `bot`, `index`; the round cycle planner now lives in the SDK._ Earlier: the roster (7 identities, seat classes checked against the
       program), key creation and `pnpm fund` (`--dry-run`, `--all`, `--target`) with unit tests;
       the service itself waits for the SDK. `bots/` service: `config`, `keys` (generate and fund), `chain`
       (uses `@insider/sdk`), one decision every 2 ticks, jitter, TEE token per bot; personas
