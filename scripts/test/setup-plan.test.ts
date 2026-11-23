@@ -61,7 +61,7 @@ describe("planSetup from scratch", () => {
     expect(count(batches, "init")).toBe(1 + 3 + 11 + 10);
   });
 
-  it("delegates all twenty-five accounts, six per transaction, table first and season last", () => {
+  it("delegates all twenty-five accounts, five per transaction, table first and season last", () => {
     const delegations = batches.filter((b) => b.label.startsWith("delegate"));
     expect(count(batches, "delegate")).toBe(25);
     delegations.forEach((b) => expect(b.steps.length).toBeLessThanOrEqual(DELEGATIONS_PER_TX));

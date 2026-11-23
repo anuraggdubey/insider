@@ -44,8 +44,11 @@ export type Step = { kind: "init" | "delegate"; target: Target };
 /** One transaction worth of steps. */
 export type Batch = { label: string; steps: Step[] };
 
-/** Delegations per transaction (Phase 2, experiment E: transaction size caps it at six). */
-export const DELEGATIONS_PER_TX = 6;
+/**
+ * Delegations per transaction. Phase 2 (experiment E) fit six of one kind; a mix of seats and vaults
+ * needs more account keys and overflows by two bytes, so the plan uses five.
+ */
+export const DELEGATIONS_PER_TX = 5;
 /** Seats created per transaction (each is a small account). */
 export const SEATS_PER_INIT_TX = 5;
 /** Engine accounts created per transaction (Xray is 7 KB, so the limit is allocation, not size). */
