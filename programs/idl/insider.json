@@ -1761,6 +1761,81 @@
       "code": 6011,
       "name": "NotRearmable",
       "msg": "The crank is still armed; nothing to re-arm"
+    },
+    {
+      "code": 6012,
+      "name": "OrderTooLarge",
+      "msg": "Order is too large"
+    },
+    {
+      "code": 6013,
+      "name": "PositionLimit",
+      "msg": "Position limit exceeded"
+    },
+    {
+      "code": 6014,
+      "name": "TooManyPending",
+      "msg": "Too many pending orders"
+    },
+    {
+      "code": 6015,
+      "name": "MempoolFull",
+      "msg": "Mempool is full"
+    },
+    {
+      "code": 6016,
+      "name": "ZeroOrder",
+      "msg": "Order size is zero"
+    },
+    {
+      "code": 6017,
+      "name": "InvalidLane",
+      "msg": "Invalid lane"
+    },
+    {
+      "code": 6018,
+      "name": "NotForSale",
+      "msg": "Leak is not for sale"
+    },
+    {
+      "code": 6019,
+      "name": "AuctionOver",
+      "msg": "Auction is over"
+    },
+    {
+      "code": 6020,
+      "name": "InsufficientChips",
+      "msg": "Insufficient chips"
+    },
+    {
+      "code": 6021,
+      "name": "NotLeakOwner",
+      "msg": "Not the leak owner"
+    },
+    {
+      "code": 6022,
+      "name": "AlreadyOpened",
+      "msg": "Leak already opened"
+    },
+    {
+      "code": 6023,
+      "name": "HoardLimit",
+      "msg": "Unopened leak limit exceeded"
+    },
+    {
+      "code": 6024,
+      "name": "InvalidLeakSlot",
+      "msg": "Invalid leak slot"
+    },
+    {
+      "code": 6025,
+      "name": "ReaderLimit",
+      "msg": "Reader limit exceeded"
+    },
+    {
+      "code": 6026,
+      "name": "Liquidated",
+      "msg": "Seat is liquidated"
     }
   ],
   "types": [

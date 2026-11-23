@@ -1,8 +1,10 @@
 #![allow(ambiguous_glob_reexports)]
 
 pub mod constants;
+pub mod engine;
 pub mod error;
 pub mod instructions;
+pub mod math;
 pub mod state;
 
 use anchor_lang::prelude::*;

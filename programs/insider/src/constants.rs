@@ -49,3 +49,37 @@ pub const ROUNDS_PER_EPOCH: u32 = 10;
 pub const VRF_TIMEOUT_TICKS: u16 = 10;
 /// `rearm_ticks` is open to everyone once fewer than this many ticks of crank remain.
 pub const REARM_WINDOW_TICKS: u64 = 600;
+
+// Engine (Misbah).
+pub const BOARD_SEED: &[u8] = b"board";
+pub const FUTURE_SEED: &[u8] = b"future";
+pub const LEAK_SEED: &[u8] = b"leak";
+pub const MARKET_SEED: &[u8] = b"market";
+pub const MEMPOOL_SEED: &[u8] = b"mempool";
+pub const XRAY_SEED: &[u8] = b"xray";
+pub const NOBODY_SEED: &[u8] = b"nobody";
+pub const PRICE_ONE: u32 = 1_000_000;
+pub const PATH_LEN: usize = 192;
+pub const MEMPOOL_SLOTS: usize = 48;
+pub const WHALE_SEAT: u8 = 255;
+pub const NO_SEAT: u8 = 254;
+pub const LANE_STANDARD: u8 = 0;
+pub const LANE_PRIORITY: u8 = 1;
+pub const MAX_FILLS_PER_TICK: usize = 12;
+pub const LEAK_SLOTS: usize = 6;
+pub const LEAK_READERS: usize = 4;
+pub const LEAK_PAYLOAD_ORDERS: usize = 32;
+pub const LEAK_PAYLOAD_FIELDS: usize = 6;
+pub const DROPS_PER_ROUND: usize = 8;
+pub const FIRST_DROP_TICK: u16 = 10;
+pub const DROP_EVERY_TICKS: u16 = 20;
+pub const MAX_LIVE_LEAKS: usize = 4;
+pub const MAX_UNOPENED_PER_SEAT: u8 = 2;
+pub const DUTCH_TICKS: u16 = 12;
+pub const MAX_WHALES: usize = 5;
+pub const MAX_SHOCKS: usize = 4;
+pub const XRAY_ORDERS: usize = 192;
+pub const XRAY_TAGS: usize = 16;
+pub const SANDWICH_WINDOW_TICKS: u16 = 6;
+pub const MARKET_FLOOR: u8 = 0;
+pub const MARKET_DESK: u8 = 1;

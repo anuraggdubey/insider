@@ -26,4 +26,35 @@ pub enum InsiderError {
     TooManyMembers,
     #[msg("The crank is still armed; nothing to re-arm")]
     NotRearmable,
+    // Engine (Misbah).
+    #[msg("Order is too large")]
+    OrderTooLarge,
+    #[msg("Position limit exceeded")]
+    PositionLimit,
+    #[msg("Too many pending orders")]
+    TooManyPending,
+    #[msg("Mempool is full")]
+    MempoolFull,
+    #[msg("Order size is zero")]
+    ZeroOrder,
+    #[msg("Invalid lane")]
+    InvalidLane,
+    #[msg("Leak is not for sale")]
+    NotForSale,
+    #[msg("Auction is over")]
+    AuctionOver,
+    #[msg("Insufficient chips")]
+    InsufficientChips,
+    #[msg("Not the leak owner")]
+    NotLeakOwner,
+    #[msg("Leak already opened")]
+    AlreadyOpened,
+    #[msg("Unopened leak limit exceeded")]
+    HoardLimit,
+    #[msg("Invalid leak slot")]
+    InvalidLeakSlot,
+    #[msg("Reader limit exceeded")]
+    ReaderLimit,
+    #[msg("Seat is liquidated")]
+    Liquidated,
 }
