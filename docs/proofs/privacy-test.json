@@ -1,0 +1,378 @@
+{
+  "table": "DjnqzKQsUU1fmRztBAiUkPn8VwsnFYgMedcg1BPyA1k",
+  "program": "7mTtHsFMYnZRnhd3SRzhj8Nm1U2T3s33dnbJwa9zBErW",
+  "round": 8,
+  "parties": {
+    "opener": "4fg2pr8RxpkNCBZGoVzwH3BkWJWwSr5sfCKHM2xcoWrG",
+    "observer": "5wdZLLa9EC5MuiRXWxzPSuE8Mx7qGWSB5EFPo1PGApTe",
+    "authority": "23k9UnCKBkFyci6Sv1RhuFXUXFgTnjV6oeTZyMaxopWm",
+    "anonymous": "no key, no token"
+  },
+  "vault": "FPab7gbDF6AsHhuR19jbc5i4EVMSCRfjoxSuyeCKuf8D",
+  "mempool": "AXN6H4W9ibBwk75bzAGCgaNE6kayjYzgX5hH1hWirg9X",
+  "verdict": {
+    "total": 43,
+    "passed": 43,
+    "leaks": [],
+    "blind": []
+  },
+  "results": [
+    {
+      "what": "read the table",
+      "who": "opener",
+      "shouldSee": true,
+      "saw": true,
+      "pass": true
+    },
+    {
+      "what": "read the table",
+      "who": "observer",
+      "shouldSee": true,
+      "saw": true,
+      "pass": true
+    },
+    {
+      "what": "read the table",
+      "who": "authority",
+      "shouldSee": true,
+      "saw": true,
+      "pass": true
+    },
+    {
+      "what": "read the table",
+      "who": "anonymous",
+      "shouldSee": true,
+      "saw": true,
+      "pass": true
+    },
+    {
+      "what": "read the board",
+      "who": "opener",
+      "shouldSee": true,
+      "saw": true,
+      "pass": true
+    },
+    {
+      "what": "read the board",
+      "who": "observer",
+      "shouldSee": true,
+      "saw": true,
+      "pass": true
+    },
+    {
+      "what": "read the board",
+      "who": "authority",
+      "shouldSee": true,
+      "saw": true,
+      "pass": true
+    },
+    {
+      "what": "read the board",
+      "who": "anonymous",
+      "shouldSee": true,
+      "saw": true,
+      "pass": true
+    },
+    {
+      "what": "read the mempool",
+      "who": "opener",
+      "shouldSee": false,
+      "saw": false,
+      "pass": true
+    },
+    {
+      "what": "read the mempool",
+      "who": "observer",
+      "shouldSee": false,
+      "saw": false,
+      "pass": true
+    },
+    {
+      "what": "read the mempool",
+      "who": "authority",
+      "shouldSee": false,
+      "saw": false,
+      "pass": true
+    },
+    {
+      "what": "read the mempool",
+      "who": "anonymous",
+      "shouldSee": false,
+      "saw": false,
+      "pass": true
+    },
+    {
+      "what": "read the future (the hidden price path)",
+      "who": "opener",
+      "shouldSee": false,
+      "saw": false,
+      "pass": true
+    },
+    {
+      "what": "read the future (the hidden price path)",
+      "who": "observer",
+      "shouldSee": false,
+      "saw": false,
+      "pass": true
+    },
+    {
+      "what": "read the future (the hidden price path)",
+      "who": "authority",
+      "shouldSee": false,
+      "saw": false,
+      "pass": true
+    },
+    {
+      "what": "read the future (the hidden price path)",
+      "who": "anonymous",
+      "shouldSee": false,
+      "saw": false,
+      "pass": true
+    },
+    {
+      "what": "read the sealed vault",
+      "who": "opener",
+      "shouldSee": false,
+      "saw": false,
+      "pass": true
+    },
+    {
+      "what": "read the sealed vault",
+      "who": "observer",
+      "shouldSee": false,
+      "saw": false,
+      "pass": true
+    },
+    {
+      "what": "read the sealed vault",
+      "who": "authority",
+      "shouldSee": false,
+      "saw": false,
+      "pass": true
+    },
+    {
+      "what": "read the sealed vault",
+      "who": "anonymous",
+      "shouldSee": false,
+      "saw": false,
+      "pass": true
+    },
+    {
+      "what": "read the opened vault",
+      "who": "opener",
+      "shouldSee": true,
+      "saw": true,
+      "pass": true
+    },
+    {
+      "what": "read the opened vault",
+      "who": "observer",
+      "shouldSee": false,
+      "saw": false,
+      "pass": true
+    },
+    {
+      "what": "read the opened vault",
+      "who": "authority",
+      "shouldSee": false,
+      "saw": false,
+      "pass": true
+    },
+    {
+      "what": "read the opened vault",
+      "who": "anonymous",
+      "shouldSee": false,
+      "saw": false,
+      "pass": true
+    },
+    {
+      "what": "read the content of the order transaction (accounts, instruction data, logs)",
+      "who": "opener",
+      "shouldSee": false,
+      "saw": false,
+      "detail": "the signature exists as an empty shell: slot and success only",
+      "pass": true
+    },
+    {
+      "what": "read the content of the order transaction (accounts, instruction data, logs)",
+      "who": "observer",
+      "shouldSee": false,
+      "saw": false,
+      "detail": "the signature exists as an empty shell: slot and success only",
+      "pass": true
+    },
+    {
+      "what": "read the content of the order transaction (accounts, instruction data, logs)",
+      "who": "authority",
+      "shouldSee": false,
+      "saw": false,
+      "detail": "the signature exists as an empty shell: slot and success only",
+      "pass": true
+    },
+    {
+      "what": "read the content of the order transaction (accounts, instruction data, logs)",
+      "who": "anonymous",
+      "shouldSee": false,
+      "saw": false,
+      "detail": "the signature exists as an empty shell: slot and success only",
+      "pass": true
+    },
+    {
+      "what": "list signatures that touched the mempool",
+      "who": "opener",
+      "shouldSee": true,
+      "saw": true,
+      "detail": "Bob lists his own transactions",
+      "pass": true
+    },
+    {
+      "what": "list signatures that touched the mempool",
+      "who": "observer",
+      "shouldSee": false,
+      "saw": false,
+      "pass": true
+    },
+    {
+      "what": "list signatures that touched the mempool",
+      "who": "authority",
+      "shouldSee": false,
+      "saw": false,
+      "pass": true
+    },
+    {
+      "what": "list signatures that touched the mempool",
+      "who": "anonymous",
+      "shouldSee": false,
+      "saw": false,
+      "pass": true
+    },
+    {
+      "what": "see the order in a live log stream of the program",
+      "who": "observer",
+      "shouldSee": false,
+      "saw": false,
+      "detail": "0 program log event(s) received",
+      "pass": true
+    },
+    {
+      "what": "see the order in a live log stream of the program",
+      "who": "authority",
+      "shouldSee": false,
+      "saw": false,
+      "detail": "0 program log event(s) received",
+      "pass": true
+    },
+    {
+      "what": "see the order in a live log stream of the program",
+      "who": "anonymous",
+      "shouldSee": false,
+      "saw": false,
+      "detail": "0 program log event(s) received",
+      "pass": true
+    },
+    {
+      "what": "read the vault after the reseal",
+      "who": "opener",
+      "shouldSee": false,
+      "saw": false,
+      "pass": true
+    },
+    {
+      "what": "read the vault after the reseal",
+      "who": "observer",
+      "shouldSee": false,
+      "saw": false,
+      "pass": true
+    },
+    {
+      "what": "read the vault after the reseal",
+      "who": "authority",
+      "shouldSee": false,
+      "saw": false,
+      "pass": true
+    },
+    {
+      "what": "read the vault after the reseal",
+      "who": "anonymous",
+      "shouldSee": false,
+      "saw": false,
+      "pass": true
+    },
+    {
+      "what": "read the mempool after the round",
+      "who": "opener",
+      "shouldSee": false,
+      "saw": false,
+      "pass": true
+    },
+    {
+      "what": "read the mempool after the round",
+      "who": "observer",
+      "shouldSee": false,
+      "saw": false,
+      "pass": true
+    },
+    {
+      "what": "read the mempool after the round",
+      "who": "authority",
+      "shouldSee": false,
+      "saw": false,
+      "pass": true
+    },
+    {
+      "what": "read the mempool after the round",
+      "who": "anonymous",
+      "shouldSee": false,
+      "saw": false,
+      "pass": true
+    }
+  ],
+  "steps": [
+    {
+      "what": "request_round_seed (671 ms)",
+      "signature": "2hnUJYxFNLhWRWgiLd4t26irD5mSDUBFpi9KSzmz68bcjqZJGHiXrWJRrJcu31SBnqx4GXfzaAVdG2SmqKF6rBFw",
+      "url": "https://explorer.solana.com/tx/2hnUJYxFNLhWRWgiLd4t26irD5mSDUBFpi9KSzmz68bcjqZJGHiXrWJRrJcu31SBnqx4GXfzaAVdG2SmqKF6rBFw?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app"
+    },
+    {
+      "what": "round 8 is live"
+    },
+    {
+      "what": "Bob claims seat 8 (823 ms)",
+      "signature": "4pcNLf5U1fPNcPAjSzvpsCSXT7cH2z2qrFSfDnorMzNGy2x9zxd5VYcKgUDwkRWCDnf7BnyRuDdmNoGPY2keprSx",
+      "url": "https://explorer.solana.com/tx/4pcNLf5U1fPNcPAjSzvpsCSXT7cH2z2qrFSfDnorMzNGy2x9zxd5VYcKgUDwkRWCDnf7BnyRuDdmNoGPY2keprSx?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app"
+    },
+    {
+      "what": "Carol claims seat 9 (558 ms)",
+      "signature": "yKZ6Ba8mkc5k5DUdbZA1jcecDFioEgm7f7o49SVQmKqARuEG1k3CxhgoPv29YkxmQzJoYNKAsFLEzgUd98rNbj4",
+      "url": "https://explorer.solana.com/tx/yKZ6Ba8mkc5k5DUdbZA1jcecDFioEgm7f7o49SVQmKqARuEG1k3CxhgoPv29YkxmQzJoYNKAsFLEzgUd98rNbj4?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app"
+    },
+    {
+      "what": "Bob bids on slot 0 (543 ms)",
+      "signature": "YPyN4hAazazREPVY33gkRY5qKxe7Zvk7RG55vWxAVHMvoLuB1KhPuyVDk2XeRR5tFofux26eAh3XjxST2j6Ug3G",
+      "url": "https://explorer.solana.com/tx/YPyN4hAazazREPVY33gkRY5qKxe7Zvk7RG55vWxAVHMvoLuB1KhPuyVDk2XeRR5tFofux26eAh3XjxST2j6Ug3G?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app"
+    },
+    {
+      "what": "Bob opens slot 0 (458 ms)",
+      "signature": "5BgS1yYGxbDLWbUziKKuKEsFWhbNJGQAhnN18KsrDKPDzTPY5AYedAfWvhfPT2DPMvW52VqmVSW5mou8ckCsyQDD",
+      "url": "https://explorer.solana.com/tx/5BgS1yYGxbDLWbUziKKuKEsFWhbNJGQAhnN18KsrDKPDzTPY5AYedAfWvhfPT2DPMvW52VqmVSW5mou8ckCsyQDD?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app"
+    },
+    {
+      "what": "Bob's payload decodes: kind 3, 5 order(s)"
+    },
+    {
+      "what": "Bob sends a 300-unit buy (the pending order we try to find) (495 ms)",
+      "signature": "Nc5zbUPt5NGhuoBFX6dJZL6oyx4s11xtwzi4RA5kv1fB6hwddsZc7UkxwFnMfxbsJN7Kp6MYc3jbE18FeEqXRML",
+      "url": "https://explorer.solana.com/tx/Nc5zbUPt5NGhuoBFX6dJZL6oyx4s11xtwzi4RA5kv1fB6hwddsZc7UkxwFnMfxbsJN7Kp6MYc3jbE18FeEqXRML?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app"
+    },
+    {
+      "what": "finish_round (1591 ms)",
+      "signature": "dAKi8HoDA5wQctfgcyFaMbM5BnMghka7kFuJAHy98XapbyY5nGAEnvTJarFtuPoWqiYGfZqKizV5VycYcJ439Vv",
+      "url": "https://explorer.solana.com/tx/dAKi8HoDA5wQctfgcyFaMbM5BnMghka7kFuJAHy98XapbyY5nGAEnvTJarFtuPoWqiYGfZqKizV5VycYcJ439Vv?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app"
+    },
+    {
+      "what": "reseal_leaks(0, 6) (1452 ms)",
+      "signature": "23iYCy8WE2KRfopwcNs1PyN5riPdce1Hpi8HTQ9BYLeQ5crpsVNX9QMGz1NZE47mGhcaoughKf616CHzH4FpQzEC",
+      "url": "https://explorer.solana.com/tx/23iYCy8WE2KRfopwcNs1PyN5riPdce1Hpi8HTQ9BYLeQ5crpsVNX9QMGz1NZE47mGhcaoughKf616CHzH4FpQzEC?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app"
+    }
+  ]
+}

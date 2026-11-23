@@ -27,6 +27,7 @@
     "setup-table": "tsx scripts/src/setup-table.ts",
     "vertical-slice": "tsx scripts/src/vertical-slice.ts",
     "simulate-round": "tsx scripts/src/simulate-round.ts",
+    "privacy-test": "tsx scripts/src/privacy-test.ts",
     "run-table": "tsx scripts/src/vertical-slice.ts --forever",
     "fund": "pnpm --filter bots fund"
   },
