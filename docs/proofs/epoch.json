@@ -1,0 +1,21 @@
+{
+  "program": "7mTtHsFMYnZRnhd3SRzhj8Nm1U2T3s33dnbJwa9zBErW",
+  "table": "DjnqzKQsUU1fmRztBAiUkPn8VwsnFYgMedcg1BPyA1k",
+  "note": "commit_epoch is sent by a bot on the TEE; open_epoch by the operator on base. Table epoch and season epoch went 0->1->2 with rounds_played counting 0..3 in epoch 1 after the finish_round fix.",
+  "events": [
+    {
+      "at": "2026-11-23T20:56:49.654Z",
+      "who": "operator",
+      "what": "open_epoch: the next season is delegated",
+      "signature": "H7jf8fudmxwMwzrV4dh6geCf785eyuHPgp1LufMY5HkMuRYbkLrVkHAPrHGKugBQM2534ofJXmfgeusj7dNQfu6",
+      "epoch": 1
+    },
+    {
+      "at": "2026-11-23T21:13:44.311Z",
+      "who": "operator",
+      "what": "open_epoch: the next season is delegated",
+      "signature": "3x8ri3eZbco8cGpvemkXNePjEiHJMx7zQjC4Kr4LUHdx2SevmoRJ7sgJmS5DehKDpzR1u7ig9mQH8X7AMc7z6ZCo",
+      "epoch": 2
+    }
+  ]
+}

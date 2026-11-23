@@ -422,7 +422,7 @@ Needs Misbah's engine stubs (H-API) before wiring.
 - [ ] **A-3.1 Desk program (8 h, if G4 passes).** `mint_call`, `buy_call_license`,
       `schedule_settle` / `settle_due` (reads the oracle, reveals, pays), `desk_trade`, analyst stats in
       `Season`. Tests in `tests/desk.rs`.
-- [ ] **A-3.2 Epoch (4 h).** `commit_epoch` (commit-and-undelegate `Season`), `open_epoch`
+- [x] **A-3.2 Epoch (4 h).** _Done: `commit_epoch` (rollup, anyone, once 10 rounds are scored) and `open_epoch` (base, authority) in `epoch.rs`; bots send the commit, `pnpm operator` opens the next season. Verified live across two epoch boundaries (proof `docs/proofs/epoch.json`). Also fixed `finish_round` to count `Season.rounds_played`. Magic Action on the commit is A-4.2._ `commit_epoch` (commit-and-undelegate `Season`), `open_epoch`
       (re-delegate), operator service `bots/src/operator.ts`. Verify with a 10-round run.
 - [ ] **A-3.3 Alpha Cup (5 h, if G5 passes).** `cup_join`, `cup_settle`, Private Payments over
       HTTP with the platform fee account; operator signs payouts.

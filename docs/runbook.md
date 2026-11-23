@@ -57,6 +57,8 @@ Proof run: `pnpm simulate-round` (stop the bots first) plays one scripted round 
 
 Privacy proof: `pnpm privacy-test` (stop the bots first; the crank must be armed) tries to read private data as the opener, another seat, the authority and an anonymous client, and exits non-zero if anyone learns something private. What stays public by design: that a signature exists, its slot and that it succeeded.
 
+Epochs: every 10 rounds a bot sends `commit_epoch` (season goes to the base layer) and `pnpm operator` (needs the authority key, run it next to `pnpm bots`) sends `open_epoch` (next season, delegated again). `finish_round` needs the season delegated, so keep the operator running. Upgrading the program: `solana program extend <id> 20480` first if the new build is larger than the deployed length, and keep about 8 SOL on the deployer for the upgrade buffer (refunded).
+
 Bots: `pnpm fund` (three v1 wallets, 0.05 SOL each), then `pnpm bots`. Each bot logs in to the TEE with its own key, plays its persona (front-runner, flow, baiter) and, like every seat, scores, reseals and starts rounds and re-arms the crank, so no keeper script is needed. `TABLE_AUTHORITY` overrides the table owner (default: the deployer key).
 
 Round end order is `finish_round`, then `reseal_leaks(0, 6)`, then `request_round_seed`
