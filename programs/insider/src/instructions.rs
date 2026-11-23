@@ -3,6 +3,7 @@
 #![allow(ambiguous_glob_reexports)]
 
 pub mod cranks;
+pub mod epoch;
 pub mod engine_setup;
 pub mod finish_round;
 pub mod leaks;
@@ -14,6 +15,7 @@ pub mod setup;
 pub mod tick;
 
 pub use cranks::*;
+pub use epoch::*;
 pub use engine_setup::*;
 pub use finish_round::*;
 pub use leaks::*;

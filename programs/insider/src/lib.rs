@@ -135,6 +135,15 @@ pub mod insider {
         cranks::rearm_ticks(ctx, task_id, interval_millis, iterations)
     }
 
+    // Epoch
+    pub fn commit_epoch(ctx: Context<CommitEpoch>) -> Result<()> {
+        epoch::commit_epoch(ctx)
+    }
+
+    pub fn open_epoch(ctx: Context<OpenEpoch>) -> Result<()> {
+        epoch::open_epoch(ctx)
+    }
+
     // Round seed (VRF)
     pub fn request_round_seed(ctx: Context<RequestRoundSeed>) -> Result<()> {
         round_seed::request_round_seed(ctx)

@@ -196,6 +196,21 @@ export type Insider = {
       ];
     },
     {
+      name: "cancelVrf";
+      discriminator: [133, 1, 179, 53, 161, 166, 208, 207];
+      accounts: [
+        {
+          name: "payer";
+          signer: true;
+        },
+        {
+          name: "table";
+          writable: true;
+        },
+      ];
+      args: [];
+    },
+    {
       name: "claimSeat";
       discriminator: [47, 217, 3, 139, 51, 238, 55, 107];
       accounts: [
@@ -217,6 +232,230 @@ export type Insider = {
           type: "u8";
         },
       ];
+    },
+    {
+      name: "commitEpoch";
+      discriminator: [140, 0, 62, 186, 73, 180, 201, 179];
+      accounts: [
+        {
+          name: "payer";
+          writable: true;
+          signer: true;
+        },
+        {
+          name: "table";
+          writable: true;
+        },
+        {
+          name: "xray";
+          pda: {
+            seeds: [
+              {
+                kind: "const";
+                value: [120, 114, 97, 121];
+              },
+              {
+                kind: "account";
+                path: "table";
+              },
+            ];
+          };
+        },
+        {
+          name: "season";
+          writable: true;
+          pda: {
+            seeds: [
+              {
+                kind: "const";
+                value: [115, 101, 97, 115, 111, 110];
+              },
+              {
+                kind: "account";
+                path: "table";
+              },
+            ];
+          };
+        },
+        {
+          name: "magicProgram";
+          address: "Magic11111111111111111111111111111111111111";
+        },
+        {
+          name: "magicContext";
+          writable: true;
+          address: "MagicContext1111111111111111111111111111111";
+        },
+      ];
+      args: [];
+    },
+    {
+      name: "delegateBoard";
+      discriminator: [111, 167, 6, 152, 230, 48, 8, 91];
+      accounts: [
+        {
+          name: "payer";
+          writable: true;
+          signer: true;
+        },
+        {
+          name: "table";
+          pda: {
+            seeds: [
+              {
+                kind: "const";
+                value: [116, 97, 98, 108, 101];
+              },
+              {
+                kind: "account";
+                path: "payer";
+              },
+            ];
+          };
+        },
+        {
+          name: "bufferBoard";
+          writable: true;
+          pda: {
+            seeds: [
+              {
+                kind: "const";
+                value: [98, 117, 102, 102, 101, 114];
+              },
+              {
+                kind: "account";
+                path: "board";
+              },
+            ];
+            program: {
+              kind: "const";
+              value: [
+                100,
+                138,
+                19,
+                74,
+                196,
+                109,
+                85,
+                33,
+                73,
+                28,
+                184,
+                108,
+                4,
+                90,
+                142,
+                233,
+                103,
+                187,
+                253,
+                10,
+                187,
+                122,
+                89,
+                9,
+                217,
+                28,
+                57,
+                82,
+                39,
+                210,
+                207,
+                107,
+              ];
+            };
+          };
+        },
+        {
+          name: "delegationRecordBoard";
+          writable: true;
+          pda: {
+            seeds: [
+              {
+                kind: "const";
+                value: [100, 101, 108, 101, 103, 97, 116, 105, 111, 110];
+              },
+              {
+                kind: "account";
+                path: "board";
+              },
+            ];
+            program: {
+              kind: "account";
+              path: "delegationProgram";
+            };
+          };
+        },
+        {
+          name: "delegationMetadataBoard";
+          writable: true;
+          pda: {
+            seeds: [
+              {
+                kind: "const";
+                value: [
+                  100,
+                  101,
+                  108,
+                  101,
+                  103,
+                  97,
+                  116,
+                  105,
+                  111,
+                  110,
+                  45,
+                  109,
+                  101,
+                  116,
+                  97,
+                  100,
+                  97,
+                  116,
+                  97,
+                ];
+              },
+              {
+                kind: "account";
+                path: "board";
+              },
+            ];
+            program: {
+              kind: "account";
+              path: "delegationProgram";
+            };
+          };
+        },
+        {
+          name: "board";
+          writable: true;
+          pda: {
+            seeds: [
+              {
+                kind: "const";
+                value: [98, 111, 97, 114, 100];
+              },
+              {
+                kind: "account";
+                path: "table";
+              },
+            ];
+          };
+        },
+        {
+          name: "ownerProgram";
+          address: "7mTtHsFMYnZRnhd3SRzhj8Nm1U2T3s33dnbJwa9zBErW";
+        },
+        {
+          name: "delegationProgram";
+          address: "DELeGGvXpWV2fqJUhqcF5ZSYMS4JTLjteaAMARRSaeSh";
+        },
+        {
+          name: "systemProgram";
+          address: "11111111111111111111111111111111";
+        },
+      ];
+      args: [];
     },
     {
       name: "delegateCallBook";
@@ -363,6 +602,664 @@ export type Insider = {
               {
                 kind: "const";
                 value: [99, 97, 108, 108, 98, 111, 111, 107];
+              },
+              {
+                kind: "account";
+                path: "table";
+              },
+            ];
+          };
+        },
+        {
+          name: "ownerProgram";
+          address: "7mTtHsFMYnZRnhd3SRzhj8Nm1U2T3s33dnbJwa9zBErW";
+        },
+        {
+          name: "delegationProgram";
+          address: "DELeGGvXpWV2fqJUhqcF5ZSYMS4JTLjteaAMARRSaeSh";
+        },
+        {
+          name: "systemProgram";
+          address: "11111111111111111111111111111111";
+        },
+      ];
+      args: [];
+    },
+    {
+      name: "delegateFuture";
+      discriminator: [63, 77, 104, 62, 230, 169, 72, 166];
+      accounts: [
+        {
+          name: "payer";
+          writable: true;
+          signer: true;
+        },
+        {
+          name: "table";
+          pda: {
+            seeds: [
+              {
+                kind: "const";
+                value: [116, 97, 98, 108, 101];
+              },
+              {
+                kind: "account";
+                path: "payer";
+              },
+            ];
+          };
+        },
+        {
+          name: "bufferFuture";
+          writable: true;
+          pda: {
+            seeds: [
+              {
+                kind: "const";
+                value: [98, 117, 102, 102, 101, 114];
+              },
+              {
+                kind: "account";
+                path: "future";
+              },
+            ];
+            program: {
+              kind: "const";
+              value: [
+                100,
+                138,
+                19,
+                74,
+                196,
+                109,
+                85,
+                33,
+                73,
+                28,
+                184,
+                108,
+                4,
+                90,
+                142,
+                233,
+                103,
+                187,
+                253,
+                10,
+                187,
+                122,
+                89,
+                9,
+                217,
+                28,
+                57,
+                82,
+                39,
+                210,
+                207,
+                107,
+              ];
+            };
+          };
+        },
+        {
+          name: "delegationRecordFuture";
+          writable: true;
+          pda: {
+            seeds: [
+              {
+                kind: "const";
+                value: [100, 101, 108, 101, 103, 97, 116, 105, 111, 110];
+              },
+              {
+                kind: "account";
+                path: "future";
+              },
+            ];
+            program: {
+              kind: "account";
+              path: "delegationProgram";
+            };
+          };
+        },
+        {
+          name: "delegationMetadataFuture";
+          writable: true;
+          pda: {
+            seeds: [
+              {
+                kind: "const";
+                value: [
+                  100,
+                  101,
+                  108,
+                  101,
+                  103,
+                  97,
+                  116,
+                  105,
+                  111,
+                  110,
+                  45,
+                  109,
+                  101,
+                  116,
+                  97,
+                  100,
+                  97,
+                  116,
+                  97,
+                ];
+              },
+              {
+                kind: "account";
+                path: "future";
+              },
+            ];
+            program: {
+              kind: "account";
+              path: "delegationProgram";
+            };
+          };
+        },
+        {
+          name: "future";
+          writable: true;
+          pda: {
+            seeds: [
+              {
+                kind: "const";
+                value: [102, 117, 116, 117, 114, 101];
+              },
+              {
+                kind: "account";
+                path: "table";
+              },
+            ];
+          };
+        },
+        {
+          name: "ownerProgram";
+          address: "7mTtHsFMYnZRnhd3SRzhj8Nm1U2T3s33dnbJwa9zBErW";
+        },
+        {
+          name: "delegationProgram";
+          address: "DELeGGvXpWV2fqJUhqcF5ZSYMS4JTLjteaAMARRSaeSh";
+        },
+        {
+          name: "systemProgram";
+          address: "11111111111111111111111111111111";
+        },
+      ];
+      args: [];
+    },
+    {
+      name: "delegateLeakVault";
+      discriminator: [168, 185, 82, 228, 213, 170, 38, 21];
+      accounts: [
+        {
+          name: "payer";
+          writable: true;
+          signer: true;
+        },
+        {
+          name: "table";
+          pda: {
+            seeds: [
+              {
+                kind: "const";
+                value: [116, 97, 98, 108, 101];
+              },
+              {
+                kind: "account";
+                path: "payer";
+              },
+            ];
+          };
+        },
+        {
+          name: "bufferVault";
+          writable: true;
+          pda: {
+            seeds: [
+              {
+                kind: "const";
+                value: [98, 117, 102, 102, 101, 114];
+              },
+              {
+                kind: "account";
+                path: "vault";
+              },
+            ];
+            program: {
+              kind: "const";
+              value: [
+                100,
+                138,
+                19,
+                74,
+                196,
+                109,
+                85,
+                33,
+                73,
+                28,
+                184,
+                108,
+                4,
+                90,
+                142,
+                233,
+                103,
+                187,
+                253,
+                10,
+                187,
+                122,
+                89,
+                9,
+                217,
+                28,
+                57,
+                82,
+                39,
+                210,
+                207,
+                107,
+              ];
+            };
+          };
+        },
+        {
+          name: "delegationRecordVault";
+          writable: true;
+          pda: {
+            seeds: [
+              {
+                kind: "const";
+                value: [100, 101, 108, 101, 103, 97, 116, 105, 111, 110];
+              },
+              {
+                kind: "account";
+                path: "vault";
+              },
+            ];
+            program: {
+              kind: "account";
+              path: "delegationProgram";
+            };
+          };
+        },
+        {
+          name: "delegationMetadataVault";
+          writable: true;
+          pda: {
+            seeds: [
+              {
+                kind: "const";
+                value: [
+                  100,
+                  101,
+                  108,
+                  101,
+                  103,
+                  97,
+                  116,
+                  105,
+                  111,
+                  110,
+                  45,
+                  109,
+                  101,
+                  116,
+                  97,
+                  100,
+                  97,
+                  116,
+                  97,
+                ];
+              },
+              {
+                kind: "account";
+                path: "vault";
+              },
+            ];
+            program: {
+              kind: "account";
+              path: "delegationProgram";
+            };
+          };
+        },
+        {
+          name: "vault";
+          writable: true;
+        },
+        {
+          name: "ownerProgram";
+          address: "7mTtHsFMYnZRnhd3SRzhj8Nm1U2T3s33dnbJwa9zBErW";
+        },
+        {
+          name: "delegationProgram";
+          address: "DELeGGvXpWV2fqJUhqcF5ZSYMS4JTLjteaAMARRSaeSh";
+        },
+        {
+          name: "systemProgram";
+          address: "11111111111111111111111111111111";
+        },
+      ];
+      args: [
+        {
+          name: "slot";
+          type: "u8";
+        },
+      ];
+    },
+    {
+      name: "delegateMarket";
+      discriminator: [223, 125, 110, 148, 99, 176, 143, 72];
+      accounts: [
+        {
+          name: "payer";
+          writable: true;
+          signer: true;
+        },
+        {
+          name: "table";
+          pda: {
+            seeds: [
+              {
+                kind: "const";
+                value: [116, 97, 98, 108, 101];
+              },
+              {
+                kind: "account";
+                path: "payer";
+              },
+            ];
+          };
+        },
+        {
+          name: "bufferMarket";
+          writable: true;
+          pda: {
+            seeds: [
+              {
+                kind: "const";
+                value: [98, 117, 102, 102, 101, 114];
+              },
+              {
+                kind: "account";
+                path: "market";
+              },
+            ];
+            program: {
+              kind: "const";
+              value: [
+                100,
+                138,
+                19,
+                74,
+                196,
+                109,
+                85,
+                33,
+                73,
+                28,
+                184,
+                108,
+                4,
+                90,
+                142,
+                233,
+                103,
+                187,
+                253,
+                10,
+                187,
+                122,
+                89,
+                9,
+                217,
+                28,
+                57,
+                82,
+                39,
+                210,
+                207,
+                107,
+              ];
+            };
+          };
+        },
+        {
+          name: "delegationRecordMarket";
+          writable: true;
+          pda: {
+            seeds: [
+              {
+                kind: "const";
+                value: [100, 101, 108, 101, 103, 97, 116, 105, 111, 110];
+              },
+              {
+                kind: "account";
+                path: "market";
+              },
+            ];
+            program: {
+              kind: "account";
+              path: "delegationProgram";
+            };
+          };
+        },
+        {
+          name: "delegationMetadataMarket";
+          writable: true;
+          pda: {
+            seeds: [
+              {
+                kind: "const";
+                value: [
+                  100,
+                  101,
+                  108,
+                  101,
+                  103,
+                  97,
+                  116,
+                  105,
+                  111,
+                  110,
+                  45,
+                  109,
+                  101,
+                  116,
+                  97,
+                  100,
+                  97,
+                  116,
+                  97,
+                ];
+              },
+              {
+                kind: "account";
+                path: "market";
+              },
+            ];
+            program: {
+              kind: "account";
+              path: "delegationProgram";
+            };
+          };
+        },
+        {
+          name: "market";
+          writable: true;
+        },
+        {
+          name: "ownerProgram";
+          address: "7mTtHsFMYnZRnhd3SRzhj8Nm1U2T3s33dnbJwa9zBErW";
+        },
+        {
+          name: "delegationProgram";
+          address: "DELeGGvXpWV2fqJUhqcF5ZSYMS4JTLjteaAMARRSaeSh";
+        },
+        {
+          name: "systemProgram";
+          address: "11111111111111111111111111111111";
+        },
+      ];
+      args: [
+        {
+          name: "kind";
+          type: "u8";
+        },
+      ];
+    },
+    {
+      name: "delegateMempool";
+      discriminator: [9, 177, 63, 112, 230, 102, 122, 214];
+      accounts: [
+        {
+          name: "payer";
+          writable: true;
+          signer: true;
+        },
+        {
+          name: "table";
+          pda: {
+            seeds: [
+              {
+                kind: "const";
+                value: [116, 97, 98, 108, 101];
+              },
+              {
+                kind: "account";
+                path: "payer";
+              },
+            ];
+          };
+        },
+        {
+          name: "bufferMempool";
+          writable: true;
+          pda: {
+            seeds: [
+              {
+                kind: "const";
+                value: [98, 117, 102, 102, 101, 114];
+              },
+              {
+                kind: "account";
+                path: "mempool";
+              },
+            ];
+            program: {
+              kind: "const";
+              value: [
+                100,
+                138,
+                19,
+                74,
+                196,
+                109,
+                85,
+                33,
+                73,
+                28,
+                184,
+                108,
+                4,
+                90,
+                142,
+                233,
+                103,
+                187,
+                253,
+                10,
+                187,
+                122,
+                89,
+                9,
+                217,
+                28,
+                57,
+                82,
+                39,
+                210,
+                207,
+                107,
+              ];
+            };
+          };
+        },
+        {
+          name: "delegationRecordMempool";
+          writable: true;
+          pda: {
+            seeds: [
+              {
+                kind: "const";
+                value: [100, 101, 108, 101, 103, 97, 116, 105, 111, 110];
+              },
+              {
+                kind: "account";
+                path: "mempool";
+              },
+            ];
+            program: {
+              kind: "account";
+              path: "delegationProgram";
+            };
+          };
+        },
+        {
+          name: "delegationMetadataMempool";
+          writable: true;
+          pda: {
+            seeds: [
+              {
+                kind: "const";
+                value: [
+                  100,
+                  101,
+                  108,
+                  101,
+                  103,
+                  97,
+                  116,
+                  105,
+                  111,
+                  110,
+                  45,
+                  109,
+                  101,
+                  116,
+                  97,
+                  100,
+                  97,
+                  116,
+                  97,
+                ];
+              },
+              {
+                kind: "account";
+                path: "mempool";
+              },
+            ];
+            program: {
+              kind: "account";
+              path: "delegationProgram";
+            };
+          };
+        },
+        {
+          name: "mempool";
+          writable: true;
+          pda: {
+            seeds: [
+              {
+                kind: "const";
+                value: [109, 101, 109, 112, 111, 111, 108];
               },
               {
                 kind: "account";
@@ -1037,6 +1934,174 @@ export type Insider = {
       args: [];
     },
     {
+      name: "delegateXray";
+      discriminator: [113, 181, 65, 86, 134, 236, 16, 218];
+      accounts: [
+        {
+          name: "payer";
+          writable: true;
+          signer: true;
+        },
+        {
+          name: "table";
+          pda: {
+            seeds: [
+              {
+                kind: "const";
+                value: [116, 97, 98, 108, 101];
+              },
+              {
+                kind: "account";
+                path: "payer";
+              },
+            ];
+          };
+        },
+        {
+          name: "bufferXray";
+          writable: true;
+          pda: {
+            seeds: [
+              {
+                kind: "const";
+                value: [98, 117, 102, 102, 101, 114];
+              },
+              {
+                kind: "account";
+                path: "xray";
+              },
+            ];
+            program: {
+              kind: "const";
+              value: [
+                100,
+                138,
+                19,
+                74,
+                196,
+                109,
+                85,
+                33,
+                73,
+                28,
+                184,
+                108,
+                4,
+                90,
+                142,
+                233,
+                103,
+                187,
+                253,
+                10,
+                187,
+                122,
+                89,
+                9,
+                217,
+                28,
+                57,
+                82,
+                39,
+                210,
+                207,
+                107,
+              ];
+            };
+          };
+        },
+        {
+          name: "delegationRecordXray";
+          writable: true;
+          pda: {
+            seeds: [
+              {
+                kind: "const";
+                value: [100, 101, 108, 101, 103, 97, 116, 105, 111, 110];
+              },
+              {
+                kind: "account";
+                path: "xray";
+              },
+            ];
+            program: {
+              kind: "account";
+              path: "delegationProgram";
+            };
+          };
+        },
+        {
+          name: "delegationMetadataXray";
+          writable: true;
+          pda: {
+            seeds: [
+              {
+                kind: "const";
+                value: [
+                  100,
+                  101,
+                  108,
+                  101,
+                  103,
+                  97,
+                  116,
+                  105,
+                  111,
+                  110,
+                  45,
+                  109,
+                  101,
+                  116,
+                  97,
+                  100,
+                  97,
+                  116,
+                  97,
+                ];
+              },
+              {
+                kind: "account";
+                path: "xray";
+              },
+            ];
+            program: {
+              kind: "account";
+              path: "delegationProgram";
+            };
+          };
+        },
+        {
+          name: "xray";
+          writable: true;
+          pda: {
+            seeds: [
+              {
+                kind: "const";
+                value: [120, 114, 97, 121];
+              },
+              {
+                kind: "account";
+                path: "table";
+              },
+            ];
+          };
+        },
+        {
+          name: "ownerProgram";
+          address: "7mTtHsFMYnZRnhd3SRzhj8Nm1U2T3s33dnbJwa9zBErW";
+        },
+        {
+          name: "delegationProgram";
+          address: "DELeGGvXpWV2fqJUhqcF5ZSYMS4JTLjteaAMARRSaeSh";
+        },
+        {
+          name: "systemProgram";
+          address: "11111111111111111111111111111111";
+        },
+      ];
+      args: [];
+    },
+    {
       name: "finishRound";
       discriminator: [23, 104, 163, 186, 110, 225, 11, 242];
       accounts: [
@@ -1156,6 +2221,54 @@ export type Insider = {
       args: [];
     },
     {
+      name: "initBoard";
+      discriminator: [99, 74, 129, 223, 26, 254, 94, 217];
+      accounts: [
+        {
+          name: "authority";
+          writable: true;
+          signer: true;
+          relations: ["table"];
+        },
+        {
+          name: "table";
+          pda: {
+            seeds: [
+              {
+                kind: "const";
+                value: [116, 97, 98, 108, 101];
+              },
+              {
+                kind: "account";
+                path: "authority";
+              },
+            ];
+          };
+        },
+        {
+          name: "board";
+          writable: true;
+          pda: {
+            seeds: [
+              {
+                kind: "const";
+                value: [98, 111, 97, 114, 100];
+              },
+              {
+                kind: "account";
+                path: "table";
+              },
+            ];
+          };
+        },
+        {
+          name: "systemProgram";
+          address: "11111111111111111111111111111111";
+        },
+      ];
+      args: [];
+    },
+    {
       name: "initCallBook";
       discriminator: [101, 221, 116, 40, 21, 29, 243, 44];
       accounts: [
@@ -1202,6 +2315,245 @@ export type Insider = {
         },
       ];
       args: [];
+    },
+    {
+      name: "initFuture";
+      discriminator: [133, 160, 199, 213, 163, 124, 138, 69];
+      accounts: [
+        {
+          name: "authority";
+          writable: true;
+          signer: true;
+          relations: ["table"];
+        },
+        {
+          name: "table";
+          pda: {
+            seeds: [
+              {
+                kind: "const";
+                value: [116, 97, 98, 108, 101];
+              },
+              {
+                kind: "account";
+                path: "authority";
+              },
+            ];
+          };
+        },
+        {
+          name: "future";
+          writable: true;
+          pda: {
+            seeds: [
+              {
+                kind: "const";
+                value: [102, 117, 116, 117, 114, 101];
+              },
+              {
+                kind: "account";
+                path: "table";
+              },
+            ];
+          };
+        },
+        {
+          name: "systemProgram";
+          address: "11111111111111111111111111111111";
+        },
+      ];
+      args: [];
+    },
+    {
+      name: "initLeakVault";
+      discriminator: [134, 132, 27, 73, 132, 36, 111, 26];
+      accounts: [
+        {
+          name: "authority";
+          writable: true;
+          signer: true;
+          relations: ["table"];
+        },
+        {
+          name: "table";
+          pda: {
+            seeds: [
+              {
+                kind: "const";
+                value: [116, 97, 98, 108, 101];
+              },
+              {
+                kind: "account";
+                path: "authority";
+              },
+            ];
+          };
+        },
+        {
+          name: "vault";
+          writable: true;
+        },
+        {
+          name: "systemProgram";
+          address: "11111111111111111111111111111111";
+        },
+      ];
+      args: [
+        {
+          name: "slot";
+          type: "u8";
+        },
+      ];
+    },
+    {
+      name: "initMarket";
+      discriminator: [33, 253, 15, 116, 89, 25, 127, 236];
+      accounts: [
+        {
+          name: "authority";
+          writable: true;
+          signer: true;
+          relations: ["table"];
+        },
+        {
+          name: "table";
+          pda: {
+            seeds: [
+              {
+                kind: "const";
+                value: [116, 97, 98, 108, 101];
+              },
+              {
+                kind: "account";
+                path: "authority";
+              },
+            ];
+          };
+        },
+        {
+          name: "market";
+          writable: true;
+        },
+        {
+          name: "systemProgram";
+          address: "11111111111111111111111111111111";
+        },
+      ];
+      args: [
+        {
+          name: "kind";
+          type: "u8";
+        },
+      ];
+    },
+    {
+      name: "initMempool";
+      discriminator: [64, 29, 80, 152, 234, 209, 210, 154];
+      accounts: [
+        {
+          name: "authority";
+          writable: true;
+          signer: true;
+          relations: ["table"];
+        },
+        {
+          name: "table";
+          pda: {
+            seeds: [
+              {
+                kind: "const";
+                value: [116, 97, 98, 108, 101];
+              },
+              {
+                kind: "account";
+                path: "authority";
+              },
+            ];
+          };
+        },
+        {
+          name: "mempool";
+          writable: true;
+          pda: {
+            seeds: [
+              {
+                kind: "const";
+                value: [109, 101, 109, 112, 111, 111, 108];
+              },
+              {
+                kind: "account";
+                path: "table";
+              },
+            ];
+          };
+        },
+        {
+          name: "systemProgram";
+          address: "11111111111111111111111111111111";
+        },
+      ];
+      args: [];
+    },
+    {
+      name: "initPermission";
+      discriminator: [66, 14, 153, 250, 187, 36, 179, 236];
+      accounts: [
+        {
+          name: "authority";
+          signer: true;
+          relations: ["table"];
+        },
+        {
+          name: "table";
+        },
+        {
+          name: "target";
+          writable: true;
+        },
+        {
+          name: "permission";
+          writable: true;
+          pda: {
+            seeds: [
+              {
+                kind: "const";
+                value: [112, 101, 114, 109, 105, 115, 115, 105, 111, 110, 58];
+              },
+              {
+                kind: "account";
+                path: "target";
+              },
+            ];
+            program: {
+              kind: "account";
+              path: "permissionProgram";
+            };
+          };
+        },
+        {
+          name: "permissionProgram";
+          address: "ACLseoPoyC3cBqoUtkbjZ4aDrkurZW86v19pXz2XQnp1";
+        },
+        {
+          name: "ephemeralVault";
+          writable: true;
+          address: "MagicVau1t999999999999999999999999999999999";
+        },
+        {
+          name: "magicProgram";
+          address: "Magic11111111111111111111111111111111111111";
+        },
+      ];
+      args: [
+        {
+          name: "target";
+          type: "u8";
+        },
+        {
+          name: "slot";
+          type: "u8";
+        },
+      ];
     },
     {
       name: "initSeason";
@@ -1384,6 +2736,54 @@ export type Insider = {
       args: [];
     },
     {
+      name: "initXray";
+      discriminator: [177, 142, 117, 200, 75, 241, 241, 115];
+      accounts: [
+        {
+          name: "authority";
+          writable: true;
+          signer: true;
+          relations: ["table"];
+        },
+        {
+          name: "table";
+          pda: {
+            seeds: [
+              {
+                kind: "const";
+                value: [116, 97, 98, 108, 101];
+              },
+              {
+                kind: "account";
+                path: "authority";
+              },
+            ];
+          };
+        },
+        {
+          name: "xray";
+          writable: true;
+          pda: {
+            seeds: [
+              {
+                kind: "const";
+                value: [120, 114, 97, 121];
+              },
+              {
+                kind: "account";
+                path: "table";
+              },
+            ];
+          };
+        },
+        {
+          name: "systemProgram";
+          address: "11111111111111111111111111111111";
+        },
+      ];
+      args: [];
+    },
+    {
       name: "listLeak";
       discriminator: [196, 50, 174, 101, 144, 87, 37, 28];
       accounts: [
@@ -1476,6 +2876,174 @@ export type Insider = {
           type: "u32";
         },
       ];
+    },
+    {
+      name: "openEpoch";
+      discriminator: [75, 57, 218, 33, 173, 254, 207, 136];
+      accounts: [
+        {
+          name: "payer";
+          writable: true;
+          signer: true;
+        },
+        {
+          name: "table";
+          pda: {
+            seeds: [
+              {
+                kind: "const";
+                value: [116, 97, 98, 108, 101];
+              },
+              {
+                kind: "account";
+                path: "payer";
+              },
+            ];
+          };
+        },
+        {
+          name: "bufferSeason";
+          writable: true;
+          pda: {
+            seeds: [
+              {
+                kind: "const";
+                value: [98, 117, 102, 102, 101, 114];
+              },
+              {
+                kind: "account";
+                path: "season";
+              },
+            ];
+            program: {
+              kind: "const";
+              value: [
+                100,
+                138,
+                19,
+                74,
+                196,
+                109,
+                85,
+                33,
+                73,
+                28,
+                184,
+                108,
+                4,
+                90,
+                142,
+                233,
+                103,
+                187,
+                253,
+                10,
+                187,
+                122,
+                89,
+                9,
+                217,
+                28,
+                57,
+                82,
+                39,
+                210,
+                207,
+                107,
+              ];
+            };
+          };
+        },
+        {
+          name: "delegationRecordSeason";
+          writable: true;
+          pda: {
+            seeds: [
+              {
+                kind: "const";
+                value: [100, 101, 108, 101, 103, 97, 116, 105, 111, 110];
+              },
+              {
+                kind: "account";
+                path: "season";
+              },
+            ];
+            program: {
+              kind: "account";
+              path: "delegationProgram";
+            };
+          };
+        },
+        {
+          name: "delegationMetadataSeason";
+          writable: true;
+          pda: {
+            seeds: [
+              {
+                kind: "const";
+                value: [
+                  100,
+                  101,
+                  108,
+                  101,
+                  103,
+                  97,
+                  116,
+                  105,
+                  111,
+                  110,
+                  45,
+                  109,
+                  101,
+                  116,
+                  97,
+                  100,
+                  97,
+                  116,
+                  97,
+                ];
+              },
+              {
+                kind: "account";
+                path: "season";
+              },
+            ];
+            program: {
+              kind: "account";
+              path: "delegationProgram";
+            };
+          };
+        },
+        {
+          name: "season";
+          writable: true;
+          pda: {
+            seeds: [
+              {
+                kind: "const";
+                value: [115, 101, 97, 115, 111, 110];
+              },
+              {
+                kind: "account";
+                path: "table";
+              },
+            ];
+          };
+        },
+        {
+          name: "ownerProgram";
+          address: "7mTtHsFMYnZRnhd3SRzhj8Nm1U2T3s33dnbJwa9zBErW";
+        },
+        {
+          name: "delegationProgram";
+          address: "DELeGGvXpWV2fqJUhqcF5ZSYMS4JTLjteaAMARRSaeSh";
+        },
+        {
+          name: "systemProgram";
+          address: "11111111111111111111111111111111";
+        },
+      ];
+      args: [];
     },
     {
       name: "openLeak";
@@ -1711,6 +3279,112 @@ export type Insider = {
       ];
     },
     {
+      name: "requestRoundSeed";
+      discriminator: [228, 76, 146, 186, 12, 30, 244, 166];
+      accounts: [
+        {
+          name: "payer";
+          writable: true;
+          signer: true;
+        },
+        {
+          name: "table";
+          writable: true;
+        },
+        {
+          name: "board";
+          pda: {
+            seeds: [
+              {
+                kind: "const";
+                value: [98, 111, 97, 114, 100];
+              },
+              {
+                kind: "account";
+                path: "table";
+              },
+            ];
+          };
+        },
+        {
+          name: "xray";
+          pda: {
+            seeds: [
+              {
+                kind: "const";
+                value: [120, 114, 97, 121];
+              },
+              {
+                kind: "account";
+                path: "table";
+              },
+            ];
+          };
+        },
+        {
+          name: "market";
+        },
+        {
+          name: "mempool";
+          pda: {
+            seeds: [
+              {
+                kind: "const";
+                value: [109, 101, 109, 112, 111, 111, 108];
+              },
+              {
+                kind: "account";
+                path: "table";
+              },
+            ];
+          };
+        },
+        {
+          name: "future";
+          pda: {
+            seeds: [
+              {
+                kind: "const";
+                value: [102, 117, 116, 117, 114, 101];
+              },
+              {
+                kind: "account";
+                path: "table";
+              },
+            ];
+          };
+        },
+        {
+          name: "oracleQueue";
+          writable: true;
+        },
+        {
+          name: "programIdentity";
+          pda: {
+            seeds: [
+              {
+                kind: "const";
+                value: [105, 100, 101, 110, 116, 105, 116, 121];
+              },
+            ];
+          };
+        },
+        {
+          name: "vrfProgram";
+          address: "Vrf1RNUjXmQGjmQrQLvJHs9SNkvDJEsRVFPkfSQUwGz";
+        },
+        {
+          name: "slotHashes";
+          address: "SysvarS1otHashes111111111111111111111111111";
+        },
+        {
+          name: "systemProgram";
+          address: "11111111111111111111111111111111";
+        },
+      ];
+      args: [];
+    },
+    {
       name: "resealLeaks";
       discriminator: [17, 35, 11, 191, 25, 211, 239, 131];
       accounts: [
@@ -1774,6 +3448,97 @@ export type Insider = {
         {
           name: "slotTo";
           type: "u8";
+        },
+      ];
+    },
+    {
+      name: "roundSeedCallback";
+      discriminator: [168, 118, 14, 48, 47, 43, 151, 37];
+      accounts: [
+        {
+          name: "vrfProgramIdentity";
+          signer: true;
+          address: "GSpmeHVR2ZmJpxuv4aWr9yyFRjTS4y5wahZMhbUD6caU";
+        },
+        {
+          name: "table";
+          writable: true;
+        },
+        {
+          name: "market";
+          writable: true;
+        },
+        {
+          name: "mempool";
+          writable: true;
+          pda: {
+            seeds: [
+              {
+                kind: "const";
+                value: [109, 101, 109, 112, 111, 111, 108];
+              },
+              {
+                kind: "account";
+                path: "table";
+              },
+            ];
+          };
+        },
+        {
+          name: "future";
+          writable: true;
+          pda: {
+            seeds: [
+              {
+                kind: "const";
+                value: [102, 117, 116, 117, 114, 101];
+              },
+              {
+                kind: "account";
+                path: "table";
+              },
+            ];
+          };
+        },
+        {
+          name: "board";
+          writable: true;
+          pda: {
+            seeds: [
+              {
+                kind: "const";
+                value: [98, 111, 97, 114, 100];
+              },
+              {
+                kind: "account";
+                path: "table";
+              },
+            ];
+          };
+        },
+        {
+          name: "xray";
+          writable: true;
+          pda: {
+            seeds: [
+              {
+                kind: "const";
+                value: [120, 114, 97, 121];
+              },
+              {
+                kind: "account";
+                path: "table";
+              },
+            ];
+          };
+        },
+      ];
+      args: [
+        {
+          name: "randomness";
+          type: {
+            array: ["u8", 32];
+          };
         },
       ];
     },
@@ -1896,6 +3661,89 @@ export type Insider = {
           name: "crankSigner";
           signer: true;
         },
+        {
+          name: "market";
+          writable: true;
+        },
+        {
+          name: "mempool";
+          writable: true;
+          pda: {
+            seeds: [
+              {
+                kind: "const";
+                value: [109, 101, 109, 112, 111, 111, 108];
+              },
+              {
+                kind: "account";
+                path: "table";
+              },
+            ];
+          };
+        },
+        {
+          name: "future";
+          pda: {
+            seeds: [
+              {
+                kind: "const";
+                value: [102, 117, 116, 117, 114, 101];
+              },
+              {
+                kind: "account";
+                path: "table";
+              },
+            ];
+          };
+        },
+        {
+          name: "board";
+          writable: true;
+          pda: {
+            seeds: [
+              {
+                kind: "const";
+                value: [98, 111, 97, 114, 100];
+              },
+              {
+                kind: "account";
+                path: "table";
+              },
+            ];
+          };
+        },
+        {
+          name: "xray";
+          writable: true;
+          pda: {
+            seeds: [
+              {
+                kind: "const";
+                value: [120, 114, 97, 121];
+              },
+              {
+                kind: "account";
+                path: "table";
+              },
+            ];
+          };
+        },
+        {
+          name: "tape";
+          writable: true;
+          pda: {
+            seeds: [
+              {
+                kind: "const";
+                value: [116, 97, 112, 101];
+              },
+              {
+                kind: "account";
+                path: "table";
+              },
+            ];
+          };
+        },
       ];
       args: [];
     },
@@ -1908,6 +3756,10 @@ export type Insider = {
     {
       name: "callBook";
       discriminator: [52, 34, 142, 98, 147, 247, 104, 191];
+    },
+    {
+      name: "future";
+      discriminator: [245, 58, 174, 171, 44, 10, 224, 48];
     },
     {
       name: "leakVault";
@@ -2077,6 +3929,36 @@ export type Insider = {
       code: 6026;
       name: "liquidated";
       msg: "Seat is liquidated";
+    },
+    {
+      code: 6027;
+      name: "invalidMarket";
+      msg: "Invalid market kind";
+    },
+    {
+      code: 6028;
+      name: "invalidPermissionTarget";
+      msg: "Not the expected account for this permission";
+    },
+    {
+      code: 6029;
+      name: "invalidEngineAccount";
+      msg: "An engine account does not match the table";
+    },
+    {
+      code: 6030;
+      name: "roundNotClosed";
+      msg: "The previous round is not finished and resealed yet";
+    },
+    {
+      code: 6031;
+      name: "epochNotOver";
+      msg: "The epoch is not over or its last round is not scored yet";
+    },
+    {
+      code: 6032;
+      name: "seasonDelegated";
+      msg: "The season is still delegated to the rollup";
     },
   ];
   types: [
@@ -2339,6 +4221,56 @@ export type Insider = {
           {
             name: "landedTick";
             type: "u16";
+          },
+        ];
+      };
+    },
+    {
+      name: "future";
+      docs: ["Private fundamental path."];
+      serialization: "bytemuck";
+      repr: {
+        kind: "c";
+      };
+      type: {
+        kind: "struct";
+        fields: [
+          {
+            name: "roundId";
+            type: "u32";
+          },
+          {
+            name: "shockCount";
+            type: "u8";
+          },
+          {
+            name: "bump";
+            type: "u8";
+          },
+          {
+            name: "pad";
+            type: {
+              array: ["u8", 2];
+            };
+          },
+          {
+            name: "shocks";
+            type: {
+              array: [
+                {
+                  defined: {
+                    name: "shock";
+                  };
+                },
+                4,
+              ];
+            };
+          },
+          {
+            name: "path";
+            type: {
+              array: ["u32", 192];
+            };
           },
         ];
       };
@@ -2983,6 +4915,36 @@ export type Insider = {
           {
             name: "sentTick";
             type: "u16";
+          },
+        ];
+      };
+    },
+    {
+      name: "shock";
+      serialization: "bytemuck";
+      repr: {
+        kind: "c";
+      };
+      type: {
+        kind: "struct";
+        fields: [
+          {
+            name: "tick";
+            type: "u16";
+          },
+          {
+            name: "bps";
+            type: "i16";
+          },
+          {
+            name: "len";
+            type: "u8";
+          },
+          {
+            name: "pad";
+            type: {
+              array: ["u8", 3];
+            };
           },
         ];
       };

@@ -66,4 +66,8 @@ pub enum InsiderError {
     InvalidEngineAccount,
     #[msg("The previous round is not finished and resealed yet")]
     RoundNotClosed,
+    #[msg("The epoch is not over or its last round is not scored yet")]
+    EpochNotOver,
+    #[msg("The season is still delegated to the rollup")]
+    SeasonDelegated,
 }
