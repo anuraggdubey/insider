@@ -494,6 +494,213 @@
       "args": []
     },
     {
+      "name": "cup_close",
+      "discriminator": [
+        16,
+        223,
+        231,
+        38,
+        161,
+        1,
+        39,
+        34
+      ],
+      "accounts": [
+        {
+          "name": "operator",
+          "signer": true
+        },
+        {
+          "name": "table"
+        },
+        {
+          "name": "cup",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  117,
+                  112
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "table"
+              }
+            ]
+          }
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "cup_join",
+      "discriminator": [
+        176,
+        178,
+        245,
+        199,
+        214,
+        167,
+        226,
+        159
+      ],
+      "accounts": [
+        {
+          "name": "owner",
+          "signer": true
+        },
+        {
+          "name": "operator",
+          "docs": [
+            "The operator: the table authority, who confirmed the buy-in."
+          ],
+          "signer": true
+        },
+        {
+          "name": "table"
+        },
+        {
+          "name": "seat"
+        },
+        {
+          "name": "cup",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  117,
+                  112
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "table"
+              }
+            ]
+          }
+        }
+      ],
+      "args": [
+        {
+          "name": "index",
+          "type": "u8"
+        }
+      ]
+    },
+    {
+      "name": "cup_record",
+      "discriminator": [
+        122,
+        112,
+        255,
+        126,
+        222,
+        97,
+        52,
+        236
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "signer": true
+        },
+        {
+          "name": "table"
+        },
+        {
+          "name": "xray",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  120,
+                  114,
+                  97,
+                  121
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "table"
+              }
+            ]
+          }
+        },
+        {
+          "name": "cup",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  117,
+                  112
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "table"
+              }
+            ]
+          }
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "cup_settle",
+      "discriminator": [
+        142,
+        246,
+        225,
+        25,
+        197,
+        44,
+        86,
+        29
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "signer": true
+        },
+        {
+          "name": "table"
+        },
+        {
+          "name": "cup",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  117,
+                  112
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "table"
+              }
+            ]
+          }
+        }
+      ],
+      "args": []
+    },
+    {
       "name": "delegate_board",
       "discriminator": [
         111,
@@ -1103,6 +1310,211 @@
           "type": "u8"
         }
       ]
+    },
+    {
+      "name": "delegate_cup",
+      "discriminator": [
+        96,
+        167,
+        92,
+        49,
+        185,
+        18,
+        114,
+        118
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "table",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  116,
+                  97,
+                  98,
+                  108,
+                  101
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "payer"
+              }
+            ]
+          }
+        },
+        {
+          "name": "buffer_cup",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  117,
+                  102,
+                  102,
+                  101,
+                  114
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "cup"
+              }
+            ],
+            "program": {
+              "kind": "const",
+              "value": [
+                100,
+                138,
+                19,
+                74,
+                196,
+                109,
+                85,
+                33,
+                73,
+                28,
+                184,
+                108,
+                4,
+                90,
+                142,
+                233,
+                103,
+                187,
+                253,
+                10,
+                187,
+                122,
+                89,
+                9,
+                217,
+                28,
+                57,
+                82,
+                39,
+                210,
+                207,
+                107
+              ]
+            }
+          }
+        },
+        {
+          "name": "delegation_record_cup",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  100,
+                  101,
+                  108,
+                  101,
+                  103,
+                  97,
+                  116,
+                  105,
+                  111,
+                  110
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "cup"
+              }
+            ],
+            "program": {
+              "kind": "account",
+              "path": "delegation_program"
+            }
+          }
+        },
+        {
+          "name": "delegation_metadata_cup",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  100,
+                  101,
+                  108,
+                  101,
+                  103,
+                  97,
+                  116,
+                  105,
+                  111,
+                  110,
+                  45,
+                  109,
+                  101,
+                  116,
+                  97,
+                  100,
+                  97,
+                  116,
+                  97
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "cup"
+              }
+            ],
+            "program": {
+              "kind": "account",
+              "path": "delegation_program"
+            }
+          }
+        },
+        {
+          "name": "cup",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  117,
+                  112
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "table"
+              }
+            ]
+          }
+        },
+        {
+          "name": "owner_program",
+          "address": "7mTtHsFMYnZRnhd3SRzhj8Nm1U2T3s33dnbJwa9zBErW"
+        },
+        {
+          "name": "delegation_program",
+          "address": "DELeGGvXpWV2fqJUhqcF5ZSYMS4JTLjteaAMARRSaeSh"
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": []
     },
     {
       "name": "delegate_future",
@@ -3260,13 +3672,13 @@
         {
           "name": "authority",
           "writable": true,
-          "signer": true,
-          "relations": [
-            "table"
-          ]
+          "signer": true
         },
         {
           "name": "table",
+          "docs": [
+            "layer; its seeds tie it to `authority`, which is what the old `has_one` proved."
+          ],
           "pda": {
             "seeds": [
               {
@@ -3301,6 +3713,75 @@
           "type": "u8"
         }
       ]
+    },
+    {
+      "name": "init_cup",
+      "discriminator": [
+        195,
+        113,
+        77,
+        240,
+        182,
+        192,
+        177,
+        37
+      ],
+      "accounts": [
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "table",
+          "docs": [
+            "its seeds tie it to `authority`."
+          ],
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  116,
+                  97,
+                  98,
+                  108,
+                  101
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "authority"
+              }
+            ]
+          }
+        },
+        {
+          "name": "cup",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  117,
+                  112
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "table"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": []
     },
     {
       "name": "init_future",
@@ -3448,13 +3929,13 @@
         {
           "name": "authority",
           "writable": true,
-          "signer": true,
-          "relations": [
-            "table"
-          ]
+          "signer": true
         },
         {
           "name": "table",
+          "docs": [
+            "layer; its seeds tie it to `authority`, which is what the old `has_one` proved."
+          ],
           "pda": {
             "seeds": [
               {
@@ -5499,6 +5980,19 @@
       ]
     },
     {
+      "name": "Cup",
+      "discriminator": [
+        71,
+        249,
+        44,
+        247,
+        22,
+        4,
+        162,
+        124
+      ]
+    },
+    {
       "name": "Future",
       "discriminator": [
         245,
@@ -5821,6 +6315,31 @@
       "code": 6040,
       "name": "DeskLimit",
       "msg": "Desk order or position limit"
+    },
+    {
+      "code": 6041,
+      "name": "NotHumanSeat",
+      "msg": "Only human seats can enter the Alpha Cup"
+    },
+    {
+      "code": 6042,
+      "name": "CupAlreadyJoined",
+      "msg": "This seat is already in the cup"
+    },
+    {
+      "code": 6043,
+      "name": "CupStarted",
+      "msg": "The cup has started or is waiting to be paid: no entries now"
+    },
+    {
+      "code": 6044,
+      "name": "CupNothingToRecord",
+      "msg": "This round cannot be recorded into the cup"
+    },
+    {
+      "code": 6045,
+      "name": "CupNotReady",
+      "msg": "The cup is not ready for this"
     }
   ],
   "types": [
@@ -6079,6 +6598,111 @@
           {
             "name": "_pad",
             "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Cup",
+      "docs": [
+        "The Alpha Cup: five rounds, human seats only, the top three are paid. The program only keeps",
+        "entries, scores and the ranking; the buy-ins and the prizes move through Private Payments, signed",
+        "by the operator (the table authority), who also co-signs every `cup_join` after seeing the buy-in."
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "cup_id",
+            "type": "u32"
+          },
+          {
+            "name": "rounds_recorded",
+            "type": "u8"
+          },
+          {
+            "name": "last_round",
+            "docs": [
+              "The last round whose scores were added (a round is counted once)."
+            ],
+            "type": "u32"
+          },
+          {
+            "name": "entries",
+            "type": {
+              "array": [
+                {
+                  "defined": {
+                    "name": "CupEntry"
+                  }
+                },
+                3
+              ]
+            }
+          },
+          {
+            "name": "settled",
+            "type": "bool"
+          },
+          {
+            "name": "entrants",
+            "docs": [
+              "Entrants at settlement, and the ranking: winners with their share of the prize pool in basis",
+              "points (the platform fee is taken off the pot before this split)."
+            ],
+            "type": "u8"
+          },
+          {
+            "name": "winners",
+            "type": {
+              "array": [
+                "pubkey",
+                3
+              ]
+            }
+          },
+          {
+            "name": "winner_bps",
+            "type": {
+              "array": [
+                "u16",
+                3
+              ]
+            }
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "CupEntry",
+      "docs": [
+        "One entrant: a human seat that bought in."
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "owner",
+            "type": "pubkey"
+          },
+          {
+            "name": "seat",
+            "type": "u8"
+          },
+          {
+            "name": "joined",
+            "type": "bool"
+          },
+          {
+            "name": "score",
+            "docs": [
+              "Sum of the entrant's round scores over the cup."
+            ],
+            "type": "i64"
           }
         ]
       }

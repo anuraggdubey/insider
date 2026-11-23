@@ -2,6 +2,7 @@ export const SEEDS = {
   board: "board",
   callBook: "callbook",
   callVault: "callvault",
+  cup: "cup",
   future: "future",
   leak: "leak",
   market: "market",

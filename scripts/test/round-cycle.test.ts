@@ -122,3 +122,51 @@ describe("shouldOpenEpoch", () => {
     expect(shouldOpenEpoch(true, 3, 1)).toBe(false);
   });
 });
+
+describe("the cup in the round cycle", () => {
+  const scored = (patch: Partial<CycleState> = {}) => state({ phase: "xray", ...patch });
+
+  it("counts the scored round for the cup before anything else, then settles it", () => {
+    expect(nextAction(scored({ cupRecordDue: true, readers: 2 }))).toBe("cup_record");
+    expect(nextAction(scored({ cupSettleDue: true, readers: 2 }))).toBe("cup_settle");
+    // the round must be scored first
+    expect(nextAction(scored({ cupRecordDue: true, xrayFinalized: false }))).toBe("finish_round");
+    // nothing due: the normal cycle goes on
+    expect(nextAction(scored({ readers: 1 }))).toBe("reseal_leaks");
+  });
+
+  it("builds the flags from the decoded cup", () => {
+    const table = {
+      phase: { idle: {} },
+      roundId: 7,
+      roundsThisEpoch: 1,
+      vrfPending: false,
+      vrfRequestedTick: 0,
+      tick: 200,
+    };
+    const board = { headers: [] as Array<{ readerCount: number }> };
+    const xray = { roundId: 7, finalized: 1 };
+    const cup = (patch = {}) => ({
+      lastRound: 6,
+      roundsRecorded: 2,
+      settled: false,
+      entries: [{ joined: true }, { joined: false }, { joined: false }],
+      ...patch,
+    });
+    expect(cycleStateFrom(table, board, xray, 0, cup())).toMatchObject({
+      cupRecordDue: true,
+      cupSettleDue: false,
+    });
+    // an empty cup, a recorded round, a settled cup or no cup at all: nothing to record
+    expect(
+      cycleStateFrom(table, board, xray, 0, cup({ entries: [{ joined: false }] })).cupRecordDue,
+    ).toBe(false);
+    expect(cycleStateFrom(table, board, xray, 0, cup({ lastRound: 7 })).cupRecordDue).toBe(false);
+    expect(cycleStateFrom(table, board, xray, 0, cup({ settled: true })).cupRecordDue).toBe(false);
+    expect(cycleStateFrom(table, board, xray, 0).cupRecordDue).toBe(false);
+    expect(cycleStateFrom(table, board, xray, 0, cup({ roundsRecorded: 5 }))).toMatchObject({
+      cupRecordDue: false,
+      cupSettleDue: true,
+    });
+  });
+});

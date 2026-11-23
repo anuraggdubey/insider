@@ -33,6 +33,8 @@ export const leakVaultPda = (table: PublicKey, slot: number, programId?: PublicK
   find([bytes(SEEDS.leak), table.toBytes(), oneByte(slot)], programId);
 export const xrayPda = (table: PublicKey, programId?: PublicKey) =>
   find([bytes(SEEDS.xray), table.toBytes()], programId);
+export const cupPda = (table: PublicKey, programId?: PublicKey) =>
+  find([bytes(SEEDS.cup), table.toBytes()], programId);
 export const callVaultPda = (table: PublicKey, slot: number, programId?: PublicKey) =>
   find([bytes(SEEDS.callVault), table.toBytes(), oneByte(slot)], programId);
 export const nobodyPda = (programId?: PublicKey) => find([bytes(SEEDS.nobody)], programId);
@@ -52,6 +54,7 @@ export function tableAccounts(authority: PublicKey, programId?: PublicKey) {
     board: boardPda(table, programId),
     leakVaults: Array.from({ length: LEAK_SLOTS }, (_, i) => leakVaultPda(table, i, programId)),
     xray: xrayPda(table, programId),
+    cup: cupPda(table, programId),
     callVaults: Array.from({ length: SEAT_COUNT }, (_, i) => callVaultPda(table, i, programId)),
     nobody: nobodyPda(programId),
   };

@@ -17,6 +17,7 @@ export { permissionPdaFromAccount };
 export const SEEDS = {
   board: "board",
   callVault: "callvault",
+  cup: "cup",
   future: "future",
   leak: "leak",
   market: "market",
@@ -69,6 +70,7 @@ export type TableAccounts = {
   season: PublicKey;
   market: PublicKey;
   desk: PublicKey;
+  cup: PublicKey;
   mempool: PublicKey;
   future: PublicKey;
   board: PublicKey;
@@ -87,6 +89,7 @@ export function tableAccounts(authority: PublicKey, programId = config.programId
     season: seasonPda(table, programId),
     market: marketPda(table, MARKET_FLOOR, programId),
     desk: marketPda(table, MARKET_DESK, programId),
+    cup: cupPda(table, programId),
     mempool: mempoolPda(table, programId),
     future: futurePda(table, programId),
     board: boardPda(table, programId),
@@ -99,6 +102,9 @@ export function tableAccounts(authority: PublicKey, programId = config.programId
 
 export const marketPda = (table: PublicKey, kind = MARKET_FLOOR, programId = config.programId) =>
   find([Buffer.from(SEEDS.market), table.toBuffer(), Buffer.from([kind])], programId);
+
+export const cupPda = (table: PublicKey, programId = config.programId) =>
+  find([Buffer.from(SEEDS.cup), table.toBuffer()], programId);
 
 export const callVaultPda = (table: PublicKey, slot: number, programId = config.programId) =>
   find([Buffer.from(SEEDS.callVault), table.toBuffer(), Buffer.from([slot])], programId);

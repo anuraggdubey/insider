@@ -22,6 +22,7 @@ export type MempoolAccount = Accounts["mempool"];
 export type SeasonAccount = Accounts["season"];
 export type CallBookAccount = Accounts["callBook"];
 export type CallVaultAccount = Accounts["callVault"];
+export type CupAccount = Accounts["cup"];
 export type FutureAccount = {
   roundId: number;
   shockCount: number;
@@ -46,6 +47,7 @@ export const decodeXray = (data: Buffer) => decodeAccount("xray", data);
 export const decodeSeason = (data: Buffer) => decodeAccount("season", data);
 export const decodeCallBook = (data: Buffer) => decodeAccount("callBook", data);
 export const decodeCallVault = (data: Buffer) => decodeAccount("callVault", data);
+export const decodeCup = (data: Buffer) => decodeAccount("cup", data);
 
 export function decodeFuture(data: Buffer): FutureAccount {
   const discriminator = [245, 58, 174, 171, 44, 10, 224, 48];

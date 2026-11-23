@@ -434,3 +434,40 @@ export function deskTrade(config: InsiderConfig, owner: PublicKey, index: number
     { owner, table: p.table, seat, market: p.desk, oracle: ORACLE_FEED },
   );
 }
+
+// ---- the Alpha Cup -----------------------------------------------------------------------------
+
+/**
+ * Enters the cup with a human seat. It needs two signatures: the seat owner and the operator (the
+ * table authority), who co-signs only after seeing the buy-in. Sign as the owner, then send the
+ * transaction to the operator service to be co-signed and submitted.
+ */
+export function cupJoin(config: InsiderConfig, owner: PublicKey, index: number) {
+  const p = addresses(config);
+  const seat = p.seats[index];
+  if (!seat) throw new RangeError("Invalid seat");
+  return build(
+    config,
+    "cupJoin",
+    { index },
+    { owner, operator: config.tableAuthority!, table: p.table, seat, cup: p.cup },
+  );
+}
+
+/** Anyone: after `finish_round`, adds the scored round to the cup (once per round). */
+export function cupRecord(config: InsiderConfig, payer: PublicKey) {
+  const p = addresses(config);
+  return build(config, "cupRecord", {}, { payer, table: p.table, xray: p.xray, cup: p.cup });
+}
+
+/** Anyone: after five recorded rounds, ranks the entrants and fixes the prize split. */
+export function cupSettle(config: InsiderConfig, payer: PublicKey) {
+  const p = addresses(config);
+  return build(config, "cupSettle", {}, { payer, table: p.table, cup: p.cup });
+}
+
+/** The operator, after paying the prizes: starts the next cup. */
+export function cupClose(config: InsiderConfig, operator: PublicKey) {
+  const p = addresses(config);
+  return build(config, "cupClose", {}, { operator, table: p.table, cup: p.cup });
+}

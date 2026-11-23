@@ -59,12 +59,12 @@ describe("planSetup from scratch", () => {
     const seatBatches = batches.filter((b) => b.label.startsWith("create seats"));
     expect(seatBatches).toHaveLength(2);
     seatBatches.forEach((b) => expect(b.steps).toHaveLength(SEATS_PER_INIT_TX));
-    expect(count(batches, "init")).toBe(1 + 3 + 22 + 10);
+    expect(count(batches, "init")).toBe(1 + 3 + 23 + 10);
   });
 
-  it("delegates all thirty-six accounts, five per transaction, table first and season last", () => {
+  it("delegates all thirty-seven accounts, five per transaction, table first and season last", () => {
     const delegations = batches.filter((b) => b.label.startsWith("delegate"));
-    expect(count(batches, "delegate")).toBe(36);
+    expect(count(batches, "delegate")).toBe(37);
     delegations.forEach((b) => expect(b.steps.length).toBeLessThanOrEqual(DELEGATIONS_PER_TX));
     expect(delegations).toHaveLength(8);
     const flat = delegations.flatMap((b) => b.steps.map((s) => describeTarget(s.target)));
@@ -104,7 +104,7 @@ describe("planSetup resumes", () => {
     state.seats.forEach((seat) => (seat.delegated = false));
     const batches = planSetup(state);
     expect(count(batches, "init")).toBe(0);
-    expect(count(batches, "delegate")).toBe(36);
+    expect(count(batches, "delegate")).toBe(37);
   });
 
   it("continues a half-finished delegation without repeating finished accounts", () => {
@@ -127,6 +127,7 @@ describe("engine accounts in the plan", () => {
     expect(engine.flatMap((b) => b.steps.map((s) => describeTarget(s.target)))).toEqual([
       "market",
       "desk",
+      "cup",
       "mempool",
       "future",
       "board",

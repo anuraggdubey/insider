@@ -13,6 +13,10 @@ import {
   buyLicense,
   cancelVrf,
   commitEpoch,
+  cupClose,
+  cupJoin,
+  cupRecord,
+  cupSettle,
   deskTrade,
   mintCall,
   buyCallLicense,
@@ -257,5 +261,34 @@ describe("the Desk builders", () => {
     expect(() => mintCall(config, owner, 10, { direction: 1, horizon: 60, stake: 10 })).toThrow(
       RangeError,
     );
+  });
+});
+
+describe("the Alpha Cup builders", () => {
+  it("joins with two signers: the seat owner and the operator", () => {
+    const ix = cupJoin(config, owner, 8);
+    const keys = ix.keys.map((key) => key.pubkey.toBase58());
+    expect(keys.slice(0, 5)).toEqual(
+      [owner, config.tableAuthority!, p.table, p.seats[8]!, p.cup].map((k) => k.toBase58()),
+    );
+    expect(ix.keys.filter((key) => key.isSigner).map((key) => key.pubkey.toBase58())).toEqual([
+      owner.toBase58(),
+      config.tableAuthority!.toBase58(),
+    ]);
+    expect(coder.decode(ix.data)).toEqual({ name: "cupJoin", data: { index: 8 } });
+    expect(() => cupJoin(config, owner, 10)).toThrow(RangeError);
+  });
+
+  it("records, settles and closes with the cup account writable", () => {
+    for (const [ix, name] of [
+      [cupRecord(config, owner), "cupRecord"],
+      [cupSettle(config, owner), "cupSettle"],
+      [cupClose(config, owner), "cupClose"],
+    ] as const) {
+      expect(coder.decode(ix.data)?.name).toBe(name);
+      const cup = ix.keys.find((key) => key.pubkey.equals(p.cup))!;
+      expect(cup.isWritable).toBe(true);
+      expect(ix.keys.filter((key) => key.isSigner)).toHaveLength(1);
+    }
   });
 });

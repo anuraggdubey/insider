@@ -17,6 +17,7 @@ export type TableState = {
   season: AccountState;
   market: AccountState;
   desk: AccountState;
+  cup: AccountState;
   mempool: AccountState;
   future: AccountState;
   board: AccountState;
@@ -33,6 +34,7 @@ export const SINGLE_ACCOUNTS = [
   "season",
   "market",
   "desk",
+  "cup",
   "mempool",
   "future",
   "board",
@@ -66,6 +68,7 @@ export const emptyState = (): TableState => ({
   season: none(),
   market: none(),
   desk: none(),
+  cup: none(),
   mempool: none(),
   future: none(),
   board: none(),
@@ -109,7 +112,7 @@ export function planSetup(state: TableState): Batch[] {
   if (big.length > 0) batches.push({ label: "create tape, call book, season", steps: big });
 
   const engine: Step[] = [
-    ...(["market", "desk", "mempool", "future", "board", "xray"] as const)
+    ...(["market", "desk", "cup", "mempool", "future", "board", "xray"] as const)
       .filter((name) => !state[name].exists)
       .map((name): Step => ({ kind: "init", target: name })),
     ...state.vaults

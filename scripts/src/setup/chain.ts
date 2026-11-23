@@ -131,6 +131,11 @@ export async function buildInstruction(
           .initMarket(MARKET_DESK)
           .accounts({ ...base, market: accounts.desk })
           .instruction();
+      case "cup":
+        return methods
+          .initCup()
+          .accounts({ ...base, cup: accounts.cup })
+          .instruction();
       case "mempool":
         return methods
           .initMempool()
@@ -207,6 +212,12 @@ export async function buildInstruction(
       return methods
         .delegateMarket(MARKET_DESK)
         .accounts({ ...base, market: accounts.desk })
+        .remainingAccounts(remaining)
+        .instruction();
+    case "cup":
+      return methods
+        .delegateCup()
+        .accounts({ ...base, cup: accounts.cup })
         .remainingAccounts(remaining)
         .instruction();
     case "mempool":

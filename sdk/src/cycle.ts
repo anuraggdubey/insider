@@ -24,10 +24,21 @@ export type CycleState = {
   xrayFinalized: boolean;
   /** Readers still on any vault (the sum of every header's `reader_count`). */
   readers: number;
+  /** A cup with entrants is waiting for the scored round the X-ray holds. */
+  cupRecordDue?: boolean;
+  /** The cup has run its rounds and has not been settled. */
+  cupSettleDue?: boolean;
 };
 
 export type Action =
-  "wait" | "request_round_seed" | "cancel_vrf" | "finish_round" | "reseal_leaks" | "commit_epoch";
+  | "wait"
+  | "request_round_seed"
+  | "cancel_vrf"
+  | "finish_round"
+  | "reseal_leaks"
+  | "commit_epoch"
+  | "cup_record"
+  | "cup_settle";
 
 /** Mirrors `VRF_TIMEOUT_TICKS` and `ROUNDS_PER_EPOCH` in `constants.rs`. */
 export const VRF_TIMEOUT_TICKS = 10;
@@ -58,6 +69,9 @@ export function nextAction(state: CycleState, options: CycleOptions = {}): Actio
       if (state.roundId > 0) {
         const scored = state.xrayRoundId === state.roundId && state.xrayFinalized;
         if (!scored) return "finish_round";
+        // the X-ray still holds this round: count it for the cup before the next seed overwrites it
+        if (state.cupRecordDue) return "cup_record";
+        if (state.cupSettleDue) return "cup_settle";
         if (state.readers > 0) return "reseal_leaks";
         // the round is scored and resealed; during the X-ray window the clock still has to run out
         if (state.phase === "xray") return "wait";
@@ -79,6 +93,15 @@ export type DecodedTable = {
 };
 export type DecodedBoard = { headers: Array<{ readerCount: number }> };
 export type DecodedXray = { roundId: number; finalized: number };
+export type DecodedCup = {
+  lastRound: number;
+  roundsRecorded: number;
+  settled: boolean;
+  entries: Array<{ joined: boolean }>;
+};
+
+/** Rounds in one cup (mirrors `CUP_ROUNDS`). */
+export const CUP_ROUNDS = 5;
 
 export const phaseOf = (phase: Record<string, unknown>): Phase => {
   const name = Object.keys(phase)[0];
@@ -94,6 +117,7 @@ export function cycleStateFrom(
   board: DecodedBoard,
   xray: DecodedXray,
   slot: number,
+  cup?: DecodedCup,
 ): CycleState {
   return {
     phase: phaseOf(table.phase),
@@ -105,6 +129,13 @@ export function cycleStateFrom(
     xrayRoundId: xray.roundId,
     xrayFinalized: xray.finalized !== 0,
     readers: board.headers.reduce((sum, header) => sum + header.readerCount, 0),
+    cupRecordDue:
+      cup !== undefined &&
+      !cup.settled &&
+      cup.roundsRecorded < CUP_ROUNDS &&
+      cup.entries.some((entry) => entry.joined) &&
+      xray.roundId > cup.lastRound,
+    cupSettleDue: cup !== undefined && !cup.settled && cup.roundsRecorded >= CUP_ROUNDS,
   };
 }
 

@@ -374,6 +374,154 @@ export type Insider = {
       args: [];
     },
     {
+      name: "cupClose";
+      discriminator: [16, 223, 231, 38, 161, 1, 39, 34];
+      accounts: [
+        {
+          name: "operator";
+          signer: true;
+        },
+        {
+          name: "table";
+        },
+        {
+          name: "cup";
+          writable: true;
+          pda: {
+            seeds: [
+              {
+                kind: "const";
+                value: [99, 117, 112];
+              },
+              {
+                kind: "account";
+                path: "table";
+              },
+            ];
+          };
+        },
+      ];
+      args: [];
+    },
+    {
+      name: "cupJoin";
+      discriminator: [176, 178, 245, 199, 214, 167, 226, 159];
+      accounts: [
+        {
+          name: "owner";
+          signer: true;
+        },
+        {
+          name: "operator";
+          docs: ["The operator: the table authority, who confirmed the buy-in."];
+          signer: true;
+        },
+        {
+          name: "table";
+        },
+        {
+          name: "seat";
+        },
+        {
+          name: "cup";
+          writable: true;
+          pda: {
+            seeds: [
+              {
+                kind: "const";
+                value: [99, 117, 112];
+              },
+              {
+                kind: "account";
+                path: "table";
+              },
+            ];
+          };
+        },
+      ];
+      args: [
+        {
+          name: "index";
+          type: "u8";
+        },
+      ];
+    },
+    {
+      name: "cupRecord";
+      discriminator: [122, 112, 255, 126, 222, 97, 52, 236];
+      accounts: [
+        {
+          name: "payer";
+          signer: true;
+        },
+        {
+          name: "table";
+        },
+        {
+          name: "xray";
+          pda: {
+            seeds: [
+              {
+                kind: "const";
+                value: [120, 114, 97, 121];
+              },
+              {
+                kind: "account";
+                path: "table";
+              },
+            ];
+          };
+        },
+        {
+          name: "cup";
+          writable: true;
+          pda: {
+            seeds: [
+              {
+                kind: "const";
+                value: [99, 117, 112];
+              },
+              {
+                kind: "account";
+                path: "table";
+              },
+            ];
+          };
+        },
+      ];
+      args: [];
+    },
+    {
+      name: "cupSettle";
+      discriminator: [142, 246, 225, 25, 197, 44, 86, 29];
+      accounts: [
+        {
+          name: "payer";
+          signer: true;
+        },
+        {
+          name: "table";
+        },
+        {
+          name: "cup";
+          writable: true;
+          pda: {
+            seeds: [
+              {
+                kind: "const";
+                value: [99, 117, 112];
+              },
+              {
+                kind: "account";
+                path: "table";
+              },
+            ];
+          };
+        },
+      ];
+      args: [];
+    },
+    {
       name: "delegateBoard";
       discriminator: [111, 167, 6, 152, 230, 48, 8, 91];
       accounts: [
@@ -869,6 +1017,174 @@ export type Insider = {
           type: "u8";
         },
       ];
+    },
+    {
+      name: "delegateCup";
+      discriminator: [96, 167, 92, 49, 185, 18, 114, 118];
+      accounts: [
+        {
+          name: "payer";
+          writable: true;
+          signer: true;
+        },
+        {
+          name: "table";
+          pda: {
+            seeds: [
+              {
+                kind: "const";
+                value: [116, 97, 98, 108, 101];
+              },
+              {
+                kind: "account";
+                path: "payer";
+              },
+            ];
+          };
+        },
+        {
+          name: "bufferCup";
+          writable: true;
+          pda: {
+            seeds: [
+              {
+                kind: "const";
+                value: [98, 117, 102, 102, 101, 114];
+              },
+              {
+                kind: "account";
+                path: "cup";
+              },
+            ];
+            program: {
+              kind: "const";
+              value: [
+                100,
+                138,
+                19,
+                74,
+                196,
+                109,
+                85,
+                33,
+                73,
+                28,
+                184,
+                108,
+                4,
+                90,
+                142,
+                233,
+                103,
+                187,
+                253,
+                10,
+                187,
+                122,
+                89,
+                9,
+                217,
+                28,
+                57,
+                82,
+                39,
+                210,
+                207,
+                107,
+              ];
+            };
+          };
+        },
+        {
+          name: "delegationRecordCup";
+          writable: true;
+          pda: {
+            seeds: [
+              {
+                kind: "const";
+                value: [100, 101, 108, 101, 103, 97, 116, 105, 111, 110];
+              },
+              {
+                kind: "account";
+                path: "cup";
+              },
+            ];
+            program: {
+              kind: "account";
+              path: "delegationProgram";
+            };
+          };
+        },
+        {
+          name: "delegationMetadataCup";
+          writable: true;
+          pda: {
+            seeds: [
+              {
+                kind: "const";
+                value: [
+                  100,
+                  101,
+                  108,
+                  101,
+                  103,
+                  97,
+                  116,
+                  105,
+                  111,
+                  110,
+                  45,
+                  109,
+                  101,
+                  116,
+                  97,
+                  100,
+                  97,
+                  116,
+                  97,
+                ];
+              },
+              {
+                kind: "account";
+                path: "cup";
+              },
+            ];
+            program: {
+              kind: "account";
+              path: "delegationProgram";
+            };
+          };
+        },
+        {
+          name: "cup";
+          writable: true;
+          pda: {
+            seeds: [
+              {
+                kind: "const";
+                value: [99, 117, 112];
+              },
+              {
+                kind: "account";
+                path: "table";
+              },
+            ];
+          };
+        },
+        {
+          name: "ownerProgram";
+          address: "7mTtHsFMYnZRnhd3SRzhj8Nm1U2T3s33dnbJwa9zBErW";
+        },
+        {
+          name: "delegationProgram";
+          address: "DELeGGvXpWV2fqJUhqcF5ZSYMS4JTLjteaAMARRSaeSh";
+        },
+        {
+          name: "systemProgram";
+          address: "11111111111111111111111111111111";
+        },
+      ];
+      args: [];
     },
     {
       name: "delegateFuture";
@@ -2604,10 +2920,10 @@ export type Insider = {
           name: "authority";
           writable: true;
           signer: true;
-          relations: ["table"];
         },
         {
           name: "table";
+          docs: ["layer; its seeds tie it to `authority`, which is what the old `has_one` proved."];
           pda: {
             seeds: [
               {
@@ -2636,6 +2952,54 @@ export type Insider = {
           type: "u8";
         },
       ];
+    },
+    {
+      name: "initCup";
+      discriminator: [195, 113, 77, 240, 182, 192, 177, 37];
+      accounts: [
+        {
+          name: "authority";
+          writable: true;
+          signer: true;
+        },
+        {
+          name: "table";
+          docs: ["its seeds tie it to `authority`."];
+          pda: {
+            seeds: [
+              {
+                kind: "const";
+                value: [116, 97, 98, 108, 101];
+              },
+              {
+                kind: "account";
+                path: "authority";
+              },
+            ];
+          };
+        },
+        {
+          name: "cup";
+          writable: true;
+          pda: {
+            seeds: [
+              {
+                kind: "const";
+                value: [99, 117, 112];
+              },
+              {
+                kind: "account";
+                path: "table";
+              },
+            ];
+          };
+        },
+        {
+          name: "systemProgram";
+          address: "11111111111111111111111111111111";
+        },
+      ];
+      args: [];
     },
     {
       name: "initFuture";
@@ -2734,10 +3098,10 @@ export type Insider = {
           name: "authority";
           writable: true;
           signer: true;
-          relations: ["table"];
         },
         {
           name: "table";
+          docs: ["layer; its seeds tie it to `authority`, which is what the old `has_one` proved."];
           pda: {
             seeds: [
               {
@@ -4245,6 +4609,10 @@ export type Insider = {
       discriminator: [111, 128, 241, 54, 167, 247, 70, 21];
     },
     {
+      name: "cup";
+      discriminator: [71, 249, 44, 247, 22, 4, 162, 124];
+    },
+    {
       name: "future";
       discriminator: [245, 58, 174, 171, 44, 10, 224, 48];
     },
@@ -4487,6 +4855,31 @@ export type Insider = {
       name: "deskLimit";
       msg: "Desk order or position limit";
     },
+    {
+      code: 6041;
+      name: "notHumanSeat";
+      msg: "Only human seats can enter the Alpha Cup";
+    },
+    {
+      code: 6042;
+      name: "cupAlreadyJoined";
+      msg: "This seat is already in the cup";
+    },
+    {
+      code: 6043;
+      name: "cupStarted";
+      msg: "The cup has started or is waiting to be paid: no entries now";
+    },
+    {
+      code: 6044;
+      name: "cupNothingToRecord";
+      msg: "This round cannot be recorded into the cup";
+    },
+    {
+      code: 6045;
+      name: "cupNotReady";
+      msg: "The cup is not ready for this";
+    },
   ];
   types: [
     {
@@ -4716,6 +5109,99 @@ export type Insider = {
           {
             name: "pad";
             type: "u8";
+          },
+        ];
+      };
+    },
+    {
+      name: "cup";
+      docs: [
+        "The Alpha Cup: five rounds, human seats only, the top three are paid. The program only keeps",
+        "entries, scores and the ranking; the buy-ins and the prizes move through Private Payments, signed",
+        "by the operator (the table authority), who also co-signs every `cup_join` after seeing the buy-in.",
+      ];
+      type: {
+        kind: "struct";
+        fields: [
+          {
+            name: "cupId";
+            type: "u32";
+          },
+          {
+            name: "roundsRecorded";
+            type: "u8";
+          },
+          {
+            name: "lastRound";
+            docs: ["The last round whose scores were added (a round is counted once)."];
+            type: "u32";
+          },
+          {
+            name: "entries";
+            type: {
+              array: [
+                {
+                  defined: {
+                    name: "cupEntry";
+                  };
+                },
+                3,
+              ];
+            };
+          },
+          {
+            name: "settled";
+            type: "bool";
+          },
+          {
+            name: "entrants";
+            docs: [
+              "Entrants at settlement, and the ranking: winners with their share of the prize pool in basis",
+              "points (the platform fee is taken off the pot before this split).",
+            ];
+            type: "u8";
+          },
+          {
+            name: "winners";
+            type: {
+              array: ["pubkey", 3];
+            };
+          },
+          {
+            name: "winnerBps";
+            type: {
+              array: ["u16", 3];
+            };
+          },
+          {
+            name: "bump";
+            type: "u8";
+          },
+        ];
+      };
+    },
+    {
+      name: "cupEntry";
+      docs: ["One entrant: a human seat that bought in."];
+      type: {
+        kind: "struct";
+        fields: [
+          {
+            name: "owner";
+            type: "pubkey";
+          },
+          {
+            name: "seat";
+            type: "u8";
+          },
+          {
+            name: "joined";
+            type: "bool";
+          },
+          {
+            name: "score";
+            docs: ["Sum of the entrant's round scores over the cup."];
+            type: "i64";
           },
         ];
       };
