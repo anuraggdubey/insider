@@ -197,6 +197,24 @@ pub mod insider {
         instructions::cup::cup_close(ctx)
     }
 
+    // Recovery
+    pub fn teardown<'info>(
+        ctx: Context<'info, Teardown<'info>>,
+        kinds: Vec<u8>,
+        slots: Vec<u8>,
+        force: bool,
+    ) -> Result<()> {
+        instructions::recovery::teardown(ctx, kinds, slots, force)
+    }
+
+    pub fn request_undelegation(ctx: Context<Recover>, kind: u8, slot: u8) -> Result<()> {
+        instructions::recovery::request_undelegation(ctx, kind, slot)
+    }
+
+    pub fn rollback_undelegation(ctx: Context<Recover>, kind: u8, slot: u8) -> Result<()> {
+        instructions::recovery::rollback_undelegation(ctx, kind, slot)
+    }
+
     // Epoch
     pub fn commit_epoch(ctx: Context<CommitEpoch>) -> Result<()> {
         epoch::commit_epoch(ctx)

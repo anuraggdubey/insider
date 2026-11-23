@@ -96,4 +96,8 @@ pub enum InsiderError {
     CupNothingToRecord,
     #[msg("The cup is not ready for this")]
     CupNotReady,
+    #[msg("This is not a valid recovery target for this table")]
+    InvalidRecoveryTarget,
+    #[msg("The account is not delegated")]
+    NotDelegated,
 }
