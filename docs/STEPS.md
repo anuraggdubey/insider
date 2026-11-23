@@ -428,8 +428,8 @@ Needs Misbah's engine stubs (H-API) before wiring.
       HTTP with the platform fee account; operator signs payouts.
 - [ ] **A-3.4 Recovery (3 h).** `request_undelegation` wrapper and `teardown`; a runbook in
       `docs/`. Run a teardown and a re-setup on devnet.
-- [ ] **A-3.5 Bots v2 (4 h).** Copycat and Flipper (which also licenses), license-buying behaviour.
-- [ ] **A-3.6 AI analysts and commentary (6 h).** Two AI seats with their own keys that mint Calls
+- [x] **A-3.5 Bots v2 (4 h).** _Done and live: Copycat (mirrors the seat that moved its position most) and Flipper (buys Leaks, lists every other one sealed, opens the rest and sells licences, buys licences and listed Leaks, buys Desk Call licences and trades the direction it reads). Every bot also judges due Desk Calls (`settle_call`). `pnpm bots` now runs all five. Unit-tested in `bots/test/strategies.test.ts`._ Copycat and Flipper (which also licenses), license-buying behaviour.
+- [x] **A-3.6 AI analysts and commentary (6 h).** _Done: `pnpm analysts` runs the two AI seats (bots/src/ai) and the caption feed. The analysts read the public SOL/USD oracle history and the seat’s own public record, ask Claude (`ANTHROPIC_API_KEY`, default model `claude-haiku-5-5`) for a Call and mint it through the SDK; with no key, or while the API is unreachable, they mint nothing. The feed (`GET http://localhost:8788/captions?since=<id>`, public accounts only) turns drops, buys, flips, opens, licences, Calls, big fills, sandwiches and round ends into captions; `COMMENTARY_LLM=1` lets the model reword them (they pause while it is down). Verified live with the local heuristic predictor (`ANALYST_PREDICTOR=heuristic`, not an AI): Calls were minted, judged by the bots and captioned. The real model path is unit-tested with a fake client and still needs your API key for a live run._ Two AI seats with their own keys that mint Calls
       through the SDK (Anthropic API, public data only), and a commentary service that turns public
       events into short captions. Lives in `bots/src/ai/`. If the API is unreachable they mint nothing
       and captions pause.

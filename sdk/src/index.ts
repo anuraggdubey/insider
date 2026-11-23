@@ -13,3 +13,4 @@ export * from "./accounts";
 export * from "./instructions";
 export * from "./table";
 export * from "./cycle";
+export * from "./oracle";

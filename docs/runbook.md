@@ -61,6 +61,8 @@ Epochs: every 10 rounds a bot sends `commit_epoch` (season goes to the base laye
 
 The Desk: `pnpm desk-demo` runs one Call end to end on the live table (needs the bots running: they top up Desk chips at each round end). The setup plan now also creates the Desk market and ten private call vaults (36 accounts), so rerun `pnpm setup-table` after an upgrade that adds accounts. New base-layer `init_*` instructions must not deserialise the table: it is delegated after setup.
 
+AI analysts and captions: `pnpm analysts` (needs the table set up; set `ANTHROPIC_API_KEY` in `.env` for the model, `ANALYST_PREDICTOR=heuristic` for a local non-AI test). The caption feed listens on `COMMENTARY_PORT` (8788). `pnpm fund --all` tops up the two analysts and the two v2 bots. Run only one `pnpm bots` at a time: two copies send duplicate transactions.
+
 Bots: `pnpm fund` (three v1 wallets, 0.05 SOL each), then `pnpm bots`. Each bot logs in to the TEE with its own key, plays its persona (front-runner, flow, baiter) and, like every seat, scores, reseals and starts rounds and re-arms the crank, so no keeper script is needed. `TABLE_AUTHORITY` overrides the table owner (default: the deployer key).
 
 Round end order is `finish_round`, then `reseal_leaks(0, 6)`, then `request_round_seed`

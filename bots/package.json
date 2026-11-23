@@ -10,7 +10,8 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "fund": "tsx src/fund.ts",
-    "operator": "tsx src/operator.ts"
+    "operator": "tsx src/operator.ts",
+    "analysts": "tsx src/ai/index.ts"
   },
   "dependencies": {
     "@anchor-lang/core": "^1.2.2",

@@ -189,3 +189,19 @@ for (;;) {
 
 The example's token-bearing connection must be recreated when its token expires.
 Do not hard-code or commit secret keys.
+
+## Captions feed (commentary)
+
+`pnpm analysts` also serves short live captions built from public events only (drops, sales,
+flips, opens, licences, Desk Calls, big fills, sandwiches, round start and end).
+
+```
+GET http://localhost:8788/captions?since=<id>
+{ "paused": false, "captions": [ { "id": 14, "at": 1795472854118, "kind": "leak-opened", "text": "Clever Badger cracked open the common Flow Leak. Only they can read it." } ] }
+```
+
+Poll with the largest `id` you have seen. `paused` is true while the optional model rewrite
+(`COMMENTARY_LLM=1`) is unreachable; nothing is published until it recovers. Kinds: `round-start`,
+`round-end`, `sandwich`, `leak-drop`, `leak-bought`, `leak-listed`, `leak-flipped`,
+`leak-opened`, `license-sold`, `call-minted`, `call-judged`, `big-fill`. A minted Call never
+names its direction; the judged caption does.
