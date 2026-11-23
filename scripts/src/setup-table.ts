@@ -18,8 +18,15 @@ import { addressUrl, baseTxUrl } from "./lib/explorer.js";
 import { insiderProgram, tableAccounts } from "./lib/insider.js";
 import { getDelegationStatus, waitFor } from "./lib/rpc.js";
 import { armCrank, needsArming } from "./setup/arm.js";
-import { readState, sendBatch } from "./setup/chain.js";
-import { describeTarget, isComplete, planSetup } from "./setup/plan.js";
+import { readPermissions, readState, sendBatch, sendPermissions } from "./setup/chain.js";
+import {
+  SINGLE_ACCOUNTS,
+  describePrivate,
+  describeTarget,
+  isComplete,
+  planPermissions,
+  planSetup,
+} from "./setup/plan.js";
 
 const args = process.argv.slice(2);
 const dryRun = args.includes("--dry-run");
@@ -52,10 +59,8 @@ async function main() {
   const state = await readState(connection, accounts);
   if (statusOnly) {
     const rows: Array<[string, (typeof state)["table"]]> = [
-      ["table", state.table],
-      ["tape", state.tape],
-      ["callBook", state.callBook],
-      ["season", state.season],
+      ...SINGLE_ACCOUNTS.map((name): [string, (typeof state)["table"]] => [name, state[name]]),
+      ...state.vaults.map((vault, i): [string, typeof vault] => [`vault ${i}`, vault]),
       ...state.seats.map((seat, i): [string, typeof seat] => [`seat ${i}`, seat]),
     ];
     for (const [name, account] of rows) {
@@ -67,7 +72,13 @@ async function main() {
   }
   const plan = planSetup(state);
   if (plan.length === 0) {
-    console.log("\nnothing to do: the table is created and delegated");
+    console.log("\nnothing to do on the base layer: everything is created and delegated");
+    if (!dryRun) {
+      const status = await getDelegationStatus(config.routerUrl, accounts.table);
+      if (!status.isDelegated || !status.fqdn) throw new Error("the router does not serve the table");
+      await permissionsOnRollup(status.fqdn, authority, accounts);
+      if (arm) await armOnRollup(status.fqdn, authority, accounts);
+    }
     return;
   }
 
@@ -108,7 +119,32 @@ async function main() {
   }
   console.log("setup complete");
 
+  await permissionsOnRollup(status.fqdn!, authority, accounts);
   if (arm) await armOnRollup(status.fqdn!, authority, accounts);
+}
+
+/** Makes the Mempool, the Future and the six vaults private to the keyless member (rollup). */
+async function permissionsOnRollup(
+  endpoint: string,
+  authority: ReturnType<typeof loadKeypair>,
+  accounts: ReturnType<typeof tableAccounts>,
+) {
+  const url = endpoint.includes("tee") ? (await teeAuthUrl(endpoint, authority)).url : endpoint;
+  const rollup = new Connection(url, "confirmed");
+  const client = insiderProgram(rollup, authority);
+  const plan = planPermissions(await readPermissions(rollup, accounts));
+  if (plan.length === 0) {
+    console.log("permissions: mempool, future and vaults are already private");
+    return;
+  }
+  for (const batch of plan) {
+    const signature = await sendPermissions(rollup, client, authority, accounts, batch.targets);
+    console.log(`  ${batch.label}: ${batch.targets.map(describePrivate).join(", ")} ${signature}`);
+  }
+  if (planPermissions(await readPermissions(rollup, accounts)).length > 0) {
+    throw new Error("some permissions are still missing after setup");
+  }
+  console.log("permissions: mempool, future and vaults are private to nobody");
 }
 
 async function armOnRollup(

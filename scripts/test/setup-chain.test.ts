@@ -14,9 +14,9 @@ describe("every setup step builds an instruction offline", () => {
   const validator = Keypair.generate().publicKey;
   const steps = planSetup(emptyState()).flatMap((batch) => batch.steps);
 
-  it("covers 14 creations and 14 delegations", () => {
-    expect(steps.filter((s) => s.kind === "init")).toHaveLength(14);
-    expect(steps.filter((s) => s.kind === "delegate")).toHaveLength(14);
+  it("covers 25 creations and 25 delegations", () => {
+    expect(steps.filter((s) => s.kind === "init")).toHaveLength(25);
+    expect(steps.filter((s) => s.kind === "delegate")).toHaveLength(25);
   });
 
   it("targets the game program and names the authority as the signer", async () => {

@@ -3,7 +3,9 @@ import { PublicKey } from "@solana/web3.js";
 import { describe, expect, it } from "vitest";
 
 import {
+  LEAK_SLOTS,
   MAX_TASK_ITERATIONS,
+  MARKET_FLOOR,
   SEAT_COUNT,
   SEEDS,
   SLOTS_PER_TICK,
@@ -30,6 +32,8 @@ describe("insider client mirrors the Rust program", () => {
   it("uses the same constants", () => {
     expect(SLOTS_PER_TICK).toBe(rustNumber(constants, "SLOTS_PER_TICK"));
     expect(SEAT_COUNT).toBe(rustNumber(constants, "SEAT_COUNT"));
+    expect(LEAK_SLOTS).toBe(rustNumber(constants, "LEAK_SLOTS"));
+    expect(MARKET_FLOOR).toBe(rustNumber(constants, "MARKET_FLOOR"));
     expect(TICK_MILLIS).toBe(rustNumber(constants, "TICK_MILLIS"));
     expect(MAX_TASK_ITERATIONS).toBe(rustNumber(cranks, "MAX_TASK_ITERATIONS"));
   });
@@ -40,6 +44,12 @@ describe("insider client mirrors the Rust program", () => {
     expect(SEEDS.seat).toBe(rustSeed("SEAT_SEED"));
     expect(SEEDS.table).toBe(rustSeed("TABLE_SEED"));
     expect(SEEDS.tape).toBe(rustSeed("TAPE_SEED"));
+    expect(SEEDS.board).toBe(rustSeed("BOARD_SEED"));
+    expect(SEEDS.future).toBe(rustSeed("FUTURE_SEED"));
+    expect(SEEDS.leak).toBe(rustSeed("LEAK_SEED"));
+    expect(SEEDS.market).toBe(rustSeed("MARKET_SEED"));
+    expect(SEEDS.mempool).toBe(rustSeed("MEMPOOL_SEED"));
+    expect(SEEDS.xray).toBe(rustSeed("XRAY_SEED"));
   });
 });
 
@@ -52,11 +62,21 @@ describe("account derivation", () => {
     expect(accounts.table.equals(tablePda(authority, program))).toBe(true);
     expect(accounts.seats).toHaveLength(SEAT_COUNT);
     const keys = new Set(
-      [accounts.table, accounts.tape, accounts.callBook, accounts.season, ...accounts.seats].map(
-        (k) => k.toBase58(),
-      ),
+      [
+        accounts.table,
+        accounts.tape,
+        accounts.callBook,
+        accounts.season,
+        accounts.market,
+        accounts.mempool,
+        accounts.future,
+        accounts.board,
+        accounts.xray,
+        ...accounts.vaults,
+        ...accounts.seats,
+      ].map((k) => k.toBase58()),
     );
-    expect(keys.size).toBe(4 + SEAT_COUNT);
+    expect(keys.size).toBe(9 + LEAK_SLOTS + SEAT_COUNT);
     expect(accounts.seats[3]!.equals(seatPda(accounts.table, 3, program))).toBe(true);
   });
 
