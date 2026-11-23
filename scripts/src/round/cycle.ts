@@ -72,3 +72,43 @@ export function nextAction(state: CycleState, options: CycleOptions = {}): Actio
     }
   }
 }
+
+/** The few fields of the decoded accounts the planner reads (the SDK decoders satisfy this). */
+export type DecodedTable = {
+  phase: Record<string, unknown>;
+  roundId: number;
+  roundsThisEpoch: number;
+  vrfPending: boolean;
+  vrfRequestedTick: number;
+  tick: number;
+};
+export type DecodedBoard = { headers: Array<{ readerCount: number }> };
+export type DecodedXray = { roundId: number; finalized: number };
+
+export const phaseOf = (phase: Record<string, unknown>): Phase => {
+  const name = Object.keys(phase)[0];
+  if (!name || !["idle", "seeding", "live", "closing", "xray"].includes(name)) {
+    throw new Error(`unknown phase ${JSON.stringify(phase)}`);
+  }
+  return name as Phase;
+};
+
+/** Builds the planner's input from decoded accounts and the current rollup slot. */
+export function cycleStateFrom(
+  table: DecodedTable,
+  board: DecodedBoard,
+  xray: DecodedXray,
+  slot: number,
+): CycleState {
+  return {
+    phase: phaseOf(table.phase),
+    roundId: table.roundId,
+    roundsThisEpoch: table.roundsThisEpoch,
+    vrfPending: table.vrfPending,
+    vrfRequestedTick: table.vrfRequestedTick,
+    slot,
+    xrayRoundId: xray.roundId,
+    xrayFinalized: xray.finalized !== 0,
+    readers: board.headers.reduce((sum, header) => sum + header.readerCount, 0),
+  };
+}

@@ -4,7 +4,9 @@ import { SLOTS_PER_TICK } from "../src/lib/insider.js";
 import {
   ROUNDS_PER_EPOCH,
   VRF_TIMEOUT_TICKS,
+  cycleStateFrom,
   nextAction,
+  phaseOf,
   vrfTimedOut,
   wallTick,
   type CycleState,
@@ -76,5 +78,30 @@ describe("the VRF timeout mirrors the program", () => {
     const before = wallTick(65_535 * SLOTS_PER_TICK);
     expect(vrfTimedOut(before, 65_536 * SLOTS_PER_TICK)).toBe(false);
     expect(vrfTimedOut(before, (65_535 + VRF_TIMEOUT_TICKS) * SLOTS_PER_TICK)).toBe(true);
+  });
+});
+
+describe("cycleStateFrom", () => {
+  it("reads the phase name and sums the readers on the board", () => {
+    const board = { headers: [{ readerCount: 1 }, { readerCount: 0 }, { readerCount: 2 }] };
+    const s = cycleStateFrom(
+      {
+        phase: { xray: {} },
+        roundId: 4,
+        roundsThisEpoch: 2,
+        vrfPending: false,
+        vrfRequestedTick: 7,
+        tick: 190,
+      },
+      board,
+      { roundId: 4, finalized: 1 },
+      9_000,
+    );
+    expect(s).toMatchObject({ phase: "xray", roundId: 4, readers: 3, xrayFinalized: true, slot: 9_000 });
+    expect(nextAction(s)).toBe("reseal_leaks");
+  });
+
+  it("rejects a phase it does not know", () => {
+    expect(() => phaseOf({ weird: {} })).toThrow();
   });
 });

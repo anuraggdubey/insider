@@ -25,6 +25,7 @@
     "proofs": "tsx scripts/src/build-proof-index.ts",
     "gates": "tsx scripts/src/gates/run.ts",
     "setup-table": "tsx scripts/src/setup-table.ts",
+    "vertical-slice": "tsx scripts/src/vertical-slice.ts",
     "fund": "pnpm --filter bots fund"
   },
   "prettier": {
