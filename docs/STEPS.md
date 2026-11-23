@@ -413,7 +413,7 @@ Needs Misbah's engine stubs (H-API) before wiring.
       (uses `@insider/sdk`), one decision every 2 ticks, jitter, TEE token per bot; personas
       **Front-runner, Flow, Baiter**; bots also sign `request_round_seed` and `rearm_ticks` so the table
       never idles.
-- [ ] **A-2.5 Go live (3 h).** Run the setup script on devnet, start the bots, hand over the URL
+- [x] **A-2.5 Go live (3 h).** _Done: `pnpm go-live` watched round 9 scored and round 10 seeded by the bots alone while a human seat played (proof `docs/proofs/go-live.json`); handoff values in [go-live.md](go-live.md)._ Run the setup script on devnet, start the bots, hand over the URL
       and transcript. _Done when:_ a human and three bots complete a round with no manual steps.
       **Handoff H3.**
 
