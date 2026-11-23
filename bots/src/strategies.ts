@@ -73,7 +73,12 @@ export function decide(persona: Persona, view: BotView, memory: Memory): Action[
       const signal = payloadSignal(payload, view.price);
       if (signal && canTrade(view, profile.size)) {
         const size = Math.max(40, Math.round(profile.size * (0.5 + signal.strength / 2)));
-        actions.push({ type: "order", sideSize: signal.side * size, lane: profile.lane, note: signal.why });
+        actions.push({
+          type: "order",
+          sideSize: signal.side * size,
+          lane: profile.lane,
+          note: signal.why,
+        });
       }
     } else if (
       leak.state === 1 &&

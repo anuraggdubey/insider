@@ -46,9 +46,10 @@ export async function readState(
       delegated: Boolean(info && info.owner.equals(DELEGATION_PROGRAM_ID)),
     };
   };
-  const single = Object.fromEntries(
-    SINGLE_ACCOUNTS.map((name, i) => [name, state(i)]),
-  ) as Record<(typeof SINGLE_ACCOUNTS)[number], AccountState>;
+  const single = Object.fromEntries(SINGLE_ACCOUNTS.map((name, i) => [name, state(i)])) as Record<
+    (typeof SINGLE_ACCOUNTS)[number],
+    AccountState
+  >;
   const offset = SINGLE_ACCOUNTS.length;
   return {
     ...single,
@@ -92,21 +93,45 @@ export async function buildInstruction(
       case "table":
         return methods.initTable(null).accounts({ authority, table }).instruction();
       case "tape":
-        return methods.initTape().accounts({ ...base, tape: accounts.tape }).instruction();
+        return methods
+          .initTape()
+          .accounts({ ...base, tape: accounts.tape })
+          .instruction();
       case "callBook":
-        return methods.initCallBook().accounts({ ...base, callBook: accounts.callBook }).instruction();
+        return methods
+          .initCallBook()
+          .accounts({ ...base, callBook: accounts.callBook })
+          .instruction();
       case "season":
-        return methods.initSeason().accounts({ ...base, season: accounts.season }).instruction();
+        return methods
+          .initSeason()
+          .accounts({ ...base, season: accounts.season })
+          .instruction();
       case "market":
-        return methods.initMarket(MARKET_FLOOR).accounts({ ...base, market: accounts.market }).instruction();
+        return methods
+          .initMarket(MARKET_FLOOR)
+          .accounts({ ...base, market: accounts.market })
+          .instruction();
       case "mempool":
-        return methods.initMempool().accounts({ ...base, mempool: accounts.mempool }).instruction();
+        return methods
+          .initMempool()
+          .accounts({ ...base, mempool: accounts.mempool })
+          .instruction();
       case "future":
-        return methods.initFuture().accounts({ ...base, future: accounts.future }).instruction();
+        return methods
+          .initFuture()
+          .accounts({ ...base, future: accounts.future })
+          .instruction();
       case "board":
-        return methods.initBoard().accounts({ ...base, board: accounts.board }).instruction();
+        return methods
+          .initBoard()
+          .accounts({ ...base, board: accounts.board })
+          .instruction();
       case "xray":
-        return methods.initXray().accounts({ ...base, xray: accounts.xray }).instruction();
+        return methods
+          .initXray()
+          .accounts({ ...base, xray: accounts.xray })
+          .instruction();
     }
   }
 
@@ -128,21 +153,53 @@ export async function buildInstruction(
     case "table":
       return methods.delegateTable().accounts(base).remainingAccounts(remaining).instruction();
     case "tape":
-      return methods.delegateTape().accounts({ ...base, tape: accounts.tape }).remainingAccounts(remaining).instruction();
+      return methods
+        .delegateTape()
+        .accounts({ ...base, tape: accounts.tape })
+        .remainingAccounts(remaining)
+        .instruction();
     case "callBook":
-      return methods.delegateCallBook().accounts({ ...base, callBook: accounts.callBook }).remainingAccounts(remaining).instruction();
+      return methods
+        .delegateCallBook()
+        .accounts({ ...base, callBook: accounts.callBook })
+        .remainingAccounts(remaining)
+        .instruction();
     case "season":
-      return methods.delegateSeason().accounts({ ...base, season: accounts.season }).remainingAccounts(remaining).instruction();
+      return methods
+        .delegateSeason()
+        .accounts({ ...base, season: accounts.season })
+        .remainingAccounts(remaining)
+        .instruction();
     case "market":
-      return methods.delegateMarket(MARKET_FLOOR).accounts({ ...base, market: accounts.market }).remainingAccounts(remaining).instruction();
+      return methods
+        .delegateMarket(MARKET_FLOOR)
+        .accounts({ ...base, market: accounts.market })
+        .remainingAccounts(remaining)
+        .instruction();
     case "mempool":
-      return methods.delegateMempool().accounts({ ...base, mempool: accounts.mempool }).remainingAccounts(remaining).instruction();
+      return methods
+        .delegateMempool()
+        .accounts({ ...base, mempool: accounts.mempool })
+        .remainingAccounts(remaining)
+        .instruction();
     case "future":
-      return methods.delegateFuture().accounts({ ...base, future: accounts.future }).remainingAccounts(remaining).instruction();
+      return methods
+        .delegateFuture()
+        .accounts({ ...base, future: accounts.future })
+        .remainingAccounts(remaining)
+        .instruction();
     case "board":
-      return methods.delegateBoard().accounts({ ...base, board: accounts.board }).remainingAccounts(remaining).instruction();
+      return methods
+        .delegateBoard()
+        .accounts({ ...base, board: accounts.board })
+        .remainingAccounts(remaining)
+        .instruction();
     case "xray":
-      return methods.delegateXray().accounts({ ...base, xray: accounts.xray }).remainingAccounts(remaining).instruction();
+      return methods
+        .delegateXray()
+        .accounts({ ...base, xray: accounts.xray })
+        .remainingAccounts(remaining)
+        .instruction();
   }
 }
 
@@ -166,7 +223,11 @@ export async function readPermissions(
     ...accounts.vaults,
   ]);
   const hidden = (i: number) => infos[i] === null;
-  return { mempool: hidden(0), future: hidden(1), vaults: accounts.vaults.map((_, i) => hidden(2 + i)) };
+  return {
+    mempool: hidden(0),
+    future: hidden(1),
+    vaults: accounts.vaults.map((_, i) => hidden(2 + i)),
+  };
 }
 
 /** `init_permission`: the authority makes one private account private to the keyless member. */

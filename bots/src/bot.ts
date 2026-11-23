@@ -146,7 +146,9 @@ export class Bot {
     const payloads = new Map<number, Payload>();
     for (const [slot, header] of seen.board.headers.entries()) {
       const cached = this.payloads.get(`${table.roundId}:${header.leakId}`);
-      const reads = header.readers.slice(0, header.readerCount).some((r: PublicKey) => r.equals(this.me));
+      const reads = header.readers
+        .slice(0, header.readerCount)
+        .some((r: PublicKey) => r.equals(this.me));
       if (cached && reads) payloads.set(slot, cached);
     }
     const view = buildView(decoded, this.me, payloads);
@@ -203,7 +205,10 @@ export class Bot {
           } else if (action === "reseal_leaks") {
             await this.send("reseal_leaks", resealLeaks(config, me, 0, 6));
           } else if (action === "request_round_seed") {
-            await this.send("request_round_seed", requestRoundSeed(config, me, EPHEMERAL_VRF_QUEUE));
+            await this.send(
+              "request_round_seed",
+              requestRoundSeed(config, me, EPHEMERAL_VRF_QUEUE),
+            );
           } else if (action === "cancel_vrf") {
             await this.send("cancel_vrf", cancelVrf(config, me));
           }

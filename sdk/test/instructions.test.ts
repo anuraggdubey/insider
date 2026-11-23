@@ -176,8 +176,8 @@ describe("rearmTicks", () => {
     // 3 declared accounts, 3 repeated, then 6 + 6 + 10 engine accounts
     expect(ix.keys).toHaveLength(3 + 3 + 22);
     expect(keys.slice(6)).toEqual(
-      [p.floor, p.mempool, p.future, p.board, p.xray, p.tape, ...p.leakVaults, ...p.seats].map((k) =>
-        k.toBase58(),
+      [p.floor, p.mempool, p.future, p.board, p.xray, p.tape, ...p.leakVaults, ...p.seats].map(
+        (k) => k.toBase58(),
       ),
     );
     const future = ix.keys.find((key, i) => i >= 6 && key.pubkey.equals(p.future))!;

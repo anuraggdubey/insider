@@ -21,7 +21,9 @@ export function payloadSignal(payload: Payload, price: number): Signal | undefin
     case 0: {
       // Flow: net units over a window; the crowd is about to push that way
       const side = sign(fields[0] ?? 0);
-      return side ? { side, strength: Math.min(1, Math.abs(fields[0]!) / 1_000), why: "flow" } : undefined;
+      return side
+        ? { side, strength: Math.min(1, Math.abs(fields[0]!) / 1_000), why: "flow" }
+        : undefined;
     }
     case 1:
     case 2: {
@@ -29,7 +31,11 @@ export function payloadSignal(payload: Payload, price: number): Signal | undefin
       const order = orders[0];
       const side = order && orderCount > 0 ? sign(order.sideSize) : 0;
       return side && order
-        ? { side, strength: Math.min(1, Math.abs(order.sideSize) / 1_000), why: kind === 2 ? "whale" : "spotlight" }
+        ? {
+            side,
+            strength: Math.min(1, Math.abs(order.sideSize) / 1_000),
+            why: kind === 2 ? "whale" : "spotlight",
+          }
         : undefined;
     }
     case 3: {
@@ -47,7 +53,9 @@ export function payloadSignal(payload: Payload, price: number): Signal | undefin
     }
     case 5: {
       const side = sign(fields[2] ?? 0);
-      return side ? { side, strength: Math.min(1, Math.abs(fields[4] ?? 0) / 500), why: "drift" } : undefined;
+      return side
+        ? { side, strength: Math.min(1, Math.abs(fields[4] ?? 0) / 500), why: "drift" }
+        : undefined;
     }
     case 6: {
       // Shockwave: [has shock, shock tick, sign, window end]

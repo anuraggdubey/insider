@@ -72,17 +72,26 @@ async function main() {
   const steps: Array<{ what: string; signature?: string; url?: string }> = [];
   const note = (what: string, signature?: string) => {
     const url = signature ? erTxUrl(signature, config.teeRpcUrl) : undefined;
-    console.log(`${new Date().toISOString().slice(11, 23)}  ${what}${url ? `\n               ${url}` : ""}`);
+    console.log(
+      `${new Date().toISOString().slice(11, 23)}  ${what}${url ? `\n               ${url}` : ""}`,
+    );
     steps.push({ what, signature, url });
   };
-  const send = async (who: Keypair, rollup: Connection, what: string, ...ix: Parameters<typeof tx>) => {
+  const send = async (
+    who: Keypair,
+    rollup: Connection,
+    what: string,
+    ...ix: Parameters<typeof tx>
+  ) => {
     const { signature, ms } = await sendTx(rollup, tx(...ix), [who]);
     note(`${what} (${ms} ms)`, signature);
     return signature;
   };
   const record = (probe: Probe) => {
     probes.push(probe);
-    console.log(`  ${probe.saw === probe.shouldSee ? "ok  " : "FAIL"} ${probe.who.padEnd(9)} ${probe.what}: ${probe.saw ? "saw it" : "saw nothing"}${probe.detail ? ` (${probe.detail})` : ""}`);
+    console.log(
+      `  ${probe.saw === probe.shouldSee ? "ok  " : "FAIL"} ${probe.who.padEnd(9)} ${probe.what}: ${probe.saw ? "saw it" : "saw nothing"}${probe.detail ? ` (${probe.detail})` : ""}`,
+    );
   };
   const tryRead = async <T>(fn: () => Promise<T>): Promise<unknown> => {
     try {
@@ -119,21 +128,41 @@ async function main() {
   // 1. start a round
   let seenTick = -1;
   let seenAt = Date.now();
-  for (let started = false; !started; ) {
+  for (let started = false; !started;) {
     guard();
     const { state, t } = await read();
     if (t.tick !== seenTick) {
       seenTick = t.tick;
       seenAt = Date.now();
     } else if (["live", "closing", "xray"].includes(state.phase) && Date.now() - seenAt > 20_000) {
-      throw new Error("the table stopped ticking: the crank has expired. Run pnpm setup-table --arm (or start pnpm bots)");
+      throw new Error(
+        "the table stopped ticking: the crank has expired. Run pnpm setup-table --arm (or start pnpm bots)",
+      );
     }
     const action = nextAction(state);
-    if (action === "finish_round") await send(authority, conn.authority, "finish_round (previous round)", finishRound(config, authority.publicKey));
-    else if (action === "reseal_leaks") await send(authority, conn.authority, "reseal_leaks (previous round)", resealLeaks(config, authority.publicKey, 0, 6));
-    else if (action === "cancel_vrf") await send(authority, conn.authority, "cancel_vrf", cancelVrf(config, authority.publicKey));
+    if (action === "finish_round")
+      await send(
+        authority,
+        conn.authority,
+        "finish_round (previous round)",
+        finishRound(config, authority.publicKey),
+      );
+    else if (action === "reseal_leaks")
+      await send(
+        authority,
+        conn.authority,
+        "reseal_leaks (previous round)",
+        resealLeaks(config, authority.publicKey, 0, 6),
+      );
+    else if (action === "cancel_vrf")
+      await send(authority, conn.authority, "cancel_vrf", cancelVrf(config, authority.publicKey));
     else if (action === "request_round_seed") {
-      await send(authority, conn.authority, "request_round_seed", requestRoundSeed(config, authority.publicKey));
+      await send(
+        authority,
+        conn.authority,
+        "request_round_seed",
+        requestRoundSeed(config, authority.publicKey),
+      );
       started = true;
     } else await sleep(500);
   }
@@ -145,8 +174,18 @@ async function main() {
     else await sleep(500);
   }
   note(`round ${round} is live`);
-  await send(bob, conn.opener, `Bob claims seat ${BOB_SEAT}`, claimSeat(config, bob.publicKey, BOB_SEAT));
-  await send(carol, conn.observer, `Carol claims seat ${CAROL_SEAT}`, claimSeat(config, carol.publicKey, CAROL_SEAT));
+  await send(
+    bob,
+    conn.opener,
+    `Bob claims seat ${BOB_SEAT}`,
+    claimSeat(config, bob.publicKey, BOB_SEAT),
+  );
+  await send(
+    carol,
+    conn.observer,
+    `Carol claims seat ${CAROL_SEAT}`,
+    claimSeat(config, carol.publicKey, CAROL_SEAT),
+  );
 
   console.log("\ncontrols (public accounts: everyone should read them)");
   await readAccount("read the table", accounts.table, parties);
@@ -165,13 +204,23 @@ async function main() {
     if (state.phase === "live" && auction >= 0) slot = auction;
     else await sleep(500);
   }
-  await send(bob, conn.opener, `Bob bids on slot ${slot}`, bid(config, bob.publicKey, BOB_SEAT, slot));
+  await send(
+    bob,
+    conn.opener,
+    `Bob bids on slot ${slot}`,
+    bid(config, bob.publicKey, BOB_SEAT, slot),
+  );
   const vault = accounts.leakVaults[slot]!;
   console.log(`\nsealed vault (slot ${slot}, bought but not opened)`);
   await readAccount("read the sealed vault", vault, []);
 
   // 3. Bob opens it: now only Bob reads it
-  await send(bob, conn.opener, `Bob opens slot ${slot}`, openLeak(config, bob.publicKey, BOB_SEAT, slot));
+  await send(
+    bob,
+    conn.opener,
+    `Bob opens slot ${slot}`,
+    openLeak(config, bob.publicKey, BOB_SEAT, slot),
+  );
   await sleep(1_000);
   console.log("\nopened vault (Bob is the only reader)");
   await readAccount("read the opened vault", vault, ["opener"]);
@@ -182,29 +231,54 @@ async function main() {
   }
 
   // 4. Bob sends an order while others watch the log streams
-  const programLogs: Record<Party, string[]> = { opener: [], observer: [], authority: [], anonymous: [] };
+  const programLogs: Record<Party, string[]> = {
+    opener: [],
+    observer: [],
+    authority: [],
+    anonymous: [],
+  };
   const subscriptions: Array<{ conn: Connection; id: number }> = [];
   const refused: string[] = [];
   for (const who of others) {
     try {
-      const id = conn[who].onLogs(config.programId, (logs) => programLogs[who].push(logs.signature));
+      const id = conn[who].onLogs(config.programId, (logs) =>
+        programLogs[who].push(logs.signature),
+      );
       subscriptions.push({ conn: conn[who], id });
     } catch (error) {
       refused.push(`${who}: ${String(error).slice(0, 60)}`);
     }
   }
   await sleep(1_500);
-  const orderSig = await send(bob, conn.opener, "Bob sends a 300-unit buy (the pending order we try to find)", sendOrder(config, bob.publicKey, BOB_SEAT, 300, 0));
+  const orderSig = await send(
+    bob,
+    conn.opener,
+    "Bob sends a 300-unit buy (the pending order we try to find)",
+    sendOrder(config, bob.publicKey, BOB_SEAT, 300, 0),
+  );
   await sleep(3_000);
 
   console.log("\nBob's order transaction and the streams around it");
   // The TEE answers for any signature but strips it: what counts is whether accounts, instruction
   // data (side and size) or logs come back, not whether the signature exists.
-  type Tx = { transaction: { message: { accountKeys: unknown[]; instructions: unknown[] } }; meta: { logMessages?: unknown[] | null } | null } | null;
+  type Tx = {
+    transaction: { message: { accountKeys: unknown[]; instructions: unknown[] } };
+    meta: { logMessages?: unknown[] | null } | null;
+  } | null;
   const content = (t: Tx) =>
-    Boolean(t && (t.transaction.message.accountKeys.length > 0 || t.transaction.message.instructions.length > 0 || (t.meta?.logMessages?.length ?? 0) > 0));
+    Boolean(
+      t &&
+      (t.transaction.message.accountKeys.length > 0 ||
+        t.transaction.message.instructions.length > 0 ||
+        (t.meta?.logMessages?.length ?? 0) > 0),
+    );
   for (const who of parties) {
-    const found = (await tryRead(() => conn[who].getTransaction(orderSig, { maxSupportedTransactionVersion: 0, commitment: "confirmed" }))) as Tx;
+    const found = (await tryRead(() =>
+      conn[who].getTransaction(orderSig, {
+        maxSupportedTransactionVersion: 0,
+        commitment: "confirmed",
+      }),
+    )) as Tx;
     const asMember = who === "opener";
     record({
       what: "read the content of the order transaction (accounts, instruction data, logs)",
@@ -216,7 +290,9 @@ async function main() {
     });
   }
   for (const who of parties) {
-    const list = await tryRead(() => conn[who].getSignaturesForAddress(accounts.mempool, { limit: 20 }));
+    const list = await tryRead(() =>
+      conn[who].getSignaturesForAddress(accounts.mempool, { limit: 20 }),
+    );
     const mine = who === "opener";
     record({
       what: "list signatures that touched the mempool",
@@ -243,8 +319,20 @@ async function main() {
     guard();
     const { state } = await read();
     const action = nextAction(state);
-    if (action === "finish_round") await send(authority, conn.authority, "finish_round", finishRound(config, authority.publicKey));
-    else if (action === "reseal_leaks") await send(authority, conn.authority, "reseal_leaks(0, 6)", resealLeaks(config, authority.publicKey, 0, 6));
+    if (action === "finish_round")
+      await send(
+        authority,
+        conn.authority,
+        "finish_round",
+        finishRound(config, authority.publicKey),
+      );
+    else if (action === "reseal_leaks")
+      await send(
+        authority,
+        conn.authority,
+        "reseal_leaks(0, 6)",
+        resealLeaks(config, authority.publicKey, 0, 6),
+      );
     else if (state.xrayFinalized && state.readers === 0 && state.roundId === round) break;
     else await sleep(500);
   }
@@ -267,7 +355,12 @@ async function main() {
         table: accounts.table.toBase58(),
         program: config.programId.toBase58(),
         round,
-        parties: { opener: bob.publicKey.toBase58(), observer: carol.publicKey.toBase58(), authority: authority.publicKey.toBase58(), anonymous: "no key, no token" },
+        parties: {
+          opener: bob.publicKey.toBase58(),
+          observer: carol.publicKey.toBase58(),
+          authority: authority.publicKey.toBase58(),
+          anonymous: "no key, no token",
+        },
         vault: vault.toBase58(),
         mempool: accounts.mempool.toBase58(),
         verdict,

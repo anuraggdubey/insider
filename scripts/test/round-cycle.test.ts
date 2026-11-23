@@ -97,7 +97,13 @@ describe("cycleStateFrom", () => {
       { roundId: 4, finalized: 1 },
       9_000,
     );
-    expect(s).toMatchObject({ phase: "xray", roundId: 4, readers: 3, xrayFinalized: true, slot: 9_000 });
+    expect(s).toMatchObject({
+      phase: "xray",
+      roundId: 4,
+      readers: 3,
+      xrayFinalized: true,
+      slot: 9_000,
+    });
     expect(nextAction(s)).toBe("reseal_leaks");
   });
 

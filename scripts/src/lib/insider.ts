@@ -110,8 +110,6 @@ export const xrayPda = (table: PublicKey, programId = config.programId) =>
 export const leakVaultPda = (table: PublicKey, slot: number, programId = config.programId) =>
   find([Buffer.from(SEEDS.leak), table.toBuffer(), Buffer.from([slot])], programId);
 
-
-
 /** The accounts `tick` needs after `[table, scheduler, crank_signer]`, in the program's order. */
 export const tickAccountList = (accounts: TableAccounts): PublicKey[] => [
   accounts.market,

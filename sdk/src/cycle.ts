@@ -27,12 +27,7 @@ export type CycleState = {
 };
 
 export type Action =
-  | "wait"
-  | "request_round_seed"
-  | "cancel_vrf"
-  | "finish_round"
-  | "reseal_leaks"
-  | "commit_epoch";
+  "wait" | "request_round_seed" | "cancel_vrf" | "finish_round" | "reseal_leaks" | "commit_epoch";
 
 /** Mirrors `VRF_TIMEOUT_TICKS` and `ROUNDS_PER_EPOCH` in `constants.rs`. */
 export const VRF_TIMEOUT_TICKS = 10;

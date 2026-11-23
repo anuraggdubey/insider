@@ -45,11 +45,27 @@ export function evaluate(xray: XrayView, cast: Cast, round: number): Check[] {
   const run = findFrontRun(xray.orders, cast.alice, cast.bob);
   const landedBy = (seat: number) => xray.orders.filter((o) => o.seat === seat).length;
   return [
-    { name: "the X-ray is the round we played and is scored", pass: xray.roundId === round && xray.finalized, detail: `round ${xray.roundId}, finalized ${xray.finalized}` },
-    { name: "all eight drops were minted", pass: xray.leaks.length === DROPS_PER_ROUND, detail: `${xray.leaks.length} leaks recorded` },
-    { name: "Alice and Carol bought Leaks", pass: owners.has(cast.alice) && owners.has(cast.carol), detail: `owners ${[...owners].join(", ")}` },
+    {
+      name: "the X-ray is the round we played and is scored",
+      pass: xray.roundId === round && xray.finalized,
+      detail: `round ${xray.roundId}, finalized ${xray.finalized}`,
+    },
+    {
+      name: "all eight drops were minted",
+      pass: xray.leaks.length === DROPS_PER_ROUND,
+      detail: `${xray.leaks.length} leaks recorded`,
+    },
+    {
+      name: "Alice and Carol bought Leaks",
+      pass: owners.has(cast.alice) && owners.has(cast.carol),
+      detail: `owners ${[...owners].join(", ")}`,
+    },
     { name: "Leaks were opened", pass: opened.length >= 2, detail: `${opened.length} opened` },
-    { name: "Bob's order landed", pass: landedBy(cast.bob) >= 1, detail: `${landedBy(cast.bob)} order(s)` },
+    {
+      name: "Bob's order landed",
+      pass: landedBy(cast.bob) >= 1,
+      detail: `${landedBy(cast.bob)} order(s)`,
+    },
     {
       name: "Alice front-ran Bob on the priority lane",
       pass: Boolean(run),

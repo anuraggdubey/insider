@@ -100,12 +100,18 @@ async function main() {
   let lastTick = -1;
   const started = Date.now();
   while (completed < rounds) {
-    if (!forever && Date.now() - started > (rounds * 260 + 120) * 1000) throw new Error("timed out");
+    if (!forever && Date.now() - started > (rounds * 260 + 120) * 1000)
+      throw new Error("timed out");
     const { t, state, slot } = await read();
     if (forever && Date.now() - lastArmCheck > 30_000) {
       lastArmCheck = Date.now();
       if (needsArming(Number(t.armedUntilSlot), slot)) {
-        const signature = await rearmCrank(rollup, insiderProgram(rollup, authority), authority, tableAccounts(authority.publicKey));
+        const signature = await rearmCrank(
+          rollup,
+          insiderProgram(rollup, authority),
+          authority,
+          tableAccounts(authority.publicKey),
+        );
         log("crank re-armed for 1,200 ticks", { signature });
       }
     }
@@ -118,7 +124,10 @@ async function main() {
     if (state.phase === "live" && withOrder && !ordered && t.tick >= 5) {
       ordered = true;
       await send(`seat ${SEAT} claimed`, claimSeat(config, authority.publicKey, SEAT));
-      await send(`order sent: buy 100 on the standard lane`, sendOrder(config, authority.publicKey, SEAT, 100, 0));
+      await send(
+        `order sent: buy 100 on the standard lane`,
+        sendOrder(config, authority.publicKey, SEAT, 100, 0),
+      );
     }
 
     switch (action) {
@@ -138,7 +147,10 @@ async function main() {
         await sleep(1_500);
         break;
       case "finish_round":
-        await send(`finish_round (round ${state.roundId})`, finishRound(config, authority.publicKey));
+        await send(
+          `finish_round (round ${state.roundId})`,
+          finishRound(config, authority.publicKey),
+        );
         break;
       case "reseal_leaks":
         await send("reseal_leaks(0, 6)", resealLeaks(config, authority.publicKey, 0, 6));

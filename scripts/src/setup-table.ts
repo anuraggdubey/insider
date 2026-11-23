@@ -75,7 +75,8 @@ async function main() {
     console.log("\nnothing to do on the base layer: everything is created and delegated");
     if (!dryRun) {
       const status = await getDelegationStatus(config.routerUrl, accounts.table);
-      if (!status.isDelegated || !status.fqdn) throw new Error("the router does not serve the table");
+      if (!status.isDelegated || !status.fqdn)
+        throw new Error("the router does not serve the table");
       await permissionsOnRollup(status.fqdn, authority, accounts);
       if (arm) await armOnRollup(status.fqdn, authority, accounts);
     }

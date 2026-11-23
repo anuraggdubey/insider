@@ -34,14 +34,14 @@ pnpm setup-table --arm       # also schedules the tick crank on the TEE (10 minu
 
 The plan is 13 transactions from scratch, then a rollup step:
 
-| Step                              | What                                                                  |
-| --------------------------------- | --------------------------------------------------------------------- |
-| 1. create table                   | `init_table`                                                          |
-| 2. create tape, call book, season | one instruction each (no stack frame holds two)                       |
+| Step                              | What                                                                                                                                         |
+| --------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1. create table                   | `init_table`                                                                                                                                 |
+| 2. create tape, call book, season | one instruction each (no stack frame holds two)                                                                                              |
 | 3-6. create engine accounts       | market, mempool, future, board, X-ray, six vaults; three per transaction. Mempool, future and vaults are pre-funded with the permission rent |
-| 7-8. create seats                 | `init_seat`, five per transaction                                     |
-| 9-13. delegate                    | `delegate_*` for all 25 accounts, five per transaction (1.4M compute) |
-| rollup: private permissions       | `init_permission`: mempool, future and the six vaults become private to the keyless `nobody` member |
+| 7-8. create seats                 | `init_seat`, five per transaction                                                                                                            |
+| 9-13. delegate                    | `delegate_*` for all 25 accounts, five per transaction (1.4M compute)                                                                        |
+| rollup: private permissions       | `init_permission`: mempool, future and the six vaults become private to the keyless `nobody` member                                          |
 
 Privacy check: after setup, reading the mempool, the future or a vault on the TEE returns nothing,
 even for the table authority. The script uses exactly that to decide which permissions are done.

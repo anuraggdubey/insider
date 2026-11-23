@@ -44,13 +44,20 @@ export type Decoded = {
   liquidated: boolean;
 };
 
-export function buildView(decoded: Decoded, me: PublicKey, payloads: Map<number, Payload>): BotView {
+export function buildView(
+  decoded: Decoded,
+  me: PublicKey,
+  payloads: Map<number, Payload>,
+): BotView {
   const { table, market, board, seat } = decoded;
   const tick = table.tick;
   const index = seat.index;
   const leaks: LeakView[] = board.headers.map((header, slot) => {
     const state = header.state;
-    const price = state === 1 ? dutchPrice(header.startPrice, header.floorPrice, header.auctionStart, tick) : header.ask;
+    const price =
+      state === 1
+        ? dutchPrice(header.startPrice, header.floorPrice, header.auctionStart, tick)
+        : header.ask;
     return {
       slot,
       leakId: header.leakId,
@@ -77,7 +84,8 @@ export function buildView(decoded: Decoded, me: PublicKey, payloads: Map<number,
       chips: num(seat.chips),
       position: seat.position,
       pending: seat.pendingCount,
-      unopened: current.filter((leak) => leak.isMine && (leak.state === 2 || leak.state === 3)).length,
+      unopened: current.filter((leak) => leak.isMine && (leak.state === 2 || leak.state === 3))
+        .length,
       liquidated: decoded.liquidated,
     },
     leaks: current,

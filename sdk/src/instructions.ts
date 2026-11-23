@@ -272,11 +272,24 @@ export function rearmTicks(
     isSigner,
     isWritable,
   });
-  const engine = [p.floor, p.mempool, p.future, p.board, p.xray, p.tape, ...p.leakVaults, ...p.seats];
+  const engine = [
+    p.floor,
+    p.mempool,
+    p.future,
+    p.board,
+    p.xray,
+    p.tape,
+    ...p.leakVaults,
+    ...p.seats,
+  ];
   return build(
     config,
     "rearmTicks",
-    { taskId: new BN(taskId), intervalMillis: new BN(intervalMillis), iterations: new BN(iterations) },
+    {
+      taskId: new BN(taskId),
+      intervalMillis: new BN(intervalMillis),
+      iterations: new BN(iterations),
+    },
     { payer, table: p.table, magicProgram: MAGIC_PROGRAM_ID },
     [
       meta(payer, true, true),

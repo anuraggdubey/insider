@@ -39,7 +39,9 @@ describe("evaluate", () => {
 
   it("names what is missing", () => {
     const failing = (patch: Partial<XrayView>, round = 5) =>
-      evaluate({ ...good(), ...patch }, cast, round).filter((c) => !c.pass).map((c) => c.name);
+      evaluate({ ...good(), ...patch }, cast, round)
+        .filter((c) => !c.pass)
+        .map((c) => c.name);
     expect(failing({ finalized: false })).toHaveLength(1);
     expect(failing({}, 6)).toHaveLength(1);
     expect(failing({ leaks: good().leaks.slice(0, 5) })[0]).toMatch(/eight drops/);
@@ -47,9 +49,10 @@ describe("evaluate", () => {
       "Bob's order landed",
       "Alice front-ran Bob on the priority lane",
     ]);
-    expect(failing({ leaks: good().leaks.map((l) => ({ ...l, ownerSeat: 254, state: 5, readerCount: 0 })) })).toEqual([
-      "Alice and Carol bought Leaks",
-      "Leaks were opened",
-    ]);
+    expect(
+      failing({
+        leaks: good().leaks.map((l) => ({ ...l, ownerSeat: 254, state: 5, readerCount: 0 })),
+      }),
+    ).toEqual(["Alice and Carol bought Leaks", "Leaks were opened"]);
   });
 });

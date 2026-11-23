@@ -46,7 +46,9 @@ export const scheduleRemaining = (payer: PublicKey, accounts: TableAccounts) => 
   meta(payer, true, true),
   meta(MAGIC_PROGRAM_ID, false, false),
   meta(accounts.table, false, true),
-  ...tickAccountList(accounts).map((account) => meta(account, false, !account.equals(accounts.future))),
+  ...tickAccountList(accounts).map((account) =>
+    meta(account, false, !account.equals(accounts.future)),
+  ),
 ];
 
 /** Schedules one finite tick task (`iterations` at `intervalMillis`). */
