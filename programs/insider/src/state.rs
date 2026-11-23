@@ -2,6 +2,7 @@
 pub mod board;
 pub mod call_vault;
 pub mod calls;
+pub mod cup;
 pub mod future;
 pub mod leak_vault;
 pub mod market;
@@ -15,6 +16,7 @@ pub mod xray;
 pub use board::*;
 pub use call_vault::*;
 pub use calls::*;
+pub use cup::*;
 pub use future::*;
 pub use leak_vault::*;
 pub use market::*;

@@ -172,6 +172,31 @@ pub mod insider {
         engine_setup::delegate_call_vault(ctx, slot)
     }
 
+    // Alpha Cup
+    pub fn init_cup(ctx: Context<InitCup>) -> Result<()> {
+        instructions::cup::init_cup(ctx)
+    }
+
+    pub fn delegate_cup(ctx: Context<DelegateCup>) -> Result<()> {
+        instructions::cup::delegate_cup(ctx)
+    }
+
+    pub fn cup_join(ctx: Context<CupJoin>, index: u8) -> Result<()> {
+        instructions::cup::cup_join(ctx, index)
+    }
+
+    pub fn cup_record(ctx: Context<CupRecord>) -> Result<()> {
+        instructions::cup::cup_record(ctx)
+    }
+
+    pub fn cup_settle(ctx: Context<CupSettle>) -> Result<()> {
+        instructions::cup::cup_settle(ctx)
+    }
+
+    pub fn cup_close(ctx: Context<CupClose>) -> Result<()> {
+        instructions::cup::cup_close(ctx)
+    }
+
     // Epoch
     pub fn commit_epoch(ctx: Context<CommitEpoch>) -> Result<()> {
         epoch::commit_epoch(ctx)

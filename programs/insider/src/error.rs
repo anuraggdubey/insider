@@ -86,4 +86,14 @@ pub enum InsiderError {
     LicenseUnavailable,
     #[msg("Desk order or position limit")]
     DeskLimit,
+    #[msg("Only human seats can enter the Alpha Cup")]
+    NotHumanSeat,
+    #[msg("This seat is already in the cup")]
+    CupAlreadyJoined,
+    #[msg("The cup has started or is waiting to be paid: no entries now")]
+    CupStarted,
+    #[msg("This round cannot be recorded into the cup")]
+    CupNothingToRecord,
+    #[msg("The cup is not ready for this")]
+    CupNotReady,
 }

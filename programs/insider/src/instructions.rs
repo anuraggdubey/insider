@@ -3,6 +3,7 @@
 #![allow(ambiguous_glob_reexports)]
 
 pub mod cranks;
+pub mod cup;
 pub mod desk;
 pub mod epoch;
 pub mod engine_setup;
@@ -16,6 +17,7 @@ pub mod setup;
 pub mod tick;
 
 pub use cranks::*;
+pub use cup::*;
 pub use desk::*;
 pub use epoch::*;
 pub use engine_setup::*;

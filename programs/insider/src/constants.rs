@@ -84,6 +84,13 @@ pub const SANDWICH_WINDOW_TICKS: u16 = 6;
 pub const MARKET_FLOOR: u8 = 0;
 pub const MARKET_DESK: u8 = 1;
 
+// The Alpha Cup, spec section 9.
+pub const CUP_SEED: &[u8] = b"cup";
+/// Rounds in one cup.
+pub const CUP_ROUNDS: u8 = 5;
+/// Human seats 7 to 9 can enter.
+pub const CUP_SLOTS: usize = 3;
+
 // The Desk (oracle-settled Calls), spec section 8.
 pub const CALLVAULT_SEED: &[u8] = b"callvault";
 /// SOL/USD feed of the pricing oracle (gate G4): PDA ["price_feed", "pyth-lazer", "6"].
