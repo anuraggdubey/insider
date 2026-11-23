@@ -20,6 +20,7 @@ import {
   offerLicense,
   openLeak,
   ping,
+  rearmTicks,
   requestRoundSeed,
   resealLeaks,
   sendOrder,
@@ -165,5 +166,22 @@ describe("round seed builders", () => {
 
   it("cancels a stuck request with just a payer and the table", () => {
     check(cancelVrf(config, owner), [owner, p.table], ["s-", "-w"], "cancelVrf", {});
+  });
+});
+
+describe("rearmTicks", () => {
+  it("passes the payer, magic program and table again, then the tick accounts in program order", () => {
+    const ix = rearmTicks(config, owner, 7);
+    const keys = ix.keys.map((key) => key.pubkey.toBase58());
+    // 3 declared accounts, 3 repeated, then 6 + 6 + 10 engine accounts
+    expect(ix.keys).toHaveLength(3 + 3 + 22);
+    expect(keys.slice(6)).toEqual(
+      [p.floor, p.mempool, p.future, p.board, p.xray, p.tape, ...p.leakVaults, ...p.seats].map((k) =>
+        k.toBase58(),
+      ),
+    );
+    const future = ix.keys.find((key, i) => i >= 6 && key.pubkey.equals(p.future))!;
+    expect(future.isWritable).toBe(false);
+    expect(coder.decode(ix.data)?.name).toBe("rearmTicks");
   });
 });

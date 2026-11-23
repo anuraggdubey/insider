@@ -1,3 +1,4 @@
+import { BN } from "@anchor-lang/core";
 import { BorshInstructionCoder, convertIdlToCamelCase, type Idl } from "@anchor-lang/core";
 import {
   EPHEMERAL_VAULT_ID,
@@ -25,7 +26,7 @@ function addresses(config: InsiderConfig) {
 function build(
   config: InsiderConfig,
   name: string,
-  args: Record<string, number>,
+  args: Record<string, number | BN>,
   values: Record<string, PublicKey>,
   remaining: AccountMeta[] = [],
 ): TransactionInstruction {
@@ -249,3 +250,39 @@ export function requestRoundSeed(
 /** Frees a table whose seed request never came back (after `VRF_TIMEOUT_TICKS` of silence). */
 export const cancelVrf = (config: InsiderConfig, payer: PublicKey) =>
   build(config, "cancelVrf", {}, { payer, table: addresses(config).table });
+
+/** Longest finite crank task one call may schedule (mirrors `MAX_TASK_ITERATIONS`). */
+export const MAX_TASK_ITERATIONS = 1_200;
+
+/**
+ * Permissionless: extends the tick crank once fewer than 600 ticks of it remain. The remaining
+ * accounts are the payer, the Magic program and the table again, then what `tick` needs in the
+ * program's order: market, mempool, future, board, xray, tape, six vaults, ten seats.
+ */
+export function rearmTicks(
+  config: InsiderConfig,
+  payer: PublicKey,
+  taskId: number,
+  iterations = MAX_TASK_ITERATIONS,
+  intervalMillis = 500,
+) {
+  const p = addresses(config);
+  const meta = (pubkey: PublicKey, isSigner: boolean, isWritable: boolean): AccountMeta => ({
+    pubkey,
+    isSigner,
+    isWritable,
+  });
+  const engine = [p.floor, p.mempool, p.future, p.board, p.xray, p.tape, ...p.leakVaults, ...p.seats];
+  return build(
+    config,
+    "rearmTicks",
+    { taskId: new BN(taskId), intervalMillis: new BN(intervalMillis), iterations: new BN(iterations) },
+    { payer, table: p.table, magicProgram: MAGIC_PROGRAM_ID },
+    [
+      meta(payer, true, true),
+      meta(MAGIC_PROGRAM_ID, false, false),
+      meta(p.table, false, true),
+      ...engine.map((key) => meta(key, false, !key.equals(p.future))),
+    ],
+  );
+}
