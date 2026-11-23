@@ -1,0 +1,19 @@
+{
+  "note": "Recovery run on devnet against the live table (37 accounts).",
+  "requestUndelegation": {
+    "account": "cup",
+    "signature": "3sbu5YKBdVev3zyHsXJMPq28sFrmsG4ffdaSnmKHTMVE2UeV7ZxwevV63xFUyLFjFm3Le9sXgUhbHSAC28L4uPLs",
+    "result": "the validator undelegated the account about five seconds later and removed the request; setup-table then delegated it again"
+  },
+  "rollbackUndelegation": {
+    "account": "cup",
+    "result": "reaches the Delegation program, which refuses it: no undelegation request exists (\"Invalid account owner for undelegation request\")"
+  },
+  "teardown": {
+    "accounts": 37,
+    "order": "the table last; every account came back to the base layer and was delegated again by pnpm setup-table --arm",
+    "finding": "an intent that is too big for one base-layer transaction is refused by the TEE with custom error 0xa0000002 and nothing is sent. Passed: 8 small accounts, 4 leak vaults, 6 call vaults, the two markets, any single account (the 7 KB X-ray included). Refused: 6 leak vaults, the first group of 8 (tape to X-ray), 4 leak vaults with 4 call vaults. pnpm teardown therefore starts with groups of about 1.5 KB and halves a refused group.",
+    "lastRun": "docs/proofs/teardown.json"
+  },
+  "afterwards": "the bots finished the round, resealed and seeded the next one on their own"
+}

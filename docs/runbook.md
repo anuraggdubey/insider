@@ -80,6 +80,35 @@ per call). `rearm_ticks` is permissionless once fewer than 600 ticks (5 minutes)
 can keep it alive; the bot service signs it too. Duplicate tasks are harmless: `tick` is derived
 from the rollup slot (50 slots per tick) and does nothing on a repeated call.
 
+## Recovery: tear the table down and set it up again
+
+Use this to fix a bad state, redeploy the setup or move the table.
+
+```bash
+# 1. stop pnpm bots, pnpm operator, pnpm cup-operator and pnpm analysts (or the table starts a new round)
+pnpm teardown --dry-run   # which accounts are delegated, and the groups
+pnpm teardown             # waits for the table to go Idle, then undelegates in groups, the table last
+pnpm setup-table --arm    # delegate everything again, private permissions, re-arm the crank
+# 2. start pnpm bots, pnpm operator and pnpm cup-operator again
+```
+
+`pnpm teardown --force` skips the Idle check for a table stuck in a round. The TEE refuses an intent
+that is too big for one base-layer transaction (`0xa0000002`, nothing is sent); the script starts
+with groups of about 1.5 KB and splits a refused group in half until it passes.
+
+**The rollup is not answering.** Teardown needs the rollup. Without it, from the base layer:
+
+```bash
+pnpm recover --request  --kind cup              # ask the Delegation program to undelegate one account
+pnpm recover --status   --kind cup              # the request and the slot from which a rollback is allowed
+pnpm recover --rollback --kind cup              # after that slot: take it back at its last committed state
+```
+
+`--kind` is one of table, tape, callBook, season, market, cup, mempool, future, board, xray,
+leakVault, callVault, seat (`--slot` picks the market, vault or seat). The validator normally honours the
+request within seconds; the rollback is for a validator that never does and the Delegation program
+refuses it before the timeout.
+
 ## 5. If something goes wrong
 
 | Symptom                                                  | Fix                                                                                                                                 |
