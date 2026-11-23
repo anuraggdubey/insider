@@ -373,31 +373,35 @@ Needs Misbah's engine stubs (H-API) before wiring.
 - [x] **A-1.1 State (3 h).** _Done:_ `state/{table,seat,tape,calls,season}.rs` with fixed sizes
       (`CallBook` is zero-copy), size unit tests, constants for the round shape and
       `SLOTS_PER_TICK = 50`.
-- [ ] **A-1.2 Setup instructions (5 h).** _Done:_ `init_table`, `init_tape`, `init_call_book`,
+- [x] **A-1.2 Setup instructions (5 h).** _Done:_ `init_table`, `init_tape`, `init_call_book`,
       `init_season`, `init_seat`, and one `delegate_*` instruction per account kind (the setup
-      script sends six per transaction, 1.4M CU), tests in `tests/lifecycle.rs`. **Still open,
-      needs Misbah's H-API types:** init and delegate for `Market`, `Mempool`, `Future`, `Board`,
-      `LeakVault`, `Xray`, and `init_permissions` (keyless `nobody` reader, pre-funded rent).
-- [ ] **A-1.3 VRF round seed (4 h).** `request_round_seed` (any seat, table `Idle`),
+      script sends six per transaction, 1.4M CU), tests in `tests/lifecycle.rs`. _Also done:_ `init_*`
+      and `delegate_*` for `Market`, `Mempool`, `Future`, `Board`, the six `LeakVault`s and `Xray`
+      (`engine_setup.rs`), and `init_permission` (rollup; keyless `nobody` member, rent pre-funded at
+      init). Verified live: the authority itself cannot read the mempool, the future or a vault.
+- [x] **A-1.3 VRF round seed (4 h).** `request_round_seed` (any seat, table `Idle`),
       `round_seed_callback` (const scoped VRF identity, `request_id`; calls Misbah's `math::seed`
-      to fill the future, whales and drop schedule), `cancel_vrf` after 10 ticks.
-- [ ] **A-1.4 `tick` loop and cranks (5 h).** _Done:_ clock-derived tick (50 slots), catch-up of
+      to fill the future, whales and drop schedule), `cancel_vrf` after 10 ticks. _Done in `round_seed.rs`: the table is `Seeding` and ticks do not run,
+      so the timeout is measured on the rollup clock (`vrf_requested_tick` holds `slot / 50` mod 2^16)._
+- [x] **A-1.4 `tick` loop and cranks (5 h).** _Done:_ clock-derived tick (50 slots), catch-up of
       at most 8 missed ticks, phase machine, `schedule_ticks`, permissionless `rearm_ticks`, crank
-      signer check, idempotence unit tests. **Still open:** the `engine::step` call (the hook is
-      marked in `instructions/tick.rs`) and a devnet run; both need H-API.
+      signer check, idempotence unit tests. `engine::step` runs once per tick. The
+      named accounts are market, mempool, future, board, xray and tape; the six vaults and ten seats
+      are validated remaining accounts (all 26 named overflowed the SBF stack frame).
 - [x] **A-1.5 Seats (2 h).** _Done:_ `claim_seat` (bot, AI and human-first classes, idle
       displacement, protected AI seats), `ping`, LiteSVM tests.
-- [ ] **A-1.6 Deploy and vertical slice (1 h).** Build, deploy, run seed, orders, 180 ticks, close
-      on devnet with a script. _Done when:_ one full empty-table round runs on devnet. **Handoff H2.**
+- [x] **A-1.6 Deploy and vertical slice (1 h).** Build, deploy, run seed, orders, 180 ticks, close
+      on devnet with a script. _Done when:_ one full empty-table round runs on devnet. **Handoff H2.** _Done: `pnpm vertical-slice` ran a full round on the devnet TEE (proof in
+      `docs/proofs/vertical-slice.json`); `pnpm run-table` keeps rounds flowing for playtests._
 
 ### Block 2: Live table, bots, proofs (21 h)
 
 - [ ] **A-2.1 Setup script (3 h).** _Done for my accounts:_ `pnpm setup-table` (`--dry-run`,
       `--arm`, `--validator`) reads chain state, plans only the missing work (create, batch, delegate
       six per transaction) and is idempotent and resumable; the plan, the client helpers and all 28
-      instructions are unit-tested offline. Runbook: [runbook.md](runbook.md). **Not yet run on
-      devnet** (the program is deployed together with Misbah's part). **Still open:** Misbah's
-      accounts and `init_permissions` in the plan.
+      instructions are unit-tested offline. Runbook: [runbook.md](runbook.md). Now covers all 25 accounts and the private permissions
+      (a second plan on the rollup) and **has been run on devnet** (five delegations per
+      transaction; six overflowed the packet when seats and vaults were mixed).
 - [ ] **A-2.2 `simulate-round` (4 h).** Full round with three keys: seed, orders, eight drops, bids,
       opens, front-run, X-ray. Prints every explorer link and writes `docs/proofs`.
 - [ ] **A-2.3 Privacy tests (3 h).** Opener reads; a second key and an anonymous call can't read

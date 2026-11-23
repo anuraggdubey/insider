@@ -32,14 +32,29 @@ pnpm setup-table             # creates and delegates everything
 pnpm setup-table --arm       # also schedules the tick crank on the TEE (10 minutes)
 ```
 
-The plan is 7 transactions from scratch:
+The plan is 13 transactions from scratch, then a rollup step:
 
-| Step                              | What                                                    |
-| --------------------------------- | ------------------------------------------------------- |
-| 1. create table                   | `init_table`                                            |
-| 2. create tape, call book, season | one instruction each (no stack frame holds two)         |
-| 3-4. create seats                 | `init_seat`, five per transaction                       |
-| 5-7. delegate                     | `delegate_*`, six per transaction at a 1.4M compute cap |
+| Step                              | What                                                                  |
+| --------------------------------- | --------------------------------------------------------------------- |
+| 1. create table                   | `init_table`                                                          |
+| 2. create tape, call book, season | one instruction each (no stack frame holds two)                       |
+| 3-6. create engine accounts       | market, mempool, future, board, X-ray, six vaults; three per transaction. Mempool, future and vaults are pre-funded with the permission rent |
+| 7-8. create seats                 | `init_seat`, five per transaction                                     |
+| 9-13. delegate                    | `delegate_*` for all 25 accounts, five per transaction (1.4M compute) |
+| rollup: private permissions       | `init_permission`: mempool, future and the six vaults become private to the keyless `nobody` member |
+
+Privacy check: after setup, reading the mempool, the future or a vault on the TEE returns nothing,
+even for the table authority. The script uses exactly that to decide which permissions are done.
+
+## Run a round
+
+```bash
+pnpm vertical-slice    # one round: request_round_seed, 200 ticks, finish_round, reseal_leaks
+pnpm run-table         # rounds back to back, re-arming the crank (keep it running for playtests)
+```
+
+Round end order is `finish_round`, then `reseal_leaks(0, 6)`, then `request_round_seed`
+(`scripts/src/round/cycle.ts` picks the next step from the table, board and X-ray).
 
 The script reads what exists and what is already delegated and sends only what is missing, so it
 is **safe to run again** after any failure. Running it on a finished table prints "nothing to do".
