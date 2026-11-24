@@ -24,6 +24,7 @@ const nav = [
   ["Rules", "/rules"],
   ["Watch", "/watch"],
   ["Desk", "/desk"],
+  ["Cup", "/cup"],
   ["Proof", "/proof"],
 ];
 

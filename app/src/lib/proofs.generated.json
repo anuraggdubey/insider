@@ -1,0 +1,528 @@
+{
+  "entries": [
+    {
+      "id": "vertical-slice",
+      "title": "One full round",
+      "summary": "Seed, 200 ticks on the rollup, scoring and reseal on the live table.",
+      "checks": [],
+      "links": [],
+      "facts": {
+        "table": "DjnqzKQsUU1fmRztBAiUkPn8VwsnFYgMedcg1BPyA1k",
+        "program": "7mTtHsFMYnZRnhd3SRzhj8Nm1U2T3s33dnbJwa9zBErW"
+      }
+    },
+    {
+      "id": "simulate-round",
+      "title": "A scripted round: buy, open, front-run, X-ray",
+      "summary": "Three keys play a round; the X-ray shows exactly what happened.",
+      "checks": [
+        {
+          "name": "the X-ray is the round we played and is scored",
+          "pass": true
+        },
+        {
+          "name": "all eight drops were minted",
+          "pass": true
+        },
+        {
+          "name": "Alice and Carol bought Leaks",
+          "pass": true
+        },
+        {
+          "name": "Leaks were opened",
+          "pass": true
+        },
+        {
+          "name": "Bob's order landed",
+          "pass": true
+        },
+        {
+          "name": "Alice front-ran Bob on the priority lane",
+          "pass": true
+        }
+      ],
+      "links": [
+        {
+          "label": "finish_round (previous round) (802 ms)",
+          "url": "https://explorer.solana.com/tx/31f5ZofrUaRsEXe97wjqCTdngxC3aB4r6moV4qyTcfgpF99WHaoR3BVhhpwWtiVW8kbbN7jCrjgPowrAujp8HRuB?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app"
+        },
+        {
+          "label": "reseal_leaks (previous round) (237 ms)",
+          "url": "https://explorer.solana.com/tx/5rN97mW9dTuAV8sLsksd43sH3531JuHQ6boj4AMS4fPFHAZXPFmL61owwGwj6fVGDWBGE4fS3vTjuHYPRxe3BaDS?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app"
+        },
+        {
+          "label": "request_round_seed (483 ms)",
+          "url": "https://explorer.solana.com/tx/b5yi6SzxC2T5BAqnwhRrQUqwGs4ahiAoVs9xJLeRwa5ieKurDaa86finVMXEHeSdu92BExuSWTptteS3ZJaqoQf?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app"
+        },
+        {
+          "label": "claim seat 7 (164 ms)",
+          "url": "https://explorer.solana.com/tx/5HQNuZLY44AqiVpxtDQrPhqK7piShM4wGGqXeXbQWnpq65jyhquDjCMQ2K3qJq6CrSBs69bPYf95U99cbE3FrMmy?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app"
+        },
+        {
+          "label": "claim seat 8 (661 ms)",
+          "url": "https://explorer.solana.com/tx/5rsKhrmPAGqVCtFTvWXX8VvihswJrD8ZyqVi6wnT9uXbe666dTf9AaS19t5E4T71y3yyVjAhY4n7PcMqnZPYvcjc?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app"
+        },
+        {
+          "label": "claim seat 9 (801 ms)",
+          "url": "https://explorer.solana.com/tx/4aoH8FExWMvRda5e12HrJUAfRQarCUNRw5NUE2R9Bkx8zDnn8RmE355nFiuqEzkZQ53gL44kNj9wgs6sqKkLwymx?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app"
+        },
+        {
+          "label": "order: buy 600 on the standard lane (411 ms)",
+          "url": "https://explorer.solana.com/tx/4eRADBsqjydTA4L4JuTKtajNpo9NhtvjLK59chqT653wPcMF1FujA5qQaXWBf6TfdxRTtv1FAv9WMZHujztvRVbw?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app"
+        },
+        {
+          "label": "bid on slot 0 (kind 0) (671 ms)",
+          "url": "https://explorer.solana.com/tx/4NmY9aPj5spTjAo9jduLyT8gzSxXoiuV2dvCFNaT5iuUtaguLJYwJpqSBBCnr3kHtByurgQep9S7ysAZZHz1kQGA?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app"
+        },
+        {
+          "label": "open slot 0 (637 ms)",
+          "url": "https://explorer.solana.com/tx/3VX4QMV3hs43X5F3tQ3SjXAxCebWUoiNB5zdY8Kbdg88o2WzkAKUrfH6bmfCtK78ENqr5RVjC8Ru8YgQW68MWi74?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app"
+        },
+        {
+          "label": "front-run: buy 400 on the priority lane (568 ms)",
+          "url": "https://explorer.solana.com/tx/2wAGrK4v3TFUpJ69KXSrYUFXwZ5VCpSjRC73i96D2YkLNbAh9kDP48YVFdGb1TpWLaTsbcV1eYz2mEDqAznWEu9q?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app"
+        },
+        {
+          "label": "bid on slot 1 (kind 5) (580 ms)",
+          "url": "https://explorer.solana.com/tx/61tbnHKjigHr2Mg2tHg6p9HUinbZXvBKuNv12tPx8pAt5xtXzSSucznhxVk5hgjsyNc6835URDYjBfMkaffRahE7?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app"
+        },
+        {
+          "label": "open slot 1 (549 ms)",
+          "url": "https://explorer.solana.com/tx/2FZCYkC79Q2zpEgeXAKBcoVMivcWEDLHSYR1GwgDe9obR5rukbgjx4Zy35VZxfEhH2ojyzWjvMhXP6ZxGVS75cTR?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app"
+        },
+        {
+          "label": "bid on slot 2 (kind 6) (458 ms)",
+          "url": "https://explorer.solana.com/tx/2JaKKMu8GKyohboUJVU3jNCKSKrMeW59hhyyuZJxxzTyu8xM2vme1WxD1efiSTJ3drqncB78SW9QMW15oEtPwe53?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app"
+        },
+        {
+          "label": "open slot 2 (489 ms)",
+          "url": "https://explorer.solana.com/tx/3mXxKnGJXoKaH8M6ymtWDi2KEdmKBVtwwsw6U8HdJrS9Zn34MCf13kVmZKiAqf7PjqUViQ9X4bqqwNPjTTLyThBz?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app"
+        },
+        {
+          "label": "bid on slot 3 (kind 4) (588 ms)",
+          "url": "https://explorer.solana.com/tx/4Ng8nWaVEcqLj7eRXJTrRxhSfieUeN8BDyBYCCSpSKvuR8GVmJde2x69HhJAwBZ5k2dYzyjXsdY3H9g2LFSdV6ci?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app"
+        },
+        {
+          "label": "open slot 3 (676 ms)",
+          "url": "https://explorer.solana.com/tx/4o3EJQuTFC7TKk7AQPPcvWHG13k6jkF7E9hRXFrWVkcSXH8SAH4EmYdsxpDCGynH2yXqbD1kv4RhLdT6ycZXhhVs?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app"
+        },
+        {
+          "label": "finish_round (579 ms)",
+          "url": "https://explorer.solana.com/tx/hRGHAoPDwNYHKe28fNjN24w9BqJVbMWoPwjpiK9xXV5iTbiMW7krX6vrhf5Rpx1EeF37gJGEwmi4ZedK1bivjmG?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app"
+        },
+        {
+          "label": "reseal_leaks(0, 6) (525 ms)",
+          "url": "https://explorer.solana.com/tx/4be2Dmr66uWkvKp1sivWpmrsdMhFBWFnA2EVjbUXR2t26Z94u1xcasRK4CfcHieuSQijGxBYtdFSymo67vcN1eL?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app"
+        }
+      ],
+      "facts": {
+        "table": "DjnqzKQsUU1fmRztBAiUkPn8VwsnFYgMedcg1BPyA1k",
+        "program": "7mTtHsFMYnZRnhd3SRzhj8Nm1U2T3s33dnbJwa9zBErW"
+      }
+    },
+    {
+      "id": "privacy-test",
+      "title": "Privacy probes",
+      "summary": "The opener, another seat, the authority and an anonymous client try to read sealed data.",
+      "checks": [
+        {
+          "name": "43 of 43 privacy probes passed",
+          "pass": true
+        }
+      ],
+      "links": [
+        {
+          "label": "request_round_seed (671 ms)",
+          "url": "https://explorer.solana.com/tx/2hnUJYxFNLhWRWgiLd4t26irD5mSDUBFpi9KSzmz68bcjqZJGHiXrWJRrJcu31SBnqx4GXfzaAVdG2SmqKF6rBFw?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app"
+        },
+        {
+          "label": "Bob claims seat 8 (823 ms)",
+          "url": "https://explorer.solana.com/tx/4pcNLf5U1fPNcPAjSzvpsCSXT7cH2z2qrFSfDnorMzNGy2x9zxd5VYcKgUDwkRWCDnf7BnyRuDdmNoGPY2keprSx?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app"
+        },
+        {
+          "label": "Carol claims seat 9 (558 ms)",
+          "url": "https://explorer.solana.com/tx/yKZ6Ba8mkc5k5DUdbZA1jcecDFioEgm7f7o49SVQmKqARuEG1k3CxhgoPv29YkxmQzJoYNKAsFLEzgUd98rNbj4?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app"
+        },
+        {
+          "label": "Bob bids on slot 0 (543 ms)",
+          "url": "https://explorer.solana.com/tx/YPyN4hAazazREPVY33gkRY5qKxe7Zvk7RG55vWxAVHMvoLuB1KhPuyVDk2XeRR5tFofux26eAh3XjxST2j6Ug3G?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app"
+        },
+        {
+          "label": "Bob opens slot 0 (458 ms)",
+          "url": "https://explorer.solana.com/tx/5BgS1yYGxbDLWbUziKKuKEsFWhbNJGQAhnN18KsrDKPDzTPY5AYedAfWvhfPT2DPMvW52VqmVSW5mou8ckCsyQDD?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app"
+        },
+        {
+          "label": "Bob sends a 300-unit buy (the pending order we try to find) (495 ms)",
+          "url": "https://explorer.solana.com/tx/Nc5zbUPt5NGhuoBFX6dJZL6oyx4s11xtwzi4RA5kv1fB6hwddsZc7UkxwFnMfxbsJN7Kp6MYc3jbE18FeEqXRML?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app"
+        },
+        {
+          "label": "finish_round (1591 ms)",
+          "url": "https://explorer.solana.com/tx/dAKi8HoDA5wQctfgcyFaMbM5BnMghka7kFuJAHy98XapbyY5nGAEnvTJarFtuPoWqiYGfZqKizV5VycYcJ439Vv?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app"
+        },
+        {
+          "label": "reseal_leaks(0, 6) (1452 ms)",
+          "url": "https://explorer.solana.com/tx/23iYCy8WE2KRfopwcNs1PyN5riPdce1Hpi8HTQ9BYLeQ5crpsVNX9QMGz1NZE47mGhcaoughKf616CHzH4FpQzEC?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app"
+        }
+      ],
+      "facts": {
+        "table": "DjnqzKQsUU1fmRztBAiUkPn8VwsnFYgMedcg1BPyA1k",
+        "program": "7mTtHsFMYnZRnhd3SRzhj8Nm1U2T3s33dnbJwa9zBErW"
+      }
+    },
+    {
+      "id": "go-live",
+      "title": "A human seat on the live table",
+      "summary": "A human joined and sent orders while the bots played and scored rounds on their own.",
+      "checks": [],
+      "links": [
+        {
+          "label": "human claims seat 7",
+          "url": "https://explorer.solana.com/tx/2pKJr7hRL36dPcRYhzQ3NpoLjsK5MmP1DpPXUvUFePwET9xs6Dtd19uu6TfaJtQEf16B6wLZSPNxRHu7JAKnZ8Z3?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app"
+        },
+        {
+          "label": "human order 1: buy 120",
+          "url": "https://explorer.solana.com/tx/2WnsabPW6iiqM3SVQoR7q4zbKux2horKrJ91p1Z2tAwsWqiyCTpoZSMRprzKciJCmqrW5QnS3aGLEQTJZHHu8SrB?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app"
+        },
+        {
+          "label": "human order 2: sell 120",
+          "url": "https://explorer.solana.com/tx/2kZeKRdaKW9qATMfzmR6r7uHcxCHvrMPutfsEXJzJUMG2zs2FL2a9hEUDp5xhDK4n6TV7wdWp9AXGmexYycGDwQC?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app"
+        },
+        {
+          "label": "human order 3: buy 120",
+          "url": "https://explorer.solana.com/tx/5SWpTQz5VJqmA9mbp2WEa8SsTHJGWwNVpmNiR5CS4rXgANxhD2L7vygETDMvTkeYuuqdwqvxf1RbzMEGrDyaodw4?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app"
+        }
+      ],
+      "facts": {
+        "table": "DjnqzKQsUU1fmRztBAiUkPn8VwsnFYgMedcg1BPyA1k",
+        "program": "7mTtHsFMYnZRnhd3SRzhj8Nm1U2T3s33dnbJwa9zBErW"
+      }
+    },
+    {
+      "id": "epoch",
+      "title": "Epoch cycle",
+      "summary": "Season committed to the base layer and opened again, repeatedly.",
+      "checks": [],
+      "links": [],
+      "facts": {
+        "table": "DjnqzKQsUU1fmRztBAiUkPn8VwsnFYgMedcg1BPyA1k",
+        "program": "7mTtHsFMYnZRnhd3SRzhj8Nm1U2T3s33dnbJwa9zBErW"
+      }
+    },
+    {
+      "id": "desk",
+      "title": "The Desk: a Call from mint to judgement",
+      "summary": "A private Call, a licence sale, an oracle-settled verdict and the author's record.",
+      "checks": [
+        {
+          "name": "only Alice reads the vault before the licence",
+          "pass": true
+        },
+        {
+          "name": "after the licence Alice and Bob read it, Carol and anonymous do not",
+          "pass": true
+        },
+        {
+          "name": "the licence moved its price from Bob to Alice",
+          "pass": true
+        },
+        {
+          "name": "the oracle judged the Call and revealed the direction",
+          "pass": true
+        },
+        {
+          "name": "the stake came back with a bonus or was burned",
+          "pass": true
+        },
+        {
+          "name": "Alice's public record counts the Call",
+          "pass": true
+        }
+      ],
+      "links": [
+        {
+          "label": "alice mints a 60 s Call: up, stake 50, licence 20 (495 ms)",
+          "url": "https://explorer.solana.com/tx/4YCW1iw9PXYs7272stTyzJDLCW6KTSsjBuywsxyTE12iLosszC1HpyJqFyoJYXcKTtuKHPyvQ4osGufTvRrpeG5q?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app"
+        },
+        {
+          "label": "bob buys the licence from seat 7 for 20 (561 ms)",
+          "url": "https://explorer.solana.com/tx/5mUUqgxfSqyCLYYiy24MbyKeUgdG1b7dTmZSnHwffkMQkUz6ArNE8AL6od6VFrE6ffuMy9cwAZ79GrAcDu4EFCaf?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app"
+        },
+        {
+          "label": "bob trades +100 Desk units on the Call (407 ms)",
+          "url": "https://explorer.solana.com/tx/4oAHz4BSobpaxxX9DDuhdDVjsLoWXMHRaDsuYWM4LtpKc9QXxri1TLtkcgh3SjfkeUHJXV3T1ohVrKFMBVbkfFvp?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app"
+        },
+        {
+          "label": "carol settles the Call (656 ms)",
+          "url": "https://explorer.solana.com/tx/2hrQUT1n7kUEBXaHuZSj99E2vn3qvWngL21HvGzbxZocbduL9Yq2H3GAT2wt8jFcrRjaaPCNG1U4e4dbkuufbgHu?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app"
+        }
+      ],
+      "facts": {
+        "table": "DjnqzKQsUU1fmRztBAiUkPn8VwsnFYgMedcg1BPyA1k",
+        "program": "7mTtHsFMYnZRnhd3SRzhj8Nm1U2T3s33dnbJwa9zBErW"
+      }
+    },
+    {
+      "id": "cup",
+      "title": "The Alpha Cup",
+      "summary": "Private buy-ins, five rounds, 60/40 private payouts and the platform fee.",
+      "checks": [
+        {
+          "name": "two entrants joined and the buy-ins were counted",
+          "pass": true
+        },
+        {
+          "name": "the pot is the buy-ins, the fee is 5%",
+          "pass": true
+        },
+        {
+          "name": "two prizes were paid, 60/40 of the pool",
+          "pass": true
+        },
+        {
+          "name": "each winner's private balance rose by exactly the prize",
+          "pass": true
+        },
+        {
+          "name": "the next cup is open",
+          "pass": true
+        }
+      ],
+      "links": [],
+      "facts": {
+        "table": "DjnqzKQsUU1fmRztBAiUkPn8VwsnFYgMedcg1BPyA1k",
+        "program": "7mTtHsFMYnZRnhd3SRzhj8Nm1U2T3s33dnbJwa9zBErW"
+      }
+    },
+    {
+      "id": "session",
+      "title": "Session keys",
+      "summary": "A key with no SOL plays for a wallet; strangers, wrong seats and revoked keys are refused.",
+      "checks": [
+        {
+          "name": "the session key holds no SOL",
+          "pass": true
+        },
+        {
+          "name": "every allowed action landed and every forbidden one was rejected",
+          "pass": true
+        },
+        {
+          "name": "a session ping refreshed bob's seat",
+          "pass": true
+        },
+        {
+          "name": "the seat still belongs to bob",
+          "pass": true
+        },
+        {
+          "name": "the session token is gone after revoke",
+          "pass": true
+        }
+      ],
+      "links": [
+        {
+          "label": "createSessionV2 (bob authorises a zero-SOL key)",
+          "url": "https://explorer.solana.com/tx/T6gPJAe8Qxb5HsCsnJS8tJ8uNPxezxKxzr8EFqHJWMdA2o9U1iGA6TBpX86QysdxUdtizccMF7UPHkWRz8igdpB?cluster=devnet",
+          "layer": "base"
+        },
+        {
+          "label": "session key pings for bob: landed (838 ms)",
+          "url": "https://explorer.solana.com/tx/EFVE3jM8CgUYsPdXizSwb6qbAgRD2fwBvLdkf4M44DhpXU7oBLFKjoKLhzMKokj7PWngs86Zz5UyEqV8GDntj3b?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app",
+          "layer": "TEE"
+        },
+        {
+          "label": "session key buys 1 Desk unit for bob: landed (567 ms)",
+          "url": "https://explorer.solana.com/tx/4x5cUJ4PgZHvmGZLvbXrxozNthfkVpbLLvv6iRJWjWTnFy8Do7jX9sFBNQUrXfkTCJGFWeX6Lqk4VznHxv2Bzmuc?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app",
+          "layer": "TEE"
+        },
+        {
+          "label": "session key sells 1 Desk unit for bob: landed (165 ms)",
+          "url": "https://explorer.solana.com/tx/4DqaZxGV4qTH8JaKo6D7HHttQ57xZLaZWPgoK5ebCRiA8h7cFCVcghWssG9f7pnvUE79TaoUzeo5dvRQxhvectZt?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app",
+          "layer": "TEE"
+        },
+        {
+          "label": "session key sends a floor order for bob: landed (250 ms)",
+          "url": "https://explorer.solana.com/tx/4A5zLhvrT5QGWJxut5zqKiVeumx9H7KvcXQpga7t3AeyGmHGRKaQmuH8swJJNLFUx3xRhKn3Jf2N1rkJa61pMkrE?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app",
+          "layer": "TEE"
+        },
+        {
+          "label": "bob pings directly (fallback): landed (644 ms)",
+          "url": "https://explorer.solana.com/tx/4NWvGZ5UnH2PFYg8NNC2nnGyqHHNMy1QiTUGvKS15jWjbEogsdRQhvTNGRKXbFXfJeajLtLdp82R7UZUtpYewuUu?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app",
+          "layer": "TEE"
+        },
+        {
+          "label": "revokeSessionV2",
+          "url": "https://explorer.solana.com/tx/26QCaA9v8kzS2NB19YmgZsP8BMmmQ9FkeAbnBejHjAgffSSCTmf6kdJBmrACLhdw6qaicncmngFdN3bEUJAVpYUH?cluster=devnet",
+          "layer": "base"
+        }
+      ],
+      "facts": {
+        "table": "DjnqzKQsUU1fmRztBAiUkPn8VwsnFYgMedcg1BPyA1k",
+        "program": "7mTtHsFMYnZRnhd3SRzhj8Nm1U2T3s33dnbJwa9zBErW",
+        "wallet": "4fg2pr8RxpkNCBZGoVzwH3BkWJWwSr5sfCKHM2xcoWrG",
+        "sessionKey": "HwVvfGDHHroVGHmXxRgaMkGS3nkozfJMqKmDsVVUfsqa",
+        "sessionToken": "7hGrSC7iCmh9PDXQbVDXeT8WjC4bTZeuM2teGuaiLRQo"
+      }
+    },
+    {
+      "id": "soak",
+      "title": "60-minute soak",
+      "summary": "Five bots, two AI analysts and the operators ran an hour with no failed step.",
+      "checks": [
+        {
+          "name": "service logs were read",
+          "pass": true
+        },
+        {
+          "name": "the run lasted as long as planned",
+          "pass": true
+        },
+        {
+          "name": "the table kept completing rounds",
+          "pass": true
+        },
+        {
+          "name": "no stall longer than 60 s",
+          "pass": true
+        },
+        {
+          "name": "the crank never ran out",
+          "pass": true
+        },
+        {
+          "name": "failed steps stay under 2% of the transactions sent",
+          "pass": true
+        },
+        {
+          "name": "no error-level log lines",
+          "pass": true
+        }
+      ],
+      "links": [],
+      "facts": {
+        "table": "DjnqzKQsUU1fmRztBAiUkPn8VwsnFYgMedcg1BPyA1k",
+        "program": "7mTtHsFMYnZRnhd3SRzhj8Nm1U2T3s33dnbJwa9zBErW"
+      }
+    },
+    {
+      "id": "soar",
+      "title": "SOAR leaderboard",
+      "summary": "A SOAR game and leaderboard on devnet fed with season scores by the game authority.",
+      "checks": [
+        {
+          "name": "the leaderboard lists both players, best first",
+          "pass": true
+        },
+        {
+          "name": "a player cannot submit their own score",
+          "pass": true
+        }
+      ],
+      "links": [
+        {
+          "label": "bot-front-runner registers on the leaderboard",
+          "url": "https://explorer.solana.com/tx/tH1BbiX2AppQKDokJ4t3uCx8EgbX4wJpVNMs6EwfYAs9iXS3K2GYYZqTuJhv9bwy3bEAXN1nNenxp6C56r9wp3o?cluster=devnet"
+        },
+        {
+          "label": "submit bob: 1240",
+          "url": "https://explorer.solana.com/tx/2ecFpfgSrnkWfxQnP2ka13MLiTFTmV93eQsZtoLKeVsZWUikSeGvUN1ZEW7MvQuCpTsYL1Y9Ke8RxqYNwV2gFQGg?cluster=devnet"
+        },
+        {
+          "label": "submit carol: 860",
+          "url": "https://explorer.solana.com/tx/3QWXAczyUMbB1kpdZDRDJrEVGjMUvQ6Zawe3prYYXTVPUwJE1mYxWsyzspXXyup5UaaNCSf5LN4FE7ZKxiqgjAcJ?cluster=devnet"
+        }
+      ],
+      "facts": {
+        "program": "SoarNNzwQHMwcfdkdLc6kvbkoMSxcHy89gTHrjhJYkk",
+        "game": "dQPfJzesPQSGYueDrf7UFskt3nFHo4nmQyeSgJYEphF",
+        "leaderboard": "HRLwsB4PeVTE8Lm2RVDoYfYtT3FCGYxH7F1A2e9rryib"
+      }
+    },
+    {
+      "id": "teardown",
+      "title": "Teardown and re-setup",
+      "summary": "The whole table recovered from the base layer.",
+      "checks": [],
+      "links": [],
+      "facts": {
+        "table": "DjnqzKQsUU1fmRztBAiUkPn8VwsnFYgMedcg1BPyA1k"
+      }
+    },
+    {
+      "id": "recovery",
+      "title": "Recovery paths",
+      "summary": "Undelegation requests honoured by the validator.",
+      "checks": [],
+      "links": [],
+      "facts": {}
+    }
+  ],
+  "gates": [
+    {
+      "gate": "G0",
+      "name": "Darkcheck",
+      "status": "pass",
+      "decision": "Non-members and anonymous callers recovered nothing from any path; the member control could read. The dark mempool, lanes and Flow family stay in."
+    },
+    {
+      "gate": "G1",
+      "name": "Clock and tick rate",
+      "status": "pass",
+      "decision": "SLOTS_PER_TICK = 50 (jitter 1.5%). Tick is derived from the rollup slot."
+    },
+    {
+      "gate": "G2",
+      "name": "Keyless reader",
+      "status": "pass",
+      "decision": "Both a keyless-PDA member list and an empty list make the account unreadable to everyone, including the authority, while program code keeps writing. Use [nobody] for Mempool, Future and sealed vaults."
+    },
+    {
+      "gate": "G3",
+      "name": "Zero-balance key",
+      "status": "pass",
+      "decision": "A key with 0 SOL signs and pays its own transactions on the TEE. Guest onboarding needs no funding."
+    },
+    {
+      "gate": "G4",
+      "name": "Oracle in the TEE",
+      "status": "pass",
+      "decision": "A program inside the TEE reads SOL/USD (about $69.91, age under 10s). The Desk is in. Decode as PriceUpdateV3 by layout, exponent -8 from the feed list."
+    },
+    {
+      "gate": "G5",
+      "name": "Private Payments",
+      "status": "pass",
+      "decision": "Deposit, private transfer, withdraw and the platform fee all work on devnet-private, and another wallet cannot read a private balance. Alpha Cup is in. Caveat: a queued private base-to-base buy-in did not deliver to the operator within 150 s (the fee was skimmed at once), so buy-ins and payouts should run as deposit, private transfer inside the rollup and withdraw, which are fast and verified."
+    },
+    {
+      "gate": "G6",
+      "name": "Magic Action",
+      "status": "info",
+      "decision": "Magic Action works: a post-commit action ran our base-layer instruction, authenticated by the escrow signer, and wrote the committed value. The SOAR leaderboard call is not yet tested, so achievements stay undecided until task A-4.2."
+    },
+    {
+      "gate": "G7",
+      "name": "Session keys",
+      "status": "pass",
+      "decision": "A zero-SOL session key signs gameplay on the TEE for the wallet; wrong signers and missing tokens are rejected, the wallet still works directly, and revocation stops the session. Wallet identity is in."
+    },
+    {
+      "gate": "G8",
+      "name": "Epoch cycle",
+      "status": "pass",
+      "decision": "Committed, undelegated and re-delegated 3 times in a row with the right value on base each time. The epoch design stands."
+    },
+    {
+      "gate": "G9",
+      "name": "Duplicate cranks",
+      "status": "pass",
+      "decision": "Duplicate tasks made 20 calls but only 10 effective ticks (single task: 10). A tick gated on elapsed slots is idempotent."
+    },
+    {
+      "gate": "G10",
+      "name": "Crank-invoked VRF",
+      "status": "info",
+      "decision": "A crank-scheduled VRF request produced no callback. Nothing changes: drops stay derived from the one round seed that a signing seat requests."
+    }
+  ]
+}
