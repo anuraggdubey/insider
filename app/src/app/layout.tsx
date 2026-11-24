@@ -11,9 +11,24 @@ import "./globals.css";
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
 
+const description = "Orders wait in a TEE-sealed dark mempool. Buy a look. Jump the line.";
+
 export const metadata: Metadata = {
-  title: "INSIDER — Front-running is the game.",
-  description: "Orders wait in a TEE-sealed dark mempool. Buy a look. Jump the line.",
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"),
+  applicationName: "INSIDER",
+  title: { default: "INSIDER — Front-running is the game.", template: "%s" },
+  description,
+  openGraph: {
+    type: "website",
+    siteName: "INSIDER",
+    title: "INSIDER — Front-running is the game.",
+    description,
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "INSIDER — Front-running is the game.",
+    description,
+  },
 };
 export const viewport: Viewport = { themeColor: "#07080A" };
 
