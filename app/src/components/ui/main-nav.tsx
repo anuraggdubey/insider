@@ -18,8 +18,8 @@ export function MainNav({ items }: { items: string[][] }) {
             prefetch={false}
             aria-current={active ? "page" : undefined}
             className={cn(
-              "rounded-xl px-3.5 py-2 text-sm font-bold transition-colors",
-              active ? "bg-brand/10 text-brand" : "text-muted hover:bg-surface-2 hover:text-ink",
+              "rounded-md px-3 py-1.5 text-sm font-bold transition-colors",
+              active ? "bg-surface-2 text-ink" : "text-muted hover:bg-surface-2 hover:text-ink",
             )}
           >
             {label}

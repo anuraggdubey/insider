@@ -14,8 +14,8 @@ export const buttonVariants: Record<Variant, string> = {
 };
 export const buttonSizes: Record<Size, string> = {
   sm: "h-9 px-3.5 text-sm",
-  md: "h-11 px-5 text-base",
-  lg: "h-14 px-7 text-lg",
+  md: "h-10 px-4 text-sm",
+  lg: "h-12 px-6 text-base",
 };
 export function basicButtonStyles(variant: Variant, size: Size) {
   return `${buttonBase} ${buttonVariants[variant]} ${buttonSizes[size]}`;

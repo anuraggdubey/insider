@@ -103,18 +103,18 @@ const toneBg: Record<string, string> = {
 
 function RoundCard({ round, className }: { round: Round; className?: string }) {
   return (
-    <article className={`gcard flex flex-col overflow-hidden p-2 ${className ?? ""}`}>
+    <article className={`gcard flex flex-col overflow-hidden p-1.5 ${className ?? ""}`}>
       <Image
         src={round.img}
         alt={round.alt}
         width={1600}
         height={900}
         sizes="(min-width: 1024px) 540px, (min-width: 768px) 45vw, 92vw"
-        className="aspect-[16/10] w-full rounded-[18px] object-cover"
+        className="aspect-[16/10] w-full rounded-md object-cover"
       />
       <div className="flex flex-1 flex-col p-5">
         <span
-          className={`${toneBg[round.tone]} inline-flex w-fit items-center rounded-full px-2.5 py-1 text-[11px] font-extrabold tracking-wide uppercase`}
+          className={`${toneBg[round.tone]} inline-flex w-fit items-center rounded-sm px-2 py-1 text-[11px] font-extrabold tracking-wide uppercase`}
         >
           {round.tag} · {round.kicker}
         </span>

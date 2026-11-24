@@ -1,8 +1,5 @@
-import { ArrowRight, Eye, Sparkles, Swords, Trophy } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { PlayButton } from "@/components/onboarding/play-button";
-import { FastModeToggle, WalletPlayButton } from "@/components/onboarding/wallet";
 import {
   HeroFade,
   HorizontalRounds,
@@ -11,6 +8,8 @@ import {
   ScaleIn,
   ScrollBand,
 } from "@/components/landing/motion";
+import { PlayButton } from "@/components/onboarding/play-button";
+import { FastModeToggle, WalletPlayButton } from "@/components/onboarding/wallet";
 import { buttonStyles } from "@/components/ui/button";
 
 const rounds = [
@@ -54,32 +53,24 @@ const rounds = [
 
 const modes = [
   {
-    icon: Swords,
     name: "The Arena",
     text: "The core round: hidden moves, Leaks, front-running and the replay.",
     href: "/table",
-    tint: "bg-sun/25 text-[#8a5a00]",
   },
   {
-    icon: Eye,
     name: "The Desk",
     text: "Call the real SOL price up or down, sealed. Sell a read. Get judged by the oracle.",
     href: "/desk",
-    tint: "bg-sealed/10 text-sealed",
   },
   {
-    icon: Trophy,
     name: "Alpha Cup",
     text: "A five-round tournament for human players, with a prize pool.",
     href: "/cup",
-    tint: "bg-pop/10 text-pop",
   },
   {
-    icon: Sparkles,
     name: "Proof",
     text: "Every claim on this site, with the real devnet transaction behind it.",
     href: "/proof",
-    tint: "bg-brand/10 text-brand",
   },
 ];
 
@@ -94,22 +85,22 @@ export default function Home() {
   return (
     <main className="flex-1 overflow-x-clip">
       {/* hero */}
-      <section className="relative mx-auto max-w-7xl px-5 pt-14 pb-16 sm:px-8 lg:pt-20 lg:pb-24">
+      <section className="relative mx-auto max-w-7xl px-5 pt-12 pb-14 sm:px-8 lg:pt-16 lg:pb-20">
         <HeroFade className="grid items-center gap-12 lg:grid-cols-[1.02fr_.98fr]">
           <div className="pop-in max-w-2xl">
-            <span className="text-brand bg-brand/10 inline-flex items-center gap-2 rounded-full px-3.5 py-1.5 text-xs font-extrabold tracking-wide uppercase">
-              <span className="bg-brand size-1.5 rounded-full" /> A multiplayer game of secrets
+            <span className="micro-label text-ink border-ink inline-block border px-2.5 py-1">
+              A multiplayer game of secrets
             </span>
-            <h1 className="mt-6 text-[clamp(3rem,7.4vw,5.9rem)] leading-[.95] font-extrabold tracking-[-0.035em]">
+            <h1 className="mt-6 text-[clamp(3rem,7.4vw,6rem)] leading-[.92] font-extrabold tracking-[-0.045em]">
               Own the
               <br />
               <span className="hl">secret.</span>
             </h1>
-            <p className="text-muted mt-7 max-w-lg text-lg leading-8 font-semibold">
+            <p className="text-muted mt-6 max-w-lg text-lg leading-7 font-medium">
               Everyone trades on a hidden market. Your moves wait in the dark, Leaks drop as sealed
               capsules, and you win the round by knowing what the others can&apos;t.
             </p>
-            <div className="mt-9 flex flex-wrap items-center gap-3">
+            <div className="mt-8 flex flex-wrap items-center gap-3">
               <PlayButton />
               <WalletPlayButton />
               <Link href="/rules" className={buttonStyles({ variant: "outline", size: "lg" })}>
@@ -122,37 +113,36 @@ export default function Home() {
           </div>
 
           <div className="pop-in flex justify-center [animation-delay:.12s]">
-            <Parallax className="relative w-full max-w-[580px]">
-              <div className="from-brand/25 to-sun/30 absolute -inset-6 -z-10 rounded-[48px] bg-gradient-to-br blur-3xl" />
-              <div className="gcard overflow-hidden !rounded-[32px] p-2">
+            <Parallax className="relative w-full max-w-[560px]">
+              <div className="border-line bg-surface overflow-hidden rounded-xl border p-1.5">
                 <Image
                   src="/art/hero.jpg"
                   alt="A capsule split open: the lid on the right, and a rival's buy order for 1,200 floating above it"
                   width={1600}
                   height={900}
                   priority
-                  sizes="(min-width: 1024px) 580px, 92vw"
-                  className="aspect-[5/4] w-full rounded-[24px] object-cover object-[46%_50%]"
+                  sizes="(min-width: 1024px) 560px, 92vw"
+                  className="aspect-[5/4] w-full rounded-lg object-cover object-[46%_50%]"
                 />
               </div>
-              <span className="glass text-ink absolute top-6 -left-3 flex items-center gap-2 rounded-2xl px-3.5 py-2 text-sm font-bold sm:-left-6">
-                <span className="bg-brand size-2 rounded-full" /> Only you can read it
+              <span className="glass text-ink absolute top-5 -left-3 px-3 py-1.5 text-xs font-bold sm:-left-5">
+                Only you can read it
               </span>
-              <span className="glass text-ink bob absolute -right-2 -bottom-5 flex items-center gap-2 rounded-2xl px-3.5 py-2 text-sm font-bold sm:-right-6">
-                <span className="bg-buy size-2 rounded-full" /> Silver Fox just bought 1,200
+              <span className="glass text-ink absolute -right-3 -bottom-4 px-3 py-1.5 text-xs font-bold sm:-right-5">
+                Silver Fox just bought 1,200
               </span>
             </Parallax>
           </div>
         </HeroFade>
 
-        <Reveal className="mt-16">
-          <dl className="gcard grid grid-cols-2 gap-px overflow-hidden !bg-[var(--color-line)] lg:grid-cols-4">
+        <Reveal className="mt-14">
+          <dl className="border-line bg-line grid grid-cols-2 gap-px overflow-hidden rounded-xl border lg:grid-cols-4">
             {facts.map(([value, label]) => (
-              <div key={label} className="bg-surface px-6 py-5">
+              <div key={label} className="bg-surface px-5 py-4">
                 <dt className="font-[family-name:var(--font-display)] text-3xl font-extrabold tracking-tight">
                   {value}
                 </dt>
-                <dd className="text-muted mt-1 text-sm font-semibold">{label}</dd>
+                <dd className="text-muted mt-1 text-sm font-medium">{label}</dd>
               </div>
             ))}
           </dl>
@@ -167,41 +157,41 @@ export default function Home() {
       <section className="mx-auto max-w-7xl px-5 pt-16 sm:px-8 lg:pt-24">
         <div className="grid items-center gap-12 lg:grid-cols-[.95fr_1.05fr]">
           <ScaleIn>
-            <div className="gcard overflow-hidden !rounded-[32px] p-2">
+            <div className="border-line bg-surface overflow-hidden rounded-xl border p-1.5">
               <Image
                 src="/art/pyramid.jpg"
                 alt="Ten capsules stacked in a pyramid, one colour per seat"
                 width={1600}
                 height={900}
                 sizes="(min-width: 1024px) 560px, 92vw"
-                className="aspect-[5/4] w-full rounded-[24px] object-cover object-[50%_42%]"
+                className="aspect-[5/4] w-full rounded-lg object-cover object-[50%_42%]"
               />
             </div>
           </ScaleIn>
           <Reveal delay={0.12}>
             <div>
-              <span className="micro-label text-brand">Ten seats. One table.</span>
+              <span className="micro-label text-ink">Ten seats. One table.</span>
               <h2 className="mt-3 text-4xl sm:text-5xl">Everyone is hiding something.</h2>
-              <p className="text-muted mt-5 max-w-xl text-lg leading-8 font-semibold">
+              <p className="text-muted mt-5 max-w-xl text-lg leading-7 font-medium">
                 Bots front-run you, bait you and flip your leaks. Two AI analysts call the real SOL
                 price in public. The table is never empty, and nobody, not even us, can read a move
                 until it lands.
               </p>
-              <ul className="mt-7 grid max-w-xl gap-3 sm:grid-cols-2">
+              <dl className="border-line divide-line mt-7 max-w-xl divide-y border-y">
                 {[
                   ["Front-runner", "Reads your order, gets there first"],
                   ["Baiter", "Sends decoys, watches you bite"],
                   ["Flipper", "Never opens it. Sells it higher"],
                   ["Analysts", "Call SOL up or down in public"],
                 ].map(([name, text]) => (
-                  <li key={name} className="border-line bg-surface rounded-2xl border px-4 py-3.5">
-                    <span className="block font-[family-name:var(--font-display)] text-base font-bold">
+                  <div key={name} className="flex items-baseline gap-4 py-3">
+                    <dt className="w-28 shrink-0 font-[family-name:var(--font-display)] font-bold">
                       {name}
-                    </span>
-                    <span className="text-muted text-sm font-semibold">{text}</span>
-                  </li>
+                    </dt>
+                    <dd className="text-muted text-sm font-medium">{text}</dd>
+                  </div>
                 ))}
-              </ul>
+              </dl>
             </div>
           </Reveal>
         </div>
@@ -209,63 +199,53 @@ export default function Home() {
 
       {/* game modes */}
       <section className="mx-auto max-w-7xl px-5 py-16 sm:px-8 lg:py-24">
-        <div className="mb-10 flex flex-wrap items-end justify-between gap-4">
-          <div>
-            <span className="micro-label text-brand">Pick your table</span>
-            <h2 className="mt-3 text-4xl sm:text-5xl">Game modes</h2>
-          </div>
-          <Link
-            href="/proof"
-            prefetch={false}
-            className="text-brand inline-flex items-center gap-1.5 text-sm font-extrabold hover:underline"
-          >
-            See the proof <ArrowRight className="size-4" aria-hidden />
-          </Link>
+        <div className="mb-8">
+          <span className="micro-label text-ink">Pick your table</span>
+          <h2 className="mt-3 text-4xl sm:text-5xl">Game modes</h2>
         </div>
-        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-          {modes.map(({ icon: Icon, name, text, href, tint }, i) => (
-            <Reveal key={name} delay={i * 0.08}>
-              <Link href={href} prefetch={false} className="gcard group flex h-full flex-col p-6">
-                <span className={`${tint} flex size-12 items-center justify-center rounded-2xl`}>
-                  <Icon className="size-5" strokeWidth={2.4} />
+        <ul className="border-line divide-line divide-y border-y">
+          {modes.map(({ name, text, href }, i) => (
+            <li key={name}>
+              <Link
+                href={href}
+                prefetch={false}
+                className="group hover:bg-surface-2 grid grid-cols-[2.5rem_1fr_auto] items-baseline gap-x-4 gap-y-1 px-2 py-6 transition-colors sm:grid-cols-[3rem_14rem_1fr_auto]"
+              >
+                <span className="text-faint text-sm font-bold tabular-nums">0{i + 1}</span>
+                <span className="font-[family-name:var(--font-display)] text-2xl font-extrabold tracking-tight">
+                  {name}
                 </span>
-                <h3 className="mt-5 text-xl">{name}</h3>
-                <p className="text-muted mt-2 flex-1 text-sm leading-6 font-semibold">{text}</p>
-                <span className="text-brand mt-5 inline-flex items-center gap-1 text-sm font-extrabold">
-                  Open
-                  <ArrowRight
-                    className="size-4 transition-transform group-hover:translate-x-1"
-                    aria-hidden
-                  />
+                <span className="text-muted col-start-2 text-sm font-medium sm:col-start-auto">
+                  {text}
+                </span>
+                <span className="text-ink row-start-1 text-lg font-bold transition-transform group-hover:translate-x-1 sm:row-start-auto">
+                  →
                 </span>
               </Link>
-            </Reveal>
+            </li>
           ))}
-        </div>
+        </ul>
       </section>
 
-      {/* on-chain strip */}
+      {/* on-chain */}
       <section className="mx-auto max-w-7xl px-5 pb-20 sm:px-8">
         <ScaleIn>
-          <div className="relative overflow-hidden rounded-[32px] bg-[#1a1438] px-7 py-12 text-white sm:px-12">
-            <div className="bg-brand/40 pointer-events-none absolute -top-24 -right-16 size-72 rounded-full blur-3xl" />
-            <div className="relative flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between">
-              <div>
-                <h2 className="text-3xl text-white sm:text-4xl">Real game. Real chain.</h2>
-                <p className="mt-3 max-w-xl text-base leading-7 font-semibold text-white/75">
-                  The whole round runs inside a MagicBlock Private Ephemeral Rollup: a sealed
-                  mempool, VRF-rolled rounds, cranks that keep the clock, and permissions that
-                  decide who can read what. Nothing here uses real money.
-                </p>
-              </div>
-              <Link
-                href="/proof"
-                prefetch={false}
-                className={buttonStyles({ variant: "primary", size: "lg" })}
-              >
-                Explore the proof
-              </Link>
+          <div className="border-ink grid gap-8 border-y-2 py-10 lg:grid-cols-[1fr_auto] lg:items-center">
+            <div>
+              <h2 className="text-3xl sm:text-4xl">Real game. Real chain.</h2>
+              <p className="text-muted mt-3 max-w-2xl text-base leading-7 font-medium">
+                The whole round runs inside a MagicBlock Private Ephemeral Rollup: a sealed mempool,
+                VRF-rolled rounds, cranks that keep the clock, and permissions that decide who can
+                read what. Nothing here uses real money.
+              </p>
             </div>
+            <Link
+              href="/proof"
+              prefetch={false}
+              className={buttonStyles({ variant: "outline", size: "lg" })}
+            >
+              Explore the proof
+            </Link>
           </div>
         </ScaleIn>
       </section>

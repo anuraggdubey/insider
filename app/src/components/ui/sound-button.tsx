@@ -29,7 +29,7 @@ export function SoundButton() {
       aria-label={enabled ? "Mute sound" : "Enable sound"}
       aria-pressed={enabled}
       title={enabled ? "Mute sound" : "Enable sound"}
-      className="border-line-strong text-muted hover:text-text bg-surface grid size-10 shrink-0 place-items-center rounded-xl border"
+      className="border-line-strong text-muted hover:text-text bg-surface grid size-9 shrink-0 place-items-center rounded-lg border"
       onClick={() => setSoundEnabled(!enabled)}
     >
       {enabled ? (

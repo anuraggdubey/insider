@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Nunito, Outfit } from "next/font/google";
+import { Bricolage_Grotesque, Hanken_Grotesk } from "next/font/google";
 import { SiteFooter } from "@/components/site-footer";
 import { Logo } from "@/components/ui/logo";
 import { MainNav } from "@/components/ui/main-nav";
@@ -11,8 +11,8 @@ import { WalletButton } from "@/components/ui/wallet-button";
 import { Providers } from "./providers";
 import "./globals.css";
 
-const bodyFont = Nunito({ variable: "--font-body", subsets: ["latin"] });
-const displayFont = Outfit({ variable: "--font-display", subsets: ["latin"] });
+const bodyFont = Hanken_Grotesk({ variable: "--font-body", subsets: ["latin"] });
+const displayFont = Bricolage_Grotesque({ variable: "--font-display", subsets: ["latin"] });
 
 const description = "Orders wait in a TEE-sealed dark mempool. Buy a look. Jump the line.";
 
@@ -33,7 +33,7 @@ export const metadata: Metadata = {
     description,
   },
 };
-export const viewport: Viewport = { themeColor: "#f5f6fb" };
+export const viewport: Viewport = { themeColor: "#f6f5f1" };
 
 // Five links in the bar; everything else lives in the footer.
 const nav = [
@@ -63,8 +63,8 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       </head>
       <body className="flex min-h-full flex-col">
         <Providers>
-          <header className="border-line bg-surface/75 sticky top-0 z-30 border-b backdrop-blur-xl">
-            <div className="mx-auto flex h-[68px] max-w-7xl items-center gap-2 px-4 sm:px-8 md:gap-5">
+          <header className="border-line bg-surface/75 sticky top-0 z-30 border-b backdrop-blur">
+            <div className="mx-auto flex h-14 max-w-7xl items-center gap-2 px-4 sm:px-8 md:gap-5">
               <Logo />
               <MobileNav items={nav} />
               <MainNav items={nav} />
