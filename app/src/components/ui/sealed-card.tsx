@@ -14,20 +14,20 @@ export function Capsule({ rarity, opened }: { rarity: Rarity; opened: boolean })
   return (
     <svg viewBox="0 0 120 120" className="capsule h-28 w-28" role="img" aria-label="Leak capsule">
       {/* bottom half */}
-      <path d="M18 60a42 42 0 0 0 84 0Z" fill="#fffdf5" stroke="#2a1250" strokeWidth="5" />
+      <path d="M18 60a42 42 0 0 0 84 0Z" fill="#fffdf5" stroke="#15132b" strokeWidth="5" />
       {/* seam band */}
-      <rect x="16" y="54" width="88" height="10" rx="5" fill="#2a1250" />
+      <rect x="16" y="54" width="88" height="10" rx="5" fill="#15132b" />
       {/* top half (animated via .capsule-top) */}
       <g className="capsule-top">
         <path
           d="M18 60a42 42 0 0 1 84 0Z"
           fill={capsuleTop[rarity]}
-          stroke="#2a1250"
+          stroke="#15132b"
           strokeWidth="5"
         />
         <ellipse cx="44" cy="40" rx="12" ry="8" fill="#ffffff" opacity="0.55" />
       </g>
-      {opened && <circle cx="60" cy="66" r="9" fill="#ffc83d" stroke="#2a1250" strokeWidth="4" />}
+      {opened && <circle cx="60" cy="66" r="9" fill="#ffc83d" stroke="#15132b" strokeWidth="4" />}
     </svg>
   );
 }
@@ -49,7 +49,7 @@ export function SealedCard({
   return (
     <article
       className={cn(
-        "capsule-card toy group relative isolate flex flex-col items-center p-5",
+        "capsule-card gcard group relative isolate flex flex-col items-center p-5",
         opened && "is-open",
         className,
       )}
@@ -64,7 +64,7 @@ export function SealedCard({
       <div className="bob flex min-h-40 items-center justify-center py-2">
         <Capsule rarity={rarity} opened={opened} />
       </div>
-      <div className="border-ink/15 flex w-full items-end justify-between border-t-2 pt-3">
+      <div className="border-line flex w-full items-end justify-between border-t pt-3">
         <div>
           <span className="micro-label">Status</span>
           <div className={cn("mt-0.5 text-sm font-bold", opened ? "text-opened" : "text-sealed")}>

@@ -59,7 +59,7 @@ export function Logo({
       href="/"
       aria-label="INSIDER home"
       className={cn(
-        "group flex shrink-0 items-center gap-2.5 font-[family-name:var(--font-lilita)] tracking-[.05em]",
+        "group flex shrink-0 items-center gap-2.5 font-[family-name:var(--font-display)] font-extrabold tracking-[.04em]",
         size === "lg" ? "text-4xl" : "text-2xl",
         invert ? "text-white" : "text-ink",
         className,

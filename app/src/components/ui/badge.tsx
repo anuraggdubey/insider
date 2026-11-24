@@ -14,20 +14,20 @@ export type BadgeTone =
   | "whale"
   | "flow"
   | "fundamentals";
-// Toy-box badges: a solid candy fill with an ink outline, white text.
+// Soft tinted pills: tone colour as text, a faint wash of it behind.
 const tones: Record<BadgeTone, string> = {
-  neutral: "text-ink border-ink bg-surface-2",
-  sealed: "text-white border-ink bg-sealed",
-  opened: "text-white border-ink bg-opened",
-  buy: "text-white border-ink bg-buy",
-  sell: "text-white border-ink bg-sell",
-  priority: "text-white border-ink bg-priority",
-  common: "text-white border-ink bg-common",
-  rare: "text-white border-ink bg-rare",
-  epic: "text-white border-ink bg-epic",
-  whale: "text-white border-ink bg-whale",
-  flow: "text-white border-ink bg-sealed",
-  fundamentals: "text-white border-ink bg-opened",
+  neutral: "text-muted bg-surface-2 ring-line-strong",
+  sealed: "text-sealed bg-sealed/10 ring-sealed/25",
+  opened: "text-opened bg-opened/10 ring-opened/25",
+  buy: "text-buy bg-buy/10 ring-buy/25",
+  sell: "text-sell bg-sell/10 ring-sell/25",
+  priority: "text-priority bg-priority/10 ring-priority/25",
+  common: "text-common bg-common/10 ring-common/25",
+  rare: "text-rare bg-rare/10 ring-rare/25",
+  epic: "text-epic bg-epic/10 ring-epic/25",
+  whale: "text-whale bg-whale/10 ring-whale/25",
+  flow: "text-sealed bg-sealed/10 ring-sealed/25",
+  fundamentals: "text-opened bg-opened/10 ring-opened/25",
 };
 export function Badge({
   tone = "neutral",
@@ -37,7 +37,7 @@ export function Badge({
   return (
     <span
       className={cn(
-        "inline-flex items-center rounded-full border-2 px-2.5 py-1 text-[10px] leading-none font-bold tracking-[.08em] uppercase",
+        "inline-flex items-center rounded-full px-2.5 py-1 text-[10px] leading-none font-bold tracking-[.08em] uppercase ring-1 ring-inset",
         tones[tone],
         className,
       )}

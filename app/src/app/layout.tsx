@@ -1,8 +1,8 @@
 import type { Metadata, Viewport } from "next";
-import { Varela_Round, Lilita_One } from "next/font/google";
-import Link from "next/link";
+import { Nunito, Outfit } from "next/font/google";
 import { SiteFooter } from "@/components/site-footer";
 import { Logo } from "@/components/ui/logo";
+import { MainNav } from "@/components/ui/main-nav";
 import { MobileNav } from "@/components/ui/mobile-nav";
 import { Toaster } from "@/components/ui/toast";
 import { SoundButton } from "@/components/ui/sound-button";
@@ -10,8 +10,8 @@ import { WalletButton } from "@/components/ui/wallet-button";
 import { Providers } from "./providers";
 import "./globals.css";
 
-const bodyFont = Varela_Round({ variable: "--font-body", weight: "400", subsets: ["latin"] });
-const displayFont = Lilita_One({ variable: "--font-lilita", weight: "400", subsets: ["latin"] });
+const bodyFont = Nunito({ variable: "--font-body", subsets: ["latin"] });
+const displayFont = Outfit({ variable: "--font-display", subsets: ["latin"] });
 
 const description = "Orders wait in a TEE-sealed dark mempool. Buy a look. Jump the line.";
 
@@ -32,7 +32,7 @@ export const metadata: Metadata = {
     description,
   },
 };
-export const viewport: Viewport = { themeColor: "#bfe3ff" };
+export const viewport: Viewport = { themeColor: "#f5f6fb" };
 
 // Five links in the bar; everything else lives in the footer.
 const nav = [
@@ -52,22 +52,11 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     >
       <body className="flex min-h-full flex-col">
         <Providers>
-          <header className="border-ink relative z-20 border-b-[3px] bg-white/85 backdrop-blur">
-            <div className="mx-auto flex h-16 max-w-7xl items-center gap-2 px-4 sm:px-8 md:gap-5">
+          <header className="border-line sticky top-0 z-30 border-b bg-white/75 backdrop-blur-xl">
+            <div className="mx-auto flex h-[68px] max-w-7xl items-center gap-2 px-4 sm:px-8 md:gap-5">
               <Logo />
               <MobileNav items={nav} />
-              <nav aria-label="Main navigation" className="hidden items-center gap-1 md:flex">
-                {nav.map(([label, href]) => (
-                  <Link
-                    key={href}
-                    href={href}
-                    prefetch={false}
-                    className="text-muted hover:bg-surface-2 hover:text-ink rounded-lg px-2.5 py-1.5 text-sm font-bold transition-colors"
-                  >
-                    {label}
-                  </Link>
-                ))}
-              </nav>
+              <MainNav items={nav} />
               <div className="ml-auto flex items-center gap-3">
                 <SoundButton />
                 <WalletButton />

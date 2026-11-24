@@ -26,7 +26,7 @@ export function MobileNav({ items }: { items: string[][] }) {
         aria-label={open ? "Close navigation" : "Open navigation"}
         aria-expanded={open}
         aria-controls={open ? "mobile-navigation" : undefined}
-        className="border-line-strong text-muted grid size-9 place-items-center rounded border"
+        className="border-line-strong text-muted bg-surface grid size-10 place-items-center rounded-xl border"
         onClick={() => setOpen(!open)}
       >
         {open ? <X aria-hidden className="size-4" /> : <Menu aria-hidden className="size-4" />}
@@ -35,7 +35,7 @@ export function MobileNav({ items }: { items: string[][] }) {
         <nav
           id="mobile-navigation"
           aria-label="Mobile navigation"
-          className="border-line-strong bg-surface absolute top-11 left-0 z-50 flex w-44 flex-col rounded-md border p-2 shadow-xl"
+          className="border-line bg-surface absolute top-12 left-0 z-50 flex w-48 flex-col rounded-2xl border p-2 shadow-2xl"
         >
           {items.map(([label, href]) => (
             <Link
@@ -43,7 +43,7 @@ export function MobileNav({ items }: { items: string[][] }) {
               href={href!}
               prefetch={false}
               onClick={() => setOpen(false)}
-              className="text-muted hover:text-text hover:bg-surface-2 rounded px-3 py-2 font-mono text-xs"
+              className="text-muted hover:text-text hover:bg-surface-2 rounded-xl px-3 py-2.5 text-sm font-bold"
             >
               {label}
             </Link>
