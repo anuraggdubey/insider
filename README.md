@@ -14,6 +14,10 @@
 </p>
 
 <p align="center">
+  <b><a href="LIVE_APP_URL">▶ Live app</a></b> (link coming soon) &nbsp;·&nbsp; <b><a href="DEMO_VIDEO_URL">🎬 Demo video</a></b> (link coming soon)
+</p>
+
+<p align="center">
   <img src="docs/screenshots/landing.png" alt="INSIDER landing page" width="100%">
 </p>
 
@@ -296,11 +300,9 @@ Solana Blitz v10, Nov 20-27 2026 (online), by MagicBlock. Submission deadline: N
 
 ## The creators
 
-**Anurag Dubey** · [GitHub @anuraggdubey](https://github.com/anuraggdubey) · [X @ANURAGGDUBEYY](https://x.com/ANURAGGDUBEYY)
-Program, bots, AI analysts, infrastructure, proofs and the Desk, Cup and Proof screens.
+**Anurag Dubey** · [GitHub](https://github.com/anuraggdubey) · [X / @ANURAGGDUBEYY](https://x.com/ANURAGGDUBEYY)
 
-**Misbah Ansari** · [GitHub @MisbahAnsar](https://github.com/MisbahAnsar) · [X @Misbahtwts](https://x.com/Misbahtwts)
-Market engine, Leaks, SDK, design system and the trading floor, Leak and X-ray screens.
+**Misbah Ansari** · [GitHub](https://github.com/MisbahAnsar) · [X / @Misbahtwts](https://x.com/Misbahtwts)
 
 ## License
 
