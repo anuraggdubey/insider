@@ -3,7 +3,14 @@ import Image from "next/image";
 import Link from "next/link";
 import { PlayButton } from "@/components/onboarding/play-button";
 import { FastModeToggle, WalletPlayButton } from "@/components/onboarding/wallet";
-import { HorizontalRounds, Marquee, Parallax, Reveal } from "@/components/landing/motion";
+import {
+  HeroFade,
+  HorizontalRounds,
+  Parallax,
+  Reveal,
+  ScaleIn,
+  ScrollBand,
+} from "@/components/landing/motion";
 import { buttonStyles } from "@/components/ui/button";
 
 const rounds = [
@@ -88,7 +95,7 @@ export default function Home() {
     <main className="flex-1 overflow-x-clip">
       {/* hero */}
       <section className="relative mx-auto max-w-7xl px-5 pt-14 pb-16 sm:px-8 lg:pt-20 lg:pb-24">
-        <div className="grid items-center gap-12 lg:grid-cols-[1.02fr_.98fr]">
+        <HeroFade className="grid items-center gap-12 lg:grid-cols-[1.02fr_.98fr]">
           <div className="pop-in max-w-2xl">
             <span className="text-brand bg-brand/10 inline-flex items-center gap-2 rounded-full px-3.5 py-1.5 text-xs font-extrabold tracking-wide uppercase">
               <span className="bg-brand size-1.5 rounded-full" /> A multiplayer game of secrets
@@ -136,7 +143,7 @@ export default function Home() {
               </span>
             </Parallax>
           </div>
-        </div>
+        </HeroFade>
 
         <Reveal className="mt-16">
           <dl className="gcard grid grid-cols-2 gap-px overflow-hidden !bg-[var(--color-line)] lg:grid-cols-4">
@@ -152,24 +159,14 @@ export default function Home() {
         </Reveal>
       </section>
 
-      <Marquee
-        items={[
-          "Sealed moves",
-          "Leaks",
-          "Front-running",
-          "X-ray replay",
-          "VRF-rolled rounds",
-          "Private rollup",
-          "Play money",
-        ]}
-      />
+      <ScrollBand top="Hidden moves" bottom="Sealed leaks" />
 
       <HorizontalRounds rounds={rounds} />
 
       {/* the table */}
       <section className="mx-auto max-w-7xl px-5 pt-16 sm:px-8 lg:pt-24">
         <div className="grid items-center gap-12 lg:grid-cols-[.95fr_1.05fr]">
-          <Reveal>
+          <ScaleIn>
             <div className="gcard overflow-hidden !rounded-[32px] p-2">
               <Image
                 src="/art/pyramid.jpg"
@@ -180,7 +177,7 @@ export default function Home() {
                 className="aspect-[5/4] w-full rounded-[24px] object-cover object-[50%_42%]"
               />
             </div>
-          </Reveal>
+          </ScaleIn>
           <Reveal delay={0.12}>
             <div>
               <span className="micro-label text-brand">Ten seats. One table.</span>
@@ -249,7 +246,7 @@ export default function Home() {
 
       {/* on-chain strip */}
       <section className="mx-auto max-w-7xl px-5 pb-20 sm:px-8">
-        <Reveal>
+        <ScaleIn>
           <div className="relative overflow-hidden rounded-[32px] bg-[#1a1438] px-7 py-12 text-white sm:px-12">
             <div className="bg-brand/40 pointer-events-none absolute -top-24 -right-16 size-72 rounded-full blur-3xl" />
             <div className="relative flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between">
@@ -270,7 +267,7 @@ export default function Home() {
               </Link>
             </div>
           </div>
-        </Reveal>
+        </ScaleIn>
       </section>
     </main>
   );
