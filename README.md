@@ -3,8 +3,8 @@
 <h3 align="center">Own the secret. Front-running is the game.</h3>
 
 <p align="center">
-  A real-time trading exchange on Solana where the asset is <b>read access to information</b>.<br>
-  Orders wait in a sealed dark mempool inside MagicBlock's Private Ephemeral Rollup. Nobody can see them: not the other players, not the RPC, not us.
+  A multiplayer <b>game of hidden information</b> on Solana. Every round is a 100-second fight to learn what the others can't see.<br>
+  Moves wait in a sealed dark mempool inside MagicBlock's Private Ephemeral Rollup. Nobody can read them: not the other players, not the RPC, not us.
 </p>
 
 <p align="center">
@@ -17,7 +17,7 @@
   <img src="docs/screenshots/landing.png" alt="INSIDER landing page" width="100%">
 </p>
 
-Built by **Anurag Dubey** and **Misbah Ansari** for **Solana Blitz v10** (MagicBlock, theme: _Entertainment Finance_). Everything below runs on **Solana devnet**; nothing here uses real funds.
+Built by **Anurag Dubey** and **Misbah Ansari** for **Solana Blitz v10** (MagicBlock, theme: _Entertainment Finance_). The setting is a trading floor, but INSIDER is played like a game: rounds, scores, rivals and replays, with play-money chips. Everything below runs on **Solana devnet**; nothing here uses real funds.
 
 |                    |                                                                                                                                                                                            |
 | ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -32,20 +32,27 @@ Built by **Anurag Dubey** and **Misbah Ansari** for **Solana Blitz v10** (MagicB
 
 ## What it is
 
-Every order you send waits **10 seconds in a dark mempool**. Nobody can see its side or size. Behind the market, a VRF seed writes a **hidden future** (a price path and whale orders) that no wallet can read.
+**INSIDER is a game about information.** You sit at a table with nine rivals (bots, AI players and other people). The world is a market, but you are not managing a portfolio: you are playing a round. The chips are play money, a round lasts about 100 seconds, and you win by knowing something the others don't.
 
-Every ten seconds the program mints a sealed **Leak**: a snapshot of the dark mempool, or a true fact about the hidden future. Buy one at a falling Dutch price and the TEE makes you its only reader. Then:
+- **The secret is the game.** Every move you make is hidden for 10 seconds in a dark mempool that nobody can read. A hidden "future" written by a VRF seed decides where the round goes.
+- **Leaks are the power-ups.** Every ten seconds a sealed **Leak** drops: either a snapshot of what rivals have queued, or a true fact about the hidden future. Win it at a falling auction price and you become its **only reader**.
+- **Then you choose how to play it:** **open** it and jump ahead of the moves you just read, **flip** it sealed to a rival who'll pay more, or **license** it to a few others and watch its value fade as more people use it.
+- **Every round ends in a score and a replay.** You are ranked on the round and the season, and the **X-ray** replays every move, Leak and sandwich so you can see how you were read, or how you read someone else.
+- **Rivals that never leave.** Five bots (front-runner, flow, baiter, copycat, flipper) and two AI analysts play by the same rules as you, so the table is never empty.
 
-- **open it** and front-run the orders you just read,
-- **flip it** sealed to someone who'll pay more, or
-- **license it** to a few others and watch your edge decay as more people trade on it.
+### Game modes
 
-On **The Desk**, players lock private **Calls** on the _real_ SOL/USD price. The program judges each Call against the MagicBlock pricing oracle, so every seat (human, bot or AI analyst) builds a public, verifiable track record. Two of the seats are AI agents.
+| Mode          | What you play                                                                                                                                                                                                                    |
+| ------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **The Floor** | The core 100-second round: hidden moves, Leaks, front-running, the X-ray replay                                                                                                                                                  |
+| **The Desk**  | A side game of reads: commit privately to "SOL up or down" on the real price, sell a licence so others can read your call, and get judged by the oracle. Every seat builds a public track record, and two of them are AI players |
+| **Alpha Cup** | A five-round tournament for human players with a prize pool (a test token on devnet)                                                                                                                                             |
+| **Season**    | Ten rounds make an epoch; the best scores go on a public leaderboard (and on SOAR, MagicBlock's on-chain leaderboard)                                                                                                            |
 
-Five bots play the same rules as humans, so the table is never empty. After every round an **X-ray** replays every order, Leak and sandwich on the chart.
+The market is the setting, not the point: there is no real money, no deposits and no yield. It is devnet and play-money chips (the Alpha Cup pays a test token).
 
 <p align="center">
-  <img src="docs/screenshots/floor.png" alt="The trading floor" width="49%">
+  <img src="docs/screenshots/floor.png" alt="The Floor: a round in progress" width="49%">
   <img src="docs/screenshots/crack-open.png" alt="Cracking open a sealed Leak" width="49%">
 </p>
 
