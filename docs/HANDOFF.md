@@ -8,49 +8,32 @@ You are working with Anurag (user). Misbah is the other teammate (UI, engine, SD
 
 - Concise answers. Lead with the result.
 - **2 to 4 commits per task/phase, never more. No `Co-Authored-By` lines, no Claude attribution.** Push each phase.
-- Before every push run: `pnpm format:check`, `pnpm lint`, `pnpm --filter @insider/sdk --filter bots --filter scripts typecheck`, `pnpm test`, `pnpm build` (CI runs all of these plus `cargo check`; a missed `pnpm build` broke CI once). Check CI with `gh run list` for the pushed SHA.
+- Before every push run: `pnpm format:check`, `pnpm lint`, `pnpm --filter @insider/sdk --filter bots --filter scripts typecheck`, `pnpm test`, `pnpm build` (CI runs all of these plus `cargo check`). Check CI with `gh run list`.
 - Do not make mistakes; verify live on devnet before calling a task done; report what was verified and what was not.
-- Shell gotchas on this Windows box: long inline `node -e` scripts and big heredocs often fail to parse. Write patch scripts with the Write tool into the scratchpad and run `node file.js`. Prefer the Edit/Write tools. No `sleep` chains: use `until` loops, `run_in_background`, or Monitor.
-- Program build: `pnpm program:build` (SBF, watch for stack-frame "Error:" lines), tests `cd programs && cargo test -p insider`, IDL `pnpm program:idl`, then `pnpm --filter @insider/sdk idl:type`. Deploy `pnpm program:deploy` (needs about 8 SOL on the deployer for the upgrade buffer; `solana program extend <id> 20480` first if the new .so is larger than the deployed length).
+- Shell gotchas on this Windows box: heredocs with quotes or backslashes often break; write files with the Write tool and patch scripts into the scratchpad, then `node file.js`. Do not `grep -r` the repo root (node_modules is huge). Do not store secrets in the repo: keys are in `.keys/` and `.env` (both git-ignored).
+- Program build: `pnpm program:build`, tests `cd programs && cargo test -p insider`, IDL `pnpm program:idl`, then `pnpm --filter @insider/sdk idl:type`. Deploy `pnpm program:deploy` (about 8 SOL on the deployer; `solana program extend <id> <bytes>` first if the .so grew).
 
-## What exists (all live on devnet)
+## State: everything in the plan is built
 
-- Program `7mTtHsFMYnZRnhd3SRzhj8Nm1U2T3s33dnbJwa9zBErW`, table `DjnqzKQsUU1fmRztBAiUkPn8VwsnFYgMedcg1BPyA1k`, table authority = deployer `23k9UnCKBkFyci6Sv1RhuFXUXFgTnjV6oeTZyMaxopWm` (`NEXT_PUBLIC_TABLE_AUTHORITY`). TEE `https://devnet-tee.magicblock.app`.
-- 37 delegated accounts (setup: `pnpm setup-table --arm`; idempotent). Floor engine, Leaks, X-ray, epochs (`commit_epoch` by bots, `open_epoch` by `pnpm operator`), Desk (oracle-settled Calls), Alpha Cup, recovery (`pnpm teardown`, `pnpm recover`).
-- Services (run from the repo root, one copy each): `pnpm bots` (5 bots, also drive rounds/epochs/cup/settle), `pnpm operator` (needs authority key), `pnpm cup-operator` (port 8789), `pnpm analysts` (2 AI seats + caption feed on 8788; needs `ANTHROPIC_API_KEY`, or `ANALYST_PREDICTOR=heuristic` for a non-AI local test). `pnpm fund --all` tops up bot wallets.
-- Proof scripts: `pnpm vertical-slice`, `simulate-round`, `privacy-test`, `go-live`, `desk-demo`, `cup-demo`; proofs in `docs/proofs/*.json`.
-- Keys are in `.keys/` (git-ignored): `deployer.json`, `operator.json`, `agents/*.json`, `sim/{bob,carol}.json`, `gates/*`. Never print or commit them.
-- Deployer balance about 11 SOL, operator about 5 SOL.
-- After any teardown the crank task is lost: `pnpm setup-table --arm` (or `--force-arm`) re-arms it.
+All live on devnet: program `7mTtHsFMYnZRnhd3SRzhj8Nm1U2T3s33dnbJwa9zBErW`, table `DjnqzKQsUU1fmRztBAiUkPn8VwsnFYgMedcg1BPyA1k`, authority `23k9UnCKBkFyci6Sv1RhuFXUXFgTnjV6oeTZyMaxopWm`.
 
-## Status by plan hours (STEPS.md)
+Done this session (see STEPS.md for each):
 
-Anurag 84/108 h (78%), Misbah 97/105 h (92%), total 85%. Blocks 0 to 3 are done.
+- **A-4.1 session keys**: 11 gameplay instructions take a Gum session token; SDK builders take a trailing `session`; `pnpm session-demo` proof.
+- **Model providers**: Grok (xAI), Groq (`GROQ_API_KEY`, `openai/gpt-oss-120b`, live-checked) and Claude, chosen by which key is set (`bots/src/ai/provider.ts`). The user's key is a Groq key (`gsk_...`), kept in `.env`.
+- **A-4.4 soak**: 60 minutes passed (35 rounds, 3 epochs, 0 failed steps): `pnpm soak-report`, `docs/proofs/soak.json`.
+- **A-4.2**: SOAR leaderboard done (operator publishes each season, `pnpm soar-demo`, `pnpm soar-board`); the post-commit Magic Action was cut on purpose (see STEPS.md).
+- **A-4.3 hosting**: prepared (`bots/src/host.ts`, `Dockerfile`, `render.yaml`, `pnpm pack-keys`, runbook), NOT deployed.
+- **A-4.5 / A-5.1**: `/desk`, `/cup`, `/proof` built and checked in a browser against devnet; `pnpm proofs` works again.
+
+All services are stopped (nothing is running).
 
 ## What is left
 
-Anurag (open):
+1. **Deploy to Render (the user does this, after everything is ready).** Follow runbook "Hosting on Render": `pnpm pack-keys`, Blueprint from the repo, set `KEYS_B64` and `GROQ_API_KEY`, add an uptime monitor on `/health`, then set the frontend's `NEXT_PUBLIC_CUP_URL` and caption URL in Vercel. Stop local services first. Untested end to end: the Docker image and `host.ts` were never run (a second copy of the services would have broken the soak), so the first deploy may need a fix; check the Render logs.
+2. **Dedicated devnet RPC** (Helius or QuickNode free tier): the public RPC rate-limits (429s seen). Set `SOLANA_RPC_URL` (services) and `NEXT_PUBLIC_SOLANA_RPC_URL` (app).
+3. **Frontend on Vercel** with the `NEXT_PUBLIC_*` values in `.env.example` (table authority, program id, RPC, cup URL).
+4. **Misbah**: the session-key toggle in the app (`NEXT_PUBLIC_SESSIONS`, `app/src/components/onboarding/wallet.tsx`) can now be wired to `sessionTokenPda` and Gum's `createSessionV2` (docs/api.md "Session keys"); B-2.7 playtest and B-5.2 QA sweep; the browser join flow for the Alpha Cup (private buy-in); a wallet-signed SOAR registration for human players; click-through of the `/desk` write actions with a wallet.
+5. **Submission checklist** (STEPS.md section 13): live URL, honest README, demo video, form, post on X, tag `v1.0-blitz`.
 
-- **A-4.1 Session keys on chain.** `session.rs`; accept session keys (gate G7 passed, `session-keys` crate, `#[session_auth_or]`) for the gameplay instructions: `send_order`, `bid`, `open_leak`, `list_leak`, `buy_listed`, `offer_license`, `buy_license`, `mint_call`, `ping`; expiry and revoke; IDL regen, SDK builders, tests, live check. Misbah's UI has a disabled session-key toggle waiting for this.
-- **A-4.2 Magic Action and SOAR (risky).** Attach a post-commit action to `commit_epoch` (gate G6 showed Magic Action works; the SOAR leaderboard call was never tested). Cuttable (spec section 12): if SOAR needs setup that cannot be finished, cut it and say so.
-- **A-4.3 Hosting.** Prepare Dockerfile/Procfile, health endpoint, restart policy and env guide for `bots`, `operator`, `cup-operator`, `analysts`; dedicated devnet RPC. Needs from the user: an always-on host account (Railway or Fly) and an RPC key.
-- **A-4.4 Soak.** See below.
-- **A-4.5 `/desk` and `/cup` screens** and **A-5.1 `/proof` page**: proposed to move to Misbah (UI work; the backend, `docs/api.md` and proof files are ready). The nav already links Desk and Proof (404 today). If the user has not reassigned them, do them with Misbah's design system in `app/src/components/ui`.
-
-Misbah (open): B-2.7 playtest (blocked on us, the table is live now), B-5.2 QA sweep.
-Submission checklist (STEPS.md section 13): live URL, honest README, demo video, form, post on X, tag `v1.0-blitz`.
-
-## The soak plan (A-4.4) and what to do while it runs
-
-1. Write `pnpm soak-report`: watches the table for the whole soak run and prints rounds completed, stalls, failed transactions per bot, crank re-arms, epoch changes, cup/operator payouts and log errors; writes `docs/proofs/soak.json`.
-2. Start the services on the user's PC (or the host after A-4.3), then run the soak. The PC must stay awake and online; if it sleeps the soak is invalid and restarts. Run it with the analysts on only if the user gives `ANTHROPIC_API_KEY`.
-3. **While the soak runs, do the other open work** (A-4.2 SOAR, A-4.1 session keys if not done, anything else), but do not redeploy the program or restart/stop services during the soak. Check on it every so often and note anomalies.
-4. Afterwards fix what the soak found (mostly backend: crank, bots, operator) in 2 to 4 commits, update STEPS.md, push.
-
-## Model provider: Grok, not Anthropic
-
-The user has no Anthropic key and will provide a Grok (xAI) API key. The analysts and the optional caption rewording currently call Anthropic (`bots/src/ai/predictor.ts`, `AnthropicPredictor`; `rewriter()` in `bots/src/ai/index.ts`). Add a `GrokPredictor` behind the same `Predictor` interface (xAI exposes an OpenAI-compatible chat completions API; confirm the base URL and model id from its docs, keep the key in `.env` as `XAI_API_KEY`), choose the provider by which key is set, reuse `parseDecision`, and cover it with a fake-client unit test like the Anthropic one. Update the runbook and `.env.example`.
-
-## Ask the user for
-
-The Grok (xAI) API key (analysts, soak; see above), a dedicated devnet RPC URL, a host account (Railway or Fly), and a go/no-go on cutting SOAR. Confirm whether `/desk`, `/cup`, `/proof` go to Misbah.
+Known limits to say honestly: the Alpha Cup has no human entrants yet in the soak; the Desk write actions and `open_leak`/`buy_license` through a session were not exercised live; the xAI provider is unit-tested only; no SOAR achievements; free Render wipes the cup operator's state on redeploy.
