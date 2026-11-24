@@ -5,6 +5,7 @@ import { Logo } from "@/components/ui/logo";
 import { MainNav } from "@/components/ui/main-nav";
 import { MobileNav } from "@/components/ui/mobile-nav";
 import { Toaster } from "@/components/ui/toast";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { SoundButton } from "@/components/ui/sound-button";
 import { WalletButton } from "@/components/ui/wallet-button";
 import { Providers } from "./providers";
@@ -43,21 +44,32 @@ const nav = [
   ["Proof", "/proof"],
 ];
 
+const THEME_SCRIPT = `try{var t=localStorage.getItem("insider.theme");if(t==="dark"||(!t&&matchMedia("(prefers-color-scheme: dark)").matches))document.documentElement.classList.add("dark")}catch(e){}`;
+
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
       data-scroll-behavior="smooth"
+      suppressHydrationWarning
       className={`${bodyFont.variable} ${displayFont.variable} h-full antialiased`}
     >
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: THEME_SCRIPT,
+          }}
+        />
+      </head>
       <body className="flex min-h-full flex-col">
         <Providers>
-          <header className="border-line sticky top-0 z-30 border-b bg-white/75 backdrop-blur-xl">
+          <header className="border-line bg-surface/75 sticky top-0 z-30 border-b backdrop-blur-xl">
             <div className="mx-auto flex h-[68px] max-w-7xl items-center gap-2 px-4 sm:px-8 md:gap-5">
               <Logo />
               <MobileNav items={nav} />
               <MainNav items={nav} />
               <div className="ml-auto flex items-center gap-3">
+                <ThemeToggle />
                 <SoundButton />
                 <WalletButton />
               </div>

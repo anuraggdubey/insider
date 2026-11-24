@@ -1,5 +1,4 @@
-import { ArrowUpRight, Play } from "lucide-react";
-import Image from "next/image";
+import { ArrowUpRight } from "lucide-react";
 import Link from "next/link";
 import { Logo } from "@/components/ui/logo";
 
@@ -11,114 +10,85 @@ const DEMO = process.env.NEXT_PUBLIC_DEMO_URL || "";
 const explorer = (address: string) =>
   `https://explorer.solana.com/address/${address}?cluster=devnet`;
 
-type FooterLink = { label: string; href: string; external?: boolean; note?: string };
+type FooterLink = { label: string; href: string; external?: boolean };
 
-const play: FooterLink[] = [
-  { label: "The Floor", href: "/table" },
-  { label: "The Desk", href: "/desk" },
-  { label: "Alpha Cup", href: "/cup" },
-  { label: "Season", href: "/season" },
-  { label: "X-ray replays", href: "/xray" },
-  { label: "Watch live", href: "/watch" },
-  { label: "How to play", href: "/rules" },
-];
-const build: FooterLink[] = [
-  { label: "Proof of live runs", href: "/proof" },
-  { label: "Docs", href: `${REPO}/tree/main/docs`, external: true },
-  { label: "SDK guide", href: `${REPO}/blob/main/docs/api.md`, external: true },
-  { label: "Source on GitHub", href: REPO, external: true },
-  { label: "Runbook", href: `${REPO}/blob/main/docs/runbook.md`, external: true },
-];
-const chain: FooterLink[] = [
-  { label: "Explorer: program", href: explorer(PROGRAM), external: true },
-  { label: "Explorer: live table", href: explorer(TABLE), external: true },
-  { label: "MagicBlock", href: "https://www.magicblock.xyz", external: true },
-  { label: "MagicBlock docs", href: "https://docs.magicblock.gg", external: true },
-  { label: "Solana", href: "https://solana.com", external: true },
+const columns: { title: string; links: FooterLink[] }[] = [
+  {
+    title: "Play",
+    links: [
+      { label: "The Floor", href: "/table" },
+      { label: "The Desk", href: "/desk" },
+      { label: "Alpha Cup", href: "/cup" },
+      { label: "Season", href: "/season" },
+      { label: "X-ray replays", href: "/xray" },
+      { label: "How to play", href: "/rules" },
+    ],
+  },
+  {
+    title: "Build",
+    links: [
+      { label: "Proof of live runs", href: "/proof" },
+      { label: "Docs", href: `${REPO}/tree/main/docs`, external: true },
+      { label: "SDK guide", href: `${REPO}/blob/main/docs/api.md`, external: true },
+      { label: "Source", href: REPO, external: true },
+      ...(DEMO ? [{ label: "Demo video", href: DEMO, external: true }] : []),
+    ],
+  },
+  {
+    title: "On-chain",
+    links: [
+      { label: "Program", href: explorer(PROGRAM), external: true },
+      { label: "Live table", href: explorer(TABLE), external: true },
+      { label: "MagicBlock", href: "https://www.magicblock.xyz", external: true },
+      { label: "Solana", href: "https://solana.com", external: true },
+    ],
+  },
 ];
 
-function Column({ title, links }: { title: string; links: FooterLink[] }) {
-  return (
-    <div>
-      <h3 className="text-sm font-extrabold tracking-wide text-white/50 uppercase">{title}</h3>
-      <ul className="mt-4 space-y-2.5">
-        {links.map((link) => {
-          const body = (
-            <>
-              {link.label}
-              {link.external && <ArrowUpRight aria-hidden className="size-3.5 opacity-60" />}
-              {link.note && (
-                <span className="text-[11px] font-normal text-white/40">{link.note}</span>
-              )}
-            </>
-          );
-          const cls =
-            "inline-flex items-center gap-1.5 text-sm font-semibold text-white/80 transition-colors hover:text-white";
-          return (
-            <li key={link.label}>
-              {link.external ? (
-                <a href={link.href} target="_blank" rel="noreferrer" className={cls}>
-                  {body}
-                </a>
-              ) : (
-                <Link href={link.href} prefetch={false} className={cls}>
-                  {body}
-                </Link>
-              )}
-            </li>
-          );
-        })}
-      </ul>
-    </div>
-  );
-}
+const linkClass =
+  "text-muted hover:text-ink inline-flex items-center gap-1 text-sm font-semibold transition-colors";
 
 export function SiteFooter() {
   return (
-    <footer className="relative mt-auto overflow-hidden bg-[#1a0f2e] text-white">
-      <div className="bg-brand/30 pointer-events-none absolute -top-24 -right-24 size-72 rounded-full blur-3xl" />
-      <div className="relative mx-auto max-w-7xl px-5 pt-14 pb-4 sm:px-8">
-        <div className="grid gap-12 lg:grid-cols-[1.25fr_2fr]">
+    <footer className="border-line bg-surface relative mt-auto overflow-hidden border-t">
+      <div className="mx-auto max-w-7xl px-5 pt-14 sm:px-8">
+        <div className="grid gap-12 lg:grid-cols-[1.3fr_2fr]">
           <div>
-            <Logo invert size="lg" />
-            <p className="mt-5 max-w-sm text-lg leading-7 font-bold text-white/90">
-              A multiplayer game of hidden information. Own the secret.
+            <Logo />
+            <p className="text-muted mt-5 max-w-xs text-sm leading-6 font-semibold">
+              A multiplayer game of hidden information. Play-money chips on Solana devnet, moves
+              sealed inside a MagicBlock rollup.
             </p>
-            <p className="mt-2 max-w-sm text-sm leading-6 text-white/55">
-              Play-money chips on Solana devnet. Moves wait in a sealed MagicBlock rollup; nobody
-              can read them, not even us.
-            </p>
-            <div className="mt-6 flex flex-wrap gap-3">
-              {DEMO ? (
-                <a href={DEMO} target="_blank" rel="noreferrer" className="btn h-11 px-5 text-base">
-                  <Play aria-hidden className="size-4 fill-current" /> Watch the teaser
-                </a>
-              ) : (
-                <span className="inline-flex h-11 items-center gap-2 rounded-2xl border border-dashed border-white/30 px-5 font-[family-name:var(--font-display)] text-base font-bold text-white/60">
-                  <Play aria-hidden className="size-4" /> Demo video · soon
-                </span>
-              )}
-              <a
-                href={REPO}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex h-11 items-center gap-2 rounded-2xl border border-white/25 bg-white/5 px-5 font-[family-name:var(--font-display)] text-base font-bold text-white transition-colors hover:bg-white/10"
-              >
-                Star the repo <ArrowUpRight aria-hidden className="size-4" />
-              </a>
-            </div>
           </div>
-          <div className="grid gap-10 sm:grid-cols-3">
-            <Column title="Play" links={play} />
-            <Column title="Build" links={build} />
-            <Column title="On-chain" links={chain} />
+          <div className="grid grid-cols-2 gap-8 sm:grid-cols-3">
+            {columns.map(({ title, links }) => (
+              <div key={title}>
+                <h3 className="micro-label">{title}</h3>
+                <ul className="mt-4 space-y-3">
+                  {links.map((link) => (
+                    <li key={link.label}>
+                      {link.external ? (
+                        <a href={link.href} target="_blank" rel="noreferrer" className={linkClass}>
+                          {link.label}
+                          <ArrowUpRight aria-hidden className="size-3.5 opacity-50" />
+                        </a>
+                      ) : (
+                        <Link href={link.href} prefetch={false} className={linkClass}>
+                          {link.label}
+                        </Link>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
           </div>
         </div>
-        <div className="mt-12 flex flex-wrap items-center justify-between gap-x-8 gap-y-4 border-t border-white/10 pt-6 text-xs font-semibold text-white/55">
+        <div className="border-line text-faint mt-12 flex flex-wrap items-center justify-between gap-x-8 gap-y-3 border-t py-6 text-xs font-semibold">
           <span>Built for Solana Blitz v10 · Devnet only · no real funds</span>
-          <span className="flex flex-wrap items-center gap-x-4 gap-y-2">
+          <span className="flex items-center gap-5">
             <a
-              className="underline-offset-4 hover:text-white hover:underline"
+              className="hover:text-ink transition-colors"
               href="https://x.com/ANURAGGDUBEYY"
               target="_blank"
               rel="noreferrer"
@@ -126,7 +96,7 @@ export function SiteFooter() {
               X @anuraggdubeyy
             </a>
             <a
-              className="underline-offset-4 hover:text-white hover:underline"
+              className="hover:text-ink transition-colors"
               href="https://github.com/anuraggdubey"
               target="_blank"
               rel="noreferrer"
@@ -136,16 +106,11 @@ export function SiteFooter() {
           </span>
         </div>
       </div>
-      <div aria-hidden="true" className="pointer-events-none relative mt-2 select-none">
-        <Image
-          src="/art/footer-row.jpg"
-          alt=""
-          width={1920}
-          height={150}
-          sizes="100vw"
-          className="block h-auto min-h-[84px] w-full object-cover object-top"
-        />
-        <div className="absolute inset-x-0 top-0 h-10 bg-gradient-to-b from-[#1a0f2e] to-transparent" />
+      <div
+        aria-hidden="true"
+        className="from-ink/[0.07] pointer-events-none -mb-[0.2em] bg-gradient-to-b to-transparent bg-clip-text text-center font-[family-name:var(--font-display)] text-[clamp(4rem,19vw,17rem)] leading-[.85] font-extrabold tracking-[-0.04em] text-transparent select-none"
+      >
+        INSIDER
       </div>
     </footer>
   );
