@@ -13,6 +13,33 @@ here when we start it.
 
 ---
 
+## Status snapshot (read this first)
+
+Last updated after the frontend redesign (commit `653fb0d`). Percentages are by the plan's hours.
+
+| Owner  | Planned | Done (h)  | Done | Left                                                                       |
+| ------ | ------- | --------- | ---- | -------------------------------------------------------------------------- |
+| Anurag | 108 h   | about 104 | 96%  | A-4.3 deploy to Render (4 h, prepared and untested), plus section 13       |
+| Misbah | 105 h   | 97        | 92%  | B-2.7 playtest (2 h), B-5.2 QA sweep (6 h), session toggle wiring          |
+| Shared |         |           |      | Submission checklist (section 13): live URL, demo video, form, X post, tag |
+
+Every Anurag task is ticked. The only part not fully proven is hosting: the Docker image and
+`bots/src/host.ts` were never run, so the first Render deploy may need a fix. The post-commit Magic
+Action (A-4.2) was cut on purpose; SOAR is live.
+
+Misbah: B-4.1 is ticked but the in-app session-key toggle is not wired to `sessionTokenPda` and Gum
+`createSessionV2` yet (see `docs/api.md`, "Session keys").
+
+Frontend redesign (after the plan, done by Anurag's session, in `app/`): replaced the toy-box look
+with a flat editorial system (warm off-white and near-black, one blue accent, flat cards and
+buttons, Bricolage Grotesque + Hanken Grotesk, 14.5 px base size, 56 px sticky nav), a light/dark
+toggle (`html.dark`, saved as `insider.theme`), and a landing page with scroll motion (pinned
+horizontal steps, scroll-linked band, hero fade, scale-in). Not re-checked after the restyle:
+Floor, Desk, Cup, Season, Watch, Xray, Rules, Proof and `/ui`, in light or dark. Some may still
+carry old rounded or shadowed styles of their own.
+
+---
+
 ## 1. The split at a glance (equal on purpose)
 
 Each person owns about **105-108 hours** of work, an almost equal share of Rust, and an almost
