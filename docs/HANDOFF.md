@@ -16,8 +16,8 @@ You are working with Anurag (user). Misbah is the other teammate (UI, engine, SD
 
 ## Status in numbers
 
-- Anurag: about 96% (104 of 108 h). Left: Render deploy (prepared, never run) and his share of the submission checklist.
-- Misbah: about 92% (97 of 105 h). Left: B-2.7 playtest, B-5.2 QA sweep, wiring the session-key toggle.
+- Anurag: about 96%. What is left is deployment only (below). He does not touch the UI any more.
+- Misbah: about 92%. He now owns: (1) a redesign of the whole UI in his direction, as a game-playing experience with strong motion and effects, every page; (2) all end-to-end testing and QA on the deployed app; (3) the small wiring items.
 
 ## State: everything in the plan is built
 
@@ -39,14 +39,15 @@ Redesigned after the plan, in this order: toy-box game UI, then a soft game-UI s
 - Landing (`app/src/app/page.tsx`, motion in `components/landing/motion.tsx`): hero with `HeroFade` and `Parallax`, stat strip, `ScrollBand` (text slides with scroll), `HorizontalRounds` (pinned horizontal scroll; the scroll tracker ref must be on the section in both layouts; `main` uses `overflow-x-clip` because `overflow-hidden` breaks `position: sticky`), table section, game modes as a numbered list (no icon tiles), on-chain section with rules, not a gradient panel. `Reveal`, `ScaleIn` do scroll-in effects; all respect reduced motion.
 - Art: `app/public/art/*.jpg` (3D renders), `app/public/brand/` (logo). Nav has five links (Floor, Desk, Cup, Season, Proof); everything else is in the footer.
 
-**Not re-checked since the flat restyle:** Floor (`/table?fixture=1`), Desk, Cup, Season, Watch, Xray, Rules, Proof, `/ui`, in light and dark. Look for leftover rounded/shadowed styles, unreadable dark-mode text, and anything that assumed the old base size. Also mobile widths.
+Misbah may replace all of this. **Not re-checked since the flat restyle:** Floor (`/table?fixture=1`), Desk, Cup, Season, Watch, Xray, Rules, Proof, `/ui`, in light and dark. Look for leftover rounded/shadowed styles, unreadable dark-mode text, and anything that assumed the old base size. Also mobile widths.
 
 ## What is left
 
 1. **Deploy to Render (the user does this, after everything is ready).** Follow runbook "Hosting on Render": `pnpm pack-keys`, Blueprint from the repo, set `KEYS_B64` and `GROQ_API_KEY`, add an uptime monitor on `/health`, then set the frontend's `NEXT_PUBLIC_CUP_URL` and caption URL in Vercel. Stop local services first. The Docker image and `host.ts` were never run, so the first deploy may need a fix; check the Render logs.
 2. **Dedicated devnet RPC** (Helius or QuickNode free tier): the public RPC rate-limits (429s). Set `SOLANA_RPC_URL` (services) and `NEXT_PUBLIC_SOLANA_RPC_URL` (app).
 3. **Frontend on Vercel** with the `NEXT_PUBLIC_*` values in `.env.example` (`NEXT_PUBLIC_SITE_URL`, `NEXT_PUBLIC_DEMO_URL`, `NEXT_PUBLIC_CUP_URL`, `NEXT_PUBLIC_TABLE_AUTHORITY`, program id, RPC).
-4. **Misbah / UI:** session-key toggle (`NEXT_PUBLIC_SESSIONS`, `app/src/components/onboarding/wallet.tsx`) to `sessionTokenPda` + Gum `createSessionV2`; B-2.7 playtest; B-5.2 QA sweep (now including the checks under "Frontend" above); browser join flow for the Alpha Cup (private buy-in); wallet-signed SOAR registration for humans; click-through of the `/desk` write actions with a wallet.
-5. **Submission checklist** (STEPS.md section 13): live URL, replace the README placeholders, host the teaser and add the demo link, form, X post, tag `v1.0-blitz`.
+4. **Misbah (UI + all testing):** redesign every page (landing, Floor, X-ray, Season, Watch, Rules, Desk, Cup, Proof, `/ui`) in a game-playing style of his choosing, with crazy but smooth effects, keeping light/dark, mobile, reduced motion and performance; then run a full end-to-end test on the deployed app (cold visitor, guest and wallet, every game mode, privacy test, mobile, both themes) and fix what he finds. Also: session-key toggle (`NEXT_PUBLIC_SESSIONS`, `app/src/components/onboarding/wallet.tsx`) to `sessionTokenPda` + Gum `createSessionV2`; B-2.7 playtest; B-5.2 QA sweep (now including the checks under "Frontend" above); browser join flow for the Alpha Cup (private buy-in); wallet-signed SOAR registration for humans; click-through of the `/desk` write actions with a wallet.
+5. **Anurag only:** deploy, replace the README placeholders, host the teaser.
+6. **Submission checklist** (STEPS.md section 13): live URL, replace the README placeholders, host the teaser and add the demo link, form, X post, tag `v1.0-blitz`.
 
 Known limits to say honestly: the Alpha Cup has no human entrants yet in the soak; the Desk write actions and `open_leak`/`buy_license` through a session were not exercised live; the xAI provider is unit-tested only; no SOAR achievements; free Render wipes the cup operator's state on redeploy; the Desk shows "offline" locally unless the table authority env is set.
