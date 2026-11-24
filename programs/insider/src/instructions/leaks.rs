@@ -1,4 +1,5 @@
 use anchor_lang::prelude::*;
+use session_keys::{session_auth_or, Session, SessionError, SessionTokenV2};
 use ephemeral_rollups_sdk::{
     access_control::{
         instructions::UpdateEphemeralPermissionCpi,
@@ -14,25 +15,25 @@ use crate::{
     BOARD_SEED, LEAK_SEED, LEAK_SLOTS, SEAT_COUNT, SEAT_SEED,
 };
 
-#[derive(Accounts)]
+#[derive(Accounts, Session)]
 #[instruction(index: u8)]
 pub struct LeakAction<'info> {
     pub owner: Signer<'info>,
     pub table: Box<Account<'info, Table>>,
-    #[account(mut, seeds = [SEAT_SEED, table.key().as_ref(), &[index]], bump = seat.bump,
-        constraint = seat.owner == owner.key() @ InsiderError::NotSeatOwner)]
+    #[account(mut, seeds = [SEAT_SEED, table.key().as_ref(), &[index]], bump = seat.bump)]
     pub seat: Box<Account<'info, Seat>>,
     #[account(mut, seeds = [BOARD_SEED, table.key().as_ref()], bump = board.load()?.bump)]
     pub board: AccountLoader<'info, Board>,
+    #[session(signer = owner, authority = seat.owner)]
+    pub session_token: Option<Account<'info, SessionTokenV2>>,
 }
 
-#[derive(Accounts)]
+#[derive(Accounts, Session)]
 #[instruction(index: u8, slot: u8)]
 pub struct OpenLeak<'info> {
     pub owner: Signer<'info>,
     pub table: Box<Account<'info, Table>>,
-    #[account(mut, seeds = [SEAT_SEED, table.key().as_ref(), &[index]], bump = seat.bump,
-        constraint = seat.owner == owner.key() @ InsiderError::NotSeatOwner)]
+    #[account(mut, seeds = [SEAT_SEED, table.key().as_ref(), &[index]], bump = seat.bump)]
     pub seat: Box<Account<'info, Seat>>,
     #[account(mut, seeds = [BOARD_SEED, table.key().as_ref()], bump = board.load()?.bump)]
     pub board: AccountLoader<'info, Board>,
@@ -50,20 +51,23 @@ pub struct OpenLeak<'info> {
     /// CHECK: fixed Magic program.
     #[account(address = MAGIC_PROGRAM_ID)]
     pub magic_program: UncheckedAccount<'info>,
+    #[session(signer = owner, authority = seat.owner)]
+    pub session_token: Option<Account<'info, SessionTokenV2>>,
 }
 
-#[derive(Accounts)]
+#[derive(Accounts, Session)]
 #[instruction(index: u8, slot: u8, seller_index: u8)]
 pub struct BuyListed<'info> {
     pub owner: Signer<'info>,
     pub table: Box<Account<'info, Table>>,
-    #[account(mut, seeds = [SEAT_SEED, table.key().as_ref(), &[index]], bump = seat.bump,
-        constraint = seat.owner == owner.key() @ InsiderError::NotSeatOwner)]
+    #[account(mut, seeds = [SEAT_SEED, table.key().as_ref(), &[index]], bump = seat.bump)]
     pub seat: Box<Account<'info, Seat>>,
     #[account(mut, seeds = [BOARD_SEED, table.key().as_ref()], bump = board.load()?.bump)]
     pub board: AccountLoader<'info, Board>,
     #[account(mut, seeds = [SEAT_SEED, table.key().as_ref(), &[seller_index]], bump = seller_seat.bump)]
     pub seller_seat: Box<Account<'info, Seat>>,
+    #[session(signer = owner, authority = seat.owner)]
+    pub session_token: Option<Account<'info, SessionTokenV2>>,
 }
 
 pub(crate) fn check_live(table: &Table, board: &Board, index: u8) -> Result<()> {
@@ -88,6 +92,10 @@ pub(crate) fn check_vault(table: &Table, board: &Board, slot: u8, vault: &LeakVa
     Ok(())
 }
 
+#[session_auth_or(
+    ctx.accounts.seat.owner == ctx.accounts.owner.key(),
+    InsiderError::NotSeatOwner
+)]
 pub fn bid(ctx: Context<LeakAction>, index: u8, slot: u8) -> Result<()> {
     let table = &ctx.accounts.table;
     let mut board = ctx.accounts.board.load_mut()?;
@@ -96,6 +104,10 @@ pub fn bid(ctx: Context<LeakAction>, index: u8, slot: u8) -> Result<()> {
     Ok(())
 }
 
+#[session_auth_or(
+    ctx.accounts.seat.owner == ctx.accounts.owner.key(),
+    InsiderError::NotSeatOwner
+)]
 pub fn open_leak(ctx: Context<OpenLeak>, index: u8, slot: u8) -> Result<()> {
     let table = &ctx.accounts.table;
     let bump = {
@@ -109,7 +121,7 @@ pub fn open_leak(ctx: Context<OpenLeak>, index: u8, slot: u8) -> Result<()> {
         &mut *ctx.accounts.board.load_mut()?,
         slot,
         index,
-        ctx.accounts.owner.key(),
+        ctx.accounts.seat.owner,
         table.tick,
     )?;
     update_permission(
@@ -127,12 +139,20 @@ pub fn open_leak(ctx: Context<OpenLeak>, index: u8, slot: u8) -> Result<()> {
     )
 }
 
+#[session_auth_or(
+    ctx.accounts.seat.owner == ctx.accounts.owner.key(),
+    InsiderError::NotSeatOwner
+)]
 pub fn list_leak(ctx: Context<LeakAction>, index: u8, slot: u8, ask: u32) -> Result<()> {
     let mut board = ctx.accounts.board.load_mut()?;
     check_live(&ctx.accounts.table, &board, index)?;
     leaks::list(&mut board, slot, index, ask)
 }
 
+#[session_auth_or(
+    ctx.accounts.seat.owner == ctx.accounts.owner.key(),
+    InsiderError::NotSeatOwner
+)]
 pub fn buy_listed(ctx: Context<BuyListed>, index: u8, slot: u8, seller_index: u8) -> Result<()> {
     require!(
         usize::from(seller_index) < SEAT_COUNT,

@@ -6,6 +6,7 @@
 //! Nothing here depends on the Floor, so the Desk runs in any phase.
 
 use anchor_lang::prelude::*;
+use session_keys::{session_auth_or, Session, SessionError, SessionTokenV2};
 use ephemeral_rollups_sdk::{
     access_control::{
         instructions::UpdateEphemeralPermissionCpi,
@@ -74,13 +75,12 @@ fn set_members<'info>(
 
 // ---- mint_call ---------------------------------------------------------------------------------
 
-#[derive(Accounts)]
+#[derive(Accounts, Session)]
 #[instruction(index: u8)]
 pub struct MintCall<'info> {
     pub owner: Signer<'info>,
     pub table: Box<Account<'info, Table>>,
-    #[account(mut, seeds = [SEAT_SEED, table.key().as_ref(), &[index]], bump = seat.bump,
-        constraint = seat.owner == owner.key() @ InsiderError::NotSeatOwner)]
+    #[account(mut, seeds = [SEAT_SEED, table.key().as_ref(), &[index]], bump = seat.bump)]
     pub seat: Box<Account<'info, Seat>>,
     #[account(mut, seeds = [CALLBOOK_SEED, table.key().as_ref()], bump = call_book.load()?.bump)]
     pub call_book: AccountLoader<'info, CallBook>,
@@ -101,10 +101,16 @@ pub struct MintCall<'info> {
     /// CHECK: the SOL/USD feed; owner and layout are checked in the handler.
     #[account(address = ORACLE_FEED)]
     pub oracle: UncheckedAccount<'info>,
+    #[session(signer = owner, authority = seat.owner)]
+    pub session_token: Option<Account<'info, SessionTokenV2>>,
 }
 
 /// Commits to a direction. The stake leaves the seat's Desk chips now and comes back (with a
 /// bonus) only if the Call is Right. One open Call per seat.
+#[session_auth_or(
+    ctx.accounts.seat.owner == ctx.accounts.owner.key(),
+    InsiderError::NotSeatOwner
+)]
 pub fn mint_call(
     ctx: Context<MintCall>,
     index: u8,
@@ -162,7 +168,7 @@ pub fn mint_call(
         &ctx.accounts.table.key(),
         index,
         bump,
-        &[ctx.accounts.owner.key()],
+        &[ctx.accounts.seat.owner],
         PermissionAccounts {
             vault: ctx.accounts.vault.to_account_info(),
             permission: ctx.accounts.permission.to_account_info(),
@@ -175,13 +181,12 @@ pub fn mint_call(
 
 // ---- buy_call_license --------------------------------------------------------------------------
 
-#[derive(Accounts)]
+#[derive(Accounts, Session)]
 #[instruction(index: u8, author_index: u8)]
 pub struct BuyCallLicense<'info> {
     pub owner: Signer<'info>,
     pub table: Box<Account<'info, Table>>,
-    #[account(mut, seeds = [SEAT_SEED, table.key().as_ref(), &[index]], bump = seat.bump,
-        constraint = seat.owner == owner.key() @ InsiderError::NotSeatOwner)]
+    #[account(mut, seeds = [SEAT_SEED, table.key().as_ref(), &[index]], bump = seat.bump)]
     pub seat: Box<Account<'info, Seat>>,
     #[account(mut, seeds = [SEAT_SEED, table.key().as_ref(), &[author_index]], bump = author_seat.bump)]
     pub author_seat: Box<Account<'info, Seat>>,
@@ -201,9 +206,15 @@ pub struct BuyCallLicense<'info> {
     /// CHECK: fixed Magic program.
     #[account(address = MAGIC_PROGRAM_ID)]
     pub magic_program: UncheckedAccount<'info>,
+    #[session(signer = owner, authority = seat.owner)]
+    pub session_token: Option<Account<'info, SessionTokenV2>>,
 }
 
 /// Pays the author's asking price in Desk chips and joins the readers of an open Call (up to 4).
+#[session_auth_or(
+    ctx.accounts.seat.owner == ctx.accounts.owner.key(),
+    InsiderError::NotSeatOwner
+)]
 pub fn buy_call_license(ctx: Context<BuyCallLicense>, index: u8, author_index: u8) -> Result<()> {
     require!(
         usize::from(index) < SEAT_COUNT && usize::from(author_index) < SEAT_COUNT,
@@ -211,7 +222,7 @@ pub fn buy_call_license(ctx: Context<BuyCallLicense>, index: u8, author_index: u
     );
     require!(index != author_index, InsiderError::LicenseUnavailable);
     let now = Clock::get()?.unix_timestamp;
-    let buyer = ctx.accounts.owner.key();
+    let buyer = ctx.accounts.seat.owner;
     let mut members = vec![ctx.accounts.author_seat.owner];
     {
         let mut book = ctx.accounts.call_book.load_mut()?;
@@ -329,23 +340,28 @@ pub fn settle_call(ctx: Context<SettleCall>, author_index: u8) -> Result<()> {
 
 // ---- desk_trade --------------------------------------------------------------------------------
 
-#[derive(Accounts)]
+#[derive(Accounts, Session)]
 #[instruction(index: u8)]
 pub struct DeskTrade<'info> {
     pub owner: Signer<'info>,
     pub table: Box<Account<'info, Table>>,
-    #[account(mut, seeds = [SEAT_SEED, table.key().as_ref(), &[index]], bump = seat.bump,
-        constraint = seat.owner == owner.key() @ InsiderError::NotSeatOwner)]
+    #[account(mut, seeds = [SEAT_SEED, table.key().as_ref(), &[index]], bump = seat.bump)]
     pub seat: Box<Account<'info, Seat>>,
     #[account(mut, seeds = [MARKET_SEED, table.key().as_ref(), &[MARKET_DESK]], bump = market.load()?.bump)]
     pub market: AccountLoader<'info, Market>,
     /// CHECK: the SOL/USD feed; owner and layout are checked in the handler.
     #[account(address = ORACLE_FEED)]
     pub oracle: UncheckedAccount<'info>,
+    #[session(signer = owner, authority = seat.owner)]
+    pub session_token: Option<Account<'info, SessionTokenV2>>,
 }
 
 /// Trades `size` units (negative sells) at the oracle price: no price impact, a 0.1% fee. Buying
 /// needs the chips; the position is capped at 2,000 units either way.
+#[session_auth_or(
+    ctx.accounts.seat.owner == ctx.accounts.owner.key(),
+    InsiderError::NotSeatOwner
+)]
 pub fn desk_trade(ctx: Context<DeskTrade>, index: u8, size: i16) -> Result<()> {
     require!(usize::from(index) < SEAT_COUNT, InsiderError::InvalidSeat);
     require!(

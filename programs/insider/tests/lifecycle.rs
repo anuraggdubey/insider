@@ -237,6 +237,7 @@ fn ping_ix(owner: &Pubkey, authority: &Pubkey, index: u8) -> Instruction {
             owner: *owner,
             table,
             seat: seat_pda(&table, index),
+            session_token: None,
         }
         .to_account_metas(None),
         data: instruction::Ping { index }.data(),

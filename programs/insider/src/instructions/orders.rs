@@ -1,4 +1,5 @@
 use anchor_lang::prelude::*;
+use session_keys::{session_auth_or, Session, SessionError, SessionTokenV2};
 
 use crate::{
     engine::orders::push_order,
@@ -7,7 +8,7 @@ use crate::{
     MARKET_FLOOR, MARKET_SEED, MEMPOOL_SEED, SEAT_COUNT, SEAT_SEED, TAPE_SEED,
 };
 
-#[derive(Accounts)]
+#[derive(Accounts, Session)]
 #[instruction(index: u8)]
 pub struct SendOrder<'info> {
     pub owner: Signer<'info>,
@@ -16,7 +17,6 @@ pub struct SendOrder<'info> {
         mut,
         seeds = [SEAT_SEED, table.key().as_ref(), &[index]],
         bump = seat.bump,
-        constraint = seat.owner == owner.key() @ InsiderError::NotSeatOwner,
     )]
     pub seat: Account<'info, Seat>,
     #[account(
@@ -32,8 +32,14 @@ pub struct SendOrder<'info> {
     pub mempool: AccountLoader<'info, Mempool>,
     #[account(mut, seeds = [TAPE_SEED, table.key().as_ref()], bump = tape.bump)]
     pub tape: Box<Account<'info, Tape>>,
+    #[session(signer = owner, authority = seat.owner)]
+    pub session_token: Option<Account<'info, SessionTokenV2>>,
 }
 
+#[session_auth_or(
+    ctx.accounts.seat.owner == ctx.accounts.owner.key(),
+    InsiderError::NotSeatOwner
+)]
 pub fn send_order(ctx: Context<SendOrder>, index: u8, side_size: i16, lane: u8) -> Result<()> {
     require!(usize::from(index) < SEAT_COUNT, InsiderError::InvalidSeat);
     require!(

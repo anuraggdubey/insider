@@ -1,6 +1,7 @@
 //! Seats: `claim_seat` and `ping` (spec 7.6). Both run inside the rollup.
 
 use anchor_lang::prelude::*;
+use session_keys::{session_auth_or, Session, SessionError, SessionTokenV2};
 
 use crate::{
     error::InsiderError,
@@ -64,7 +65,7 @@ pub fn claim_seat(ctx: Context<ClaimSeat>, index: u8) -> Result<()> {
     Ok(())
 }
 
-#[derive(Accounts)]
+#[derive(Accounts, Session)]
 #[instruction(index: u8)]
 pub struct Ping<'info> {
     pub owner: Signer<'info>,
@@ -73,12 +74,17 @@ pub struct Ping<'info> {
         mut,
         seeds = [SEAT_SEED, table.key().as_ref(), &[index]],
         bump = seat.bump,
-        constraint = seat.owner == owner.key() @ InsiderError::NotSeatOwner,
     )]
     pub seat: Account<'info, Seat>,
+    #[session(signer = owner, authority = seat.owner)]
+    pub session_token: Option<Account<'info, SessionTokenV2>>,
 }
 
 /// Keeps the seat from going idle (and from being displaced).
+#[session_auth_or(
+    ctx.accounts.seat.owner == ctx.accounts.owner.key(),
+    InsiderError::NotSeatOwner
+)]
 pub fn ping(ctx: Context<Ping>, _index: u8) -> Result<()> {
     ctx.accounts.seat.last_seen_tick = ctx.accounts.table.tick;
     Ok(())

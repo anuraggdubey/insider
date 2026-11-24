@@ -1,4 +1,5 @@
 use anchor_lang::prelude::*;
+use session_keys::{session_auth_or, Session, SessionError, SessionTokenV2};
 use ephemeral_rollups_sdk::{
     access_control::structs::PERMISSION_SEED,
     consts::{EPHEMERAL_VAULT_ID, MAGIC_PROGRAM_ID, PERMISSION_PROGRAM_ID},
@@ -14,13 +15,12 @@ use crate::{
     BOARD_SEED, LEAK_SEED, LEAK_SLOTS, SEAT_COUNT, SEAT_SEED,
 };
 
-#[derive(Accounts)]
+#[derive(Accounts, Session)]
 #[instruction(index: u8, slot: u8, owner_index: u8)]
 pub struct BuyLicense<'info> {
     pub owner: Signer<'info>,
     pub table: Box<Account<'info, Table>>,
-    #[account(mut, seeds = [SEAT_SEED, table.key().as_ref(), &[index]], bump = seat.bump,
-        constraint = seat.owner == owner.key() @ InsiderError::NotSeatOwner)]
+    #[account(mut, seeds = [SEAT_SEED, table.key().as_ref(), &[index]], bump = seat.bump)]
     pub seat: Box<Account<'info, Seat>>,
     #[account(mut, seeds = [BOARD_SEED, table.key().as_ref()], bump = board.load()?.bump)]
     pub board: AccountLoader<'info, Board>,
@@ -40,14 +40,24 @@ pub struct BuyLicense<'info> {
     /// CHECK: fixed Magic program.
     #[account(address = MAGIC_PROGRAM_ID)]
     pub magic_program: UncheckedAccount<'info>,
+    #[session(signer = owner, authority = seat.owner)]
+    pub session_token: Option<Account<'info, SessionTokenV2>>,
 }
 
+#[session_auth_or(
+    ctx.accounts.seat.owner == ctx.accounts.owner.key(),
+    InsiderError::NotSeatOwner
+)]
 pub fn offer_license(ctx: Context<LeakAction>, index: u8, slot: u8, ask: u32) -> Result<()> {
     let mut board = ctx.accounts.board.load_mut()?;
     check_live(&ctx.accounts.table, &board, index)?;
     leaks::offer_license(&mut board, slot, index, ask)
 }
 
+#[session_auth_or(
+    ctx.accounts.seat.owner == ctx.accounts.owner.key(),
+    InsiderError::NotSeatOwner
+)]
 pub fn buy_license(ctx: Context<BuyLicense>, index: u8, slot: u8, owner_index: u8) -> Result<()> {
     require!(
         usize::from(owner_index) < SEAT_COUNT,
@@ -73,7 +83,7 @@ pub fn buy_license(ctx: Context<BuyLicense>, index: u8, slot: u8, owner_index: u
         &mut *ctx.accounts.board.load_mut()?,
         slot,
         index,
-        ctx.accounts.owner.key(),
+        ctx.accounts.seat.owner,
         &mut ctx.accounts.seat,
         &mut ctx.accounts.license_owner,
         table.tick,

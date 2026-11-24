@@ -262,6 +262,7 @@ fn trade_ix(w: &World, owner: &Pubkey, index: u8, size: i16) -> Instruction {
             seat: seat_key(w, index),
             market: pda(&[MARKET_SEED, w.table.as_ref(), &[MARKET_DESK]]),
             oracle: ORACLE_FEED,
+            session_token: None,
         }
         .to_account_metas(None),
         data: instruction::DeskTrade { index, size }.data(),
@@ -281,6 +282,7 @@ fn mint_ix(w: &World, owner: &Pubkey, index: u8, direction: i8, horizon: u16, st
         ephemeral_vault: Pubkey::new_unique(),
         magic_program: Pubkey::new_unique(),
         oracle: ORACLE_FEED,
+        session_token: None,
     }
     .to_account_metas(None);
     // the fixed program addresses and the permission PDA are checked by the program

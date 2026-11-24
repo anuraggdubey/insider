@@ -148,6 +148,7 @@ impl Fixture {
                 market: self.market,
                 mempool: self.mempool,
                 tape: self.tape,
+                session_token: None,
             }
             .to_account_metas(None),
             data: instruction::SendOrder {
@@ -374,6 +375,7 @@ impl LeakFixture {
             table: self.base.table,
             seat: self.base.seat,
             board: self.board,
+            session_token: None,
         }
         .to_account_metas(None)
     }
@@ -392,6 +394,7 @@ impl LeakFixture {
             permission_program: PERMISSION_PROGRAM_ID,
             ephemeral_vault: EPHEMERAL_VAULT_ID,
             magic_program: MAGIC_PROGRAM_ID,
+            session_token: None,
         }
         .to_account_metas(None)
     }
@@ -411,6 +414,7 @@ impl LeakFixture {
             permission_program: PERMISSION_PROGRAM_ID,
             ephemeral_vault: EPHEMERAL_VAULT_ID,
             magic_program: MAGIC_PROGRAM_ID,
+            session_token: None,
         }
         .to_account_metas(None)
     }
@@ -483,6 +487,7 @@ fn leak_non_cpi_instructions_update_accounts() {
         seat: f.base.seat,
         board: f.board,
         seller_seat: f.seller,
+        session_token: None,
     }
     .to_account_metas(None);
     f.execute(
@@ -911,4 +916,148 @@ fn finish_round_handles_a_full_trace_within_the_compute_budget() {
         meta.compute_units_consumed
     );
     assert!(meta.compute_units_consumed < 200_000);
+}
+
+// ---- session keys ------------------------------------------------------------------------------
+
+impl Fixture {
+    /// Writes a Gum session token (owned by the session program) for `wallet` and `signer`.
+    fn put_session(&mut self, wallet: Pubkey, signer: Pubkey, valid_until: i64) -> Pubkey {
+        use session_keys::SessionTokenV2;
+        let (key, _) = Pubkey::find_program_address(
+            &[
+                SessionTokenV2::SEED_PREFIX.as_bytes(),
+                insider::ID.as_ref(),
+                signer.as_ref(),
+                wallet.as_ref(),
+            ],
+            &session_keys::ID,
+        );
+        let token = SessionTokenV2 {
+            authority: wallet,
+            target_program: insider::ID,
+            session_signer: signer,
+            fee_payer: wallet,
+            valid_until,
+        };
+        let mut data = Vec::new();
+        token.try_serialize(&mut data).unwrap();
+        let mut account = self.svm.get_account(&system_program::ID).unwrap();
+        account.lamports = 1_000_000_000;
+        account.owner = session_keys::ID;
+        account.executable = false;
+        account.data = data;
+        self.svm.set_account(key, account).unwrap();
+        key
+    }
+
+    fn send_session(
+        &mut self,
+        signer: &Keypair,
+        token: Option<Pubkey>,
+        size: i16,
+    ) -> Result<TransactionMetadata, Box<FailedTransactionMetadata>> {
+        let mut ix = self.ix(signer.pubkey(), size);
+        ix.accounts = accounts::SendOrder {
+            owner: signer.pubkey(),
+            table: self.table,
+            seat: self.seat,
+            market: self.market,
+            mempool: self.mempool,
+            tape: self.tape,
+            session_token: token,
+        }
+        .to_account_metas(None);
+        let message = Message::new(&[ix], Some(&signer.pubkey()));
+        self.svm
+            .send_transaction(Transaction::new(
+                &[signer],
+                message,
+                self.svm.latest_blockhash(),
+            ))
+            .map_err(Box::new)
+    }
+
+    fn set_clock(&mut self, unix_timestamp: i64) {
+        let mut clock = self.svm.get_sysvar::<anchor_lang::prelude::Clock>();
+        clock.unix_timestamp = unix_timestamp;
+        self.svm.set_sysvar(&clock);
+    }
+}
+
+#[test]
+fn a_session_key_trades_for_the_wallet_that_owns_the_seat() {
+    let mut f = Fixture::new();
+    f.set_clock(1_000);
+    let session = Keypair::new();
+    f.svm.airdrop(&session.pubkey(), 1_000_000_000).unwrap();
+    let token = f.put_session(f.owner.pubkey(), session.pubkey(), 5_000);
+    f.send_session(&session, Some(token), 700).unwrap();
+    let seat: Seat = f.read(f.seat);
+    // The seat still belongs to the wallet, and the order was charged to it.
+    assert_eq!(seat.owner, f.owner.pubkey());
+    assert_eq!(seat.pending_count, 1);
+    // The wallet keeps working directly next to its session.
+    f.svm.expire_blockhash();
+    f.send_owner(300).unwrap();
+}
+
+#[test]
+fn a_session_key_is_refused_without_a_valid_token() {
+    let mut f = Fixture::new();
+    f.set_clock(1_000);
+    let session = Keypair::new();
+    f.svm.airdrop(&session.pubkey(), 1_000_000_000).unwrap();
+    let wallet = f.owner.pubkey();
+
+    // No token at all: the signer is not the seat owner.
+    let error = f.send_session(&session, None, 100).unwrap_err();
+    assert!(format!("{error:?}").contains("NotSeatOwner"));
+
+    // Expired token (valid_until is not in the future).
+    let expired = f.put_session(wallet, session.pubkey(), 1_000);
+    f.svm.expire_blockhash();
+    let error = f.send_session(&session, Some(expired), 100).unwrap_err();
+    assert!(format!("{error:?}").contains("InvalidToken"));
+
+    // A token for the same wallet but another session key does not work for this signer.
+    let other = Keypair::new();
+    let others = f.put_session(wallet, other.pubkey(), 5_000);
+    f.svm.expire_blockhash();
+    let error = f.send_session(&session, Some(others), 100).unwrap_err();
+    assert!(format!("{error:?}").contains("InvalidToken"));
+
+    // A token a stranger made for their own wallet cannot act on this seat.
+    let stranger = Keypair::new();
+    let theirs = f.put_session(stranger.pubkey(), session.pubkey(), 5_000);
+    f.svm.expire_blockhash();
+    let error = f.send_session(&session, Some(theirs), 100).unwrap_err();
+    assert!(format!("{error:?}").contains("InvalidToken"));
+
+    // Nothing above changed the seat.
+    let seat: Seat = f.read(f.seat);
+    assert_eq!(seat.pending_count, 0);
+}
+
+#[test]
+fn a_session_expires_with_the_clock_and_stops_after_revocation() {
+    let mut f = Fixture::new();
+    f.set_clock(1_000);
+    let session = Keypair::new();
+    f.svm.airdrop(&session.pubkey(), 1_000_000_000).unwrap();
+    let token = f.put_session(f.owner.pubkey(), session.pubkey(), 2_000);
+    f.send_session(&session, Some(token), 100).unwrap();
+
+    f.set_clock(2_000);
+    f.svm.expire_blockhash();
+    let error = f.send_session(&session, Some(token), 100).unwrap_err();
+    assert!(format!("{error:?}").contains("InvalidToken"));
+
+    // Revocation closes the token account; the instruction then cannot even load it.
+    f.set_clock(1_500);
+    f.svm.expire_blockhash();
+    f.send_session(&session, Some(token), 100).unwrap();
+    f.svm.set_account(token, Default::default()).unwrap();
+    f.svm.expire_blockhash();
+    assert!(f.send_session(&session, Some(token), 100).is_err());
 }
