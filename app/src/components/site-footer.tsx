@@ -121,47 +121,23 @@ export function SiteFooter() {
         </div>
         <div className="mt-12 flex flex-wrap items-center justify-between gap-x-8 gap-y-4 border-t-2 border-white/15 pt-6 text-xs font-bold text-white/55">
           <span>Built for Solana Blitz v10 · Devnet only · no real funds</span>
-          <span className="flex flex-wrap items-center gap-x-5 gap-y-2">
-            <span>
-              Anurag{" "}
-              <a
-                className="underline-offset-4 hover:text-white hover:underline"
-                href="https://x.com/ANURAGGDUBEYY"
-                target="_blank"
-                rel="noreferrer"
-              >
-                X
-              </a>
-              {" · "}
-              <a
-                className="underline-offset-4 hover:text-white hover:underline"
-                href="https://github.com/anuraggdubey"
-                target="_blank"
-                rel="noreferrer"
-              >
-                GitHub
-              </a>
-            </span>
-            <span>
-              Misbah{" "}
-              <a
-                className="underline-offset-4 hover:text-white hover:underline"
-                href="https://x.com/Misbahtwts"
-                target="_blank"
-                rel="noreferrer"
-              >
-                X
-              </a>
-              {" · "}
-              <a
-                className="underline-offset-4 hover:text-white hover:underline"
-                href="https://github.com/MisbahAnsar"
-                target="_blank"
-                rel="noreferrer"
-              >
-                GitHub
-              </a>
-            </span>
+          <span className="flex flex-wrap items-center gap-x-4 gap-y-2">
+            <a
+              className="underline-offset-4 hover:text-white hover:underline"
+              href="https://x.com/ANURAGGDUBEYY"
+              target="_blank"
+              rel="noreferrer"
+            >
+              X @anuraggdubeyy
+            </a>
+            <a
+              className="underline-offset-4 hover:text-white hover:underline"
+              href="https://github.com/anuraggdubey"
+              target="_blank"
+              rel="noreferrer"
+            >
+              GitHub
+            </a>
           </span>
         </div>
       </div>
