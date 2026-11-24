@@ -1,10 +1,12 @@
 /**
  * Turns public market data into a Call: "up" or "down" on SOL/USD, a horizon, a stake. The AI
- * analysts ask Claude; a plain heuristic exists for local testing only and is never the default.
+ * analysts ask Grok (xAI) or Claude (Anthropic), whichever key is set; a plain heuristic exists for
+ * local testing only and is never the default.
  */
 import Anthropic from "@anthropic-ai/sdk";
 import { z } from "zod";
 
+import { type GrokClient } from "./grok.js";
 import { type Record_, type Summary, hitRate } from "./market-data.js";
 
 export const HORIZONS = [60, 120, 180] as const;
@@ -90,7 +92,7 @@ than at the time you commit when the horizon ends; a flat price counts as Wrong.
 confidence and never stake more than the chips you have.`;
 
 export const PERSONAS: Record<"claude" | "contrarian", string> = {
-  claude: `You are Claude, a careful analyst. Weigh the short-term trend against how far the price has already moved.\n${RULES}`,
+  claude: `You are a careful analyst. Weigh the short-term trend against how far the price has already moved.\n${RULES}`,
   contrarian: `You are the Contrarian. You fade stretched moves: a sharp rise in the last minutes is a reason to call down, a sharp fall a reason to call up, and you skip quiet markets.\n${RULES}`,
 };
 
@@ -128,6 +130,26 @@ export class AnthropicPredictor implements Predictor {
     const text = response.content
       .map((block) => (block.type === "text" ? block.text : ""))
       .join("");
+    return parseDecision(text, input.chips);
+  }
+}
+
+/** Grok through xAI's chat completions API. Any network or API error propagates: nothing is minted. */
+export class GrokPredictor implements Predictor {
+  readonly name: string;
+
+  constructor(
+    private readonly persona: keyof typeof PERSONAS,
+    private readonly client: Pick<GrokClient, "complete">,
+  ) {
+    this.name = `grok:${persona}`;
+  }
+
+  async predict(input: PredictInput): Promise<Decision | undefined> {
+    const text = await this.client.complete({
+      system: PERSONAS[this.persona],
+      user: describeInput(input),
+    });
     return parseDecision(text, input.chips);
   }
 }

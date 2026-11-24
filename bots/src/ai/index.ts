@@ -4,8 +4,11 @@
  *   pnpm analysts
  *
  * Environment:
- *   ANTHROPIC_API_KEY      enables the analysts' model; without it they sit but mint nothing
+ *   XAI_API_KEY            enables the analysts' model with Grok (xAI); preferred when both keys are set
+ *   XAI_MODEL              model id (default grok-4.7); XAI_REASONING_EFFORT low|medium|high|xhigh (default low)
+ *   ANTHROPIC_API_KEY      enables the analysts' model with Claude; without either key they sit but mint nothing
  *   ANTHROPIC_MODEL        model id (default claude-haiku-5-5)
+ *   AI_PROVIDER            "xai" or "anthropic" forces the provider when both keys are set
  *   ANALYST_PREDICTOR      "heuristic" runs a plain trend follower for local testing (not an AI)
  *   COMMENTARY_LLM=1       let the model reword the captions (they pause while it is unreachable)
  *   COMMENTARY_PORT        port of the caption feed (default 8788): GET /captions?since=<id>
@@ -42,7 +45,14 @@ import {
   diffEvents,
   type Snapshot,
 } from "./commentary.js";
-import { AnthropicPredictor, HeuristicPredictor, type Predictor } from "./predictor.js";
+import { GrokClient } from "./grok.js";
+import { chooseProvider } from "./provider.js";
+import {
+  AnthropicPredictor,
+  GrokPredictor,
+  HeuristicPredictor,
+  type Predictor,
+} from "./predictor.js";
 import { takeSnapshot } from "./snapshot.js";
 
 const log = pino({ level: process.env.LOG_LEVEL || "info" });
@@ -50,31 +60,54 @@ const log = pino({ level: process.env.LOG_LEVEL || "info" });
 function predictorFor(persona: "claude" | "contrarian"): Predictor | undefined {
   if (process.env.ANALYST_PREDICTOR === "heuristic")
     return new HeuristicPredictor(persona === "contrarian");
-  const key = process.env.ANTHROPIC_API_KEY;
-  return key ? new AnthropicPredictor(persona, key) : undefined;
+  const provider = chooseProvider();
+  if (provider === "xai")
+    return new GrokPredictor(persona, new GrokClient({ apiKey: process.env.XAI_API_KEY! }));
+  if (provider === "anthropic")
+    return new AnthropicPredictor(persona, process.env.ANTHROPIC_API_KEY!);
+  return undefined;
+}
+
+const REWRITE_SYSTEM =
+  "Rewrite each line as a punchy live-commentary caption of at most 14 words. Keep every name and number exactly. Reply with a JSON array of strings, same length and order, nothing else.";
+
+function parseRewrite(text: string): string[] {
+  const parsed = JSON.parse(text.slice(text.indexOf("["), text.lastIndexOf("]") + 1)) as unknown;
+  if (!Array.isArray(parsed) || parsed.some((item) => typeof item !== "string")) {
+    throw new Error("unexpected rewrite");
+  }
+  return parsed as string[];
 }
 
 function rewriter(): Rewriter | undefined {
+  if (process.env.COMMENTARY_LLM !== "1") return undefined;
+  const provider = chooseProvider();
+  if (provider === "xai") {
+    const grok = new GrokClient({ apiKey: process.env.XAI_API_KEY!, timeoutMs: 20_000 });
+    return async (texts) =>
+      parseRewrite(
+        await grok.complete({
+          system: REWRITE_SYSTEM,
+          user: JSON.stringify(texts),
+          maxTokens: 2_000,
+        }),
+      );
+  }
   const key = process.env.ANTHROPIC_API_KEY;
-  if (process.env.COMMENTARY_LLM !== "1" || !key) return undefined;
+  if (provider !== "anthropic" || !key) return undefined;
   const client = new Anthropic({ apiKey: key, timeout: 15_000, maxRetries: 1 });
   const model = process.env.ANTHROPIC_MODEL || "claude-haiku-5-5";
   return async (texts) => {
     const response = await client.messages.create({
       model,
       max_tokens: 600,
-      system:
-        "Rewrite each line as a punchy live-commentary caption of at most 14 words. Keep every name and number exactly. Reply with a JSON array of strings, same length and order, nothing else.",
+      system: REWRITE_SYSTEM,
       messages: [{ role: "user", content: JSON.stringify(texts) }],
     });
     const text = response.content
       .map((block) => (block.type === "text" ? block.text : ""))
       .join("");
-    const parsed = JSON.parse(text.slice(text.indexOf("["), text.lastIndexOf("]") + 1)) as unknown;
-    if (!Array.isArray(parsed) || parsed.some((item) => typeof item !== "string")) {
-      throw new Error("unexpected rewrite");
-    }
-    return parsed as string[];
+    return parseRewrite(text);
   };
 }
 
@@ -90,8 +123,12 @@ async function main() {
   process.on("SIGTERM", () => (stopping = true));
   const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
-  if (!process.env.ANTHROPIC_API_KEY && process.env.ANALYST_PREDICTOR !== "heuristic") {
-    log.warn("no ANTHROPIC_API_KEY: the analysts take their seats but mint no Calls");
+  if (!chooseProvider() && process.env.ANALYST_PREDICTOR !== "heuristic") {
+    log.warn(
+      "no XAI_API_KEY or ANTHROPIC_API_KEY: the analysts take their seats but mint no Calls",
+    );
+  } else if (process.env.ANALYST_PREDICTOR !== "heuristic") {
+    log.info({ provider: chooseProvider() }, "analyst model provider");
   }
 
   const loops = analysts.map(async ({ member, keypair }, i) => {
