@@ -10,6 +10,8 @@ import { resolve } from "node:path";
 import { Connection } from "@solana/web3.js";
 import pino from "pino";
 
+import { SoarPublisher } from "./soar.js";
+
 import {
   ROOT,
   VALIDATORS,
@@ -32,7 +34,12 @@ async function main() {
   const accounts = tableAccounts(authority.publicKey, config.programId);
   const base = new Connection(config.baseRpcUrl, "confirmed");
   const program = insiderProgram(base, authority, config.programId);
-  log.info({ authority: authority.publicKey.toBase58() }, "operator started");
+  const soar = SoarPublisher.open(base, authority);
+  const soarTries = new Map<number, number>();
+  log.info(
+    { authority: authority.publicKey.toBase58(), soarGame: soar?.game.toBase58() ?? "off" },
+    "operator started",
+  );
 
   let stopping = false;
   process.on("SIGINT", () => (stopping = true));
@@ -51,6 +58,24 @@ async function main() {
         const tableEpoch = decodeTable(tableInfo.data).epoch;
         const ownedByProgram = seasonInfo.owner.equals(config.programId);
         const seasonEpoch = ownedByProgram ? decodeSeason(seasonInfo.data).epoch : tableEpoch;
+        // the season is on the base layer and not reset yet: publish it to SOAR first. Two tries
+        // per epoch, then the game goes on without it.
+        if (soar && ownedByProgram && !soar.alreadyPublished(seasonEpoch)) {
+          const tries = soarTries.get(seasonEpoch) ?? 0;
+          if (tries < 2) {
+            soarTries.set(seasonEpoch, tries + 1);
+            try {
+              const season = decodeSeason(seasonInfo.data);
+              const result = await soar.publish(seasonEpoch, season.leaderboard);
+              log.info({ epoch: seasonEpoch, ...result }, "season published to SOAR");
+            } catch (error) {
+              log.warn(
+                { epoch: seasonEpoch, error: String(error).slice(0, 200) },
+                "SOAR publish failed",
+              );
+            }
+          }
+        }
         if (shouldOpenEpoch(ownedByProgram, tableEpoch, seasonEpoch)) {
           const signature = await program.methods
             .openEpoch()

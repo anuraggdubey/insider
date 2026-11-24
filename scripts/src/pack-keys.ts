@@ -14,7 +14,12 @@ import { ROOT } from "@insider/sdk/node";
 
 const keys = resolve(ROOT, ".keys");
 const files: Record<string, unknown> = {};
-for (const name of ["deployer.json", "cup-operator.json"]) {
+for (const name of [
+  "deployer.json",
+  "cup-operator.json",
+  "soar-game.json",
+  "soar-published.json",
+]) {
   const path = resolve(keys, name);
   if (existsSync(path)) files[name] = JSON.parse(readFileSync(path, "utf8"));
 }

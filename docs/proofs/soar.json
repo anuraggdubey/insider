@@ -1,0 +1,82 @@
+{
+  "program": "SoarNNzwQHMwcfdkdLc6kvbkoMSxcHy89gTHrjhJYkk",
+  "game": "dQPfJzesPQSGYueDrf7UFskt3nFHo4nmQyeSgJYEphF",
+  "leaderboard": "HRLwsB4PeVTE8Lm2RVDoYfYtT3FCGYxH7F1A2e9rryib",
+  "entries": [
+    {
+      "player": "2qX7ZHaK7Uu2hEUnQbuym2hwztTDFDxjfqHC3xxymQTd",
+      "score": "1240"
+    },
+    {
+      "player": "2qX7ZHaK7Uu2hEUnQbuym2hwztTDFDxjfqHC3xxymQTd",
+      "score": "1240"
+    },
+    {
+      "player": "CFgaF8PmUN6axgJZxtp4umCrYvzdDFet1FekKMXvbncE",
+      "score": "860"
+    },
+    {
+      "player": "CFgaF8PmUN6axgJZxtp4umCrYvzdDFet1FekKMXvbncE",
+      "score": "860"
+    },
+    {
+      "player": "11111111111111111111111111111111",
+      "score": "0"
+    },
+    {
+      "player": "11111111111111111111111111111111",
+      "score": "0"
+    },
+    {
+      "player": "11111111111111111111111111111111",
+      "score": "0"
+    },
+    {
+      "player": "11111111111111111111111111111111",
+      "score": "0"
+    },
+    {
+      "player": "11111111111111111111111111111111",
+      "score": "0"
+    },
+    {
+      "player": "11111111111111111111111111111111",
+      "score": "0"
+    }
+  ],
+  "checks": [
+    {
+      "name": "the leaderboard lists both players, best first",
+      "pass": true
+    },
+    {
+      "name": "a player cannot submit their own score",
+      "pass": true
+    }
+  ],
+  "steps": [
+    {
+      "what": "bot-front-runner registers on the leaderboard",
+      "signature": "tH1BbiX2AppQKDokJ4t3uCx8EgbX4wJpVNMs6EwfYAs9iXS3K2GYYZqTuJhv9bwy3bEAXN1nNenxp6C56r9wp3o",
+      "url": "https://explorer.solana.com/tx/tH1BbiX2AppQKDokJ4t3uCx8EgbX4wJpVNMs6EwfYAs9iXS3K2GYYZqTuJhv9bwy3bEAXN1nNenxp6C56r9wp3o?cluster=devnet"
+    },
+    {
+      "what": "submit bob: 1240",
+      "signature": "2ecFpfgSrnkWfxQnP2ka13MLiTFTmV93eQsZtoLKeVsZWUikSeGvUN1ZEW7MvQuCpTsYL1Y9Ke8RxqYNwV2gFQGg",
+      "url": "https://explorer.solana.com/tx/2ecFpfgSrnkWfxQnP2ka13MLiTFTmV93eQsZtoLKeVsZWUikSeGvUN1ZEW7MvQuCpTsYL1Y9Ke8RxqYNwV2gFQGg?cluster=devnet"
+    },
+    {
+      "what": "submit carol: 860",
+      "signature": "3QWXAczyUMbB1kpdZDRDJrEVGjMUvQ6Zawe3prYYXTVPUwJE1mYxWsyzspXXyup5UaaNCSf5LN4FE7ZKxiqgjAcJ",
+      "url": "https://explorer.solana.com/tx/3QWXAczyUMbB1kpdZDRDJrEVGjMUvQ6Zawe3prYYXTVPUwJE1mYxWsyzspXXyup5UaaNCSf5LN4FE7ZKxiqgjAcJ?cluster=devnet"
+    }
+  ],
+  "seasonPublish": {
+    "epoch": 13,
+    "submitted": 9,
+    "skippedUnregistered": [
+      "23k9UnCKBkFyci6Sv1RhuFXUXFgTnjV6oeTZyMaxopWm"
+    ],
+    "note": "logged by the operator when epoch 13 was back on the base layer; read it with pnpm soar-board"
+  }
+}
