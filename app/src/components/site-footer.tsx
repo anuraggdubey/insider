@@ -40,7 +40,7 @@ const chain: FooterLink[] = [
 function Column({ title, links }: { title: string; links: FooterLink[] }) {
   return (
     <div>
-      <h3 className="text-sun text-base tracking-wide">{title}</h3>
+      <h3 className="text-sm font-extrabold tracking-wide text-white/50 uppercase">{title}</h3>
       <ul className="mt-4 space-y-2.5">
         {links.map((link) => {
           const body = (
@@ -53,7 +53,7 @@ function Column({ title, links }: { title: string; links: FooterLink[] }) {
             </>
           );
           const cls =
-            "inline-flex items-center gap-1.5 text-sm font-bold text-white/80 transition-colors hover:text-white";
+            "inline-flex items-center gap-1.5 text-sm font-semibold text-white/80 transition-colors hover:text-white";
           return (
             <li key={link.label}>
               {link.external ? (
@@ -75,8 +75,8 @@ function Column({ title, links }: { title: string; links: FooterLink[] }) {
 
 export function SiteFooter() {
   return (
-    <footer className="border-ink relative mt-auto overflow-hidden border-t-[3px] bg-[#1a0f2e] text-white">
-      <div className="bg-pop/20 pointer-events-none absolute -top-24 -right-24 size-72 rounded-full blur-3xl" />
+    <footer className="relative mt-auto overflow-hidden bg-[#1a0f2e] text-white">
+      <div className="bg-brand/30 pointer-events-none absolute -top-24 -right-24 size-72 rounded-full blur-3xl" />
       <div className="relative mx-auto max-w-7xl px-5 pt-14 pb-4 sm:px-8">
         <div className="grid gap-12 lg:grid-cols-[1.25fr_2fr]">
           <div>
@@ -90,16 +90,11 @@ export function SiteFooter() {
             </p>
             <div className="mt-6 flex flex-wrap gap-3">
               {DEMO ? (
-                <a
-                  href={DEMO}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="bg-sun text-ink inline-flex items-center gap-2 rounded-2xl border-[3px] border-white px-5 py-2.5 font-[family-name:var(--font-lilita)] text-base tracking-wide shadow-[0_4px_0_#fff] transition-transform duration-150 hover:-translate-y-0.5 active:translate-y-[3px] active:shadow-none"
-                >
+                <a href={DEMO} target="_blank" rel="noreferrer" className="btn h-11 px-5 text-base">
                   <Play aria-hidden className="size-4 fill-current" /> Watch the teaser
                 </a>
               ) : (
-                <span className="inline-flex items-center gap-2 rounded-2xl border-[3px] border-dashed border-white/40 px-5 py-2.5 font-[family-name:var(--font-lilita)] text-base tracking-wide text-white/60">
+                <span className="inline-flex h-11 items-center gap-2 rounded-2xl border border-dashed border-white/30 px-5 font-[family-name:var(--font-display)] text-base font-bold text-white/60">
                   <Play aria-hidden className="size-4" /> Demo video · soon
                 </span>
               )}
@@ -107,7 +102,7 @@ export function SiteFooter() {
                 href={REPO}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex items-center gap-2 rounded-2xl border-[3px] border-white/70 px-5 py-2.5 font-[family-name:var(--font-lilita)] text-base tracking-wide text-white transition-transform duration-150 hover:-translate-y-0.5 hover:border-white"
+                className="inline-flex h-11 items-center gap-2 rounded-2xl border border-white/25 bg-white/5 px-5 font-[family-name:var(--font-display)] text-base font-bold text-white transition-colors hover:bg-white/10"
               >
                 Star the repo <ArrowUpRight aria-hidden className="size-4" />
               </a>
@@ -119,7 +114,7 @@ export function SiteFooter() {
             <Column title="On-chain" links={chain} />
           </div>
         </div>
-        <div className="mt-12 flex flex-wrap items-center justify-between gap-x-8 gap-y-4 border-t-2 border-white/15 pt-6 text-xs font-bold text-white/55">
+        <div className="mt-12 flex flex-wrap items-center justify-between gap-x-8 gap-y-4 border-t border-white/10 pt-6 text-xs font-semibold text-white/55">
           <span>Built for Solana Blitz v10 · Devnet only · no real funds</span>
           <span className="flex flex-wrap items-center gap-x-4 gap-y-2">
             <a
