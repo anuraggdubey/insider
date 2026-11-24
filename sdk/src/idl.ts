@@ -44,6 +44,10 @@ export type Insider = {
             ];
           };
         },
+        {
+          name: "sessionToken";
+          optional: true;
+        },
       ];
       args: [
         {
@@ -127,6 +131,10 @@ export type Insider = {
         {
           name: "magicProgram";
           address: "Magic11111111111111111111111111111111111111";
+        },
+        {
+          name: "sessionToken";
+          optional: true;
         },
       ];
       args: [
@@ -212,6 +220,10 @@ export type Insider = {
           name: "magicProgram";
           address: "Magic11111111111111111111111111111111111111";
         },
+        {
+          name: "sessionToken";
+          optional: true;
+        },
       ];
       args: [
         {
@@ -262,6 +274,10 @@ export type Insider = {
         {
           name: "sellerSeat";
           writable: true;
+        },
+        {
+          name: "sessionToken";
+          optional: true;
         },
       ];
       args: [
@@ -2685,6 +2701,10 @@ export type Insider = {
           name: "oracle";
           address: "ENYwebBThHzmzwPLAQvCucUTsjyfBSZdD9ViXksS4jPu";
         },
+        {
+          name: "sessionToken";
+          optional: true;
+        },
       ];
       args: [
         {
@@ -3499,6 +3519,10 @@ export type Insider = {
             ];
           };
         },
+        {
+          name: "sessionToken";
+          optional: true;
+        },
       ];
       args: [
         {
@@ -3587,6 +3611,10 @@ export type Insider = {
           name: "oracle";
           address: "ENYwebBThHzmzwPLAQvCucUTsjyfBSZdD9ViXksS4jPu";
         },
+        {
+          name: "sessionToken";
+          optional: true;
+        },
       ];
       args: [
         {
@@ -3645,6 +3673,10 @@ export type Insider = {
               },
             ];
           };
+        },
+        {
+          name: "sessionToken";
+          optional: true;
         },
       ];
       args: [
@@ -3898,6 +3930,10 @@ export type Insider = {
           name: "magicProgram";
           address: "Magic11111111111111111111111111111111111111";
         },
+        {
+          name: "sessionToken";
+          optional: true;
+        },
       ];
       args: [
         {
@@ -3924,6 +3960,10 @@ export type Insider = {
         {
           name: "seat";
           writable: true;
+        },
+        {
+          name: "sessionToken";
+          optional: true;
         },
       ];
       args: [
@@ -4556,6 +4596,10 @@ export type Insider = {
               },
             ];
           };
+        },
+        {
+          name: "sessionToken";
+          optional: true;
         },
       ];
       args: [
@@ -6160,6 +6204,34 @@ export type Insider = {
           {
             name: "sentTick";
             type: "u16";
+          },
+        ];
+      };
+    },
+    {
+      name: "sessionTokenV2";
+      type: {
+        kind: "struct";
+        fields: [
+          {
+            name: "authority";
+            type: "pubkey";
+          },
+          {
+            name: "targetProgram";
+            type: "pubkey";
+          },
+          {
+            name: "sessionSigner";
+            type: "pubkey";
+          },
+          {
+            name: "feePayer";
+            type: "pubkey";
+          },
+          {
+            name: "validUntil";
+            type: "i64";
           },
         ];
       };

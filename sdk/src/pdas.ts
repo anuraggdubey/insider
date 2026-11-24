@@ -60,3 +60,21 @@ export function tableAccounts(authority: PublicKey, programId?: PublicKey) {
   };
 }
 export type TableAccounts = ReturnType<typeof tableAccounts>;
+
+/** Gum's session-keys program (the same address on devnet and mainnet). */
+export const SESSION_PROGRAM_ID = new PublicKey("KeyspM2ssCJbqUhQ4k7sveSiY4WjnYsrXkC8oDbwde5");
+
+/**
+ * Address of the Gum session token that lets `sessionSigner` act for `wallet` in this game. Create
+ * it on the base layer with Gum's `createSessionV2` (wallet and session key both sign), pass it to
+ * the gameplay builders as their last argument, and the session key signs in place of the wallet.
+ */
+export const sessionTokenPda = (
+  wallet: PublicKey,
+  sessionSigner: PublicKey,
+  programId = createConfig().programId,
+) =>
+  PublicKey.findProgramAddressSync(
+    [bytes("session_token_v2"), programId.toBytes(), sessionSigner.toBytes(), wallet.toBytes()],
+    SESSION_PROGRAM_ID,
+  )[0];

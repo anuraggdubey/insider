@@ -94,6 +94,27 @@ remain authoritative. Sources: [`instructions.ts`](../sdk/src/instructions.ts),
 At 0.5 seconds per tick, Live is ticks 0–159, Closing 160–179 and X-ray 180–199;
 the table then returns to Idle.
 
+### Session keys (popup-free play)
+
+`ping`, `sendOrder`, `bid`, `openLeak`, `listLeak`, `buyListed`, `offerLicense`, `buyLicense`,
+`mintCall`, `buyCallLicense` and `deskTrade` accept a Gum session key in place of the wallet. Each
+builder takes an optional last argument `session` (the session token address). Pass the session key's
+public key as `owner`, sign with the session key, and the program acts for the wallet that owns the
+seat: orders, chips, Leak ownership and the private reader permissions all stay with the wallet.
+
+1. Make a throwaway keypair. It never needs SOL: on the TEE it pays its own (zero) fees, verified live.
+2. On the **base layer**, the wallet and the session key both sign Gum's `createSessionV2`
+   (`@magicblock-labs/gum-sdk`, `SessionTokenManager`; `targetProgram` is the game program, `authority`
+   the wallet, `validUntil` at most a week ahead). Any account can pay the small rent as `feePayer`.
+3. The token address is `sessionTokenPda(wallet, sessionKey)`. Pass it as `session` to the builders.
+4. `revokeSessionV2` on the base layer (wallet signs while the session is live) ends it; after expiry
+   or revoke the program refuses the key (`InvalidToken`, or `AccountNotInitialized` once closed).
+
+Without `session` the builders pass the program id for the optional account, so the wallet signs
+directly exactly as before. A session key cannot `claimSeat` or join the Alpha Cup (those need the
+wallet). Errors: `NotSeatOwner` (no token and the signer is not the owner), `InvalidToken` (wrong
+key, wrong wallet, expired). Live proof: `pnpm session-demo`, `docs/proofs/session.json`.
+
 - `claimSeat(config, owner, index)`: no phase restriction; free seat, same owner, or idle bot seat;
   an occupied bot is idle after 60 ticks; occupied AI/human seats are protected.
   New owners receive a fresh bankroll.

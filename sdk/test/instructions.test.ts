@@ -9,6 +9,8 @@ import {
   EPHEMERAL_VRF_QUEUE,
   MAGIC_PROGRAM_ID,
   PERMISSION_PROGRAM_ID,
+  SESSION_PROGRAM_ID,
+  sessionTokenPda,
   bid,
   buyLicense,
   cancelVrf,
@@ -71,32 +73,82 @@ describe("instruction builders", () => {
   it("builds claim, ping, send, bid, listing and license offer with ordered PDAs and IDL arguments", () => {
     const base = [owner, p.table, p.seats[7]!];
     check(claimSeat(config, owner, 7), base, ["s-", "--", "-w"], "claimSeat", { index: 7 });
-    check(ping(config, owner, 7), base, ["s-", "--", "-w"], "ping", { index: 7 });
+    check(ping(config, owner, 7), [...base, config.programId], ["s-", "--", "-w", "--"], "ping", {
+      index: 7,
+    });
     check(
       sendOrder(config, owner, 7, -250, 1),
-      [...base, p.floor, p.mempool, p.tape],
-      ["s-", "--", "-w", "--", "-w", "-w"],
+      [...base, p.floor, p.mempool, p.tape, config.programId],
+      ["s-", "--", "-w", "--", "-w", "-w", "--"],
       "sendOrder",
       { index: 7, sideSize: -250, lane: 1 },
     );
-    check(bid(config, owner, 7, 2), [...base, p.board], ["s-", "--", "-w", "-w"], "bid", {
-      index: 7,
-      slot: 2,
-    });
+    check(
+      bid(config, owner, 7, 2),
+      [...base, p.board, config.programId],
+      ["s-", "--", "-w", "-w", "--"],
+      "bid",
+      {
+        index: 7,
+        slot: 2,
+      },
+    );
     check(
       listLeak(config, owner, 7, 2, 85),
-      [...base, p.board],
-      ["s-", "--", "-w", "-w"],
+      [...base, p.board, config.programId],
+      ["s-", "--", "-w", "-w", "--"],
       "listLeak",
       { index: 7, slot: 2, ask: 85 },
     );
     check(
       offerLicense(config, owner, 7, 2, 35),
-      [...base, p.board],
-      ["s-", "--", "-w", "-w"],
+      [...base, p.board, config.programId],
+      ["s-", "--", "-w", "-w", "--"],
       "offerLicense",
       { index: 7, slot: 2, ask: 35 },
     );
+  });
+
+  it("passes the session token as the last account, and the program id when there is none", () => {
+    const session = Keypair.generate().publicKey;
+    const token = sessionTokenPda(owner, session, config.programId);
+    const base = [session, p.table, p.seats[7]!];
+    check(ping(config, session, 7, token), [...base, token], ["s-", "--", "-w", "--"], "ping", {
+      index: 7,
+    });
+    check(
+      sendOrder(config, session, 7, 10, 1, token),
+      [...base, p.floor, p.mempool, p.tape, token],
+      ["s-", "--", "-w", "--", "-w", "-w", "--"],
+      "sendOrder",
+      { index: 7, sideSize: 10, lane: 1 },
+    );
+    const buy = buyCallLicense(config, session, 7, 8, token);
+    expect(buy.keys.at(-1)!.pubkey.equals(token)).toBe(true);
+    expect(
+      mintCall(config, session, 8, { direction: 1, horizon: 60, stake: 10 }, token)
+        .keys.at(-1)!
+        .pubkey.equals(token),
+    ).toBe(true);
+    expect(deskTrade(config, session, 8, 5, token).keys.at(-1)!.pubkey.equals(token)).toBe(true);
+    expect(deskTrade(config, session, 8, 5).keys.at(-1)!.pubkey.equals(config.programId)).toBe(
+      true,
+    );
+  });
+
+  it("derives the Gum session token under the Gum program", () => {
+    const session = Keypair.generate().publicKey;
+    const expected = PublicKey.findProgramAddressSync(
+      [
+        Buffer.from("session_token_v2"),
+        config.programId.toBytes(),
+        session.toBytes(),
+        owner.toBytes(),
+      ],
+      SESSION_PROGRAM_ID,
+    )[0];
+    expect(sessionTokenPda(owner, session, config.programId).equals(expected)).toBe(true);
+    expect(SESSION_PROGRAM_ID.toBase58()).toBe("KeyspM2ssCJbqUhQ4k7sveSiY4WjnYsrXkC8oDbwde5");
   });
 
   it("uses the permission PDA and exact open, resale and license account order", () => {
@@ -112,22 +164,22 @@ describe("instruction builders", () => {
     ];
     check(
       openLeak(config, owner, 7, 2),
-      [...base, ...permissionKeys],
-      ["s-", "--", "-w", "-w", "-w", "-w", "--", "-w", "--"],
+      [...base, ...permissionKeys, config.programId],
+      ["s-", "--", "-w", "-w", "-w", "-w", "--", "-w", "--", "--"],
       "openLeak",
       { index: 7, slot: 2 },
     );
     check(
       buyListed(config, owner, 7, 2, 1),
-      [...base, p.seats[1]!],
-      ["s-", "--", "-w", "-w", "-w"],
+      [...base, p.seats[1]!, config.programId],
+      ["s-", "--", "-w", "-w", "-w", "--"],
       "buyListed",
       { index: 7, slot: 2, sellerIndex: 1 },
     );
     check(
       buyLicense(config, owner, 7, 2, 1),
-      [...base, p.seats[1]!, ...permissionKeys],
-      ["s-", "--", "-w", "-w", "-w", "-w", "-w", "--", "-w", "--"],
+      [...base, p.seats[1]!, ...permissionKeys, config.programId],
+      ["s-", "--", "-w", "-w", "-w", "-w", "-w", "--", "-w", "--", "--"],
       "buyLicense",
       { index: 7, slot: 2, ownerIndex: 1 },
     );

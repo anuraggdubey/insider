@@ -38,7 +38,12 @@ function build(
   const keys = spec.accounts.map((account) => {
     if ("accounts" in account) throw new Error("Composite accounts are not supported");
     const pubkey =
-      values[account.name] ?? (account.address ? new PublicKey(account.address) : undefined);
+      values[account.name] ??
+      (account.address
+        ? new PublicKey(account.address)
+        : account.optional
+          ? config.programId
+          : undefined);
     if (!pubkey) throw new Error(`Missing ${name} account ${account.name}`);
     return { pubkey, isSigner: Boolean(account.signer), isWritable: Boolean(account.writable) };
   });
@@ -49,11 +54,17 @@ function build(
   });
 }
 
-function action(config: InsiderConfig, owner: PublicKey, index: number) {
+function action(config: InsiderConfig, owner: PublicKey, index: number, session?: PublicKey) {
   const p = addresses(config);
   const seat = p.seats[index];
   if (!seat) throw new RangeError("Invalid seat");
-  return { owner, table: p.table, seat, board: p.board };
+  return {
+    owner,
+    table: p.table,
+    seat,
+    board: p.board,
+    ...(session ? { sessionToken: session } : {}),
+  };
 }
 
 function permission(config: InsiderConfig, slot: number) {
@@ -70,14 +81,15 @@ function permission(config: InsiderConfig, slot: number) {
 
 export const claimSeat = (config: InsiderConfig, owner: PublicKey, index: number) =>
   build(config, "claimSeat", { index }, action(config, owner, index));
-export const ping = (config: InsiderConfig, owner: PublicKey, index: number) =>
-  build(config, "ping", { index }, action(config, owner, index));
+export const ping = (config: InsiderConfig, owner: PublicKey, index: number, session?: PublicKey) =>
+  build(config, "ping", { index }, action(config, owner, index, session));
 export const sendOrder = (
   config: InsiderConfig,
   owner: PublicKey,
   index: number,
   sideSize: number,
   lane: number,
+  session?: PublicKey,
 ) => {
   const p = addresses(config);
   return build(
@@ -85,21 +97,32 @@ export const sendOrder = (
     "sendOrder",
     { index, sideSize, lane },
     {
-      ...action(config, owner, index),
+      ...action(config, owner, index, session),
       market: p.floor,
       mempool: p.mempool,
       tape: p.tape,
     },
   );
 };
-export const bid = (config: InsiderConfig, owner: PublicKey, index: number, slot: number) =>
-  build(config, "bid", { index, slot }, action(config, owner, index));
-export const openLeak = (config: InsiderConfig, owner: PublicKey, index: number, slot: number) =>
+export const bid = (
+  config: InsiderConfig,
+  owner: PublicKey,
+  index: number,
+  slot: number,
+  session?: PublicKey,
+) => build(config, "bid", { index, slot }, action(config, owner, index, session));
+export const openLeak = (
+  config: InsiderConfig,
+  owner: PublicKey,
+  index: number,
+  slot: number,
+  session?: PublicKey,
+) =>
   build(
     config,
     "openLeak",
     { index, slot },
-    { ...action(config, owner, index), ...permission(config, slot) },
+    { ...action(config, owner, index, session), ...permission(config, slot) },
   );
 export const listLeak = (
   config: InsiderConfig,
@@ -107,13 +130,15 @@ export const listLeak = (
   index: number,
   slot: number,
   ask: number,
-) => build(config, "listLeak", { index, slot, ask }, action(config, owner, index));
+  session?: PublicKey,
+) => build(config, "listLeak", { index, slot, ask }, action(config, owner, index, session));
 export const buyListed = (
   config: InsiderConfig,
   owner: PublicKey,
   index: number,
   slot: number,
   sellerIndex: number,
+  session?: PublicKey,
 ) => {
   const sellerSeat = addresses(config).seats[sellerIndex];
   if (!sellerSeat) throw new RangeError("Invalid seller seat");
@@ -122,7 +147,7 @@ export const buyListed = (
     "buyListed",
     { index, slot, sellerIndex },
     {
-      ...action(config, owner, index),
+      ...action(config, owner, index, session),
       sellerSeat,
     },
   );
@@ -133,13 +158,15 @@ export const offerLicense = (
   index: number,
   slot: number,
   ask: number,
-) => build(config, "offerLicense", { index, slot, ask }, action(config, owner, index));
+  session?: PublicKey,
+) => build(config, "offerLicense", { index, slot, ask }, action(config, owner, index, session));
 export const buyLicense = (
   config: InsiderConfig,
   owner: PublicKey,
   index: number,
   slot: number,
   ownerIndex: number,
+  session?: PublicKey,
 ) => {
   const licenseOwner = addresses(config).seats[ownerIndex];
   if (!licenseOwner) throw new RangeError("Invalid license owner");
@@ -148,7 +175,7 @@ export const buyLicense = (
     "buyLicense",
     { index, slot, ownerIndex },
     {
-      ...action(config, owner, index),
+      ...action(config, owner, index, session),
       ...permission(config, slot),
       licenseOwner,
     },
@@ -349,6 +376,7 @@ export function mintCall(
     licenseAsk?: number;
     confidence?: number;
   },
+  session?: PublicKey,
 ) {
   const p = addresses(config);
   const seat = p.seats[index];
@@ -371,6 +399,7 @@ export function mintCall(
       callBook: p.callBook,
       ...callVaultPermission(config, index),
       oracle: ORACLE_FEED,
+      ...(session ? { sessionToken: session } : {}),
     },
   );
 }
@@ -381,6 +410,7 @@ export function buyCallLicense(
   owner: PublicKey,
   index: number,
   authorIndex: number,
+  session?: PublicKey,
 ) {
   const p = addresses(config);
   const seat = p.seats[index];
@@ -397,6 +427,7 @@ export function buyCallLicense(
       authorSeat,
       callBook: p.callBook,
       ...callVaultPermission(config, authorIndex),
+      ...(session ? { sessionToken: session } : {}),
     },
   );
 }
@@ -424,7 +455,13 @@ export function settleCall(config: InsiderConfig, payer: PublicKey, authorIndex:
 }
 
 /** Trades Desk units (1/100 SOL each, negative sells) at the oracle price. */
-export function deskTrade(config: InsiderConfig, owner: PublicKey, index: number, size: number) {
+export function deskTrade(
+  config: InsiderConfig,
+  owner: PublicKey,
+  index: number,
+  size: number,
+  session?: PublicKey,
+) {
   const p = addresses(config);
   const seat = p.seats[index];
   if (!seat) throw new RangeError("Invalid seat");
@@ -432,7 +469,14 @@ export function deskTrade(config: InsiderConfig, owner: PublicKey, index: number
     config,
     "deskTrade",
     { index, size },
-    { owner, table: p.table, seat, market: p.desk, oracle: ORACLE_FEED },
+    {
+      owner,
+      table: p.table,
+      seat,
+      market: p.desk,
+      oracle: ORACLE_FEED,
+      ...(session ? { sessionToken: session } : {}),
+    },
   );
 }
 

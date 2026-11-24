@@ -1,0 +1,153 @@
+{
+  "table": "DjnqzKQsUU1fmRztBAiUkPn8VwsnFYgMedcg1BPyA1k",
+  "program": "7mTtHsFMYnZRnhd3SRzhj8Nm1U2T3s33dnbJwa9zBErW",
+  "wallet": "4fg2pr8RxpkNCBZGoVzwH3BkWJWwSr5sfCKHM2xcoWrG",
+  "sessionKey": "HwVvfGDHHroVGHmXxRgaMkGS3nkozfJMqKmDsVVUfsqa",
+  "sessionToken": "7hGrSC7iCmh9PDXQbVDXeT8WjC4bTZeuM2teGuaiLRQo",
+  "attempts": [
+    {
+      "case": "session key pings for bob",
+      "expected": "ok",
+      "result": "ok",
+      "detail": "EFVE3jM8CgUYsPdXizSwb6qbAgRD2fwBvLdkf4M44DhpXU7oBLFKjoKLhzMKokj7PWngs86Zz5UyEqV8GDntj3b"
+    },
+    {
+      "case": "session key buys 1 Desk unit for bob",
+      "expected": "ok",
+      "result": "ok",
+      "detail": "4x5cUJ4PgZHvmGZLvbXrxozNthfkVpbLLvv6iRJWjWTnFy8Do7jX9sFBNQUrXfkTCJGFWeX6Lqk4VznHxv2Bzmuc"
+    },
+    {
+      "case": "session key sells 1 Desk unit for bob",
+      "expected": "ok",
+      "result": "ok",
+      "detail": "4DqaZxGV4qTH8JaKo6D7HHttQ57xZLaZWPgoK5ebCRiA8h7cFCVcghWssG9f7pnvUE79TaoUzeo5dvRQxhvectZt"
+    },
+    {
+      "case": "session key sends a floor order for bob",
+      "expected": "ok",
+      "result": "ok",
+      "detail": "4A5zLhvrT5QGWJxut5zqKiVeumx9H7KvcXQpga7t3AeyGmHGRKaQmuH8swJJNLFUx3xRhKn3Jf2N1rkJa61pMkrE"
+    },
+    {
+      "case": "session key without its token",
+      "expected": "fail",
+      "result": "fail",
+      "detail": "Simulation failed. Message: transaction verification error: Error processing Instruction 0: custom program error: 0x1774. Catch the `SendTransactionError` and call `getLogs()` on it for full details."
+    },
+    {
+      "case": "a stranger uses bob's token",
+      "expected": "fail",
+      "result": "fail",
+      "detail": "Simulation failed. Message: transaction verification error: Error processing Instruction 0: custom program error: 0x1771. Catch the `SendTransactionError` and call `getLogs()` on it for full details."
+    },
+    {
+      "case": "the session key acts on another seat",
+      "expected": "fail",
+      "result": "fail",
+      "detail": "Simulation failed. Message: transaction verification error: Error processing Instruction 0: custom program error: 0x1771. Catch the `SendTransactionError` and call `getLogs()` on it for full details."
+    },
+    {
+      "case": "bob pings directly (fallback)",
+      "expected": "ok",
+      "result": "ok",
+      "detail": "4NWvGZ5UnH2PFYg8NNC2nnGyqHHNMy1QiTUGvKS15jWjbEogsdRQhvTNGRKXbFXfJeajLtLdp82R7UZUtpYewuUu"
+    },
+    {
+      "case": "session key after revoke",
+      "expected": "fail",
+      "result": "fail",
+      "detail": "Simulation failed. Message: transaction verification error: Error processing Instruction 0: custom program error: 0xbc4. Catch the `SendTransactionError` and call `getLogs()` on it for full details."
+    }
+  ],
+  "checks": [
+    {
+      "name": "the session key holds no SOL",
+      "pass": true
+    },
+    {
+      "name": "every allowed action landed and every forbidden one was rejected",
+      "pass": true
+    },
+    {
+      "name": "a session ping refreshed bob's seat",
+      "pass": true
+    },
+    {
+      "name": "the seat still belongs to bob",
+      "pass": true
+    },
+    {
+      "name": "the session token is gone after revoke",
+      "pass": true
+    }
+  ],
+  "steps": [
+    {
+      "what": "createSessionV2 (bob authorises a zero-SOL key)",
+      "layer": "base",
+      "signature": "T6gPJAe8Qxb5HsCsnJS8tJ8uNPxezxKxzr8EFqHJWMdA2o9U1iGA6TBpX86QysdxUdtizccMF7UPHkWRz8igdpB",
+      "url": "https://explorer.solana.com/tx/T6gPJAe8Qxb5HsCsnJS8tJ8uNPxezxKxzr8EFqHJWMdA2o9U1iGA6TBpX86QysdxUdtizccMF7UPHkWRz8igdpB?cluster=devnet"
+    },
+    {
+      "what": "session token 7hGrSC7iCmh9PDXQbVDXeT8WjC4bTZeuM2teGuaiLRQo exists on the base layer: true",
+      "layer": "TEE"
+    },
+    {
+      "what": "session key HwVvfGDHHroVGHmXxRgaMkGS3nkozfJMqKmDsVVUfsqa holds 0 lamports",
+      "layer": "TEE"
+    },
+    {
+      "what": "session key pings for bob: landed (838 ms)",
+      "layer": "TEE",
+      "signature": "EFVE3jM8CgUYsPdXizSwb6qbAgRD2fwBvLdkf4M44DhpXU7oBLFKjoKLhzMKokj7PWngs86Zz5UyEqV8GDntj3b",
+      "url": "https://explorer.solana.com/tx/EFVE3jM8CgUYsPdXizSwb6qbAgRD2fwBvLdkf4M44DhpXU7oBLFKjoKLhzMKokj7PWngs86Zz5UyEqV8GDntj3b?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app"
+    },
+    {
+      "what": "session key buys 1 Desk unit for bob: landed (567 ms)",
+      "layer": "TEE",
+      "signature": "4x5cUJ4PgZHvmGZLvbXrxozNthfkVpbLLvv6iRJWjWTnFy8Do7jX9sFBNQUrXfkTCJGFWeX6Lqk4VznHxv2Bzmuc",
+      "url": "https://explorer.solana.com/tx/4x5cUJ4PgZHvmGZLvbXrxozNthfkVpbLLvv6iRJWjWTnFy8Do7jX9sFBNQUrXfkTCJGFWeX6Lqk4VznHxv2Bzmuc?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app"
+    },
+    {
+      "what": "session key sells 1 Desk unit for bob: landed (165 ms)",
+      "layer": "TEE",
+      "signature": "4DqaZxGV4qTH8JaKo6D7HHttQ57xZLaZWPgoK5ebCRiA8h7cFCVcghWssG9f7pnvUE79TaoUzeo5dvRQxhvectZt",
+      "url": "https://explorer.solana.com/tx/4DqaZxGV4qTH8JaKo6D7HHttQ57xZLaZWPgoK5ebCRiA8h7cFCVcghWssG9f7pnvUE79TaoUzeo5dvRQxhvectZt?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app"
+    },
+    {
+      "what": "session key sends a floor order for bob: landed (250 ms)",
+      "layer": "TEE",
+      "signature": "4A5zLhvrT5QGWJxut5zqKiVeumx9H7KvcXQpga7t3AeyGmHGRKaQmuH8swJJNLFUx3xRhKn3Jf2N1rkJa61pMkrE",
+      "url": "https://explorer.solana.com/tx/4A5zLhvrT5QGWJxut5zqKiVeumx9H7KvcXQpga7t3AeyGmHGRKaQmuH8swJJNLFUx3xRhKn3Jf2N1rkJa61pMkrE?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app"
+    },
+    {
+      "what": "session key without its token: rejected (Simulation failed. Message: transaction verification error: Error processing Instruction 0: custom program error: 0x1774)",
+      "layer": "TEE"
+    },
+    {
+      "what": "a stranger uses bob's token: rejected (Simulation failed. Message: transaction verification error: Error processing Instruction 0: custom program error: 0x1771)",
+      "layer": "TEE"
+    },
+    {
+      "what": "the session key acts on another seat: rejected (Simulation failed. Message: transaction verification error: Error processing Instruction 0: custom program error: 0x1771)",
+      "layer": "TEE"
+    },
+    {
+      "what": "bob pings directly (fallback): landed (644 ms)",
+      "layer": "TEE",
+      "signature": "4NWvGZ5UnH2PFYg8NNC2nnGyqHHNMy1QiTUGvKS15jWjbEogsdRQhvTNGRKXbFXfJeajLtLdp82R7UZUtpYewuUu",
+      "url": "https://explorer.solana.com/tx/4NWvGZ5UnH2PFYg8NNC2nnGyqHHNMy1QiTUGvKS15jWjbEogsdRQhvTNGRKXbFXfJeajLtLdp82R7UZUtpYewuUu?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app"
+    },
+    {
+      "what": "revokeSessionV2",
+      "layer": "base",
+      "signature": "26QCaA9v8kzS2NB19YmgZsP8BMmmQ9FkeAbnBejHjAgffSSCTmf6kdJBmrACLhdw6qaicncmngFdN3bEUJAVpYUH",
+      "url": "https://explorer.solana.com/tx/26QCaA9v8kzS2NB19YmgZsP8BMmmQ9FkeAbnBejHjAgffSSCTmf6kdJBmrACLhdw6qaicncmngFdN3bEUJAVpYUH?cluster=devnet"
+    },
+    {
+      "what": "session key after revoke: rejected (Simulation failed. Message: transaction verification error: Error processing Instruction 0: custom program error: 0xbc4.)",
+      "layer": "TEE"
+    }
+  ]
+}

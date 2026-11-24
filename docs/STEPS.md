@@ -436,7 +436,7 @@ Needs Misbah's engine stubs (H-API) before wiring.
 
 ### Block 4: Reach, infrastructure, screens (21 h)
 
-- [ ] **A-4.1 Session keys on chain (4 h, if G7 passes).** `session.rs`; accept session keys for the
+- [x] **A-4.1 Session keys on chain (4 h, if G7 passes).** _Done and verified live (`pnpm session-demo`, proof `docs/proofs/session.json`): `send_order`, `bid`, `open_leak`, `list_leak`, `buy_listed`, `offer_license`, `buy_license`, `mint_call`, `buy_call_license`, `desk_trade` and `ping` take an optional Gum `SessionTokenV2` (`#[session_auth_or]`, `session-keys` crate). The seat stays the wallet's: the seat constraint moved into the handler (`seat.owner` must equal the signer or the token's authority) and every place that used the signer as identity (Leak readers, Call readers, licence buyer) now uses `seat.owner`. `claim_seat` and the Cup stay wallet-only. SDK builders take a trailing `session` argument and `sessionTokenPda`; the IDL gained the optional `session_token` account. Live on devnet: a zero-SOL key pinged, traded the Desk and sent a floor order for Bob; no token, a stranger with Bob's token, the wrong seat and a revoked token were all refused with the right errors; the wallet still works directly. Tests: 3 in `tests/leaks.rs` (valid, expired, wrong key or wallet, revoked) and 2 in the SDK. Not exercised live: `open_leak` and `buy_license` through a session (they use the same check; the reader key is `seat.owner`)._ `session.rs`; accept session keys for the
       gameplay instructions; expiry and revoke.
 - [ ] **A-4.2 Magic Action and SOAR (4 h, if G6 passes).** Attach the post-commit action to
       `commit_epoch`; leaderboard and achievements.
