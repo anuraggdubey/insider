@@ -14,7 +14,7 @@
 </p>
 
 <p align="center">
-  <b><a href="LIVE_APP_URL">▶ Live app</a></b> (link coming soon) &nbsp;·&nbsp; <b><a href="DEMO_VIDEO_URL">🎬 Demo video</a></b> (link coming soon)
+  <b><a href="LIVE_APP_URL">▶ Live app</a></b> &nbsp;·&nbsp; <b><a href="DEMO_VIDEO_URL">🎬 Demo video</a></b>
 </p>
 
 <p align="center">
