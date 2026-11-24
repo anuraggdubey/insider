@@ -294,6 +294,14 @@ Design: [docs/TECHNICAL_SPEC.md](docs/TECHNICAL_SPEC.md). Product: [docs/PROJECT
 
 Solana Blitz v10, Nov 20-27 2026 (online), by MagicBlock. Submission deadline: Nov 27, 9:00 AM EST (14:00 UTC).
 
+## The creators
+
+**Anurag Dubey** · [GitHub @anuraggdubey](https://github.com/anuraggdubey) · [X @ANURAGGDUBEYY](https://x.com/ANURAGGDUBEYY)
+Program, bots, AI analysts, infrastructure, proofs and the Desk, Cup and Proof screens.
+
+**Misbah Ansari** · [GitHub @MisbahAnsar](https://github.com/MisbahAnsar) · [X @Misbahtwts](https://x.com/Misbahtwts)
+Market engine, Leaks, SDK, design system and the trading floor, Leak and X-ray screens.
+
 ## License
 
 MIT. See [LICENSE](LICENSE).
