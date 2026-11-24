@@ -138,3 +138,11 @@ traffic, so an uptime monitor must call `/health` every 5 minutes.
 
 The cup operator's state lives in `.keys/cup-operator.json`, and a free Render disk is wiped on every
 redeploy: do not redeploy while a cup is running.
+
+## SOAR leaderboard (A-4.2)
+
+`pnpm soar-demo` (once, needs the deployer key) creates the SOAR game and leaderboard, registers the
+bot, analyst and simulation keys and submits two demo scores. The game key lives in
+`.keys/soar-game.json`: when it exists, `pnpm operator` publishes every finished season to the
+board before it opens the next one (log line "season published to SOAR"). `pnpm soar-board` prints
+the board. Only registered players are listed; a failed publish is logged and never blocks the game.
