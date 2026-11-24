@@ -177,11 +177,11 @@ export default function Home() {
       </section>
 
       {/* on-chain strip */}
-      <section className="border-ink bg-ink border-t-[3px]">
+      <section className="border-ink bg-pop border-t-[3px]">
         <div className="mx-auto flex max-w-7xl flex-col gap-6 px-5 py-12 sm:px-8 lg:flex-row lg:items-center lg:justify-between">
           <div className="text-white">
             <h2 className="text-3xl text-white">Real game. Real chain.</h2>
-            <p className="mt-2 max-w-xl text-sm leading-6 font-medium text-white/70">
+            <p className="mt-2 max-w-xl text-sm leading-6 font-medium text-white/90">
               The whole round runs inside a MagicBlock Private Ephemeral Rollup: a sealed mempool,
               VRF-rolled rounds, cranks that keep the clock, and permissions that decide who can
               read what. Nothing here uses real money.
@@ -196,23 +196,6 @@ export default function Home() {
           </Link>
         </div>
       </section>
-
-      <footer className="border-ink border-t-[3px]">
-        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-5 py-7 sm:px-8">
-          <div className="text-ink font-[family-name:var(--font-lilita)] tracking-wide">
-            INSIDER{" "}
-            <span className="text-muted ml-2 text-xs font-normal">Built for Solana Blitz v10</span>
-          </div>
-          <a
-            href="https://github.com/anuraggdubey/insider"
-            target="_blank"
-            rel="noreferrer"
-            className="text-muted hover:text-ink text-xs font-bold tracking-wide uppercase"
-          >
-            View source ↗
-          </a>
-        </div>
-      </footer>
     </main>
   );
 }

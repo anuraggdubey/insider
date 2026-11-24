@@ -3,6 +3,7 @@ import { ImageResponse } from "next/og";
 export const size = { width: 180, height: 180 };
 export const contentType = "image/png";
 
+/** The INSIDER capsule on a soft sky tile. */
 export default function AppleIcon() {
   return new ImageResponse(
     <div
@@ -12,24 +13,37 @@ export default function AppleIcon() {
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        background: "#07080a",
+        background: "#bfe3ff",
       }}
     >
-      <div
-        style={{
-          width: 124,
-          height: 124,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          border: "10px solid #5ab4ff",
-          color: "#5ab4ff",
-          fontSize: 88,
-          fontWeight: 800,
-        }}
-      >
-        I
-      </div>
+      <svg width={150} height={150} viewBox="0 0 120 124">
+        <g transform="translate(0 2)">
+          <path
+            d="M14 64a46 46 0 0 0 92 0Z"
+            fill="#fff"
+            stroke="#1a0f2e"
+            strokeWidth={6}
+            strokeLinejoin="round"
+          />
+          <path
+            d="M14 60a46 46 0 0 1 92 0Z"
+            fill="#ffbf1f"
+            stroke="#1a0f2e"
+            strokeWidth={6}
+            strokeLinejoin="round"
+          />
+          <rect x={11} y={57} width={98} height={9} rx={4.5} fill="#1a0f2e" />
+          <path
+            d="M49 36C49 27 54 23 61 23C68 23 73 27 73 33C73 39.5 61 40 61 45"
+            fill="none"
+            stroke="#1a0f2e"
+            strokeWidth={7}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          <circle cx={61} cy={52.6} r={3.7} fill="#1a0f2e" />
+        </g>
+      </svg>
     </div>,
     size,
   );

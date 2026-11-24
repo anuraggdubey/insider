@@ -1,4 +1,6 @@
-<h1 align="center">INSIDER</h1>
+<p align="center">
+  <img src="app/public/brand/logo.svg" alt="INSIDER" width="440">
+</p>
 
 <h3 align="center">Own the secret. Front-running is the game.</h3>
 

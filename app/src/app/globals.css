@@ -168,7 +168,9 @@ h3 {
 .capsule-card.is-open .capsule {
   animation: none;
 }
-body:has(.watch-screen) > header {
+body:has(.watch-screen) > header,
+body:has(.watch-screen) > footer,
+body:has(.record-floor) > footer {
   display: none;
 }
 .watch-record {

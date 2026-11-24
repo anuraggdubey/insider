@@ -1,6 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import { Varela_Round, Lilita_One } from "next/font/google";
 import Link from "next/link";
+import { SiteFooter } from "@/components/site-footer";
+import { Logo } from "@/components/ui/logo";
 import { MobileNav } from "@/components/ui/mobile-nav";
 import { Toaster } from "@/components/ui/toast";
 import { SoundButton } from "@/components/ui/sound-button";
@@ -32,14 +34,12 @@ export const metadata: Metadata = {
 };
 export const viewport: Viewport = { themeColor: "#bfe3ff" };
 
+// Five links in the bar; everything else lives in the footer.
 const nav = [
   ["Floor", "/table"],
-  ["X-ray", "/xray"],
-  ["Season", "/season"],
-  ["Rules", "/rules"],
-  ["Watch", "/watch"],
   ["Desk", "/desk"],
   ["Cup", "/cup"],
+  ["Season", "/season"],
   ["Proof", "/proof"],
 ];
 
@@ -54,15 +54,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <Providers>
           <header className="border-ink relative z-20 border-b-[3px] bg-white/85 backdrop-blur">
             <div className="mx-auto flex h-16 max-w-7xl items-center gap-2 px-4 sm:px-8 md:gap-5">
-              <Link
-                href="/"
-                className="text-ink flex shrink-0 items-center gap-2 font-[family-name:var(--font-lilita)] text-lg tracking-[.06em] md:mr-1"
-              >
-                <span className="border-ink bg-sun text-ink flex size-7 items-center justify-center rounded-lg border-[3px] text-sm shadow-[0_3px_0_var(--color-ink)]">
-                  I
-                </span>
-                INSIDER
-              </Link>
+              <Logo />
               <MobileNav items={nav} />
               <nav aria-label="Main navigation" className="hidden items-center gap-1 md:flex">
                 {nav.map(([label, href]) => (
@@ -83,6 +75,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             </div>
           </header>
           {children}
+          <SiteFooter />
           <Toaster />
         </Providers>
       </body>

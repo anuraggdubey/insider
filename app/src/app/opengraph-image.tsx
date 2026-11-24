@@ -1,10 +1,14 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { ImageResponse } from "next/og";
 
-export const alt = "INSIDER: front-running is the game";
+const logo = `data:image/svg+xml;base64,${readFileSync(join(process.cwd(), "public/brand/logo.svg")).toString("base64")}`;
+
+export const alt = "INSIDER: own the secret";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
-/** The link preview for the site: the brand, the line and the three ideas. */
+/** The link preview: the capsule, the name and the line. */
 export default function OpengraphImage() {
   return new ImageResponse(
     <div
@@ -13,52 +17,17 @@ export default function OpengraphImage() {
         height: "100%",
         display: "flex",
         flexDirection: "column",
-        justifyContent: "space-between",
-        background: "#07080a",
-        color: "#e7e9ec",
-        padding: "64px 72px",
+        justifyContent: "center",
+        alignItems: "center",
+        background: "linear-gradient(180deg, #bfe3ff 0%, #e4f2ff 60%, #fff3fa 100%)",
+        color: "#1a0f2e",
         fontFamily: "sans-serif",
       }}
     >
-      <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
-        <div
-          style={{
-            width: 52,
-            height: 52,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            border: "4px solid #5ab4ff",
-            color: "#5ab4ff",
-            fontSize: 34,
-            fontWeight: 800,
-          }}
-        >
-          I
-        </div>
-        <div style={{ fontSize: 30, letterSpacing: 8, fontWeight: 700 }}>INSIDER</div>
-      </div>
-      <div style={{ display: "flex", flexDirection: "column", gap: 22 }}>
-        <div style={{ fontSize: 84, fontWeight: 700, lineHeight: 1.05, letterSpacing: -2 }}>
-          Own the secret.
-        </div>
-        <div
-          style={{
-            fontSize: 84,
-            fontWeight: 700,
-            lineHeight: 1.05,
-            letterSpacing: -2,
-            color: "#5ab4ff",
-          }}
-        >
-          Front-running is the game.
-        </div>
-      </div>
-      <div
-        style={{ display: "flex", justifyContent: "space-between", fontSize: 26, color: "#8b919a" }}
-      >
-        <div>A dark mempool. Sealed Leaks. A real oracle.</div>
-        <div>Solana · MagicBlock Private ER</div>
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src={logo} width={760} height={190} alt="" />
+      <div style={{ fontSize: 44, fontWeight: 700, marginTop: 34, color: "#5b4e7a" }}>
+        A multiplayer game of hidden information
       </div>
     </div>,
     size,
