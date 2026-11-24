@@ -1,9 +1,9 @@
 import { Eye, Sparkles, Swords, Trophy } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { PlayButton } from "@/components/onboarding/play-button";
 import { FastModeToggle, WalletPlayButton } from "@/components/onboarding/wallet";
 import { buttonStyles } from "@/components/ui/button";
-import { SealedCard } from "@/components/ui/sealed-card";
 
 const rounds = [
   {
@@ -11,24 +11,32 @@ const rounds = [
     title: "Take a seat",
     text: "One click and you are at the table with nine rivals: bots, AI players and other people. Chips are play money. A round is about 100 seconds.",
     tone: "sun",
+    img: "/art/seats.jpg",
+    alt: "Ten sealed capsules in a ring, one for every seat",
   },
   {
     tag: "02 · THE SECRET",
     title: "Move in the dark",
     text: "Every move you make hides for 10 seconds where nobody can read it. A hidden future, rolled by on-chain randomness, decides where the round goes.",
     tone: "sky",
+    img: "/art/drop.jpg",
+    alt: "A buy order dropping into a capsule, sealed before anyone can read it",
   },
   {
     tag: "03 · GRAB A LEAK",
     title: "Pop a capsule",
     text: "Every ten seconds a sealed Leak drops. Win it in a falling-price auction and you become its only reader: a peek at what rivals queued, or a fact about the future.",
     tone: "pop",
+    img: "/art/sold.jpg",
+    alt: "A mystery capsule next to a flip board that reads SOLD",
   },
   {
     tag: "04 · CASH IT IN",
     title: "Play your read",
     text: "Jump ahead of the moves you just saw, flip the capsule sealed to a rival who'll pay more, or licence it and watch its value fade. Then the X-ray shows everyone's hand.",
     tone: "mint",
+    img: "/art/xray.jpg",
+    alt: "X-ray view showing three orders inside their capsules",
   },
 ];
 
@@ -108,13 +116,24 @@ export default function Home() {
           </div>
 
           <div className="pop-in flex justify-center [animation-delay:.15s]">
-            <div className="relative w-full max-w-[380px]">
-              <div className="rotate-[-5deg]">
-                <SealedCard kind="Spotlight" rarity="rare" state="sealed" price={20} />
+            <div className="relative w-full max-w-[560px]">
+              <div className="toy bob overflow-hidden !rounded-[28px] !p-0">
+                <Image
+                  src="/art/hero.jpg"
+                  alt="A capsule split open: the lid on the right, and a rival's buy order for 1,200 floating above it"
+                  width={1600}
+                  height={900}
+                  priority
+                  sizes="(min-width: 1024px) 560px, 92vw"
+                  className="aspect-[5/4] w-full object-cover object-[46%_50%]"
+                />
               </div>
-              <div className="absolute -right-2 -bottom-6 w-44 rotate-[7deg]">
-                <SealedCard kind="Whale tip" rarity="epic" state="opened" />
-              </div>
+              <span className="border-ink bg-pop absolute -top-3 -left-2 rotate-[-6deg] rounded-full border-[3px] px-3.5 py-1.5 text-sm font-bold text-white shadow-[0_4px_0_var(--color-ink)]">
+                Only you can read it
+              </span>
+              <span className="border-ink bg-sun text-ink absolute -right-2 -bottom-4 rotate-[5deg] rounded-full border-[3px] px-3.5 py-1.5 text-sm font-bold shadow-[0_4px_0_var(--color-ink)]">
+                Silver Fox just bought 1,200
+              </span>
             </div>
           </div>
         </div>
@@ -129,16 +148,69 @@ export default function Home() {
           </div>
           <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-4">
             {rounds.map((r) => (
-              <article key={r.tag} className="toy flex flex-col p-5">
-                <span
-                  className={`${toneBg[r.tone]} border-ink inline-flex w-fit rounded-full border-2 px-2.5 py-1 text-[10px] font-bold tracking-wide text-white uppercase`}
-                >
-                  {r.tag}
-                </span>
-                <h3 className="mt-4 text-xl">{r.title}</h3>
-                <p className="text-ink/75 mt-2 text-sm leading-6 font-medium">{r.text}</p>
+              <article key={r.tag} className="toy flex flex-col overflow-hidden !p-0">
+                <Image
+                  src={r.img}
+                  alt={r.alt}
+                  width={1600}
+                  height={900}
+                  sizes="(min-width: 1024px) 300px, (min-width: 768px) 45vw, 92vw"
+                  className="border-ink aspect-[16/10] w-full border-b-[3px] object-cover"
+                />
+                <div className="flex flex-1 flex-col p-5">
+                  <span
+                    className={`${toneBg[r.tone]} border-ink inline-flex w-fit rounded-full border-2 px-2.5 py-1 text-[10px] font-bold tracking-wide text-white uppercase`}
+                  >
+                    {r.tag}
+                  </span>
+                  <h3 className="mt-4 text-xl">{r.title}</h3>
+                  <p className="text-ink/75 mt-2 text-sm leading-6 font-medium">{r.text}</p>
+                </div>
               </article>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* the table */}
+      <section className="mx-auto max-w-7xl px-5 pt-16 sm:px-8 lg:pt-24">
+        <div className="grid items-center gap-10 lg:grid-cols-[.95fr_1.05fr]">
+          <div className="toy overflow-hidden !rounded-[28px] !p-0">
+            <Image
+              src="/art/pyramid.jpg"
+              alt="Ten capsules stacked in a pyramid, one colour per seat"
+              width={1600}
+              height={900}
+              sizes="(min-width: 1024px) 560px, 92vw"
+              className="aspect-[5/4] w-full object-cover object-[50%_42%]"
+            />
+          </div>
+          <div>
+            <span className="micro-label text-pop">Ten seats. One table.</span>
+            <h2 className="mt-3 text-4xl sm:text-5xl">Everyone is hiding something.</h2>
+            <p className="text-ink/80 mt-5 max-w-xl text-lg leading-7 font-medium">
+              Bots front-run you, bait you and flip your leaks. Two AI analysts call the real SOL
+              price in public. The table is never empty, and nobody, not even us, can read a move
+              until it lands.
+            </p>
+            <ul className="mt-6 grid max-w-xl gap-3 text-sm font-bold sm:grid-cols-2">
+              {[
+                ["Front-runner", "Reads your order, gets there first"],
+                ["Baiter", "Sends decoys, watches you bite"],
+                ["Flipper", "Never opens it. Sells it higher"],
+                ["Analysts", "Call SOL up or down in public"],
+              ].map(([name, text]) => (
+                <li
+                  key={name}
+                  className="border-ink rounded-2xl border-2 bg-white px-4 py-3 shadow-[0_3px_0_var(--color-ink)]"
+                >
+                  <span className="block font-[family-name:var(--font-lilita)] text-base">
+                    {name}
+                  </span>
+                  <span className="text-muted font-medium">{text}</span>
+                </li>
+              ))}
+            </ul>
           </div>
         </div>
       </section>

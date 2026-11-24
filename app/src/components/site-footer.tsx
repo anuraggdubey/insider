@@ -1,4 +1,5 @@
 import { ArrowUpRight, Play } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { Logo } from "@/components/ui/logo";
 
@@ -74,10 +75,9 @@ function Column({ title, links }: { title: string; links: FooterLink[] }) {
 
 export function SiteFooter() {
   return (
-    <footer className="border-ink bg-ink relative mt-auto overflow-hidden border-t-[3px] text-white">
+    <footer className="border-ink relative mt-auto overflow-hidden border-t-[3px] bg-[#1a0f2e] text-white">
       <div className="bg-pop/20 pointer-events-none absolute -top-24 -right-24 size-72 rounded-full blur-3xl" />
-      <div className="bg-sealed/20 pointer-events-none absolute -bottom-32 -left-16 size-80 rounded-full blur-3xl" />
-      <div className="relative mx-auto max-w-7xl px-5 pt-14 pb-8 sm:px-8">
+      <div className="relative mx-auto max-w-7xl px-5 pt-14 pb-4 sm:px-8">
         <div className="grid gap-12 lg:grid-cols-[1.25fr_2fr]">
           <div>
             <Logo invert size="lg" />
@@ -164,6 +164,17 @@ export function SiteFooter() {
             </span>
           </span>
         </div>
+      </div>
+      <div aria-hidden="true" className="pointer-events-none relative mt-2 select-none">
+        <Image
+          src="/art/footer-row.jpg"
+          alt=""
+          width={1920}
+          height={150}
+          sizes="100vw"
+          className="block h-auto min-h-[84px] w-full object-cover object-top"
+        />
+        <div className="absolute inset-x-0 top-0 h-10 bg-gradient-to-b from-[#1a0f2e] to-transparent" />
       </div>
     </footer>
   );
