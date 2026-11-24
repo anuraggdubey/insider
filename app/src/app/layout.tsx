@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Varela_Round, Lilita_One } from "next/font/google";
 import Link from "next/link";
 import { MobileNav } from "@/components/ui/mobile-nav";
 import { Toaster } from "@/components/ui/toast";
@@ -8,8 +8,8 @@ import { WalletButton } from "@/components/ui/wallet-button";
 import { Providers } from "./providers";
 import "./globals.css";
 
-const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
-const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
+const bodyFont = Varela_Round({ variable: "--font-body", weight: "400", subsets: ["latin"] });
+const displayFont = Lilita_One({ variable: "--font-lilita", weight: "400", subsets: ["latin"] });
 
 const description = "Orders wait in a TEE-sealed dark mempool. Buy a look. Jump the line.";
 
@@ -30,7 +30,7 @@ export const metadata: Metadata = {
     description,
   },
 };
-export const viewport: Viewport = { themeColor: "#07080A" };
+export const viewport: Viewport = { themeColor: "#bfe3ff" };
 
 const nav = [
   ["Floor", "/table"],
@@ -48,29 +48,29 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     <html
       lang="en"
       data-scroll-behavior="smooth"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${bodyFont.variable} ${displayFont.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col">
         <Providers>
-          <header className="border-line bg-bg/90 relative z-20 border-b">
-            <div className="mx-auto flex h-16 max-w-7xl items-center gap-2 px-4 sm:px-8 md:gap-6">
+          <header className="border-ink relative z-20 border-b-[3px] bg-white/85 backdrop-blur">
+            <div className="mx-auto flex h-16 max-w-7xl items-center gap-2 px-4 sm:px-8 md:gap-5">
               <Link
                 href="/"
-                className="text-text flex shrink-0 items-center gap-2.5 font-mono text-sm font-bold tracking-[.18em] md:mr-2"
+                className="text-ink flex shrink-0 items-center gap-2 font-[family-name:var(--font-lilita)] text-lg tracking-[.06em] md:mr-1"
               >
-                <span className="border-sealed text-sealed flex size-5 items-center justify-center border text-[10px]">
+                <span className="border-ink bg-sun text-ink flex size-7 items-center justify-center rounded-lg border-[3px] text-sm shadow-[0_3px_0_var(--color-ink)]">
                   I
                 </span>
                 INSIDER
               </Link>
               <MobileNav items={nav} />
-              <nav aria-label="Main navigation" className="hidden items-center gap-6 md:flex">
+              <nav aria-label="Main navigation" className="hidden items-center gap-1 md:flex">
                 {nav.map(([label, href]) => (
                   <Link
                     key={href}
                     href={href}
                     prefetch={false}
-                    className="text-muted hover:text-text font-mono text-[11px] tracking-wide transition-colors"
+                    className="text-muted hover:bg-surface-2 hover:text-ink rounded-lg px-2.5 py-1.5 text-sm font-bold transition-colors"
                   >
                     {label}
                   </Link>

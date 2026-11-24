@@ -1,7 +1,39 @@
 @import "@solana/wallet-adapter-react-ui/styles.css";
 @import "tailwindcss";
 
-@theme inline {
+@theme {
+  /* Toy-box theme: sky background, white cards, deep-purple ink outlines, candy accents. */
+  --color-bg: #cfe8ff;
+  --color-surface: #ffffff;
+  --color-surface-2: #f0f6ff;
+  --color-line: #c7d6f0;
+  --color-line-strong: #2a1250;
+  --color-text: #2a1250;
+  --color-muted: #5b4e7a;
+  --color-faint: #706588;
+  --color-sealed: #2f7de1;
+  --color-opened: #d97f00;
+  --color-buy: #0f9d63;
+  --color-sell: #e5334f;
+  --color-priority: #7c3aed;
+  --color-common: #6b7280;
+  --color-rare: #0e9fb3;
+  --color-epic: #d61f9a;
+  --color-whale: #5b6cf0;
+  --color-pop: #ff3ea5;
+  --color-sun: #ffc83d;
+  --color-mint: #5eead4;
+  --color-ink: #2a1250;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-xl: 22px;
+  --font-sans: var(--font-body);
+  --font-mono: var(--font-body);
+  --font-display: var(--font-lilita);
+}
+
+/* Dark "game screen" inside the toy box: charts and replays keep their dark palette. */
+.theme-screen {
   --color-bg: #07080a;
   --color-surface: #0c0e11;
   --color-surface-2: #12151a;
@@ -15,27 +47,126 @@
   --color-buy: #3ddc97;
   --color-sell: #ff5c6c;
   --color-priority: #b58cff;
-  --color-common: #9aa3ae;
-  --color-rare: #3ee6e6;
-  --color-epic: #ff4fd8;
-  --color-whale: #7c8cff;
-  --radius-md: 6px;
-  --radius-lg: 10px;
-  --radius-xl: 14px;
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  background: #0c0e11;
+  color: #e7e9ec;
 }
 
 :root {
-  color-scheme: dark;
+  color-scheme: light;
 }
 html {
   scroll-behavior: smooth;
 }
 body {
-  background: #07080a;
-  color: #e7e9ec;
-  font-family: var(--font-geist-sans), sans-serif;
+  background: linear-gradient(180deg, #bfe3ff 0%, #e4f2ff 55%, #fff3fa 100%) fixed;
+  color: var(--color-ink);
+  font-family: var(--font-body), system-ui, sans-serif;
+  font-synthesis: none;
+}
+h1,
+h2,
+h3 {
+  font-family: var(--font-lilita), var(--font-body), sans-serif;
+  font-weight: 400;
+}
+/* The existing card pattern gets the toy-box outline and a hard shadow. */
+.border-line.bg-surface.rounded-lg,
+.border-line.bg-surface.rounded-xl {
+  border: 2px solid var(--color-ink);
+  box-shadow: 0 4px 0 var(--color-ink);
+}
+.toy {
+  border: 3px solid var(--color-ink);
+  border-radius: 22px;
+  background: #fff;
+  box-shadow: 0 6px 0 var(--color-ink);
+}
+.title-pop {
+  color: #fff;
+  text-shadow:
+    -3px -3px 0 var(--color-ink),
+    3px -3px 0 var(--color-ink),
+    -3px 3px 0 var(--color-ink),
+    3px 3px 0 var(--color-ink),
+    0 9px 0 var(--color-ink);
+}
+.title-pop-alt {
+  color: var(--color-sun);
+}
+@keyframes pop-in {
+  0% {
+    opacity: 0;
+    transform: translateY(24px) scale(0.92);
+  }
+  70% {
+    transform: translateY(-4px) scale(1.02);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+.pop-in {
+  animation: pop-in 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+@keyframes wobble {
+  0%,
+  100% {
+    transform: rotate(-4deg);
+  }
+  50% {
+    transform: rotate(4deg);
+  }
+}
+@keyframes bob {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-3deg);
+  }
+  50% {
+    transform: translateY(-14px) rotate(3deg);
+  }
+}
+@keyframes confetti-fall {
+  0% {
+    transform: translateY(-20px) rotate(0);
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(560px) rotate(540deg);
+    opacity: 0.9;
+  }
+}
+.bob {
+  animation: bob 4.5s ease-in-out infinite;
+}
+.confetti {
+  position: absolute;
+  top: 0;
+  width: 14px;
+  height: 14px;
+  border: 2px solid var(--color-ink);
+  animation: confetti-fall 7s linear infinite;
+  pointer-events: none;
+}
+.capsule {
+  filter: drop-shadow(0 8px 0 rgba(42, 18, 80, 0.9));
+}
+.capsule-top {
+  transform-origin: 50% 55%;
+  transition: transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.capsule-card:hover .capsule {
+  animation: wobble 0.5s ease-in-out infinite;
+}
+.capsule-card.is-open .capsule-top {
+  transform: translate(-18px, -34px) rotate(-24deg);
+}
+.capsule-card.is-open .capsule {
+  animation: none;
 }
 body:has(.watch-screen) > header {
   display: none;
@@ -107,7 +238,7 @@ body:has(.record-floor) nextjs-portal,
   grid-column: span 2 / span 2;
 }
 *:focus-visible {
-  outline: 2px solid #5ab4ff !important;
+  outline: 3px solid var(--color-pop) !important;
   outline-offset: 2px;
 }
 body::before {
@@ -116,28 +247,21 @@ body::before {
   inset: 0;
   pointer-events: none;
   content: "";
-  background-image:
-    radial-gradient(ellipse at 50% 0%, transparent 0%, rgba(7, 8, 10, 0.72) 75%),
-    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-    url("data:image/svg+xml,%3Csvg viewBox='0 0 128 128' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.025'/%3E%3C/svg%3E");
-  background-size:
-    auto,
-    24px 24px,
-    24px 24px,
-    128px;
+  background-image: radial-gradient(circle, rgba(42, 18, 80, 0.07) 1.6px, transparent 1.7px);
+  background-size: 28px 28px;
 }
 ::selection {
-  background: rgba(90, 180, 255, 0.3);
+  background: var(--color-pop);
   color: white;
 }
 .micro-label {
-  font-family: var(--font-geist-mono), monospace;
+  font-family: var(--font-body), sans-serif;
   font-size: 11px;
-  letter-spacing: 0.12em;
+  font-weight: 700;
+  letter-spacing: 0.1em;
   line-height: 1.4;
   text-transform: uppercase;
-  color: #8a93a0;
+  color: var(--color-muted);
 }
 .ticker-track {
   animation: ticker 28s linear infinite;
@@ -145,73 +269,27 @@ body::before {
 .glow-border {
   position: relative;
   overflow: hidden;
-  border-radius: 14px;
-  padding: 1px;
-  background: #1d222a;
+  border-radius: 22px;
+  padding: 3px;
+  background: var(--color-ink);
 }
 .glow-border::before {
   content: "";
   position: absolute;
   inset: -150%;
-  background: conic-gradient(transparent 0 70%, rgba(90, 180, 255, 0.8), transparent 85%);
+  background: conic-gradient(
+    transparent 0 70%,
+    var(--color-pop),
+    var(--color-sun),
+    transparent 85%
+  );
   animation: spin-border 8s linear infinite;
 }
 .glow-border-inner {
   position: relative;
   height: 100%;
-  border-radius: 13px;
-  background: #0c0e11;
-}
-.sealed-card::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  width: 2px;
-  background: #9aa3ae;
-}
-.sealed-card.rarity-rare::before {
-  background: #3ee6e6;
-}
-.sealed-card.rarity-epic::before {
-  background: #ff4fd8;
-}
-.sealed-shimmer {
-  background: linear-gradient(
-    115deg,
-    transparent 15%,
-    rgba(90, 180, 255, 0.08) 47%,
-    transparent 65%
-  );
-  background-size: 200% 100%;
-  animation: shimmer 7s ease-in-out infinite;
-}
-.seal-emblem {
-  position: relative;
-  transition:
-    border-color 0.5s,
-    box-shadow 0.5s;
-}
-.seal-crack {
-  position: absolute;
-  inset: 10px;
-  opacity: 0;
-  border-right: 1px solid #ffb547;
-  transform: rotate(18deg) scaleY(0.6);
-  transition:
-    opacity 0.4s,
-    transform 0.4s;
-  filter: drop-shadow(0 0 6px #ffb547);
-}
-.sealed-card:hover .seal-emblem,
-.sealed-card.is-open .seal-emblem {
-  border-color: rgba(255, 181, 71, 0.5);
-  box-shadow: 0 0 45px rgba(255, 181, 71, 0.18);
-}
-.sealed-card:hover .seal-crack {
-  opacity: 1;
-  transform: rotate(18deg) scaleY(1);
+  border-radius: 19px;
+  background: #fff;
 }
 .hero-float {
   animation: float 6s ease-in-out infinite;
@@ -223,28 +301,40 @@ body::before {
   animation: pulse-skeleton 2s ease-in-out infinite;
 }
 .wallet-adapter-button:not([disabled]) {
-  height: 38px;
-  border: 1px solid #2a313b;
-  border-radius: 6px;
-  background: #12151a;
-  color: #e7e9ec;
-  font-family: var(--font-geist-mono), monospace;
-  font-size: 11px;
-  letter-spacing: 0.04em;
+  height: 42px;
+  border: 3px solid var(--color-ink);
+  border-radius: 16px;
+  background: var(--color-sun);
+  box-shadow: 0 4px 0 var(--color-ink);
+  color: var(--color-ink);
+  font-family: var(--font-lilita), sans-serif;
+  font-size: 14px;
+  letter-spacing: 0.02em;
+  transition:
+    transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 0.15s;
 }
 .wallet-adapter-button:not([disabled]):hover {
-  background: #1d222a;
+  background: #ffd966;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 0 var(--color-ink);
+}
+.wallet-adapter-button:not([disabled]):active {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 var(--color-ink);
 }
 .wallet-adapter-modal-wrapper {
-  background: #0c0e11;
-  border: 1px solid #2a313b;
-  color: #e7e9ec;
+  background: #fff;
+  border: 3px solid var(--color-ink);
+  border-radius: 22px;
+  color: var(--color-ink);
 }
 .wallet-adapter-modal-title {
-  color: #e7e9ec;
+  color: var(--color-ink);
+  font-family: var(--font-lilita), sans-serif;
 }
 .wallet-adapter-modal-list .wallet-adapter-button:hover {
-  background: #12151a;
+  background: #ffd966;
 }
 @media (max-width: 767px) {
   .wallet-adapter-button:not([disabled]) {
