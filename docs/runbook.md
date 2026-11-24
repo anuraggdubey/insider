@@ -119,3 +119,22 @@ refuses it before the timeout.
 | Delegation failed with "does not own" or "modified data" | Wait 4 seconds and retry: the base layer is still cleaning up a previous undelegation                                               |
 | The router has no status for the table yet               | The script waits up to a minute; if it times out, run it again                                                                      |
 | Accounts stuck delegated after a failed commit           | Recovery (`request_undelegation`, `teardown`) arrives with task A-3.4; until then use a new authority wallet to start a fresh table |
+
+## Hosting on Render (A-4.3)
+
+The frontend goes to Vercel. The always-on services run in one Docker web service on Render
+(`render.yaml`, `Dockerfile`, `bots/src/host.ts`): bots, operator, cup-operator and analysts in one
+process tree, with `GET /health` (503 when a service is down) and the caption feed and cup operator
+proxied at `/captions` and `/cup/*`. Render's free web service sleeps after 15 minutes without
+traffic, so an uptime monitor must call `/health` every 5 minutes.
+
+1. `pnpm pack-keys` writes `.soak/keys.b64` (all service keys; never commit or share it).
+2. Render: New, Blueprint, pick the GitHub repo, then set `KEYS_B64` (the file's content) and
+   `GROQ_API_KEY` in the service's environment. Use a dedicated devnet RPC for `SOLANA_RPC_URL` when you have one.
+3. When it is live, `https://<name>.onrender.com/health` must answer `{"ok":true,...}`; add it to an
+   uptime monitor (5-minute interval).
+4. In Vercel set the app's caption and cup URLs to the Render address.
+5. Run only one copy of the services: stop the local `pnpm bots` stack before the host starts.
+
+The cup operator's state lives in `.keys/cup-operator.json`, and a free Render disk is wiped on every
+redeploy: do not redeploy while a cup is running.

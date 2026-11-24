@@ -32,6 +32,7 @@
     "desk-demo": "tsx scripts/src/desk-demo.ts",
     "session-demo": "tsx scripts/src/session-demo.ts",
     "soak-report": "tsx scripts/src/soak-report.ts",
+    "pack-keys": "tsx scripts/src/pack-keys.ts",
     "teardown": "tsx scripts/src/teardown.ts",
     "recover": "tsx scripts/src/recover.ts",
     "run-table": "tsx scripts/src/vertical-slice.ts --forever",

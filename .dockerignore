@@ -1,0 +1,10 @@
+node_modules
+**/node_modules
+.keys
+.soak
+.env
+.env.*
+.git
+app/.next
+programs/target
+docs/screenshots

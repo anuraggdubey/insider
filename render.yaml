@@ -1,0 +1,29 @@
+# Render Blueprint: one web service runs every always-on service (the frontend goes to Vercel).
+# Free web services sleep after 15 minutes without traffic: point an uptime monitor at /health.
+services:
+  - type: web
+    name: insider-services
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    healthCheckPath: /health
+    autoDeploy: false
+    envVars:
+      - key: KEYS_B64
+        sync: false
+      - key: GROQ_API_KEY
+        sync: false
+      - key: SOLANA_RPC_URL
+        value: https://api.devnet.solana.com
+      - key: INSIDER_PROGRAM_ID
+        value: 7mTtHsFMYnZRnhd3SRzhj8Nm1U2T3s33dnbJwa9zBErW
+      - key: TEE_RPC_URL
+        value: https://devnet-tee.magicblock.app
+      - key: TEE_VALIDATOR
+        value: MTEWGuqxUpYZGFJQcp8tLN7x5v9BSeoFHYWQQ3n3xzo
+      - key: MAGIC_ROUTER_URL
+        value: https://devnet-router.magicblock.app
+      - key: MAGIC_ROUTER_WS_URL
+        value: wss://devnet-router.magicblock.app
+      - key: LOG_LEVEL
+        value: info
