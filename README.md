@@ -12,24 +12,51 @@ fact about the hidden future. Buy one at a falling Dutch price and the TEE makes
 reader. Then open it and **front-run** the orders you just read, flip it sealed to someone who'll
 pay more, or license it to a few others and watch your edge decay.
 
-On **The Desk**, players lock private **Calls** on the _real_ SOL/USD price. A crank settles them
-against the MagicBlock oracle, and every seat builds a public, verifiable track record. Two of the
-analysts are AI agents.
+On **The Desk**, players lock private **Calls** on the _real_ SOL/USD price. Anyone can settle a
+due Call against the MagicBlock oracle (the bots do), and every seat builds a public, verifiable
+track record. Two of the analysts are AI agents.
 
 Built by **Anurag Dubey** and **Misbah Ansari** for **Solana Blitz v10** (MagicBlock, theme:
 _Entertainment Finance_).
 
-> **Status:** in development. Every feature is marked `planned`, `in progress` or `done`. Only
-> `done` items are claimed as working. "Verified" means the underlying primitive ran on devnet in
-> our lab experiments (see [docs/phase-2-findings.md](docs/phase-2-findings.md)). See the
-> [status legend](#status-legend).
+> **Status:** built and running on Solana **devnet** (no mainnet). Every feature is marked
+> `planned`, `in progress` or `done`. Only `done` items are claimed as working, and each one has a
+> script and a proof of a live run in [docs/proofs](docs/proofs/README.md) (also shown on the app's
+> `/proof` page). See the [status legend](#status-legend) and [known limits](#known-limits).
+
+## Live on devnet
+
+| What                       | Address                                                                                             |
+| -------------------------- | --------------------------------------------------------------------------------------------------- |
+| Game program               | `7mTtHsFMYnZRnhd3SRzhj8Nm1U2T3s33dnbJwa9zBErW`                                                      |
+| Table                      | `DjnqzKQsUU1fmRztBAiUkPn8VwsnFYgMedcg1BPyA1k` (delegated to the MagicBlock TEE validator)           |
+| Table authority / operator | `23k9UnCKBkFyci6Sv1RhuFXUXFgTnjV6oeTZyMaxopWm`                                                      |
+| TEE endpoint               | `https://devnet-tee.magicblock.app`                                                                 |
+| SOAR program               | `SoarNNzwQHMwcfdkdLc6kvbkoMSxcHy89gTHrjhJYkk` (game and leaderboard are in `docs/proofs/soar.json`) |
+
+Live URL: _added when the app is deployed._
+
+### Verified on devnet
+
+- **A full hour, unattended:** 35 rounds, 3 epoch rollovers, 0 stalls and 0 failed steps out of
+  2,366 transactions, with five bots, two AI analysts and the operators ([soak](docs/proofs/soak.json)).
+- **Privacy:** the opener, another seat, the authority and an anonymous client tried to read sealed
+  data; 43 of 43 probes behaved as designed ([privacy test](docs/proofs/privacy-test.json)).
+- **A scripted round:** buy, open, front-run and X-ray ([simulate-round](docs/proofs/simulate-round.json)).
+- **The Desk:** a private Call, a licence sale, an oracle verdict and the author's record ([desk](docs/proofs/desk.json)).
+- **Alpha Cup:** private buy-ins, five rounds, private 60/40 payouts and the platform fee ([cup](docs/proofs/cup.json)).
+- **Session keys:** a key holding no SOL plays for a wallet; strangers, wrong seats and revoked keys
+  are refused ([session](docs/proofs/session.json)).
+- **SOAR:** season scores of the bots and analysts published to a leaderboard ([soar](docs/proofs/soar.json)).
+- **Recovery:** the whole table torn down and set up again ([teardown](docs/proofs/teardown.json)).
 
 ---
 
 ## A round in 110 seconds
 
-1. **Sit down.** One click gets you a seat. Guests get a browser key and chips; wallet users get a
-   session key with no popups. Bots fill the other seats.
+1. **Sit down.** One click gets you a seat. Guests get a browser key and chips; wallet users sign
+   each action (popup-free session keys work on chain and in the SDK; the app toggle is not wired
+   yet). Bots fill the other seats.
 2. **The future is written.** A VRF request seeds the round inside the TEE: a hidden price path,
    hidden whale orders and the Leak schedule.
 3. **Send orders into the dark.** The standard lane lands in 10 s. The priority lane lands in 2 s
@@ -60,17 +87,17 @@ _Entertainment Finance_).
 
 ## MagicBlock features used
 
-| Feature                              | What it does in INSIDER                                                                                                         | Code                      | Status                                                                                        |
-| ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------- | ------------------------- | --------------------------------------------------------------------------------------------- |
-| **Ephemeral Rollup (ER)** (required) | The whole table runs delegated: 500 ms ticks, order maturity, auctions and zero-fee trades                                      | `programs/insider`        | in progress (delegate, commit, undelegate verified)                                           |
-| **Private ER (PER, TEE)**            | Hides the pending-order mempool, the future, and every sealed Leak and Call; ownership, flips and licenses are permission edits | `programs/insider`        | in progress (private read, revocation and atomic rewrite verified; order privacy gated by G0) |
-| **VRF**                              | Seeds each round's hidden future, whale orders and drop schedule in the TEE                                                     | `programs/insider`        | in progress (VRF in the TEE and permission rewrite verified)                                  |
-| **Cranks**                           | 500 ms ticks, order maturity, auction steps, expiries, Call settlement                                                          | `programs/insider`        | in progress (finite scheduled ticks on the TEE verified)                                      |
-| **Pricing Oracle**                   | Real SOL/USD for The Desk: Call snapshots, settlement, marks                                                                    | `programs/insider`        | planned (gate G4)                                                                             |
-| **Private Payments / Ephemeral SPL** | Alpha Cup buy-ins and private prize payouts                                                                                     | `programs/insider`, `app` | planned (gate G5)                                                                             |
-| **Magic Actions + SOAR**             | Season scores published to a SOAR leaderboard on the base layer (the Magic Action itself was cut)                               | `bots` (operator)         | SOAR leaderboard live on devnet (`pnpm soar-demo`, `pnpm soar-board`); Magic Action cut       |
-| **Session keys**                     | Popup-free play for wallet users                                                                                                | `programs/insider`, `app` | program and SDK live on devnet (`pnpm session-demo`); the app toggle is next                  |
-| **Magic Router**                     | Client routing across base and rollup transactions                                                                              | `sdk`                     | planned                                                                                       |
+| Feature                              | What it does in INSIDER                                                                                                         | Code                       | Status                                                                                |
+| ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------- | -------------------------- | ------------------------------------------------------------------------------------- |
+| **Ephemeral Rollup (ER)** (required) | The whole table runs delegated: 500 ms ticks, order maturity, auctions and zero-fee trades                                      | `programs/insider`         | done (live table; 35 rounds in the soak)                                              |
+| **Private ER (PER, TEE)**            | Hides the pending-order mempool, the future, and every sealed Leak and Call; ownership, flips and licenses are permission edits | `programs/insider`         | done (43 of 43 privacy probes)                                                        |
+| **VRF**                              | Seeds each round's hidden future, whale orders and drop schedule in the TEE                                                     | `programs/insider`         | done (every round is seeded this way)                                                 |
+| **Cranks**                           | 500 ms ticks, order maturity, auction steps and expiries                                                                        | `programs/insider`         | done (finite crank, re-armed by the bots; never ran out in the soak)                  |
+| **Pricing Oracle**                   | Real SOL/USD for The Desk: Call snapshots, settlement, marks                                                                    | `programs/insider`         | done (Calls minted and judged on devnet)                                              |
+| **Private Payments / Ephemeral SPL** | Alpha Cup buy-ins and private prize payouts, through an operator service                                                        | `programs/insider`, `bots` | done (test token, scripted entry; no browser join flow yet)                           |
+| **Magic Actions + SOAR**             | Season scores published to a SOAR leaderboard on the base layer by the operator                                                 | `bots` (operator)          | SOAR done (`pnpm soar-demo`, `pnpm soar-board`); the post-commit Magic Action was cut |
+| **Session keys**                     | Popup-free play for wallet users                                                                                                | `programs/insider`, `sdk`  | program and SDK done (`pnpm session-demo`); the app toggle is in progress             |
+| **Magic Router**                     | Client routing across base and rollup transactions                                                                              | `sdk`                      | only the delegation-status lookup (`getDelegationStatus`)                             |
 
 The hard part was proven before any game code was written: a VRF callback inside the TEE picks a
 wallet and makes it the **only** reader of a private account in one transaction, in about 0.4 s. The
@@ -84,7 +111,7 @@ transaction index is in [docs/proofs](docs/proofs/README.md).
 - **Truth is guaranteed.** The program computes every Leak from the hidden state.
 - **Real time at zero fees.** A falling price every 500 ms and orders that mature on a tick aren't
   practical on the base layer.
-- **Track records can't be faked.** The crank settles Calls against the oracle, not against us.
+- **Track records can't be faked.** Calls are judged against the oracle price by the program, not by us.
 
 ## Tech stack
 
@@ -120,8 +147,23 @@ pnpm dev                        # run the Next.js app
 pnpm program:build              # build the program to SBF
 pnpm program:idl                # generate the IDL
 pnpm program:test               # program unit tests (LiteSVM)
-pnpm test                       # integration tests
+pnpm test                       # TypeScript tests
 ```
+
+Run the table (needs the deployer key in `.keys/`; see [docs/runbook.md](docs/runbook.md)):
+
+```bash
+pnpm setup-table --arm   # create and delegate the table accounts, arm the crank (safe to repeat)
+pnpm fund --all          # top up the bot wallets
+pnpm bots                # five bots; they also score rounds, reseal Leaks and re-arm the crank
+pnpm operator            # opens each new season (and publishes it to SOAR); needed at every epoch end
+pnpm cup-operator        # Alpha Cup buy-ins, co-signing and payouts
+pnpm analysts            # the two AI analysts and the caption feed (needs a model API key)
+```
+
+Proof scripts: `pnpm session-demo`, `desk-demo`, `cup-demo`, `simulate-round`, `privacy-test`,
+`soar-demo`, `soak-report`; `pnpm proofs` rebuilds the proof index. Hosting the services is in the
+runbook ("Hosting on Render").
 
 On Windows, `anchor build` can crash inside `cargo-build-sbf`; use `pnpm program:build` and
 `pnpm program:idl` instead.
@@ -131,6 +173,16 @@ On Windows, `anchor build` can crash inside `cargo-build-sbf`; use `pnpm program
 - `planned`: designed, not started
 - `in progress`: partially built, or the underlying primitive is verified on devnet
 - `done`: built, tested and verifiable in this repo
+
+## Known limits
+
+- Devnet only; the Alpha Cup uses a test token and has no browser entry flow yet (entry is scripted).
+- The soak had no human players, so a cup with real entrants has only been run by the demo script.
+- Session keys are verified on chain and in the SDK but not yet switched on in the app.
+- The post-commit Magic Action was cut; SOAR scores are published by the operator, and a human
+  appears on the SOAR board only after registering once (not in the app yet). No achievements.
+- Models: the analysts use whichever of Grok, Groq or Claude has a key set; the Groq path is the
+  one run live. The xAI path is unit-tested only.
 
 ## Hackathon
 
