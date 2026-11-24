@@ -1,6 +1,14 @@
 import { describe, expect, it, vi } from "vitest";
 
-import { GrokClient, XAI_BASE_URL, XAI_DEFAULT_MODEL, type FetchLike } from "../src/ai/grok.js";
+import {
+  GROQ_BASE_URL,
+  GROQ_DEFAULT_MODEL,
+  GrokClient,
+  XAI_BASE_URL,
+  XAI_DEFAULT_MODEL,
+  chatClientFor,
+  type FetchLike,
+} from "../src/ai/grok.js";
 import { chooseProvider } from "../src/ai/provider.js";
 import { GrokPredictor, describeInput, type PredictInput } from "../src/ai/predictor.js";
 
@@ -140,12 +148,56 @@ describe("GrokPredictor", () => {
   });
 });
 
+describe("chatClientFor", () => {
+  it("builds the Groq client with its own base URL, model and effort", async () => {
+    const fetch = vi.fn<FetchLike>().mockImplementation(() => reply("ok"));
+    const client = chatClientFor("groq", { GROQ_API_KEY: "gsk_key" }, { fetch });
+    await client.complete({ system: "s", user: "u" });
+    const [url, init] = fetch.mock.calls[0]!;
+    expect(url).toBe(`${GROQ_BASE_URL}/chat/completions`);
+    expect(init.headers.authorization).toBe("Bearer gsk_key");
+    const body = JSON.parse(init.body);
+    expect(body.model).toBe(GROQ_DEFAULT_MODEL);
+    expect(body.reasoning_effort).toBe("low");
+  });
+
+  it("reads model, base URL and effort from the environment, and an empty effort is left out", async () => {
+    const fetch = vi.fn<FetchLike>().mockImplementation(() => reply("ok"));
+    const client = chatClientFor(
+      "groq",
+      {
+        GROQ_API_KEY: "k",
+        GROQ_MODEL: "meta-llama/x",
+        GROQ_BASE_URL: "https://proxy.test/v1",
+        GROQ_REASONING_EFFORT: "",
+      },
+      { fetch },
+    );
+    await client.complete({ system: "s", user: "u" });
+    const [url, init] = fetch.mock.calls[0]!;
+    expect(url).toBe("https://proxy.test/v1/chat/completions");
+    const body = JSON.parse(init.body);
+    expect(body.model).toBe("meta-llama/x");
+    expect(body).not.toHaveProperty("reasoning_effort");
+  });
+
+  it("builds the xAI client and refuses a missing key", () => {
+    expect(() => chatClientFor("xai", {})).toThrow("XAI_API_KEY");
+    expect(() => chatClientFor("groq", {})).toThrow("GROQ_API_KEY");
+    expect(chatClientFor("xai", { XAI_API_KEY: "k" })).toBeInstanceOf(GrokClient);
+  });
+});
+
 describe("chooseProvider", () => {
-  it("follows the keys that are set, preferring Grok when both are", () => {
+  it("follows the keys that are set, preferring xAI, then Groq, then Anthropic", () => {
     expect(chooseProvider({})).toBeUndefined();
     expect(chooseProvider({ XAI_API_KEY: "a" })).toBe("xai");
+    expect(chooseProvider({ GROQ_API_KEY: "g" })).toBe("groq");
     expect(chooseProvider({ ANTHROPIC_API_KEY: "b" })).toBe("anthropic");
-    expect(chooseProvider({ XAI_API_KEY: "a", ANTHROPIC_API_KEY: "b" })).toBe("xai");
+    expect(chooseProvider({ GROQ_API_KEY: "g", ANTHROPIC_API_KEY: "b" })).toBe("groq");
+    expect(chooseProvider({ XAI_API_KEY: "a", GROQ_API_KEY: "g", ANTHROPIC_API_KEY: "b" })).toBe(
+      "xai",
+    );
   });
 
   it("honours AI_PROVIDER only when that key exists", () => {
@@ -153,5 +205,7 @@ describe("chooseProvider", () => {
     expect(chooseProvider({ ...both, AI_PROVIDER: "anthropic" })).toBe("anthropic");
     expect(chooseProvider({ ...both, AI_PROVIDER: "XAI" })).toBe("xai");
     expect(chooseProvider({ XAI_API_KEY: "a", AI_PROVIDER: "anthropic" })).toBeUndefined();
+    expect(chooseProvider({ ...both, GROQ_API_KEY: "g", AI_PROVIDER: "groq" })).toBe("groq");
+    expect(chooseProvider({ ...both, AI_PROVIDER: "nonsense" })).toBeUndefined();
   });
 });

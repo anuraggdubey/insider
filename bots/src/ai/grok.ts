@@ -1,13 +1,16 @@
 /**
- * A minimal client for xAI's OpenAI-compatible chat completions API (`https://api.x.ai/v1`), used
- * by the Grok analysts and the optional caption rewording. No SDK: one `fetch` call, so the
- * network layer is easy to fake in tests. Any network or API error throws; callers then mint or
- * reword nothing.
+ * A minimal client for OpenAI-compatible chat completions APIs: xAI's Grok (`https://api.x.ai/v1`)
+ * and Groq's hosted open models (`https://api.groq.com/openai/v1`). Used by the AI analysts and the
+ * optional caption rewording. No SDK: one `fetch` call, so the network layer is easy to fake in
+ * tests. Any network or API error throws; callers then mint or reword nothing.
  */
 
 export const XAI_BASE_URL = "https://api.x.ai/v1";
 /** Flagship model per docs.x.ai/developers/models (checked 2026-11-24). Override with `XAI_MODEL`. */
 export const XAI_DEFAULT_MODEL = "grok-4.7";
+export const GROQ_BASE_URL = "https://api.groq.com/openai/v1";
+/** A reasoning model with JSON-friendly answers; answered in under a second on 2026-11-24. */
+export const GROQ_DEFAULT_MODEL = "openai/gpt-oss-120b";
 
 export type FetchLike = (
   url: string,
@@ -42,9 +45,9 @@ export class GrokClient {
   private readonly fetchImpl: FetchLike;
 
   constructor(private readonly options: GrokOptions) {
-    this.model = options.model || process.env.XAI_MODEL || XAI_DEFAULT_MODEL;
-    this.baseUrl = (options.baseUrl || process.env.XAI_BASE_URL || XAI_BASE_URL).replace(/\/$/, "");
-    this.effort = options.reasoningEffort ?? process.env.XAI_REASONING_EFFORT ?? "low";
+    this.model = options.model || XAI_DEFAULT_MODEL;
+    this.baseUrl = (options.baseUrl || XAI_BASE_URL).replace(/\/$/, "");
+    this.effort = options.reasoningEffort ?? "low";
     this.timeoutMs = options.timeoutMs ?? 30_000;
     this.fetchImpl = options.fetch ?? (fetch as unknown as FetchLike);
   }
@@ -73,16 +76,38 @@ export class GrokClient {
     const raw = await response.text();
     if (!response.ok) {
       // the status and the start of the error body; never the key
-      throw new Error(`xAI ${response.status}: ${raw.replace(/\s+/g, " ").slice(0, 200)}`);
+      throw new Error(`chat API ${response.status}: ${raw.replace(/\s+/g, " ").slice(0, 200)}`);
     }
     let parsed: { choices?: Array<{ message?: { content?: unknown } }> };
     try {
       parsed = JSON.parse(raw);
     } catch {
-      throw new Error("xAI returned a body that is not JSON");
+      throw new Error("the chat API returned a body that is not JSON");
     }
     const content = parsed.choices?.[0]?.message?.content;
-    if (typeof content !== "string") throw new Error("xAI returned no message");
+    if (typeof content !== "string") throw new Error("the chat API returned no message");
     return content;
   }
+}
+
+/**
+ * The client for `xai` or `groq`, from the environment:
+ * `<P>_API_KEY`, `<P>_MODEL`, `<P>_BASE_URL` and `<P>_REASONING_EFFORT` (low by default; set it
+ * empty for a model that takes no such parameter).
+ */
+export function chatClientFor(
+  provider: "xai" | "groq",
+  env: NodeJS.ProcessEnv = process.env,
+  overrides: Partial<GrokOptions> = {},
+): GrokClient {
+  const prefix = provider === "xai" ? "XAI" : "GROQ";
+  const apiKey = env[`${prefix}_API_KEY`];
+  if (!apiKey) throw new Error(`${prefix}_API_KEY is not set`);
+  return new GrokClient({
+    apiKey,
+    model: env[`${prefix}_MODEL`] || (provider === "xai" ? XAI_DEFAULT_MODEL : GROQ_DEFAULT_MODEL),
+    baseUrl: env[`${prefix}_BASE_URL`] || (provider === "xai" ? XAI_BASE_URL : GROQ_BASE_URL),
+    reasoningEffort: env[`${prefix}_REASONING_EFFORT`] ?? "low",
+    ...overrides,
+  });
 }

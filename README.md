@@ -92,7 +92,7 @@ transaction index is in [docs/proofs](docs/proofs/README.md).
 - **Frontend:** Next.js (App Router), TypeScript, Tailwind CSS, Framer Motion, `lightweight-charts`
 - **SDK:** `sdk/`, a typed client shared by the app and the bots
 - **Bots:** TypeScript service, one real keypair per bot, deterministic strategies
-- **AI Desk:** Grok (xAI) or Claude (Anthropic) API for analyst Calls and live commentary
+- **AI Desk:** Grok (xAI), Groq-hosted models or Claude (Anthropic) for analyst Calls and live commentary
 
 Design: [docs/TECHNICAL_SPEC.md](docs/TECHNICAL_SPEC.md). Product:
 [docs/PROJECT_INFO.md](docs/PROJECT_INFO.md). Who builds what: [docs/STEPS.md](docs/STEPS.md).

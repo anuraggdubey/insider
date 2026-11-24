@@ -1,6 +1,6 @@
 /**
  * Turns public market data into a Call: "up" or "down" on SOL/USD, a horizon, a stake. The AI
- * analysts ask Grok (xAI) or Claude (Anthropic), whichever key is set; a plain heuristic exists for
+ * analysts ask Grok (xAI), a Groq-hosted model or Claude (Anthropic), whichever key is set; a plain heuristic exists for
  * local testing only and is never the default.
  */
 import Anthropic from "@anthropic-ai/sdk";
@@ -134,15 +134,19 @@ export class AnthropicPredictor implements Predictor {
   }
 }
 
-/** Grok through xAI's chat completions API. Any network or API error propagates: nothing is minted. */
+/**
+ * Grok (xAI) or a Groq-hosted model through an OpenAI-style chat completions API. Any network or
+ * API error propagates: nothing is minted.
+ */
 export class GrokPredictor implements Predictor {
   readonly name: string;
 
   constructor(
     private readonly persona: keyof typeof PERSONAS,
     private readonly client: Pick<GrokClient, "complete">,
+    label = "grok",
   ) {
-    this.name = `grok:${persona}`;
+    this.name = `${label}:${persona}`;
   }
 
   async predict(input: PredictInput): Promise<Decision | undefined> {

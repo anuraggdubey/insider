@@ -4,11 +4,13 @@
  *   pnpm analysts
  *
  * Environment:
- *   XAI_API_KEY            enables the analysts' model with Grok (xAI); preferred when both keys are set
+ *   XAI_API_KEY            enables the analysts' model with Grok (xAI); preferred when several keys are set
  *   XAI_MODEL              model id (default grok-4.7); XAI_REASONING_EFFORT low|medium|high|xhigh (default low)
+ *   GROQ_API_KEY           the same with a Groq-hosted model (default openai/gpt-oss-120b); GROQ_MODEL,
+ *                          GROQ_REASONING_EFFORT (default low, empty to omit)
  *   ANTHROPIC_API_KEY      enables the analysts' model with Claude; without either key they sit but mint nothing
  *   ANTHROPIC_MODEL        model id (default claude-haiku-5-5)
- *   AI_PROVIDER            "xai" or "anthropic" forces the provider when both keys are set
+ *   AI_PROVIDER            "xai", "groq" or "anthropic" forces the provider when several keys are set
  *   ANALYST_PREDICTOR      "heuristic" runs a plain trend follower for local testing (not an AI)
  *   COMMENTARY_LLM=1       let the model reword the captions (they pause while it is unreachable)
  *   COMMENTARY_PORT        port of the caption feed (default 8788): GET /captions?since=<id>
@@ -45,7 +47,7 @@ import {
   diffEvents,
   type Snapshot,
 } from "./commentary.js";
-import { GrokClient } from "./grok.js";
+import { chatClientFor } from "./grok.js";
 import { chooseProvider } from "./provider.js";
 import {
   AnthropicPredictor,
@@ -61,8 +63,8 @@ function predictorFor(persona: "claude" | "contrarian"): Predictor | undefined {
   if (process.env.ANALYST_PREDICTOR === "heuristic")
     return new HeuristicPredictor(persona === "contrarian");
   const provider = chooseProvider();
-  if (provider === "xai")
-    return new GrokPredictor(persona, new GrokClient({ apiKey: process.env.XAI_API_KEY! }));
+  if (provider === "xai" || provider === "groq")
+    return new GrokPredictor(persona, chatClientFor(provider), provider);
   if (provider === "anthropic")
     return new AnthropicPredictor(persona, process.env.ANTHROPIC_API_KEY!);
   return undefined;
@@ -82,8 +84,8 @@ function parseRewrite(text: string): string[] {
 function rewriter(): Rewriter | undefined {
   if (process.env.COMMENTARY_LLM !== "1") return undefined;
   const provider = chooseProvider();
-  if (provider === "xai") {
-    const grok = new GrokClient({ apiKey: process.env.XAI_API_KEY!, timeoutMs: 20_000 });
+  if (provider === "xai" || provider === "groq") {
+    const grok = chatClientFor(provider, process.env, { timeoutMs: 20_000 });
     return async (texts) =>
       parseRewrite(
         await grok.complete({
@@ -125,7 +127,7 @@ async function main() {
 
   if (!chooseProvider() && process.env.ANALYST_PREDICTOR !== "heuristic") {
     log.warn(
-      "no XAI_API_KEY or ANTHROPIC_API_KEY: the analysts take their seats but mint no Calls",
+      "no XAI_API_KEY, GROQ_API_KEY or ANTHROPIC_API_KEY: the analysts take their seats but mint no Calls",
     );
   } else if (process.env.ANALYST_PREDICTOR !== "heuristic") {
     log.info({ provider: chooseProvider() }, "analyst model provider");
