@@ -442,7 +442,7 @@ Needs Misbah's engine stubs (H-API) before wiring.
       `commit_epoch`; leaderboard and achievements.
 - [ ] **A-4.3 Hosting (4 h).** Dedicated devnet RPC (a free-tier provider), bot service and operator
       on an always-on host (Railway or Fly), env management, health endpoint, auto-restart.
-- [ ] **A-4.4 Soak (3 h).** 60 minutes with five bots and two AI analysts. Fix what it finds.
+- [x] **A-4.4 Soak (3 h).** _Done: 60 minutes on the live table with five bots, the operator, the cup operator and two AI analysts on Groq (`pnpm soak-report`, proof `docs/proofs/soak.json`): 35 rounds (0.58 per minute), 3 epoch rollovers, 0 stalls, the crank re-armed 6 times and never ran out, 2,366 transactions sent and none failed, no warning or error lines. Not covered: a cup with human entrants (no joins or payouts happened) and a session-key player during the run. Finding: the table waits at the epoch end until `pnpm operator` is running._ 60 minutes with five bots and two AI analysts. Fix what it finds.
 - [ ] **A-4.5 Desk and Cup screens (6 h).** `/desk` (Call board, mint form, oracle chart,
       leaderboard, license flow, history) and `/cup` (entry, standings, private payout confirmation),
       using Misbah's design system.
