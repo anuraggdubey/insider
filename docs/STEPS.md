@@ -566,7 +566,7 @@ that are easy to unit-test. Use `cd programs && cargo test -p insider --test eng
       styling, family badge (Flow or Fundamentals), sealed state; **the crack-open animation** (the
       purchase, the TEE login, the payload revealed on the chart).
 - [x] **B-2.6 Two-browser test page (2 h).** A page or documented procedure for the privacy demo.
-- [ ] **B-2.7 Playtest and fixes (2 h).** _Now part of the full end-to-end test below._ Play the live table (H3) and send findings to Anurag (H4).
+- [ ] **B-2.7 Playtest and fixes (2 h).** _Part of the full end-to-end test._ Play the live table (H3) and send findings to Anurag (H4).
 
 ### Block 3: Exchange depth and the economics gate (18 h)
 
@@ -688,9 +688,10 @@ pnpm format:check && pnpm lint && pnpm typecheck && pnpm test   # CI locally
 | Anurag  | 108 h   | about 104 | 96%  | Deploy only: Render, uptime monitor, devnet RPC, Vercel env vars, replace README placeholders, host the teaser, form, X post, tag |
 | Misbah  | 105 h   | 97        | 92%  | UI redesign of every page in his own direction (game-playing mode, motion), session toggle, join flow, desk clicks, **all end-to-end testing and QA** |
 
-Ownership change: Anurag now only deploys and submits. Misbah owns the whole UI (a redesign of
-every page, his call on the look) and all end-to-end testing (B-2.7, B-5.2 and a full pass over
-every flow on the deployed app). Anurag's flat restyle is a starting point, not a constraint.
+Anurag's remaining work is deployment and submission. Misbah's remaining work is the UI (a redesign
+of every page as a game-playing experience, his call on the look, with strong motion and effects) and
+all end-to-end testing and QA (B-2.7, B-5.2 and a pass over every flow on the deployed app). The
+current flat styling is a starting point only.
 
 Every Anurag task is ticked. The only part not fully proven is hosting: the Docker image and
 `bots/src/host.ts` were never run, so the first Render deploy may need a fix. The post-commit Magic

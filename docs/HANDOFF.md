@@ -16,8 +16,8 @@ You are working with Anurag (user). Misbah is the other teammate (UI, engine, SD
 
 ## Status in numbers
 
-- Anurag: about 96%. What is left is deployment only (below). He does not touch the UI any more.
-- Misbah: about 92%. He now owns: (1) a redesign of the whole UI in his direction, as a game-playing experience with strong motion and effects, every page; (2) all end-to-end testing and QA on the deployed app; (3) the small wiring items.
+- Anurag: about 96%. What is left is deployment and submission (below).
+- Misbah: about 92%. What is left: the UI redesign of every page (game-playing style, strong motion and effects), all end-to-end testing and QA on the deployed app, and the small wiring items.
 
 ## State: everything in the plan is built
 
@@ -39,7 +39,7 @@ Redesigned after the plan, in this order: toy-box game UI, then a soft game-UI s
 - Landing (`app/src/app/page.tsx`, motion in `components/landing/motion.tsx`): hero with `HeroFade` and `Parallax`, stat strip, `ScrollBand` (text slides with scroll), `HorizontalRounds` (pinned horizontal scroll; the scroll tracker ref must be on the section in both layouts; `main` uses `overflow-x-clip` because `overflow-hidden` breaks `position: sticky`), table section, game modes as a numbered list (no icon tiles), on-chain section with rules, not a gradient panel. `Reveal`, `ScaleIn` do scroll-in effects; all respect reduced motion.
 - Art: `app/public/art/*.jpg` (3D renders), `app/public/brand/` (logo). Nav has five links (Floor, Desk, Cup, Season, Proof); everything else is in the footer.
 
-Misbah may replace all of this. **Not re-checked since the flat restyle:** Floor (`/table?fixture=1`), Desk, Cup, Season, Watch, Xray, Rules, Proof, `/ui`, in light and dark. Look for leftover rounded/shadowed styles, unreadable dark-mode text, and anything that assumed the old base size. Also mobile widths.
+Misbah's redesign may replace all of this. **Not re-checked since the flat restyle:** Floor (`/table?fixture=1`), Desk, Cup, Season, Watch, Xray, Rules, Proof, `/ui`, in light and dark. Look for leftover rounded/shadowed styles, unreadable dark-mode text, and anything that assumed the old base size. Also mobile widths.
 
 ## What is left
 
