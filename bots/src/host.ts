@@ -13,7 +13,7 @@ import { spawn, type ChildProcess } from "node:child_process";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { createServer, request as httpRequest } from "node:http";
 import { basename, dirname, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
 import { ROOT } from "@insider/sdk/node";
 
@@ -24,9 +24,15 @@ const SERVICES = [
   { name: "analysts", entry: "src/ai/index.ts" },
 ] as const;
 
-/** Built by `pnpm --filter bots build` (the Docker image): run each service as `node dist/<name>.mjs`. */
+/** Built by `pnpm --filter bots build` (the Docker image): the services are `dist/<name>.mjs`. */
 const BUILT = basename(fileURLToPath(import.meta.url)) === "host.mjs";
-/** Heap cap per service in MB; four services and the host must fit in a 512 MB instance. */
+/**
+ * Built services run inside this process by default (`SERVICE_MODE=processes` spawns one Node per
+ * service instead). One process loads web3.js, Anchor and the SDK once: four processes did not fit
+ * in a 512 MB instance. A service that fails exits the whole process and the host platform restarts it.
+ */
+const IN_PROCESS = BUILT && process.env.SERVICE_MODE !== "processes";
+/** Heap cap per spawned service in MB (`SERVICE_MODE=processes` only). */
 const SERVICE_HEAP_MB = Number(process.env.SERVICE_HEAP_MB || 96);
 
 const PORT = Number(process.env.PORT || 8080);
@@ -55,7 +61,18 @@ type State = { child?: ChildProcess; running: boolean; restarts: number; since: 
 const state = new Map<string, State>();
 let stopping = false;
 
+/** Loads a built service into this process; its module starts the service on import. */
+async function load(name: string) {
+  state.set(name, { running: true, restarts: 0, since: Date.now() });
+  console.log(`[host] starting ${name} in process`);
+  await import(pathToFileURL(resolve(ROOT, "bots/dist", `${name}.mjs`)).href);
+}
+
 function start(name: string, entry: string) {
+  if (IN_PROCESS) {
+    void load(name);
+    return;
+  }
   const s = state.get(name) ?? { running: false, restarts: 0, since: Date.now() };
   state.set(name, s);
   const child = BUILT
