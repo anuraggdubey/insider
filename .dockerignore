@@ -8,3 +8,4 @@ node_modules
 app/.next
 programs/target
 docs/screenshots
+bots/dist

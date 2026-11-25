@@ -12,7 +12,8 @@
 import { spawn, type ChildProcess } from "node:child_process";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { createServer, request as httpRequest } from "node:http";
-import { dirname, resolve } from "node:path";
+import { basename, dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 
 import { ROOT } from "@insider/sdk/node";
 
@@ -22,6 +23,11 @@ const SERVICES = [
   { name: "cup-operator", entry: "src/cup/index.ts" },
   { name: "analysts", entry: "src/ai/index.ts" },
 ] as const;
+
+/** Built by `pnpm --filter bots build` (the Docker image): run each service as `node dist/<name>.mjs`. */
+const BUILT = basename(fileURLToPath(import.meta.url)) === "host.mjs";
+/** Heap cap per service in MB; four services and the host must fit in a 512 MB instance. */
+const SERVICE_HEAP_MB = Number(process.env.SERVICE_HEAP_MB || 96);
 
 const PORT = Number(process.env.PORT || 8080);
 const COMMENTARY_PORT = Number(process.env.COMMENTARY_PORT || 8788);
@@ -52,11 +58,17 @@ let stopping = false;
 function start(name: string, entry: string) {
   const s = state.get(name) ?? { running: false, restarts: 0, since: Date.now() };
   state.set(name, s);
-  const child = spawn("pnpm", ["exec", "tsx", entry], {
-    cwd: resolve(ROOT, "bots"),
-    env: process.env,
-    shell: process.platform === "win32",
-  });
+  const child = BUILT
+    ? spawn(
+        process.execPath,
+        [`--max-old-space-size=${SERVICE_HEAP_MB}`, resolve(ROOT, "bots/dist", `${name}.mjs`)],
+        { cwd: resolve(ROOT, "bots"), env: process.env },
+      )
+    : spawn("pnpm", ["exec", "tsx", entry], {
+        cwd: resolve(ROOT, "bots"),
+        env: process.env,
+        shell: process.platform === "win32",
+      });
   s.child = child;
   s.running = true;
   s.since = Date.now();
@@ -147,4 +159,4 @@ function main() {
 }
 
 // only start the services when run directly (the test imports `writeKeys`)
-if (process.argv[1] && /host\.[tj]s$/.test(process.argv[1])) main();
+if (process.argv[1] && /host\.(ts|js|mjs)$/.test(process.argv[1])) main();
