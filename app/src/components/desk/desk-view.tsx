@@ -2,11 +2,16 @@
 
 import { teeConnection } from "@insider/sdk";
 import { RefreshCw } from "lucide-react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useInsider } from "@/app/providers";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Capsule } from "@/components/ui/capsule";
 import { Panel } from "@/components/ui/panel";
+import { Screen } from "@/components/ui/screen";
+import { Stamp } from "@/components/ui/stamp";
+import { Stepper } from "@/components/ui/stepper";
 import { useToast } from "@/components/ui/toast";
 import { fetchDesk, type DeskCall, type DeskData } from "@/lib/desk";
 import { buyDeskLicense, deskPlayerKey, mintDeskCall, tradeDesk } from "@/lib/desk-actions";
@@ -37,7 +42,13 @@ function CallRow({
   const open = call.state === "open";
   const buyable = open && canBuy && !call.mine && call.licenseAsk > 0 && call.readers < 4;
   return (
-    <li className="border-line grid grid-cols-[1fr_auto] items-center gap-3 border-b px-4 py-3 last:border-0">
+    <li className="border-line grid grid-cols-[auto_minmax(0,1fr)] items-center gap-3 border-b px-4 py-4 last:border-0 sm:grid-cols-[auto_minmax(0,1fr)_auto]">
+      <Capsule
+        size={48}
+        rarity={open ? "rare" : "common"}
+        state={open ? "sealed" : "opened"}
+        motion="none"
+      />
       <div className="min-w-0">
         <div className="flex flex-wrap items-center gap-2">
           <span className="text-sm font-medium">{call.author}</span>
@@ -45,9 +56,9 @@ function CallRow({
           {open ? (
             <Badge tone="sealed">Sealed</Badge>
           ) : (
-            <Badge tone={call.state === "right" ? "buy" : "sell"}>
-              {call.state === "right" ? "Right" : "Wrong"} · called {call.direction}
-            </Badge>
+            <Stamp className={call.state === "right" ? "text-buy" : "text-sell"}>
+              {call.state === "right" ? "Hit" : "Miss"} · {call.direction}
+            </Stamp>
           )}
         </div>
         <div className="text-faint mt-1 font-mono text-[10px]">
@@ -55,11 +66,18 @@ function CallRow({
           {call.mintedPrice.toFixed(2)}
           {open && ` · ${call.readers} reader${call.readers === 1 ? "" : "s"}`}
           {open && ` · ${remaining(call, now)}`}
+          {open && ` · ${call.licenseAsk ? `${call.licenseAsk} chips / licence` : "not for sale"}`}
         </div>
       </div>
       {buyable && (
-        <Button size="sm" variant="outline" loading={busy} onClick={() => onBuy(call)}>
-          Read for {call.licenseAsk}
+        <Button
+          size="sm"
+          variant="outline"
+          className="col-start-2 sm:col-auto"
+          loading={busy}
+          onClick={() => onBuy(call)}
+        >
+          Buy licence · {call.licenseAsk}
         </Button>
       )}
     </li>
@@ -68,6 +86,8 @@ function CallRow({
 
 export function DeskView() {
   const config = useInsider();
+  const params = useSearchParams();
+  const fixture = process.env.NODE_ENV !== "production" && params.get("fixture") === "1";
   const walletKey = useFloorStore((state) => state.walletKey);
   const identity = useFloorStore((state) => state.identity);
   const guest = useFloorStore((state) => state.guest);
@@ -80,6 +100,8 @@ export function DeskView() {
   const [horizon, setHorizon] = useState<(typeof HORIZONS)[number]>(60);
   const [stake, setStake] = useState(50);
   const [licenseAsk, setLicenseAsk] = useState(20);
+  const [prices, setPrices] = useState<Array<{ at: number; value: number }>>([]);
+  const fixtureData = useRef<DeskData | null>(null);
   const me = useMemo(() => {
     void walletKey;
     void identity;
@@ -96,12 +118,27 @@ export function DeskView() {
     let closed = false;
     const load = async () => {
       try {
-        const result = config.tableAuthority
-          ? await fetchDesk(await teeConnection(config), config, me)
-          : null;
+        const result =
+          process.env.NODE_ENV !== "production" && fixture
+            ? (fixtureData.current ??= (await import("@/lib/desk-fixture")).fixtureDesk())
+            : config.tableAuthority
+              ? await fetchDesk(await teeConnection(config), config, me)
+              : null;
         if (closed) return;
         setData(result);
         setStatus(result ? "online" : "offline");
+        if (result?.price != null && result.priceAt != null) {
+          if (process.env.NODE_ENV !== "production" && fixture) {
+            const { fixtureOracle } = await import("@/lib/desk-fixture");
+            if (!closed) setPrices(fixtureOracle.map((value, index) => ({ at: index, value })));
+          } else {
+            setPrices((current) =>
+              current.some((point) => point.at === result.priceAt)
+                ? current
+                : [...current, { at: result.priceAt!, value: result.price! }].slice(-60),
+            );
+          }
+        }
       } catch {
         if (!closed) setStatus((current) => (current === "online" ? "online" : "offline"));
       }
@@ -112,24 +149,39 @@ export function DeskView() {
       closed = true;
       clearInterval(timer);
     };
-  }, [config, me, refresh]);
+  }, [config, fixture, me, refresh]);
 
-  const act = useCallback(async (name: string, action: () => Promise<void>) => {
-    setBusy(name);
-    try {
-      await action();
-      setRefresh((value) => value + 1);
-    } catch (error) {
-      useToast.getState().add(friendlyError(error));
-    } finally {
-      setBusy(null);
-    }
-  }, []);
+  const act = useCallback(
+    async (name: string, action: () => Promise<void>) => {
+      setBusy(name);
+      try {
+        if (fixture) {
+          useToast.getState().add("Fixture only · no transaction submitted.");
+          return;
+        }
+        await action();
+        setRefresh((value) => value + 1);
+      } catch (error) {
+        useToast.getState().add(friendlyError(error));
+      } finally {
+        setBusy(null);
+      }
+    },
+    [fixture],
+  );
 
   const mySeat = data?.mySeat ?? null;
   const open = data?.calls.filter((call) => call.state === "open") ?? [];
   const judged = (data?.calls.filter((call) => call.state !== "open") ?? []).slice(0, 8);
   const myOpen = open.some((call) => call.mine);
+  const low = Math.min(...prices.map((point) => point.value));
+  const high = Math.max(...prices.map((point) => point.value));
+  const points = prices
+    .map(
+      (point, index) =>
+        `${(index / Math.max(1, prices.length - 1)) * 100},${48 - ((point.value - low) / Math.max(0.01, high - low)) * 40}`,
+    )
+    .join(" ");
 
   return (
     <main className="mx-auto w-full max-w-7xl flex-1 px-5 py-10 sm:px-8 lg:py-14">
@@ -141,6 +193,11 @@ export function DeskView() {
             Commit to SOL up or down. The direction stays sealed until the oracle judges it; sell a
             licence and others can read it first. Right Calls return the stake plus 50%.
           </p>
+          {fixture && (
+            <Badge tone="opened" className="mt-3">
+              Fixture · simulated, no transactions
+            </Badge>
+          )}
         </div>
         <div className="flex items-center gap-4">
           {data?.price != null && (
@@ -177,6 +234,39 @@ export function DeskView() {
       {status === "online" && data && (
         <div className="mt-10 grid gap-8 lg:grid-cols-[1.3fr_1fr]">
           <div className="min-w-0 space-y-8">
+            <Screen label="SOL / USD · oracle">
+              <div className="p-5">
+                <div className="led-readout text-4xl">
+                  {data.price == null ? "—" : `$${data.price.toFixed(2)}`}
+                </div>
+                <div className="text-muted mt-1 font-mono text-[10px]">
+                  {data.priceAt
+                    ? `Oracle update ${new Date(data.priceAt * 1000).toLocaleTimeString()}`
+                    : "Oracle unavailable"}
+                </div>
+                {prices.length > 1 ? (
+                  <svg
+                    viewBox="0 0 100 52"
+                    preserveAspectRatio="none"
+                    role="img"
+                    aria-label="Observed oracle price history"
+                    className="mt-3 h-24 w-full"
+                  >
+                    <polyline
+                      points={points}
+                      fill="none"
+                      stroke="#5ccbf0"
+                      strokeWidth="1"
+                      vectorEffect="non-scaling-stroke"
+                    />
+                  </svg>
+                ) : (
+                  <p className="text-muted mt-5 text-xs">
+                    Waiting for another oracle update to draw the chart.
+                  </p>
+                )}
+              </div>
+            </Screen>
             <Panel title="Open Calls" label={`${open.length} sealed`}>
               {open.length ? (
                 <ul>
@@ -219,7 +309,12 @@ export function DeskView() {
             </Panel>
             <Panel title="Analyst track record" label="public, per seat">
               {data.analysts.length ? (
-                <div className="overflow-x-auto">
+                <div
+                  className="overflow-x-auto"
+                  role="region"
+                  aria-label="Analyst track record"
+                  tabIndex={0}
+                >
                   <table className="w-full min-w-[480px] text-left text-sm">
                     <thead className="border-line text-faint border-b font-mono text-[10px] uppercase">
                       <tr>
@@ -314,53 +409,60 @@ export function DeskView() {
               >
                 <div className="grid grid-cols-2 gap-2">
                   {([1, -1] as const).map((value) => (
-                    <button
+                    <Button
                       key={value}
-                      type="button"
                       aria-pressed={direction === value}
                       onClick={() => setDirection(value)}
-                      className={`rounded border px-3 py-2 text-sm ${direction === value ? (value > 0 ? "border-buy text-buy" : "border-sell text-sell") : "border-line text-muted"}`}
+                      variant={direction === value ? (value > 0 ? "buy" : "sell") : "outline"}
                     >
                       {value > 0 ? "Up" : "Down"}
-                    </button>
+                    </Button>
                   ))}
                 </div>
-                <label className="block">
+                <div>
                   <span className="micro-label">Horizon</span>
-                  <select
-                    value={horizon}
-                    onChange={(event) => setHorizon(Number(event.target.value) as typeof horizon)}
-                    className="border-line bg-surface-2 mt-1 w-full rounded border px-3 py-2 text-sm"
+                  <div
+                    className="mt-2 grid grid-cols-3 gap-2"
+                    role="group"
+                    aria-label="Call horizon"
                   >
                     {HORIZONS.map((value) => (
-                      <option key={value} value={value}>
-                        {value} seconds
-                      </option>
+                      <Button
+                        key={value}
+                        size="sm"
+                        variant={horizon === value ? "ink" : "outline"}
+                        aria-pressed={horizon === value}
+                        onClick={() => setHorizon(value)}
+                      >
+                        {value}s
+                      </Button>
                     ))}
-                  </select>
-                </label>
-                <label className="block">
-                  <span className="micro-label">Stake (10 to 200 chips)</span>
-                  <input
-                    type="number"
+                  </div>
+                </div>
+                <div>
+                  <div className="micro-label mb-2">Stake · 10 to 200 chips</div>
+                  <Stepper
+                    value={stake}
+                    onChange={setStake}
                     min={10}
                     max={200}
-                    value={stake}
-                    onChange={(event) => setStake(Number(event.target.value))}
-                    className="border-line bg-surface-2 mt-1 w-full rounded border px-3 py-2 font-mono text-sm"
+                    step={10}
+                    presets={[]}
+                    label="Stake in chips"
                   />
-                </label>
-                <label className="block">
-                  <span className="micro-label">Licence price (0 to 100, 0 = not for sale)</span>
-                  <input
-                    type="number"
+                </div>
+                <div>
+                  <div className="micro-label mb-2">Licence · 0 to 100 (0 = not for sale)</div>
+                  <Stepper
+                    value={licenseAsk}
+                    onChange={setLicenseAsk}
                     min={0}
                     max={100}
-                    value={licenseAsk}
-                    onChange={(event) => setLicenseAsk(Number(event.target.value))}
-                    className="border-line bg-surface-2 mt-1 w-full rounded border px-3 py-2 font-mono text-sm"
+                    step={5}
+                    presets={[]}
+                    label="Licence price"
                   />
-                </label>
+                </div>
                 <Button
                   type="submit"
                   className="w-full"
@@ -375,7 +477,9 @@ export function DeskView() {
                     (mySeat ? stake > mySeat.deskChips : false)
                   }
                 >
-                  {myOpen ? "You have an open Call" : `Commit ${direction > 0 ? "up" : "down"}`}
+                  {myOpen
+                    ? "You have an open Call"
+                    : `Seal call · ${direction > 0 ? "up" : "down"}`}
                 </Button>
               </form>
             </Panel>

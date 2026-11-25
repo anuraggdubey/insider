@@ -186,7 +186,7 @@ export function SeasonView() {
                 role="region"
                 aria-label="Season leaderboard"
                 tabIndex={0}
-                className="border-line bg-surface overflow-x-auto rounded-lg border"
+                className="border-line bg-surface max-h-[32rem] overflow-auto rounded-lg border"
               >
                 {season.leaderboard.length ? (
                   <table className="w-full min-w-[440px] text-left text-sm">
@@ -234,18 +234,18 @@ export function SeasonView() {
                 ) : (
                   <p className="text-muted p-6 text-sm">No scores recorded this epoch yet.</p>
                 )}
+                {yourStanding && (
+                  <div
+                    data-testid="season-your-row"
+                    className="border-you bg-surface sticky bottom-0 left-0 z-10 flex justify-between gap-3 border-t-2 px-4 py-2 font-mono text-xs"
+                  >
+                    <span className="text-[#2342c0] dark:text-[#abc0ff]">
+                      YOU / RANK {yourStanding.rank}
+                    </span>
+                    <span>{signed(yourStanding.score)}</span>
+                  </div>
+                )}
               </div>
-              {yourStanding && (
-                <div
-                  data-testid="season-your-row"
-                  className="border-you bg-surface sticky bottom-0 z-10 flex justify-between gap-3 rounded-b-lg border-2 px-4 py-2 font-mono text-xs"
-                >
-                  <span className="text-[#2342c0] dark:text-[#abc0ff]">
-                    YOU / RANK {yourStanding.rank}
-                  </span>
-                  <span>{signed(yourStanding.score)}</span>
-                </div>
-              )}
             </section>
             <section aria-labelledby="analysts-title" className="min-w-0">
               <div className="mb-4 flex items-end justify-between">
@@ -263,7 +263,7 @@ export function SeasonView() {
                 tabIndex={0}
                 className="border-line bg-surface overflow-x-auto rounded-lg border"
               >
-                <table className="w-full min-w-[530px] text-left text-sm">
+                <table className="w-full min-w-[530px] text-left text-xs xl:min-w-0">
                   <thead className="border-line text-faint border-b font-mono text-[10px] uppercase">
                     <tr>
                       <th className="p-4 font-normal">Seat</th>

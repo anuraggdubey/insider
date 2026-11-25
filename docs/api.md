@@ -246,3 +246,8 @@ await fetch(`${operator}/cup/cosign`, {
 `GET /cup/status` returns `{ cupId, open, roundsRecorded, settled, entrants, credits, buyIn, feeBps,
 mint, operator, history }`. The `Cup` account (`decodeCup`) is public: entries, scores, and after
 settlement the winners with their shares in basis points.
+
+`POST /cup/faucet` with `{ "owner": "<wallet public key>" }` creates the wallet's associated token
+account if needed and mints twice the buy-in in devnet test tokens. It is limited to one request per
+wallet per hour, persisted in the operator state; a failed mint still consumes the reservation.
+The host proxies `/cup/*` to the operator. The faucet does not provide SOL for transaction fees.

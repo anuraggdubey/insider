@@ -22,6 +22,7 @@ import { createServer, type IncomingMessage } from "node:http";
 import { resolve } from "node:path";
 
 import { Connection, PublicKey, Transaction } from "@solana/web3.js";
+import { getOrCreateAssociatedTokenAccount, mintTo } from "@solana/spl-token";
 import pino from "pino";
 
 import {
@@ -37,7 +38,7 @@ import {
   tx as buildTx,
 } from "@insider/sdk/node";
 
-import { CreditLedger, payouts, verifyJoin } from "./logic.js";
+import { CreditLedger, FaucetLimiter, payouts, verifyJoin } from "./logic.js";
 import { Payments } from "./payments.js";
 
 const log = pino({ level: process.env.LOG_LEVEL || "info" });
@@ -47,6 +48,7 @@ type State = {
   /** cup id -> winner -> payout signature (so a restart never pays twice). */
   paid: Record<string, Record<string, string>>;
   feePaid: Record<string, string>;
+  faucet?: Record<string, number>;
   history: Array<{
     cup: number;
     entrants: number;
@@ -81,6 +83,9 @@ async function main() {
     ? (JSON.parse(readFileSync(statePath, "utf8")) as State)
     : { ledger: null, paid: {}, feePaid: {}, history: [] };
   if (state.ledger) ledger.load(state.ledger);
+  state.faucet ??= {};
+  const faucetLimiter = new FaucetLimiter(state.faucet);
+  const base = new Connection(config.baseRpcUrl, "confirmed");
   const persist = () => {
     state.ledger = ledger.save();
     writeFileSync(statePath, JSON.stringify(state, null, 2));
@@ -200,6 +205,7 @@ async function main() {
     const url = new URL(request.url ?? "/", "http://localhost");
     response.setHeader("access-control-allow-origin", "*");
     response.setHeader("access-control-allow-headers", "content-type");
+    response.setHeader("access-control-allow-methods", "GET,POST,OPTIONS");
     response.setHeader("content-type", "application/json");
     const send = (status: number, body: unknown) => {
       response.statusCode = status;
@@ -228,6 +234,34 @@ async function main() {
         const { transactionBase64 } = JSON.parse(body) as { transactionBase64?: string };
         if (!transactionBase64) return send(400, { error: "transactionBase64 is required" });
         const result = await cosign(transactionBase64);
+        return send(result.status, result.body);
+      }
+      if (url.pathname === "/cup/faucet" && request.method === "POST") {
+        let body: { owner?: unknown };
+        try {
+          body = JSON.parse(await readBody(request)) as { owner?: unknown };
+        } catch {
+          return send(400, { error: "valid JSON is required" });
+        }
+        if (typeof body.owner !== "string") return send(400, { error: "owner is required" });
+        let owner: PublicKey;
+        try {
+          owner = new PublicKey(body.owner);
+          if (!PublicKey.isOnCurve(owner.toBytes())) throw new Error("not a wallet");
+        } catch {
+          return send(400, { error: "invalid wallet owner" });
+        }
+        const result = await exclusive(async () => {
+          if (!faucetLimiter.claim(owner.toBase58()))
+            return {
+              status: 429,
+              body: { error: "faucet is limited to once per wallet per hour" },
+            };
+          persist();
+          const ata = await getOrCreateAssociatedTokenAccount(base, authority, mint, owner);
+          const signature = await mintTo(base, authority, mint, ata.address, authority, buyIn * 2n);
+          return { status: 200, body: { signature, amount: (buyIn * 2n).toString() } };
+        });
         return send(result.status, result.body);
       }
       return send(404, { error: "not found" });

@@ -81,17 +81,19 @@ export function SoarCard() {
       aria-labelledby="soar-title"
       className="border-ink bg-surface mt-8 rounded-xl border-2 p-5 sm:p-6"
     >
-      <div className="flex flex-wrap items-center gap-4">
-        <Capsule rarity="epic" size={54} motion="none" />
-        <div className="min-w-0 flex-1">
-          <div className="micro-label">SOAR / BASE LAYER</div>
-          <h2 id="soar-title" className="mt-1 text-lg font-bold">
-            Get on the SOAR leaderboard
-          </h2>
-          <p className="text-muted mt-2 text-xs leading-5">
-            The game authority publishes season scores to SOAR after each epoch; registered wallets
-            only.
-          </p>
+      <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center">
+        <div className="flex min-w-0 flex-1 items-center gap-4">
+          <Capsule rarity="epic" size={54} motion="none" />
+          <div className="min-w-0">
+            <div className="micro-label">SOAR / BASE LAYER</div>
+            <h2 id="soar-title" className="mt-1 text-lg font-bold">
+              Get on the SOAR leaderboard
+            </h2>
+            <p className="text-muted mt-2 text-xs leading-5">
+              The game authority publishes season scores to SOAR after each epoch; registered
+              wallets only.
+            </p>
+          </div>
         </div>
         <Badge tone={status === "registered" ? "buy" : "neutral"}>
           {status === "registered"

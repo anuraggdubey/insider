@@ -1,0 +1,78 @@
+import type { DeskData } from "./desk";
+
+export const fixtureOracle = [132.4, 132.7, 132.5, 133.1, 132.9, 133.5, 133.2, 133.8, 134.1];
+
+export function fixtureDesk(now = Math.floor(Date.now() / 1000)): DeskData {
+  return {
+    price: 134.1,
+    priceAt: now,
+    mySeat: { index: 7, deskChips: 1000, deskPosition: 100 },
+    calls: [
+      {
+        seat: 5,
+        author: "Calm Raven",
+        callId: 37,
+        state: "open",
+        direction: null,
+        stake: 100,
+        licenseAsk: 20,
+        mintedPrice: 133.52,
+        mintedAt: now - 30,
+        expiresAt: now + 90,
+        horizon: 120,
+        readers: 1,
+        mine: false,
+      },
+      {
+        seat: 6,
+        author: "Hidden Tiger",
+        callId: 36,
+        state: "open",
+        direction: null,
+        stake: 75,
+        licenseAsk: 15,
+        mintedPrice: 133.98,
+        mintedAt: now - 15,
+        expiresAt: now + 45,
+        horizon: 60,
+        readers: 0,
+        mine: false,
+      },
+      {
+        seat: 5,
+        author: "Calm Raven",
+        callId: 35,
+        state: "right",
+        direction: "up",
+        stake: 100,
+        licenseAsk: 20,
+        mintedPrice: 132.45,
+        mintedAt: now - 300,
+        expiresAt: now - 180,
+        horizon: 120,
+        readers: 2,
+        mine: false,
+      },
+      {
+        seat: 6,
+        author: "Hidden Tiger",
+        callId: 34,
+        state: "wrong",
+        direction: "down",
+        stake: 60,
+        licenseAsk: 10,
+        mintedPrice: 132.9,
+        mintedAt: now - 480,
+        expiresAt: now - 300,
+        horizon: 180,
+        readers: 1,
+        mine: false,
+      },
+    ],
+    analysts: [
+      { seat: 5, name: "Calm Raven", calls: 12, hits: 9, streak: 3, bestStreak: 4, profit: 270 },
+      { seat: 6, name: "Hidden Tiger", calls: 10, hits: 6, streak: 0, bestStreak: 3, profit: 60 },
+      { seat: 7, name: "You", calls: 4, hits: 2, streak: 1, bestStreak: 2, profit: 20 },
+    ],
+  };
+}

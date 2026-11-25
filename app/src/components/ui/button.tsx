@@ -39,7 +39,7 @@ export function Button({
       className={buttonStyles({ variant, size, className: cn(shake && "key-shake", className) })}
       {...props}
     >
-      <span className={cn("inline-flex items-center gap-2", loading && "invisible")}>
+      <span className={cn("inline-flex items-center gap-2", loading && "opacity-0")}>
         {children}
       </span>
       {loading && <LoaderCircle aria-hidden className="absolute size-4 animate-spin" />}

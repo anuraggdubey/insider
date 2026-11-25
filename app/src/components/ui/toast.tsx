@@ -14,10 +14,21 @@ export const useToast = create<ToastStore>((set, get) => ({
   items: [],
   add: (message) => {
     const id = ++nextId;
-    set((state) => ({ items: [...state.items, { id, message }] }));
+    const mobile = typeof window !== "undefined" && window.matchMedia("(max-width: 767px)").matches;
+    set((state) => ({ items: mobile ? [{ id, message }] : [...state.items, { id, message }] }));
     setTimeout(() => get().dismiss(id), 5000);
   },
-  dismiss: (id) => set((state) => ({ items: state.items.filter((item) => item.id !== id) })),
+  dismiss: (id) =>
+    set((state) => {
+      const mobile =
+        typeof window !== "undefined" && window.matchMedia("(max-width: 767px)").matches;
+      return {
+        items:
+          mobile && state.items.at(-1)?.id === id
+            ? []
+            : state.items.filter((item) => item.id !== id),
+      };
+    }),
 }));
 
 export function Toaster() {
@@ -25,14 +36,14 @@ export function Toaster() {
   const dismiss = useToast((state) => state.dismiss);
   return (
     <div
-      className="fixed right-4 bottom-36 z-50 flex w-[min(22rem,calc(100%-2rem))] flex-col gap-2 md:bottom-16"
+      className="fixed right-4 bottom-[9rem] z-50 flex w-[min(22rem,calc(100%-2rem))] flex-col gap-2 md:bottom-16"
       aria-live="polite"
     >
-      {items.map((item) => (
+      {items.map((item, index) => (
         <div
           key={item.id}
           role="status"
-          className="toast-in border-ink bg-surface text-text flex items-center justify-between gap-4 border-2 p-4 font-mono text-xs font-bold uppercase"
+          className={`toast-in border-ink bg-surface text-text items-center justify-between gap-3 border-2 px-3 py-2 font-mono text-[10px] font-bold uppercase md:flex md:gap-4 md:p-4 md:text-xs ${index === items.length - 1 ? "flex" : "hidden"}`}
         >
           {item.message}
           <button

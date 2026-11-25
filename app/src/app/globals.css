@@ -485,11 +485,11 @@ html.dark .bg-you.text-white {
 @keyframes toast-bottom {
   from {
     opacity: 0;
-    transform: translateY(12px) rotate(-4deg);
+    transform: translateY(12px);
   }
   to {
     opacity: 1;
-    transform: rotate(-4deg);
+    transform: translateY(0);
   }
 }
 @keyframes toast-right {
@@ -674,7 +674,9 @@ html.dark .bg-you.text-white {
   .seat-token-standard,
   .lane-traveler,
   .lane-land-flash,
-  .phase-banner {
+  .phase-banner,
+  .stamp-in,
+  .toast-in {
     animation: none !important;
   }
   *,

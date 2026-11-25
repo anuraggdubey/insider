@@ -30,7 +30,9 @@ export function Stepper({
         <Button
           variant="outline"
           size="sm"
-          aria-label="Decrease size"
+          aria-label={
+            label === "Size in units" ? "Decrease size" : `Decrease ${label.toLowerCase()}`
+          }
           onClick={() => set(value - step)}
           disabled={value <= min}
         >
@@ -55,7 +57,9 @@ export function Stepper({
         <Button
           variant="outline"
           size="sm"
-          aria-label="Increase size"
+          aria-label={
+            label === "Size in units" ? "Increase size" : `Increase ${label.toLowerCase()}`
+          }
           onClick={() => set(value + step)}
           disabled={value >= max}
         >

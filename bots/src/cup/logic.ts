@@ -7,6 +7,19 @@ import nacl from "tweetnacl";
 
 import { type InsiderConfig, cupJoin, tableAccounts } from "@insider/sdk";
 
+export const FAUCET_INTERVAL_MS = 60 * 60 * 1000;
+
+export class FaucetLimiter {
+  constructor(private readonly timestamps: Record<string, number>) {}
+
+  claim(owner: string, now = Date.now()) {
+    const previous = this.timestamps[owner];
+    if (previous !== undefined && now - previous < FAUCET_INTERVAL_MS) return false;
+    this.timestamps[owner] = now;
+    return true;
+  }
+}
+
 /**
  * Buy-ins arrive as private transfers whose sender is not visible, so the operator counts credits: each
  * increase of its private balance by one buy-in is one entry it may co-sign. Payouts lower the balance

@@ -3,10 +3,28 @@ import { describe, expect, it } from "vitest";
 
 import { createConfig, cupJoin, deskTrade } from "@insider/sdk";
 
-import { CreditLedger, payouts, verifyJoin } from "../src/cup/logic.js";
+import {
+  CreditLedger,
+  FaucetLimiter,
+  FAUCET_INTERVAL_MS,
+  payouts,
+  verifyJoin,
+} from "../src/cup/logic.js";
 
 const BUY_IN = 10_000_000n;
 
+describe("cup faucet limit", () => {
+  it("persists a per-wallet reservation for one hour", () => {
+    const timestamps: Record<string, number> = {};
+    const first = new FaucetLimiter(timestamps);
+    expect(first.claim("alice", 100)).toBe(true);
+    expect(first.claim("alice", 101)).toBe(false);
+    expect(first.claim("bob", 101)).toBe(true);
+    const restarted = new FaucetLimiter(JSON.parse(JSON.stringify(timestamps)));
+    expect(restarted.claim("alice", 100 + FAUCET_INTERVAL_MS - 1)).toBe(false);
+    expect(restarted.claim("alice", 100 + FAUCET_INTERVAL_MS)).toBe(true);
+  });
+});
 describe("CreditLedger", () => {
   it("ignores what was already there, then turns each buy-in into one credit", () => {
     const ledger = new CreditLedger(BUY_IN);

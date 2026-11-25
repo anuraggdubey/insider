@@ -1,6 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { createConfig } from "@insider/sdk/config";
+import dynamic from "next/dynamic";
 import { Badge, type BadgeTone } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Capsule, type CapsuleRarity, type CapsuleState } from "@/components/ui/capsule";
@@ -23,6 +25,9 @@ import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { Ticker } from "@/components/ui/ticker";
 import { useToast } from "@/components/ui/toast";
 import { Tooltip } from "@/components/ui/tooltip";
+import type { CupData, CupStatus } from "@/lib/cup";
+
+const CupJoinCard = dynamic(() => import("@/components/cup/cup-join-card"));
 
 const tones: BadgeTone[] = [
   "neutral",
@@ -48,6 +53,12 @@ export function Showcase() {
   const [value, setValue] = useState(500);
   const [number, setNumber] = useState(1000);
   const [shake, setShake] = useState(false);
+  const config = useMemo(() => createConfig(), []);
+  const [cup, setCup] = useState<{ cup: CupData; operator: CupStatus } | null>(null);
+  useEffect(() => {
+    if (process.env.NODE_ENV !== "production")
+      void import("@/lib/cup-fixture").then(({ fixtureCup }) => setCup(fixtureCup(false)));
+  }, []);
   return (
     <main className="mx-auto w-full max-w-6xl space-y-6 px-5 py-16 sm:px-8">
       <div className="flex flex-wrap items-end justify-between gap-4">
@@ -177,6 +188,9 @@ export function Showcase() {
           </Button>
         </div>
       </Panel>
+      {cup && (
+        <CupJoinCard config={config} status={cup.operator} cup={cup.cup} operatorUrl="" fixture />
+      )}
       <Panel title="Channel switch">
         <div className="p-5">
           <MainNav

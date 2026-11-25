@@ -1,6 +1,11 @@
 "use client";
 
-import { type Keypair, type PublicKey, type Transaction } from "@solana/web3.js";
+import {
+  type Keypair,
+  type PublicKey,
+  type Transaction,
+  type VersionedTransaction,
+} from "@solana/web3.js";
 import { type LeakVaultAccount, type LocalOrder, type TableSnapshot } from "@insider/sdk";
 import { create } from "zustand";
 import { type Fixture } from "./fixture";
@@ -25,6 +30,7 @@ export type WalletSigner = {
   publicKey: PublicKey;
   signMessage(message: Uint8Array): Promise<Uint8Array>;
   signTransaction(transaction: Transaction): Promise<Transaction>;
+  signVersionedTransaction?(transaction: VersionedTransaction): Promise<VersionedTransaction>;
 };
 
 export const useFloorStore = create<FloorState>(() => ({

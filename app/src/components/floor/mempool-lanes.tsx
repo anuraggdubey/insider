@@ -53,7 +53,7 @@ export function MempoolLanes({ snapshot, view }: { snapshot: TableSnapshot; view
     <div ref={host}>
       <Panel
         title="Mempool / sealed"
-        action={<span className="micro-label">Public sends · private orders</span>}
+        action={<span className="micro-label hidden sm:inline">Public sends · private orders</span>}
         className="shrink-0"
       >
         <div className="space-y-2 p-3" aria-label="Mempool lanes">

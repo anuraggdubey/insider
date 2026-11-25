@@ -39,7 +39,12 @@ function WalletBridge() {
     syncWallet(
       key,
       key && signMessage && signTransaction
-        ? { publicKey: key, signMessage, signTransaction }
+        ? {
+            publicKey: key,
+            signMessage,
+            signTransaction,
+            signVersionedTransaction: signTransaction,
+          }
         : null,
     );
   }, [connected, publicKey, signMessage, signTransaction]);
@@ -58,7 +63,12 @@ function WalletBridge() {
     try {
       if (!publicKey || !signMessage || !signTransaction)
         throw new Error("This wallet must support message and transaction signing.");
-      selectWallet({ publicKey, signMessage, signTransaction });
+      selectWallet({
+        publicKey,
+        signMessage,
+        signTransaction,
+        signVersionedTransaction: signTransaction,
+      });
       if (pending.onReady) await pending.onReady();
       else {
         updateFloor({ joinRequested: true });
