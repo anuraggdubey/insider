@@ -58,23 +58,30 @@ export function WatchView() {
   useEffect(() => {
     const url = process.env.NEXT_PUBLIC_COMMENTARY_URL;
     if (!url) return;
-    const source = new EventSource(url);
-    source.onmessage = (message) => {
+    // The caption feed (bots/src/ai) is plain JSON: GET /captions?since=<id> → { captions: [{ id, text }] }.
+    let since = 0;
+    let closed = false;
+    const poll = async () => {
       try {
-        const data: unknown = JSON.parse(message.data);
-        const text =
-          typeof data === "string"
-            ? data
-            : data && typeof data === "object" && "caption" in data
-              ? data.caption
-              : "";
-        if (typeof text === "string" && text.length > 0 && text.length <= 200) setCommentary(text);
+        const feed = new URL(url);
+        feed.searchParams.set("since", String(since));
+        const response = await fetch(feed, { cache: "no-store" });
+        const data = (await response.json()) as { captions?: { id: number; text: string }[] };
+        const latest = data.captions?.at(-1);
+        if (!closed && latest) {
+          since = latest.id;
+          if (latest.text.length > 0 && latest.text.length <= 200) setCommentary(latest.text);
+        }
       } catch {
-        if (message.data.length <= 200) setCommentary(message.data);
+        // Feed unreachable: keep the last caption and try again on the next tick.
       }
     };
-    source.onerror = () => {};
-    return () => source.close();
+    void poll();
+    const timer = setInterval(poll, 3000);
+    return () => {
+      closed = true;
+      clearInterval(timer);
+    };
   }, []);
   if (status === "loading") return <FloorSkeleton />;
   if (!snapshot || !view) return <TableOffline />;
