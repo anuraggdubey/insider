@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Archivo, Doto, JetBrains_Mono } from "next/font/google";
+import { Doto, Fredoka, JetBrains_Mono, Nunito } from "next/font/google";
 import { SiteFooter } from "@/components/site-footer";
 import { Logo } from "@/components/ui/logo";
 import { MainNav } from "@/components/ui/main-nav";
@@ -11,10 +11,14 @@ import { WalletButton } from "@/components/ui/wallet-button";
 import { Providers } from "./providers";
 import "./globals.css";
 
-const bodyFont = Archivo({
-  variable: "--font-archivo",
+const bodyFont = Nunito({
+  variable: "--font-nunito",
   subsets: ["latin"],
-  axes: ["wdth"],
+  display: "swap",
+});
+const displayFont = Fredoka({
+  variable: "--font-fredoka",
+  subsets: ["latin"],
   display: "swap",
 });
 const monoFont = JetBrains_Mono({
@@ -45,8 +49,8 @@ export const metadata: Metadata = {
 };
 export const viewport: Viewport = {
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#ECEAE4" },
-    { media: "(prefers-color-scheme: dark)", color: "#0E0E0F" },
+    { media: "(prefers-color-scheme: light)", color: "#8FCBFF" },
+    { media: "(prefers-color-scheme: dark)", color: "#14307F" },
   ],
 };
 
@@ -59,7 +63,7 @@ const nav = [
   ["Proof", "/proof"],
 ];
 
-const THEME_SCRIPT = `try{var t=localStorage.getItem("insider.theme");var d=t==="dark"||(!t&&matchMedia("(prefers-color-scheme: dark)").matches);if(d)document.documentElement.classList.add("dark");document.querySelectorAll('meta[name="theme-color"]').forEach(function(m){m.content=d?"#0E0E0F":"#ECEAE4"})}catch(e){}`;
+const THEME_SCRIPT = `try{var t=localStorage.getItem("insider.theme");var d=t==="dark"||(!t&&matchMedia("(prefers-color-scheme: dark)").matches);if(d)document.documentElement.classList.add("dark");document.querySelectorAll('meta[name="theme-color"]').forEach(function(m){m.content=d?"#14307F":"#8FCBFF"})}catch(e){}`;
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
@@ -67,7 +71,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="en"
       data-scroll-behavior="smooth"
       suppressHydrationWarning
-      className={`${bodyFont.variable} ${monoFont.variable} ${ledFont.variable} h-full antialiased`}
+      className={`${bodyFont.variable} ${displayFont.variable} ${monoFont.variable} ${ledFont.variable} h-full antialiased`}
     >
       <head>
         <script
@@ -79,7 +83,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <body className="flex min-h-full flex-col">
         <Providers>
           <header
-            className="border-line bg-surface sticky top-0 z-30 border-b"
+            className="site-header sticky top-0"
             style={{ viewTransitionName: "site-header" }}
           >
             <div className="mx-auto flex h-14 max-w-7xl items-center gap-2 px-4 sm:px-8 md:gap-5">

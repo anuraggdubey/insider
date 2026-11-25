@@ -52,7 +52,7 @@ export function Stepper({
             setInput(event.target.value);
             if (event.target.value !== "") set(Number(event.target.value));
           }}
-          className="border-line-strong bg-surface-2 min-w-0 flex-1 rounded-md border px-3 py-2 text-center font-mono tabular-nums"
+          className="border-line-strong bg-surface-2 min-w-0 flex-1 rounded-xl border-2 px-3 py-1.5 text-center font-mono text-lg font-bold tabular-nums"
         />
         <Button
           variant="outline"
@@ -66,7 +66,7 @@ export function Stepper({
           +
         </Button>
       </div>
-      <div className="flex flex-wrap gap-2">
+      <div className="stepper-presets grid grid-cols-4 gap-2">
         {presets
           .filter((preset) => preset >= min && preset <= max)
           .map((preset) => (

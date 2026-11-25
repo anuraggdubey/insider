@@ -8,7 +8,7 @@ export default function NavIndicator() {
     <LazyMotion features={domMax}>
       <m.span
         aria-hidden
-        className="bg-signal absolute inset-0 rounded-full"
+        className="bg-primary absolute inset-0 rounded-full"
         layoutId={reduced ? undefined : "active-channel"}
         transition={{ type: "spring", stiffness: 520, damping: 32 }}
       />

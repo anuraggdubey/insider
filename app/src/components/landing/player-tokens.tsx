@@ -68,14 +68,20 @@ export function PlayerTokens() {
                 <div
                   className={cn(
                     "grid h-1/2 place-items-center",
-                    mine ? "bg-you text-white" : "bg-ink text-surface",
-                    active && pulse.priority && "bg-signal !text-[#161513]",
-                    active && !pulse.priority && "bg-ink text-surface",
+                    mine
+                      ? "bg-you text-white"
+                      : index < 5
+                        ? "bg-[#1565ff] text-white"
+                        : index < 7
+                          ? "bg-[#7c3aed] text-white"
+                          : "bg-[#0b8f55] text-white",
+                    active && pulse.priority && "bg-signal !text-[#0f1f5c]",
+                    active && !pulse.priority && "brightness-125",
                   )}
                 >
                   <Icon aria-hidden className="size-4" />
                 </div>
-                <div className="border-ink grid h-1/2 place-items-center border-t-2 bg-[#f8f7f4] font-mono text-[8px] font-bold text-[#161513]">
+                <div className="border-ink grid h-1/2 place-items-center border-t-2 bg-[#ffffff] font-mono text-[8px] font-bold text-[#0f1f5c]">
                   {mine ? "YOU" : String(index + 1).padStart(2, "0")}
                 </div>
               </div>

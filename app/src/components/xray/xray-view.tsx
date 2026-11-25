@@ -144,7 +144,7 @@ function Share({ round }: { round: ArchivedRound }) {
               href={intent}
               target="_blank"
               rel="noreferrer"
-              className="text-sealed flex items-center gap-1 px-2 text-xs"
+              className="text-brand flex items-center gap-1 px-2 text-xs"
             >
               Post on X <ArrowUpRight className="size-3" />
             </a>
@@ -247,7 +247,7 @@ export function XrayView({ roundNumber }: { roundNumber?: number }) {
             ? "This round is no longer on chain and wasn't seen by this browser."
             : "The latest X-ray will appear after a round is finalized. Keep the floor open to save it on this browser."}
         </p>
-        <Link href={fixture ? "/table?fixture=1" : "/table"} className="text-sealed mt-6 text-sm">
+        <Link href={fixture ? "/table?fixture=1" : "/table"} className="text-brand mt-6 text-sm">
           ← Back to the floor
         </Link>
       </main>
@@ -390,7 +390,7 @@ export function XrayView({ roundNumber }: { roundNumber?: number }) {
                   if (tick === 180) setTick(0);
                   setPlaying(!playing);
                 }}
-                className="text-sealed grid size-8 place-items-center rounded border border-current/30"
+                className="text-brand grid size-8 place-items-center rounded border border-current/30"
               >
                 {playing ? <Pause className="size-4" /> : <Play className="size-4" />}
               </button>
@@ -404,7 +404,7 @@ export function XrayView({ roundNumber }: { roundNumber?: number }) {
                   setPlaying(false);
                   setTick(Number(event.target.value));
                 }}
-                className="accent-sealed min-w-36 flex-1"
+                className="accent-primary min-w-36 flex-1 cursor-pointer"
               />
               <div className="flex gap-1">
                 {([1, 4, 16] as const).map((n) => (
@@ -413,7 +413,7 @@ export function XrayView({ roundNumber }: { roundNumber?: number }) {
                     type="button"
                     onClick={() => setSpeed(n)}
                     aria-pressed={speed === n}
-                    className={`rounded px-2 py-1 font-mono text-[10px] ${speed === n ? "bg-sealed/15 text-sealed" : "text-muted"}`}
+                    className={`rounded px-2 py-1 font-mono text-[10px] ${speed === n ? "bg-primary text-white" : "text-muted"}`}
                   >
                     {n}×
                   </button>

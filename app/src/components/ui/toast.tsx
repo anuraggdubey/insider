@@ -43,7 +43,7 @@ export function Toaster() {
         <div
           key={item.id}
           role="status"
-          className={`toast-in border-ink bg-surface text-text items-center justify-between gap-3 border-2 px-3 py-2 font-mono text-[10px] font-bold uppercase md:flex md:gap-4 md:p-4 md:text-xs ${index === items.length - 1 ? "flex" : "hidden"}`}
+          className={`toast-in border-primary bg-surface text-text items-center justify-between gap-3 rounded-2xl border-[3px] px-3 py-2 text-xs font-extrabold shadow-[0_5px_0_var(--color-primary-edge)] md:flex md:gap-4 md:p-4 md:text-sm ${index === items.length - 1 ? "flex" : "hidden"}`}
         >
           {item.message}
           <button

@@ -12,7 +12,7 @@ export function PlayButton() {
     <Link
       href="/table"
       prefetch={false}
-      className={`${basicButtonStyles("primary", "lg")} min-w-36`}
+      className={`${basicButtonStyles("sun", "lg")} min-w-36`}
       onClick={(event) => {
         if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0)
           return;

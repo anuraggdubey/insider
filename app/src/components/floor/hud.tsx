@@ -25,7 +25,9 @@ export function FloorHud({
     <div className="floor-hud border-line bg-surface sticky top-14 z-20 mb-3 grid shrink-0 grid-cols-[1fr_auto] items-center gap-x-3 gap-y-1 rounded-xl border p-2 md:static md:flex md:flex-wrap md:gap-5 md:px-4 md:py-3">
       <div className="min-w-0">
         <div className="flex flex-wrap items-center gap-2">
-          <span className="micro-label">Arena / round {String(view.round).padStart(2, "0")}</span>
+          <span className="text-ink font-[family-name:var(--font-display)] text-lg leading-none font-bold md:text-2xl">
+            Round {String(view.round).padStart(2, "0")}
+          </span>
           <Badge
             tone={
               view.phase === "live"
@@ -61,15 +63,15 @@ export function FloorHud({
         </div>
       </div>
       <Screen className="min-w-20 px-2 py-1 text-center md:min-w-24 md:px-3 md:py-1.5">
-        <div className="micro-label hidden md:block">Phase / seconds</div>
+        <div className="micro-label hidden md:block">Seconds left</div>
         <span className="led-readout text-xl font-black tabular-nums md:text-3xl">
           {view.secondsLeft.toFixed(1)}
         </span>
       </Screen>
-      <PhaseBar tick={view.tick} className="hidden md:block md:w-44 md:flex-1" />
+      <PhaseBar tick={view.tick} className="hidden md:block md:w-56 md:min-w-56 md:flex-1" />
       {view.mine && (
         <div className="border-line min-w-0 md:border-l md:pl-3">
-          <div className="micro-label truncate">Your seat / {view.mine.name}</div>
+          <div className="micro-label truncate">You are {view.mine.name}</div>
           <div className="flex flex-wrap items-baseline gap-2 font-mono text-xs md:mt-1">
             <Readout value={view.mine.chips} className="text-base font-bold md:text-xl" />
             <span className="text-muted">CHIPS</span>
@@ -104,10 +106,10 @@ export function PhaseBanner({
   if (!visible || !["live", "closing", "xray"].includes(phase)) return null;
   return (
     <div
-      className="phase-banner border-ink bg-capsule mb-3 flex shrink-0 flex-wrap items-center justify-between gap-3 rounded-lg border-2 px-4 py-3 text-[#161513]"
+      className="phase-banner bg-capsule mb-3 flex shrink-0 flex-wrap items-center justify-between gap-3 rounded-2xl border-[3px] border-[#0f1f5c] px-4 py-3 text-[#0f1f5c] shadow-[0_5px_0_#0f1f5c]"
       role="status"
     >
-      <strong className="font-mono text-sm uppercase">
+      <strong className="font-[family-name:var(--font-display)] text-xl font-bold uppercase">
         {phase === "live"
           ? `ROUND ${round} · LIVE`
           : phase === "closing"

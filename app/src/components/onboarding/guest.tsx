@@ -177,7 +177,7 @@ export function GuestControls({ config, view }: { config: InsiderConfig; view: T
             >
               <X className="size-4" />
             </button>
-            <span className="micro-label text-sealed">Welcome to the floor</span>
+            <span className="micro-label text-brand">Welcome to the floor</span>
             <h2 className="mt-2 text-xl font-medium">
               You are seat {view.mine.index + 1} · {view.mine.name}
             </h2>
@@ -201,7 +201,7 @@ export function GuestControls({ config, view }: { config: InsiderConfig; view: T
                 ["03", "Jump the line", "Priority orders land faster, for a fee."],
               ].map(([n, title, text]) => (
                 <div key={n} className="flex gap-4">
-                  <span className="text-sealed font-mono text-xs">{n}</span>
+                  <span className="text-brand font-mono text-xs">{n}</span>
                   <div>
                     <div className="text-sm">{title}</div>
                     <p className="text-muted mt-1 text-xs">{text}</p>

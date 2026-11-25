@@ -3,8 +3,8 @@ import { join } from "node:path";
 import { ImageResponse } from "next/og";
 
 const logoSvg = readFileSync(join(process.cwd(), "public/brand/logo.svg"), "utf8")
-  .replaceAll("#1a0f2e", "#161513")
-  .replaceAll("#ffbf1f", "#ffc21a");
+  .replaceAll("#1a0f2e", "#0f1f5c")
+  .replaceAll("#ffbf1f", "#ffd21f");
 const logo = `data:image/svg+xml;base64,${Buffer.from(logoSvg).toString("base64")}`;
 
 export const alt = "INSIDER: own the secret";
@@ -22,13 +22,13 @@ export default function OpengraphImage() {
         flexDirection: "column",
         justifyContent: "center",
         alignItems: "center",
-        background: "#eceae4",
-        color: "#161513",
+        background: "#dcefff",
+        color: "#0f1f5c",
         fontFamily: "sans-serif",
       }}
     >
       <img src={logo} width={760} height={190} alt="" />
-      <div style={{ fontSize: 44, fontWeight: 700, marginTop: 34, color: "#5e5a52" }}>
+      <div style={{ fontSize: 44, fontWeight: 700, marginTop: 34, color: "#3d4f8c" }}>
         A multiplayer game of hidden information
       </div>
     </div>,

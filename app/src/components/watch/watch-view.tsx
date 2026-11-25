@@ -96,7 +96,7 @@ export function WatchView() {
         </div>
         <div className="text-muted flex min-w-0 items-center gap-x-4 font-mono text-xs whitespace-nowrap sm:gap-x-5 sm:text-sm">
           <span
-            className={`rounded-sm px-2 py-1 font-bold text-[#161513] ${fixture ? "bg-opened" : "bg-sell"}`}
+            className={`rounded-sm px-2 py-1 font-bold text-[#0f1f5c] ${fixture ? "bg-opened" : "bg-sell"}`}
           >
             ● {fixture ? "SIMULATED" : "LIVE"}
           </span>
@@ -168,7 +168,7 @@ export function WatchView() {
         ))}
       </div>
       <div className="border-signal/50 bg-surface mt-4 flex min-h-[70px] shrink-0 items-center gap-5 rounded-lg border px-3">
-        <div className="bg-signal rounded-sm px-3 py-2 font-mono text-xs font-bold tracking-wider text-[#161513]">
+        <div className="bg-signal rounded-sm px-3 py-2 font-mono text-xs font-bold tracking-wider text-[#0f1f5c]">
           AUTO
           <br />
           CAMERA

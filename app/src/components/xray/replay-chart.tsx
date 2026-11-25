@@ -57,7 +57,7 @@ export function ReplayChart({
           markerHeight="5"
           orient="auto"
         >
-          <path d="M0 0 L6 3 L0 6 Z" fill="#aeb7c5" />
+          <path d="M0 0 L6 3 L0 6 Z" fill="#c2d2fb" />
         </marker>
         <marker
           id="arrow-priority"
@@ -68,7 +68,7 @@ export function ReplayChart({
           markerHeight="5"
           orient="auto"
         >
-          <path d="M0 0 L6 3 L0 6 Z" fill="#ff6a33" />
+          <path d="M0 0 L6 3 L0 6 Z" fill="#ffa53a" />
         </marker>
         <marker
           id="arrow-whale"
@@ -79,7 +79,7 @@ export function ReplayChart({
           markerHeight="5"
           orient="auto"
         >
-          <path d="M0 0 L6 3 L0 6 Z" fill="#5ccbf0" />
+          <path d="M0 0 L6 3 L0 6 Z" fill="#5fd6ff" />
         </marker>
       </defs>
       {[0, 1, 2, 3, 4].map((line) => (
@@ -89,16 +89,16 @@ export function ReplayChart({
           x2={RIGHT}
           y1={TOP + line * 60}
           y2={TOP + line * 60}
-          stroke="#1d222a"
+          stroke="#243a85"
         />
       ))}
       {[0, 45, 90, 135, 180].map((t) => (
         <g key={t}>
-          <line x1={x(t)} x2={x(t)} y1={TOP} y2={BOTTOM} stroke="#171c23" />
+          <line x1={x(t)} x2={x(t)} y1={TOP} y2={BOTTOM} stroke="#1a2c6b" />
           <text
             x={x(t)}
             y="299"
-            fill="#8a93a0"
+            fill="#a8baee"
             fontSize="11"
             textAnchor={t === 180 ? "end" : "start"}
           >
@@ -106,13 +106,13 @@ export function ReplayChart({
           </text>
         </g>
       ))}
-      {path && <path d={path} fill="none" stroke="#ffc21a" strokeWidth="2" />}
+      {path && <path d={path} fill="none" stroke="#ffd21f" strokeWidth="2" />}
       {round.xray.orders.map((order, i) => {
         if (order.sentTick > tick || (order.seat === WHALE_SEAT && order.landTick > tick))
           return null;
         const landed = order.landTick <= tick;
         const color =
-          order.seat === WHALE_SEAT ? "#5ccbf0" : order.lane === 1 ? "#ff6a33" : "#aeb7c5";
+          order.seat === WHALE_SEAT ? "#5fd6ff" : order.lane === 1 ? "#ffa53a" : "#c2d2fb";
         const highlighted = selected && landed && payloadOrders(selected, order);
         const startY = landed ? y(order.fillPrice) : y(currentPrice(order.sentTick));
         const endY = landed ? y(order.fillPrice) : y(currentPrice(tick));
@@ -126,7 +126,7 @@ export function ReplayChart({
             x2={x(Math.min(order.landTick, tick))}
             y1={startY}
             y2={endY}
-            stroke={highlighted ? "#ffb547" : color}
+            stroke={highlighted ? "#ffd21f" : color}
             opacity={selected && landed && !highlighted ? 0.26 : landed ? 0.8 : 0.5}
             strokeWidth={highlighted ? 2.5 : 1.1}
             strokeDasharray={landed ? undefined : "4 4"}
@@ -161,10 +161,10 @@ export function ReplayChart({
             <path
               d={`M${a} ${base} Q${(a + b) / 2} ${high} ${b} ${base} Q${(b + c) / 2} ${high} ${c} ${base}`}
               fill="none"
-              stroke="#ffb547"
+              stroke="#ffd21f"
               strokeWidth="1.6"
             />
-            <text x={b} y={high - 4} fill="#ffb547" textAnchor="middle" fontSize="11">
+            <text x={b} y={high - 4} fill="#ffd21f" textAnchor="middle" fontSize="11">
               {tag.profitEstimate > 0 ? "+" : ""}
               {tag.profitEstimate} chips
             </text>
@@ -179,14 +179,14 @@ export function ReplayChart({
         x2={x(tick)}
         y1={TOP}
         y2={BOTTOM}
-        stroke="#5ab4ff"
+        stroke="#4fd2ff"
         opacity=".35"
         strokeDasharray="3 5"
       />
-      <text x="996" y={TOP + 10} fill="#8a93a0" fontSize="11" textAnchor="end">
+      <text x="996" y={TOP + 10} fill="#a8baee" fontSize="11" textAnchor="end">
         {(max / PRICE_ONE).toFixed(3)}
       </text>
-      <text x="996" y={BOTTOM} fill="#8a93a0" fontSize="11" textAnchor="end">
+      <text x="996" y={BOTTOM} fill="#a8baee" fontSize="11" textAnchor="end">
         {(min / PRICE_ONE).toFixed(3)}
       </text>
     </svg>

@@ -8,9 +8,9 @@ export type CapsuleRarity = "common" | "rare" | "epic";
 export type CapsuleState = "sealed" | "owned" | "listed" | "opened" | "expired";
 
 const fills: Record<CapsuleRarity, string> = {
-  common: "#ffc21a",
-  rare: "#2bb3e0",
-  epic: "#161513",
+  common: "#ffd21f",
+  rare: "#22c1ff",
+  epic: "#7c3aed",
 };
 const subscribe = () => () => {};
 
@@ -42,9 +42,9 @@ export function Capsule({
   const open = state === "opened";
   const mark = mine
     ? "var(--color-you-ink)"
-    : rarity === "epic" || topColor === "#161513"
-      ? "#ffc21a"
-      : "#161513";
+    : rarity === "epic" || topColor === "#1565ff"
+      ? "#ffd21f"
+      : "#0f1f5c";
   return (
     <LazyMotion features={domAnimation}>
       <m.span
@@ -85,7 +85,7 @@ export function Capsule({
           <path
             d="M16 59a44 44 0 0 0 88 0Z"
             className="capsule-bottom"
-            stroke="#161513"
+            stroke="#0f1f5c"
             strokeWidth="4.7"
           />
           <m.g
@@ -99,11 +99,11 @@ export function Capsule({
               width="36"
               height="30"
               rx="3"
-              fill="#f8f7f4"
-              stroke="#161513"
+              fill="#ffffff"
+              stroke="#0f1f5c"
               strokeWidth="3"
             />
-            <path d="M49 51h22M49 58h16" stroke="#161513" strokeWidth="2" />
+            <path d="M49 51h22M49 58h16" stroke="#0f1f5c" strokeWidth="2" />
           </m.g>
           <m.g
             initial={false}
@@ -115,7 +115,7 @@ export function Capsule({
               d="M16 59a44 44 0 0 1 88 0Z"
               fill={topColor ?? fills[rarity]}
               className={rarity === "epic" ? "capsule-epic-rim" : undefined}
-              stroke="#161513"
+              stroke="#0f1f5c"
               strokeWidth="4.7"
             />
             <ellipse
@@ -144,9 +144,9 @@ export function Capsule({
               fill={
                 mine
                   ? "var(--color-you)"
-                  : rarity === "epic" || topColor === "#161513"
-                    ? "#ffc21a"
-                    : "#161513"
+                  : rarity === "epic" || topColor === "#1565ff"
+                    ? "#ffd21f"
+                    : "#0f1f5c"
               }
             />
           </m.g>

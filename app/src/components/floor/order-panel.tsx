@@ -12,6 +12,7 @@ import { Panel } from "@/components/ui/panel";
 import { Stepper } from "@/components/ui/stepper";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/components/ui/toast";
+import { cn } from "@/lib/cn";
 import { friendlyError } from "@/lib/errors";
 import { useFloorStore } from "@/lib/floor-store";
 import { playSound } from "@/lib/sound";
@@ -50,6 +51,21 @@ export function OrderPanel({
   const canSend = Boolean(
     view.mine && view.phase === "live" && effectiveSize && !view.mine.liquidated && !pendingFull,
   );
+
+  // Explains a disabled Send button. Display only: `canSend` above is still the gate.
+  const blocker = !view.mine
+    ? "Join at the top of the floor to start trading"
+    : view.mine.liquidated
+      ? "You are out for this round"
+      : view.phase !== "live"
+        ? "Orders open when the round is live"
+        : pendingFull
+          ? "Pending order limit reached"
+          : !effectiveSize
+            ? max
+              ? "Pick a size above 0"
+              : "Position limit reached on this side"
+            : null;
 
   useEffect(() => {
     if (!draft) return;
@@ -146,15 +162,22 @@ export function OrderPanel({
               variant={side === value ? value : "outline"}
               aria-pressed={side === value}
               onClick={() => setSide(value)}
-              className="min-h-12"
+              className="min-h-16 px-2"
             >
-              {value === "buy" ? (
-                <ArrowUpRight aria-hidden className="size-4" />
-              ) : (
-                <ArrowDownLeft aria-hidden className="size-4" />
-              )}
-              {value.toUpperCase()}{" "}
-              <Kbd className="border-current/20 bg-transparent text-inherit">
+              <span className="flex flex-col items-center leading-tight">
+                <span className="flex items-center gap-1.5 text-lg font-bold">
+                  {value === "buy" ? (
+                    <ArrowUpRight aria-hidden className="size-4" />
+                  ) : (
+                    <ArrowDownLeft aria-hidden className="size-4" />
+                  )}
+                  {value.toUpperCase()}
+                </span>
+                <span className="font-[family-name:var(--font-body)] text-[11px] font-extrabold whitespace-nowrap">
+                  {value === "buy" ? "Price goes up" : "Price goes down"}
+                </span>
+              </span>
+              <Kbd className="absolute top-1 right-1 hidden border-current/30 bg-transparent px-1 py-0 text-[9px] text-inherit sm:block">
                 {value[0]!.toUpperCase()}
               </Kbd>
             </Button>
@@ -165,7 +188,9 @@ export function OrderPanel({
             <label htmlFor="order-size" className="micro-label">
               Size / units
             </label>
-            <span className="text-muted font-mono text-[10px]">MAX {max.toLocaleString()}</span>
+            <span className="text-muted font-mono text-[11px] font-bold">
+              MAX {max.toLocaleString()}
+            </span>
           </div>
           <Stepper
             id="order-size"
@@ -182,6 +207,10 @@ export function OrderPanel({
           </div>
           <Switch
             label="Priority lane"
+            className={cn(
+              "w-full",
+              lane === 1 && "[--switch-ink:#0f1f5c] [--switch-thumb:var(--color-signal)]",
+            )}
             checked={lane === 1}
             onCheckedChange={(checked) => setLane(checked ? 1 : 0)}
             off={
@@ -200,22 +229,22 @@ export function OrderPanel({
             }
           />
         </div>
-        <div className="border-line text-muted space-y-1 border-t pt-3 font-mono text-[10px]">
+        <div className="border-line bg-surface-2 text-muted space-y-1.5 rounded-xl border-2 px-3 py-2.5 text-xs font-bold">
           <div className="flex justify-between">
-            <span>AVERAGE PRICE</span>
-            <span className="text-ink">
+            <span>Average price</span>
+            <span className="text-ink font-mono">
               {quote ? (quote.avgPrice / 1_000_000).toFixed(4) : "—"}
             </span>
           </div>
           <div className="flex justify-between">
-            <span>PRICE IMPACT</span>
-            <span className="text-ink">
+            <span>Price impact</span>
+            <span className="text-ink font-mono">
               {quote ? `${(quote.impactBps / 100).toFixed(2)}%` : "—"}
             </span>
           </div>
           <div className="flex justify-between">
-            <span>EST. FEE</span>
-            <span className="text-ink">
+            <span>Estimated fee</span>
+            <span className="text-ink font-mono">
               {quote
                 ? `${(quote.fee + BigInt(lane ? params.priorityFee : 0)).toString()} chips`
                 : "—"}
@@ -228,16 +257,30 @@ export function OrderPanel({
           loading={busy}
           shake={shake}
           disabled={!canSend}
-          className="w-full"
+          size="lg"
+          className="w-full text-lg"
         >
           {view.mine ? `Send ${side} order` : "Claim a seat to trade"}{" "}
           <Kbd className="border-current/20 bg-transparent text-inherit">↵</Kbd>
         </Button>
-        <p className="text-muted text-center font-mono text-[9px]">
-          {pendingFull ? "PENDING ORDER LIMIT REACHED" : "SIDE + SIZE STAY PRIVATE UNTIL FILL"}
-        </p>
+        <div className="text-center text-[11px] leading-5 font-bold">
+          {blocker ? (
+            <p className="text-priority">
+              {view.mine ? (
+                blocker
+              ) : (
+                <a href="#join-seat" className="underline underline-offset-4">
+                  {blocker} ↑
+                </a>
+              )}
+            </p>
+          ) : (
+            <p className="text-muted">Side and size stay private until your order fills.</p>
+          )}
+          <p className="text-faint hidden md:block">Keys: B buy · S sell · P lane · Enter send</p>
+        </div>
         <FastModeToggle walletOnly />
-        <div className="border-line bg-surface fixed right-0 bottom-14 left-0 z-20 flex items-center justify-between gap-3 border-t px-4 py-2 md:hidden">
+        <div className="border-line bg-surface fixed right-0 bottom-[3.75rem] left-0 z-20 flex items-center justify-between gap-3 border-t-2 px-4 py-2 md:hidden">
           <span className="min-w-0 font-mono text-[10px]">
             <strong className={side === "buy" ? "text-buy" : "text-sell"}>
               {side.toUpperCase()} {effectiveSize}

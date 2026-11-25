@@ -19,9 +19,9 @@ export function Panel({
       {...props}
     >
       {(title || label || action) && (
-        <div className="border-line flex min-h-11 items-center justify-between gap-4 border-b px-4">
+        <div className="panel-head border-line flex min-h-11 items-center justify-between gap-4 border-b-2 px-4">
           <div className="flex items-center gap-3">
-            {title && <h3 className="micro-label">{title}</h3>}
+            {title && <h3 className="panel-title">{title}</h3>}
             {label && <span className="micro-label">{label}</span>}
           </div>
           {action}

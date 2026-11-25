@@ -23,7 +23,7 @@ export function TableOffline({ privacy = false }: { privacy?: boolean }) {
       <div className="border-line-strong bg-surface-2 text-muted mb-6 flex size-14 items-center justify-center rounded-full border">
         {privacy ? <LockKeyhole className="size-5" /> : <Activity className="size-5" />}
       </div>
-      <span className="micro-label text-sealed">Solana devnet / Private ER</span>
+      <span className="micro-label text-brand">Solana devnet / Private ER</span>
       <h1 className="mt-3 text-3xl font-medium tracking-tight">Table offline</h1>
       <p className="text-muted mt-3 max-w-md text-sm leading-6">
         The table authority is not configured or its public accounts have not been deployed yet.

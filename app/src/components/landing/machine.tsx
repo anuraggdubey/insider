@@ -6,7 +6,7 @@ import { MACHINE_LOOP_MS, machineFrame } from "@/lib/machine-timeline";
 
 function DemoCapsule({
   size,
-  fill = "#ffc21a",
+  fill = "#ffd21f",
   open = false,
 }: {
   size: number;
@@ -15,7 +15,7 @@ function DemoCapsule({
 }) {
   return (
     <svg width={size} height={size} viewBox="0 0 120 120" aria-hidden="true">
-      <path d="M16 59a44 44 0 0 0 88 0Z" fill="#e9e6df" stroke="#161513" strokeWidth="5" />
+      <path d="M16 59a44 44 0 0 0 88 0Z" fill="#e3eeff" stroke="#0f1f5c" strokeWidth="5" />
       <rect
         className="demo-ticket"
         x="42"
@@ -23,8 +23,8 @@ function DemoCapsule({
         width="36"
         height="36"
         rx="3"
-        fill="#f8f7f4"
-        stroke="#161513"
+        fill="#ffffff"
+        stroke="#0f1f5c"
         strokeWidth="3"
         style={{ opacity: open ? 1 : 0, transform: open ? "translateY(-14px)" : undefined }}
       />
@@ -32,23 +32,23 @@ function DemoCapsule({
         className="demo-lid"
         style={{ transform: open ? "translate(-10px, -18px) rotate(-18deg)" : undefined }}
       >
-        <path d="M16 59a44 44 0 0 1 88 0Z" fill={fill} stroke="#161513" strokeWidth="5" />
+        <path d="M16 59a44 44 0 0 1 88 0Z" fill={fill} stroke="#0f1f5c" strokeWidth="5" />
         <ellipse cx="38" cy="35" rx="10" ry="5" fill="#fff" opacity=".55" />
         <path
           d="M51 34c0-8 5-12 11-12s10 4 10 10-10 7-10 13"
           fill="none"
-          stroke={fill === "#161513" ? "#ffc21a" : "#161513"}
+          stroke={fill === "#2f7bff" ? "#ffd21f" : "#0f1f5c"}
           strokeWidth="5"
           strokeLinecap="round"
         />
-        <circle cx="62" cy="51" r="3" fill={fill === "#161513" ? "#ffc21a" : "#161513"} />
+        <circle cx="62" cy="51" r="3" fill={fill === "#2f7bff" ? "#ffd21f" : "#0f1f5c"} />
         <rect
           x="14"
           y="55"
           width="92"
           height="8"
           rx="4"
-          fill={fill === "#161513" ? "#ffc21a" : "#161513"}
+          fill={fill === "#2f7bff" ? "#ffd21f" : "#0f1f5c"}
         />
       </g>
     </svg>
@@ -75,7 +75,7 @@ function DemoLane({
         <br />
         <span className="text-muted">{priority ? "2s" : "10s"}</span>
       </div>
-      <div className="border-line-strong relative h-12 overflow-hidden rounded-md border bg-[#111113]">
+      <div className="border-line-strong relative h-12 overflow-hidden rounded-md border bg-[#0f1d55]">
         <svg className="absolute inset-0 size-full" preserveAspectRatio="none" aria-hidden="true">
           {Array.from({ length: 9 }, (_, i) => (
             <line
@@ -84,13 +84,13 @@ function DemoLane({
               x2={`${(i + 1) * 10}%`}
               y1="35"
               y2="43"
-              stroke="#4b4a49"
+              stroke="#4262c4"
               strokeWidth="1"
             />
           ))}
         </svg>
-        <span className="absolute inset-y-0 right-2 border-r border-dashed border-[#ffb020]/70" />
-        <span className="absolute top-0 right-3 font-mono text-[7px] text-[#ffb020]">LAND</span>
+        <span className="absolute inset-y-0 right-2 border-r border-dashed border-[#ffd21f]/70" />
+        <span className="absolute top-0 right-3 font-mono text-[7px] text-[#ffd21f]">LAND</span>
         {progress !== undefined && (
           <span
             key={`${label}-${reset ? "reset" : "running"}`}
@@ -100,7 +100,7 @@ function DemoLane({
               transition: "transform 100ms linear",
             }}
           >
-            <DemoCapsule size={30} fill={priority ? "#ff6a33" : "#161513"} />
+            <DemoCapsule size={30} fill={priority ? "#ffa53a" : "#2f7bff"} />
             <span className="text-text ml-1 font-mono text-[9px] font-bold whitespace-nowrap">
               {label}
             </span>
@@ -122,12 +122,12 @@ function Sparkline({ stage, completed }: { stage: number; completed: boolean }) 
           : "2,30 32,30 32,24 65,24 65,7 110,7";
   return (
     <svg viewBox="0 0 112 38" className="h-10 w-28" aria-hidden="true">
-      <path d="M2 36H110" fill="none" stroke="#3f3f46" strokeWidth="1" />
-      <polyline points={points} fill="none" stroke="#ffb020" strokeWidth="2" />
+      <path d="M2 36H110" fill="none" stroke="#3d5bc0" strokeWidth="1" />
+      <polyline points={points} fill="none" stroke="#ffd21f" strokeWidth="2" />
       {stage >= 3 && (
-        <circle cx={stage >= 4 ? 65 : 48} cy={stage >= 4 ? 7 : 24} r="3" fill="#ffb020" />
+        <circle cx={stage >= 4 ? 65 : 48} cy={stage >= 4 ? 7 : 24} r="3" fill="#ffd21f" />
       )}
-      {completed && <circle cx="96" cy="14" r="3" fill="#f2f0ea" />}
+      {completed && <circle cx="96" cy="14" r="3" fill="#eef4ff" />}
     </svg>
   );
 }
@@ -186,7 +186,7 @@ export function Machine() {
         label={
           <span className="flex justify-between">
             <span>Machine / demo 01</span>
-            <span className="text-[#ffb020]">● SIMULATION</span>
+            <span className="text-[#ffd21f]">● SIMULATION</span>
           </span>
         }
         className="machine-demo p-0"
@@ -220,7 +220,7 @@ export function Machine() {
                 transform: stage === 0 ? "translateY(-4px)" : "translateY(0)",
               }}
             >
-              <DemoCapsule size={70} fill="#2bb3e0" open={stage >= 2} />
+              <DemoCapsule size={70} fill="#22c1ff" open={stage >= 2} />
             </span>
             <div className="min-w-0 font-mono text-[10px]">
               <div className="text-opened">RARE / {stage >= 2 ? "OPENED" : "DUTCH AUCTION"}</div>

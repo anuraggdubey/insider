@@ -75,7 +75,7 @@ export function ProofView() {
   ];
   return (
     <main className="mx-auto w-full max-w-7xl flex-1 px-5 py-10 sm:px-8 lg:py-14">
-      <div className="micro-label text-sealed">Verify / Proof</div>
+      <div className="micro-label text-brand">Verify / Proof</div>
       <h1 className="mt-3 text-4xl font-medium tracking-tight sm:text-5xl">
         Don&apos;t trust it. Check it.
       </h1>
@@ -167,7 +167,7 @@ export function ProofView() {
                         )}
                         {links.length > 0 ? (
                           <details className="mt-4">
-                            <summary className="text-sealed cursor-pointer font-mono text-[10px] uppercase">
+                            <summary className="text-brand cursor-pointer font-mono text-[10px] uppercase">
                               {links.length} transactions
                             </summary>
                             <ul className="mt-3 space-y-1.5">

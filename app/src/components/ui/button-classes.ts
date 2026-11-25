@@ -1,9 +1,10 @@
-export type Variant = "primary" | "ink" | "ghost" | "outline" | "buy" | "sell" | "priority";
+export type Variant = "primary" | "sun" | "ink" | "ghost" | "outline" | "buy" | "sell" | "priority";
 export type Size = "sm" | "md" | "lg";
 
 export const buttonBase = "btn relative disabled:pointer-events-none";
 export const buttonVariants: Record<Variant, string> = {
   primary: "",
+  sun: "btn-sun",
   ink: "btn-ink",
   ghost: "btn-ghost",
   outline: "btn-outline",

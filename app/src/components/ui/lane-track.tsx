@@ -19,7 +19,7 @@ export function LaneTrack({
     <div
       ref={trackRef}
       data-testid={testId}
-      className="border-line-strong bg-surface-2 relative min-w-0 overflow-hidden rounded-md border"
+      className="border-line-strong bg-surface-2 relative min-w-0 overflow-hidden rounded-xl border-2"
       style={{ height }}
     >
       <svg className="absolute inset-0 size-full" preserveAspectRatio="none" aria-hidden="true">
@@ -40,7 +40,9 @@ export function LaneTrack({
         className={`lane-land border-priority absolute inset-y-0 right-2 border-r-2 border-dashed ${landing ? "lane-land-flash" : ""}`}
         aria-hidden="true"
       />
-      <span className="text-priority absolute top-0 right-3 font-mono text-[7px]">LAND</span>
+      <span className="text-priority absolute top-0 right-3 font-mono text-[8px] font-bold">
+        LAND
+      </span>
       {children}
     </div>
   );

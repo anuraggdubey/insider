@@ -52,7 +52,7 @@ function CallRow({
       <div className="min-w-0">
         <div className="flex flex-wrap items-center gap-2">
           <span className="text-sm font-medium">{call.author}</span>
-          {call.mine && <span className="text-sealed font-mono text-[10px] uppercase">You</span>}
+          {call.mine && <span className="text-brand font-mono text-[10px] uppercase">You</span>}
           {open ? (
             <Badge tone="sealed">Sealed</Badge>
           ) : (
@@ -255,8 +255,8 @@ export function DeskView() {
                     <polyline
                       points={points}
                       fill="none"
-                      stroke="#5ccbf0"
-                      strokeWidth="1"
+                      stroke="#5fd6ff"
+                      strokeWidth="2.5"
                       vectorEffect="non-scaling-stroke"
                     />
                   </svg>

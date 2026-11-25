@@ -49,7 +49,7 @@ export function MobileNav({ items }: { items: string[][] }) {
       </button>
       {open && (
         <div
-          className="fixed inset-0 z-50 flex items-end bg-black/70"
+          className="fixed inset-0 z-50 flex items-end bg-[#06103a]/70"
           onClick={() => setOpenedAt(null)}
         >
           <div
@@ -59,11 +59,11 @@ export function MobileNav({ items }: { items: string[][] }) {
             aria-modal="true"
             aria-label="Navigation"
             tabIndex={-1}
-            className="border-line bg-surface w-full rounded-t-xl border p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))]"
+            className="border-primary bg-surface w-full rounded-t-3xl border-t-4 p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))]"
             onClick={(event) => event.stopPropagation()}
           >
             <div className="flex items-center justify-between">
-              <span className="micro-label">Choose a channel</span>
+              <span className="micro-label">Where to?</span>
               <button
                 type="button"
                 className="btn btn-ghost grid size-10 place-items-center"
@@ -81,10 +81,10 @@ export function MobileNav({ items }: { items: string[][] }) {
                   prefetch={false}
                   onClick={() => setOpenedAt(null)}
                   aria-current={pathname === href ? "page" : undefined}
-                  className="border-line bg-surface-2 hover:border-ink flex min-h-12 items-center justify-between rounded-lg border px-4 text-base font-bold"
+                  className="border-line bg-surface-2 hover:border-primary aria-[current=page]:bg-primary aria-[current=page]:border-primary flex min-h-12 items-center justify-between rounded-2xl border-2 px-4 font-[family-name:var(--font-display)] text-lg font-semibold aria-[current=page]:text-white"
                 >
                   {label}
-                  <span className="text-muted font-mono text-xs">0{index + 1} /</span>
+                  <span className="font-mono text-xs opacity-70">0{index + 1}</span>
                 </Link>
               ))}
             </nav>

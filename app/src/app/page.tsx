@@ -1,5 +1,14 @@
 import Link from "next/link";
-import { ArrowRight, ArrowUpRight } from "lucide-react";
+import {
+  ArrowRight,
+  ArrowUpRight,
+  Radio,
+  ScanEye,
+  Swords,
+  Target,
+  Trophy,
+  Medal,
+} from "lucide-react";
 import {
   HeroFade,
   HorizontalRounds,
@@ -66,36 +75,48 @@ const rounds = [
 const modes = [
   {
     name: "The Arena",
+    icon: Swords,
+    tile: "bg-[#1565ff] text-[#fff]",
     href: "/table",
     copy: "Trade hidden moves and win the information game.",
     preview: "10 SEATS / 2 LANES",
   },
   {
     name: "The Desk",
+    icon: Target,
+    tile: "bg-[#0b8f55] text-[#fff]",
     href: "/desk",
     copy: "Make a sealed Call on the real SOL price.",
     preview: "SOL / UP OR DOWN",
   },
   {
     name: "Alpha Cup",
+    icon: Trophy,
+    tile: "bg-[#ffd21f] text-[#0f1f5c]",
     href: "/cup",
     copy: "Five rounds. Human seats. One prize pool.",
     preview: "5 ROUNDS / TOP 3",
   },
   {
     name: "Season",
+    icon: Medal,
+    tile: "bg-[#7c3aed] text-[#fff]",
     href: "/season",
     copy: "One good read can put you on the board.",
     preview: "HIGH SCORES / LIVE",
   },
   {
     name: "Watch",
+    icon: Radio,
+    tile: "bg-[#e6275c] text-[#fff]",
     href: "/watch",
     copy: "See the public action unfold in real time.",
     preview: "BROADCAST / LIVE",
   },
   {
     name: "X-ray",
+    icon: ScanEye,
+    tile: "bg-[#19b5ff] text-[#0f1f5c]",
     href: "/xray",
     copy: "After the bell, see every secret revealed.",
     preview: "REPLAY / DECLASSIFIED",
@@ -114,21 +135,25 @@ export default function Home() {
     <PageTransition>
       <LandingMotion>
         <main className="flex-1 overflow-x-clip">
-          <section className="mx-auto max-w-7xl px-5 pt-14 pb-16 sm:px-8 lg:pt-20 lg:pb-24">
+          <section className="sky-hero mx-auto max-w-7xl px-5 pt-14 pb-16 sm:px-8 lg:pt-20 lg:pb-24">
+            <span aria-hidden className="sky-cloud top-12 right-[40%] hidden scale-75 sm:block" />
+            <span aria-hidden className="sky-cloud bottom-8 left-[40%] scale-75" />
             <HeroFade className="grid items-center gap-12 lg:grid-cols-[1fr_0.9fr]">
               <div>
-                <span className="micro-label text-sealed">A game of hidden information / 01</span>
-                <h1 className="mt-6 max-w-3xl text-[clamp(3.4rem,7vw,6.5rem)] leading-[0.9] font-black tracking-[-0.04em]">
+                <span className="micro-label bg-surface border-primary text-brand inline-block rounded-full border-2 px-3 py-1">
+                  A game of hidden information
+                </span>
+                <h1 className="hero-title mt-6 max-w-3xl text-[clamp(3.4rem,7vw,6.5rem)] leading-[0.98] font-bold">
                   Front-running is the <span className="hl">game.</span>
                 </h1>
-                <p className="text-muted mt-7 max-w-lg text-lg leading-7">
+                <p className="text-ink mt-7 max-w-lg text-xl leading-8 font-bold">
                   Orders wait 10 seconds in a sealed mempool. Buy a capsule to peek. Jump the line.
                 </p>
                 <div className="mt-8 flex flex-wrap gap-3">
                   <PlayButton />
                   <WalletPlayButton size="lg" />
                 </div>
-                <p className="text-faint mt-6 font-mono text-[10px] leading-5 uppercase">
+                <p className="text-muted mt-6 font-mono text-[11px] leading-5 font-bold uppercase">
                   No wallet, no deposit · Solana devnet · MagicBlock private rollup
                 </p>
                 <div className="mt-3">
@@ -140,21 +165,25 @@ export default function Home() {
               </Parallax>
             </HeroFade>
           </section>
-          <section aria-label="The game at a glance" className="border-line bg-surface border-y">
-            <div className="mx-auto grid max-w-7xl grid-cols-2 divide-x divide-y sm:grid-cols-5 sm:divide-y-0">
+          <section aria-label="The game at a glance" className="px-5 pb-14 sm:px-8">
+            <div className="mx-auto grid max-w-7xl grid-cols-2 gap-4 sm:grid-cols-5">
               {[
-                ["90 s", "80s LIVE / 10s CLOSING"],
-                ["10 s", "X-RAY AFTER THE BELL"],
-                ["500 ms", "PER TICK"],
-                ["10", "SEATS"],
-                ["0 SOL", "TO PLAY"],
-              ].map(([value, label]) => (
+                ["90 s", "80s live / 10s closing", "bg-[#1565ff] text-white"],
+                ["10 s", "X-ray after the bell", "bg-[#ffd21f] text-[#0f1f5c]"],
+                ["500 ms", "per tick", "bg-[#19b5ff] text-[#0f1f5c]"],
+                ["10", "seats", "bg-[#7c3aed] text-white"],
+                ["0 SOL", "to play", "bg-[#2adb86] text-[#032b19]"],
+              ].map(([value, label, tone]) => (
                 <div
                   key={value}
-                  className="border-line p-5 last:col-span-2 sm:p-7 sm:last:col-span-1"
+                  className={`rounded-3xl border-[3px] border-[#0f1f5c] p-5 text-center shadow-[0_6px_0_#0f1f5c] last:col-span-2 sm:last:col-span-1 ${tone}`}
                 >
-                  <div className="text-3xl font-black tracking-tight">{value}</div>
-                  <div className="micro-label mt-2">{label}</div>
+                  <div className="font-[family-name:var(--font-display)] text-4xl font-bold">
+                    {value}
+                  </div>
+                  <div className="mt-1 text-[11px] font-black tracking-wider uppercase">
+                    {label}
+                  </div>
                 </div>
               ))}
             </div>
@@ -164,7 +193,7 @@ export default function Home() {
           <section className="mx-auto grid max-w-7xl items-center gap-12 px-5 py-20 sm:px-8 lg:grid-cols-[1fr_1fr] lg:py-28">
             <Reveal>
               <div>
-                <span className="micro-label text-sealed">The table / 10 seats</span>
+                <span className="micro-label text-brand">The table / 10 seats</span>
                 <h2 className="mt-4 text-4xl leading-tight sm:text-6xl">
                   Everyone is hiding something.
                 </h2>
@@ -184,29 +213,37 @@ export default function Home() {
               <PlayerTokens />
             </ScaleIn>
           </section>
-          <section className="border-line bg-surface border-y">
+          <section className="bg-surface-2 border-line border-y-2">
             <div className="mx-auto max-w-7xl px-5 py-20 sm:px-8">
-              <span className="micro-label text-sealed">Pick a channel</span>
+              <span className="micro-label text-brand">Pick your game</span>
               <h2 className="mt-4 text-4xl sm:text-6xl">Game modes.</h2>
-              <ul className="border-line mt-10 border-t">
-                {modes.map((mode, index) => (
-                  <li key={mode.name} className="border-line border-b">
+              <ul className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                {modes.map((mode) => (
+                  <li key={mode.name}>
                     <Link
                       href={mode.href}
                       prefetch={false}
-                      className="group grid grid-cols-[2.5rem_1fr_auto] items-center gap-3 py-6 sm:grid-cols-[4rem_1fr_1fr_auto]"
+                      className="gcard group flex h-full flex-col p-5"
                     >
-                      <span className="text-faint font-mono text-xs">0{index + 1} /</span>
-                      <span className="text-xl font-extrabold sm:text-2xl">{mode.name}</span>
-                      <span className="text-muted hidden text-sm sm:block">{mode.copy}</span>
-                      <span className="flex items-center gap-3">
-                        <span className="border-line-strong bg-surface-2 text-muted hidden rounded border px-2 py-1 font-mono text-[9px] group-hover:block group-focus-visible:block lg:block">
-                          {mode.preview}
+                      <span className="flex items-start justify-between gap-3">
+                        <span
+                          className={`grid size-14 place-items-center rounded-2xl border-[3px] border-[#0f1f5c] shadow-[0_4px_0_#0f1f5c] ${mode.tile}`}
+                        >
+                          <mode.icon aria-hidden className="size-7" />
                         </span>
-                        <ArrowUpRight aria-hidden className="size-5" />
+                        <ArrowUpRight
+                          aria-hidden
+                          className="text-brand size-6 transition-transform group-hover:translate-x-1 group-hover:-translate-y-1"
+                        />
                       </span>
-                      <span className="text-muted col-start-2 col-end-4 text-sm sm:hidden">
+                      <span className="mt-5 font-[family-name:var(--font-display)] text-2xl font-bold">
+                        {mode.name}
+                      </span>
+                      <span className="text-muted mt-1 flex-1 text-base leading-6">
                         {mode.copy}
+                      </span>
+                      <span className="border-line bg-surface-2 text-muted mt-4 w-fit rounded-full border-2 px-3 py-1 text-[10px] font-black tracking-wider">
+                        {mode.preview}
                       </span>
                     </Link>
                   </li>
@@ -216,7 +253,7 @@ export default function Home() {
           </section>
           <section className="mx-auto max-w-7xl px-5 py-20 sm:px-8 lg:py-28">
             <Reveal>
-              <span className="micro-label text-sealed">The receipts / built on MagicBlock</span>
+              <span className="micro-label text-brand">The receipts / built on MagicBlock</span>
               <h2 className="mt-4 max-w-2xl text-4xl sm:text-6xl">The machine runs on chain.</h2>
               <p className="text-muted mt-5 max-w-2xl text-lg">
                 Privacy, randomness and a clock you can verify. No trust in the house required.
@@ -225,7 +262,9 @@ export default function Home() {
             <div className="mt-10 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
               {receipts.map(([number, title, copy]) => (
                 <article key={number} className="gcard flex min-h-44 flex-col p-5">
-                  <span className="text-sealed font-mono text-xs">{number} / VERIFIED</span>
+                  <span className="bg-primary grid size-10 place-items-center rounded-2xl font-mono text-sm font-bold text-white">
+                    {number}
+                  </span>
                   <h3 className="mt-5 text-lg">{title}</h3>
                   <p className="text-muted mt-2 text-sm leading-6">{copy}</p>
                 </article>
@@ -239,10 +278,12 @@ export default function Home() {
               Check the proof <ArrowUpRight aria-hidden className="size-4" />
             </Link>
           </section>
-          <section className="bg-capsule text-[#161513]">
+          <section className="cta-sky border-t-4 border-[#0f1f5c]">
             <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-6 px-5 py-12 sm:px-8">
               <div>
-                <span className="font-mono text-xs font-bold uppercase">The machine is ready</span>
+                <span className="sun-text font-mono text-xs font-bold uppercase">
+                  The machine is ready
+                </span>
                 <h2 className="mt-2 text-3xl sm:text-5xl">Take your seat.</h2>
               </div>
               <PlayButton />

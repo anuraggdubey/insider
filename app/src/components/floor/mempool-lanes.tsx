@@ -52,7 +52,7 @@ export function MempoolLanes({ snapshot, view }: { snapshot: TableSnapshot; view
   return (
     <div ref={host}>
       <Panel
-        title="Mempool / sealed"
+        title="Sealed mempool"
         action={<span className="micro-label hidden sm:inline">Public sends · private orders</span>}
         className="shrink-0"
       >
@@ -70,7 +70,7 @@ export function MempoolLanes({ snapshot, view }: { snapshot: TableSnapshot; view
             );
             return (
               <div key={lane} className="grid grid-cols-[4.5rem_minmax(0,1fr)] items-center gap-2">
-                <div className="font-mono text-[9px] leading-4 font-bold">
+                <div className="font-mono text-[11px] leading-4 font-bold">
                   <span className={lane ? "text-priority" : "text-ink"}>
                     {lane ? "PRIORITY" : "STANDARD"}
                   </span>
@@ -85,7 +85,7 @@ export function MempoolLanes({ snapshot, view }: { snapshot: TableSnapshot; view
                   flashKey={`${lane}-${view.tick}`}
                 >
                   {!onLane.length && (
-                    <span className="text-muted absolute top-4 left-3 font-mono text-[9px]">
+                    <span className="text-muted absolute top-4 left-3 font-mono text-[11px]">
                       NO ORDERS IN THIS LANE
                     </span>
                   )}
@@ -139,11 +139,11 @@ export function MempoolLanes({ snapshot, view }: { snapshot: TableSnapshot; view
                                   ? "var(--color-you)"
                                   : lane
                                     ? "var(--color-signal)"
-                                    : "#161513"
+                                    : "#1565ff"
                               }
                             />
                           </motion.span>
-                          <span className="text-ink ml-1 w-16 truncate font-mono text-[8px] font-bold">
+                          <span className="text-ink ml-1 w-16 truncate font-mono text-[10px] font-bold">
                             {order.sideSize !== undefined
                               ? `${order.sideSize > 0 ? "BUY" : "SELL"} ${Math.abs(order.sideSize)}`
                               : order.mine

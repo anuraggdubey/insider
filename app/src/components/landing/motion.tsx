@@ -120,12 +120,12 @@ export function ScrollBand({ top, bottom }: { top: string; bottom: string }) {
   const first = useScrollMotion("band", -80);
   const second = useScrollMotion("band", 80);
   return (
-    <div aria-hidden className="border-line bg-surface/60 overflow-hidden border-y py-8">
-      <div className="mx-auto max-w-7xl space-y-2 px-5 text-[clamp(2rem,7vw,6.5rem)] leading-none font-extrabold tracking-tight sm:px-8">
+    <div aria-hidden className="cta-sky overflow-hidden border-y-4 border-[#0f1f5c] py-8">
+      <div className="mx-auto max-w-7xl space-y-2 px-5 font-[family-name:var(--font-display)] text-[clamp(2rem,7vw,6.5rem)] leading-none font-bold sm:px-8">
         <div ref={first}>
-          {top} <span className="text-brand">✦</span>
+          {top} <span className="sun-text">✦</span>
         </div>
-        <div ref={second} className="text-transparent [-webkit-text-stroke:2px_var(--color-ink)]">
+        <div ref={second} className="text-transparent [-webkit-text-stroke:2px_#fff]">
           {bottom}
         </div>
       </div>
@@ -161,7 +161,7 @@ function RoundCard({ round }: { round: Round }) {
         className="aspect-[16/10] w-full rounded-md object-cover"
       />
       <div className="flex flex-1 flex-col p-5">
-        <span className="micro-label text-sealed">
+        <span className="micro-label text-brand">
           {round.tag} / {round.kicker}
         </span>
         <h3 className="mt-4 text-2xl">{round.title}</h3>
@@ -227,7 +227,7 @@ export function HorizontalRounds({ rounds }: { rounds: Round[] }) {
   }, [wide, rounds.length]);
   const heading = (
     <div className="mb-10 max-w-2xl">
-      <span className="micro-label text-sealed">The round / 05 steps</span>
+      <span className="micro-label text-brand">The round / 05 steps</span>
       <h2 className="mt-3 text-4xl sm:text-5xl">How a round works.</h2>
     </div>
   );
@@ -265,10 +265,10 @@ export function HorizontalRounds({ rounds }: { rounds: Round[] }) {
           <span className="text-muted font-mono text-sm tabular-nums">
             {String(step).padStart(2, "0")} / {String(rounds.length).padStart(2, "0")}
           </span>
-          <div className="bg-line h-1.5 w-full max-w-xs overflow-hidden rounded-full">
+          <div className="bg-line h-2.5 w-full max-w-xs overflow-hidden rounded-full">
             <div
               ref={bar}
-              className="bg-brand h-full origin-left"
+              className="bg-primary h-full origin-left"
               style={{ transform: "scaleX(0)" }}
             />
           </div>

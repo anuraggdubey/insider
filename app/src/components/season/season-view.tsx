@@ -82,7 +82,7 @@ export function SeasonView() {
     <main className="mx-auto w-full max-w-7xl flex-1 px-5 py-10 sm:px-8 lg:py-14">
       <div className="flex flex-wrap items-end justify-between gap-5">
         <div>
-          <div className="micro-label text-sealed">Performance / Season</div>
+          <div className="micro-label text-brand">Performance / Season</div>
           <h1 className="mt-3 text-4xl font-medium tracking-tight sm:text-5xl">The long game.</h1>
           <p className="text-muted mt-3 max-w-xl text-sm leading-6">
             The best round for every player, on chain. A season is more than one good read.
@@ -173,7 +173,7 @@ export function SeasonView() {
             <section aria-labelledby="leaderboard-title" className="min-w-0">
               <div className="mb-4 flex items-end justify-between">
                 <div>
-                  <div className="micro-label text-sealed">01 / Standings</div>
+                  <div className="micro-label text-brand">01 / Standings</div>
                   <h2 id="leaderboard-title" className="mt-2 text-xl font-medium">
                     Leaderboard
                   </h2>
@@ -211,7 +211,7 @@ export function SeasonView() {
                           <td className="p-4">
                             <span className="font-medium">{entry.name}</span>
                             {entry.isYou && (
-                              <span className="ml-2 font-mono text-[10px] text-[#2342c0] uppercase dark:text-[#abc0ff]">
+                              <span className="ml-2 font-mono text-[10px] text-[#a8105a] uppercase dark:text-[#ff9fcb]">
                                 You
                               </span>
                             )}
@@ -239,7 +239,7 @@ export function SeasonView() {
                     data-testid="season-your-row"
                     className="border-you bg-surface sticky bottom-0 left-0 z-10 flex justify-between gap-3 border-t-2 px-4 py-2 font-mono text-xs"
                   >
-                    <span className="text-[#2342c0] dark:text-[#abc0ff]">
+                    <span className="text-[#a8105a] dark:text-[#ff9fcb]">
                       YOU / RANK {yourStanding.rank}
                     </span>
                     <span>{signed(yourStanding.score)}</span>
@@ -286,7 +286,7 @@ export function SeasonView() {
                           </span>
                           {row.name}
                           {row.isYou && (
-                            <span className="text-sealed ml-1 text-[10px] uppercase">You</span>
+                            <span className="text-brand ml-1 text-[10px] uppercase">You</span>
                           )}
                         </td>
                         <td className="text-muted p-3 text-right font-mono tabular-nums">

@@ -63,7 +63,7 @@ export function Showcase() {
     <main className="mx-auto w-full max-w-6xl space-y-6 px-5 py-16 sm:px-8">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <p className="micro-label text-sealed">Development only / component catalogue</p>
+          <p className="micro-label text-brand">Development only / component catalogue</p>
           <h1 className="mt-3 text-4xl sm:text-6xl">The machine kit.</h1>
           <p className="text-muted mt-3 text-sm">
             Every state in light and dark. Switch the theme to inspect both.

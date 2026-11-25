@@ -4,7 +4,6 @@ import { useEffect, useRef, useState } from "react";
 import type { TableSnapshot, TableView } from "@insider/sdk";
 import type { PublicKey } from "@solana/web3.js";
 import { Panel } from "@/components/ui/panel";
-import { Stamp } from "@/components/ui/stamp";
 import { updateFloor, useFloorStore } from "@/lib/floor-store";
 import { draftForFill } from "@/lib/order-prefill";
 import { seatsFromXray } from "@/lib/xray-seats";
@@ -152,11 +151,10 @@ export function Feed({
                     makeDraft(true);
                   }
                 }}
-                className="group flex items-start gap-2 px-3 py-2"
+                className="group hover:bg-surface-2 flex items-start gap-2 px-3 py-2"
               >
-                <span className={`${row.color} mt-1.5 size-1 shrink-0 rounded-full bg-current`} />
-                <span className="text-muted flex-1 text-[10px] leading-4">
-                  <Stamp className={`${row.color} mr-2 px-1 py-0 text-[8px]`}>{row.stamp}</Stamp>
+                <span className={`${row.color} feed-chip mt-0.5 shrink-0`}>{row.stamp}</span>
+                <span className="text-ink min-w-0 flex-1 text-xs leading-5 font-semibold">
                   {row.text}
                   {row.fill !== undefined && (
                     <span className="ml-2 inline-flex gap-1 opacity-100 transition-opacity [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:group-focus-within:opacity-100 [@media(hover:hover)]:group-hover:opacity-100">
@@ -169,7 +167,7 @@ export function Feed({
                             : "Side and size are private until fill"
                         }
                         onClick={() => makeDraft(false)}
-                        className="border-line text-sealed disabled:text-muted rounded border px-1"
+                        className="border-line-strong bg-surface text-brand disabled:text-faint cursor-pointer rounded-full border-2 px-2 text-[10px] font-extrabold disabled:cursor-default disabled:opacity-60"
                       >
                         Copy
                       </button>
@@ -182,14 +180,14 @@ export function Feed({
                             : "Side and size are private until fill"
                         }
                         onClick={() => makeDraft(true)}
-                        className="border-line text-sealed disabled:text-muted rounded border px-1"
+                        className="border-line-strong bg-surface text-brand disabled:text-faint cursor-pointer rounded-full border-2 px-2 text-[10px] font-extrabold disabled:cursor-default disabled:opacity-60"
                       >
                         Fade
                       </button>
                     </span>
                   )}
                 </span>
-                <span className="text-faint font-mono text-[9px]">T+{row.tick}</span>
+                <span className="text-faint font-mono text-[10px] leading-5">T+{row.tick}</span>
               </div>
             );
           })}

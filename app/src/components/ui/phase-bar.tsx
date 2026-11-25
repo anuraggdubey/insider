@@ -8,25 +8,25 @@ export function PhaseBar({ tick, className }: { tick: number; className?: string
       className={cn("font-mono", className)}
       aria-label={`Round tick ${current} of ${ROUND_TICKS}`}
     >
-      <div className="bg-line relative flex h-2 gap-0.5 overflow-visible rounded-full">
+      <div className="bg-line relative flex h-3 gap-0.5 overflow-visible rounded-full">
         <div
-          className="bg-sealed/60 rounded-l-full"
+          className="bg-primary rounded-l-full"
           style={{ width: `${(LIVE_TICKS / ROUND_TICKS) * 100}%` }}
         />
         <div
-          className="bg-opened/60"
+          className="bg-sun"
           style={{ width: `${((CLOSING_END_TICK - LIVE_TICKS) / ROUND_TICKS) * 100}%` }}
         />
         <div
-          className="bg-priority/60 rounded-r-full"
+          className="bg-pop rounded-r-full"
           style={{ width: `${((ROUND_TICKS - CLOSING_END_TICK) / ROUND_TICKS) * 100}%` }}
         />
         <span
-          className="bg-text absolute -top-1 h-4 w-0.5"
+          className="bg-surface border-ink absolute -top-1 -ml-2.5 size-5 rounded-full border-[3px]"
           style={{ left: `${(current / ROUND_TICKS) * 100}%` }}
         />
       </div>
-      <div className="text-muted mt-2 flex gap-0.5 pb-3 text-[9px] uppercase sm:pb-0 sm:text-[10px]">
+      <div className="text-muted mt-2 flex gap-0.5 pb-3 text-[9px] font-bold uppercase sm:pb-0 sm:text-[10px]">
         <span className="min-w-0" style={{ width: `${(LIVE_TICKS / ROUND_TICKS) * 100}%` }}>
           Live
         </span>

@@ -69,7 +69,7 @@ export default function RulesPage() {
       <main className="mx-auto w-full max-w-7xl flex-1 px-5 pt-16 pb-24 sm:px-8 lg:pt-20">
         <div className="mb-12 flex flex-wrap items-end justify-between gap-6">
           <div>
-            <span className="micro-label text-sealed">The field guide / 30 seconds</span>
+            <span className="micro-label text-brand">The field guide / 30 seconds</span>
             <h1 className="mt-4 text-4xl font-semibold tracking-tight sm:text-5xl">
               Information is the edge.
             </h1>

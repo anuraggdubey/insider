@@ -119,7 +119,7 @@ function PrivacyContent() {
       </Link>
       <div className="mt-9 flex flex-wrap items-end justify-between gap-4">
         <div>
-          <span className="micro-label text-sealed">A live RPC check</span>
+          <span className="micro-label text-brand">A live RPC check</span>
           <h1 className="mt-3 text-4xl font-black tracking-tight sm:text-5xl">
             Can anyone see inside?
           </h1>

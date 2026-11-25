@@ -52,27 +52,27 @@ export function PriceChart({
       width: host.clientWidth,
       height: host.clientHeight,
       layout: {
-        background: { type: ColorType.Solid, color: "#0c0e11" },
-        textColor: "#8a93a0",
+        background: { type: ColorType.Solid, color: "#0a1445" },
+        textColor: "#a8baee",
         fontSize: 10,
         fontFamily: "var(--font-jetbrains), monospace",
         attributionLogo: false,
       },
-      grid: { vertLines: { color: "#14191f" }, horzLines: { color: "#171c23" } },
-      rightPriceScale: { borderColor: "#1d222a", scaleMargins: { top: 0.16, bottom: 0.18 } },
+      grid: { vertLines: { color: "#16265f" }, horzLines: { color: "#1a2c6b" } },
+      rightPriceScale: { borderColor: "#243a85", scaleMargins: { top: 0.16, bottom: 0.18 } },
       timeScale: {
-        borderColor: "#1d222a",
+        borderColor: "#243a85",
         timeVisible: true,
         secondsVisible: true,
         tickMarkFormatter: (value: Time) => `T+${Number(value) - EPOCH}`,
       },
       crosshair: {
-        vertLine: { color: "#566070", labelBackgroundColor: "#2a313b" },
-        horzLine: { color: "#566070", labelBackgroundColor: "#2a313b" },
+        vertLine: { color: "#6b86d6", labelBackgroundColor: "#2a4196" },
+        horzLine: { color: "#6b86d6", labelBackgroundColor: "#2a4196" },
       },
     });
     const area = instance.addSeries(LineSeries, {
-      color: "#5ab4ff",
+      color: "#4fd2ff",
       lineWidth: 2,
       priceLineVisible: true,
       lastValueVisible: true,
@@ -146,12 +146,12 @@ export function PriceChart({
           shape: event.side > 0 ? ("arrowUp" as const) : ("arrowDown" as const),
           color:
             event.seat === 255
-              ? "#5ccbf0"
+              ? "#5fd6ff"
               : mine
-                ? "#ffb547"
+                ? "#ffd21f"
                 : event.side > 0
-                  ? "#3ddc97"
-                  : "#ff5c6c",
+                  ? "#3be394"
+                  : "#ff7292",
           text: mine ? "YOU" : event.seat === 255 ? "WHALE" : undefined,
         };
       })
@@ -244,7 +244,7 @@ export function PriceChart({
       <div className="border-line flex h-[73px] shrink-0 items-center justify-between border-b px-5">
         <div>
           <div className="micro-label flex items-center gap-2">
-            <Crosshair className="size-3" /> Floor / virtual market
+            <Crosshair className="size-3.5" /> Live market
           </div>
           <div className="mt-1 flex items-baseline gap-3">
             <Readout
@@ -258,7 +258,7 @@ export function PriceChart({
             </span>
           </div>
         </div>
-        <div className="text-faint flex items-center gap-2 font-mono text-[9px] tracking-wider">
+        <div className="text-faint flex items-center gap-2 font-mono text-[11px] tracking-wider">
           <TrendingUp className="text-sealed size-3" /> LIVE PRICE
         </div>
       </div>
@@ -275,7 +275,7 @@ export function PriceChart({
                 className="border-you/70 absolute top-3 bottom-8 border-l border-dashed"
                 style={{ left: overlay.left }}
               >
-                <span className="bg-you/15 text-you absolute top-0 left-1 rounded px-1.5 py-1 font-mono text-[9px]">
+                <span className="bg-you/15 text-you absolute top-0 left-1 rounded px-1.5 py-1 font-mono text-[11px]">
                   {overlay.text}
                 </span>
               </div>
@@ -285,7 +285,7 @@ export function PriceChart({
                 className="border-opened/30 bg-opened/8 absolute top-5 bottom-8 border-x"
                 style={{ left: overlay.left, width: overlay.width }}
               >
-                <span className="text-opened absolute top-1 left-1 font-mono text-[8px]">
+                <span className="text-opened absolute top-1 left-1 font-mono text-[10px]">
                   {overlay.text}
                 </span>
               </div>
@@ -300,7 +300,7 @@ export function PriceChart({
                   height: overlay.height,
                 }}
               >
-                <span className="text-opened absolute -top-4 right-0 font-mono text-[9px]">
+                <span className="text-opened absolute -top-4 right-0 font-mono text-[11px]">
                   {overlay.text}
                 </span>
               </div>
@@ -308,7 +308,7 @@ export function PriceChart({
               <div
                 key={overlay.id}
                 data-testid={`chart-overlay-${overlay.kind}`}
-                className="text-opened absolute rounded border border-[#ffb54755] bg-[#261a0d] px-1.5 py-1 font-mono text-[9px]"
+                className="text-opened absolute rounded border border-[#ffd21f55] bg-[#1b2d75] px-1.5 py-1 font-mono text-[11px]"
                 style={{
                   left: overlay.left,
                   top: `min(${Math.max(10, overlay.top ?? 40)}px, calc(100% - 35px))`,
@@ -325,7 +325,7 @@ export function PriceChart({
               initial={{ opacity: 0 }}
               animate={{ opacity: [0, 0.3, 0] }}
               transition={landingFlash}
-              className="absolute inset-0 bg-[#ffb547]"
+              className="absolute inset-0 bg-[#ffd21f]"
             />
           )}
         </div>

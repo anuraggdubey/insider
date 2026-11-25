@@ -101,9 +101,9 @@ export function CrackOpen({
           initial={reduced ? false : { opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: reduced ? 0 : 0.45, duration: reduced ? 0 : 0.3 }}
-          className="min-h-14 space-y-1 border-2 border-[#161513] bg-[#f8f7f4] p-4 font-mono text-xs leading-6 text-[#161513]"
+          className="min-h-14 space-y-1 border-2 border-[#0f1f5c] bg-[#ffffff] p-4 font-mono text-xs leading-6 text-[#0f1f5c]"
         >
-          <div className="mb-2 border-b border-[#b5b0a4] pb-2 text-[10px] font-bold">
+          <div className="mb-2 border-b border-[#8fbcf0] pb-2 text-[10px] font-bold">
             PRIVATE / PAYLOAD TICKET
           </div>
           {lines.map((line, index) => (

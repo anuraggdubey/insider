@@ -14,7 +14,7 @@ export function MainNav({ items }: { items: string[][] }) {
   return (
     <nav
       aria-label="Main navigation"
-      className="bg-surface-2 border-line hidden items-center gap-0.5 rounded-full border p-1 md:flex"
+      className="bg-surface-2 border-line hidden items-center gap-0.5 rounded-full border-2 p-1 md:flex"
       onPointerDown={() => setAnimate(true)}
       onKeyDown={() => setAnimate(true)}
     >
@@ -27,15 +27,15 @@ export function MainNav({ items }: { items: string[][] }) {
             prefetch={false}
             aria-current={active ? "page" : undefined}
             className={cn(
-              "relative rounded-full px-3 py-1.5 text-sm font-bold",
-              active ? "text-[#161513]" : "text-muted hover:text-ink",
+              "relative rounded-full px-3.5 py-1.5 font-[family-name:var(--font-display)] text-[15px] font-semibold transition-colors",
+              active ? "text-white" : "text-muted hover:text-ink hover:bg-surface",
             )}
           >
             {active &&
               (animate ? (
                 <AnimatedIndicator />
               ) : (
-                <span aria-hidden className="bg-signal absolute inset-0 rounded-full" />
+                <span aria-hidden className="bg-primary absolute inset-0 rounded-full" />
               ))}
             <span className="relative">{label}</span>
           </Link>

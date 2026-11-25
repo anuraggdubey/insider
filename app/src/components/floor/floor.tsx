@@ -2,12 +2,21 @@
 
 import { deriveTable } from "@insider/sdk/view";
 import { motion, useReducedMotion } from "framer-motion";
-import { Activity, ArrowUpRight, LockKeyhole } from "lucide-react";
+import {
+  Activity,
+  ArrowUpRight,
+  CandlestickChart,
+  Gift,
+  LockKeyhole,
+  ScrollText,
+  Users,
+} from "lucide-react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useInsider } from "@/app/providers";
 import { LeakBoard } from "@/components/leaks/leak-board";
+import { buttonStyles } from "@/components/ui/button";
 import { Stamp } from "@/components/ui/stamp";
 import { useToast } from "@/components/ui/toast";
 import { updateFloor, useFloorStore } from "@/lib/floor-store";
@@ -16,6 +25,7 @@ import { cn } from "@/lib/cn";
 import { reducedTransition, spring } from "@/lib/motion";
 import { playSound } from "@/lib/sound";
 import { floorSoundEvents, type FloorSoundState } from "@/lib/sound-events";
+import { FloorCoach } from "./coach";
 import { Feed } from "./feed";
 import { FloorHud, PhaseBanner } from "./hud";
 import { MempoolLanes } from "./mempool-lanes";
@@ -24,6 +34,8 @@ import { PriceChart } from "./lazy-price-chart";
 import { SeatRail } from "./seat-rail";
 import { FloorSkeleton, TableOffline } from "./states";
 import { useFloor } from "./use-floor";
+
+const tabIcons = { Trade: CandlestickChart, Capsules: Gift, Seats: Users, Log: ScrollText };
 
 export function Floor() {
   const config = useInsider();
@@ -135,6 +147,7 @@ export function Floor() {
         phase={view.phase}
         fixture={fixtureMode}
       />
+      <FloorCoach view={view} xrayHref={fixtureMode ? "/xray?fixture=1" : "/xray"} />
 
       {(view.phase === "idle" || view.phase === "seeding") && (
         <div className="border-line bg-surface mb-3 flex items-center justify-between rounded-lg border px-4 py-3">
@@ -145,7 +158,7 @@ export function Floor() {
           <Link
             href={fixtureMode ? "/xray?fixture=1" : "/xray"}
             prefetch={false}
-            className="text-sealed flex items-center gap-1 font-mono text-[10px]"
+            className="text-brand flex items-center gap-1 font-mono text-[10px]"
           >
             LAST X-RAY <ArrowUpRight className="size-3" />
           </Link>
@@ -157,12 +170,12 @@ export function Floor() {
           initial={{ opacity: 0, y: reducedMotion ? 0 : 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={reducedMotion ? reducedTransition : spring}
-          className="border-ink bg-surface mb-3 flex flex-wrap items-center gap-4 rounded-lg border-2 px-4 py-3"
+          className="bg-surface mb-3 flex flex-wrap items-center gap-4 rounded-2xl border-[3px] border-[#0f1f5c] px-4 py-3 shadow-[0_5px_0_#0f1f5c]"
           aria-label="Round summary"
         >
           <div>
             <Stamp className="text-priority">Round complete</Stamp>
-            <div className="mt-1 text-xs">
+            <div className="mt-2.5 text-sm font-extrabold">
               {top.length
                 ? top
                     .map((seat) => `${seat.name} ${seat.score! > 0 ? "+" : ""}${seat.score}`)
@@ -172,7 +185,7 @@ export function Floor() {
                   : "Finalizing round…"}
             </div>
           </div>
-          <div className="text-muted font-mono text-[10px]">
+          <div className="text-muted font-mono text-[11px] font-bold">
             {finalized?.tagCount ?? "—"} SANDWICHES · YOUR SCORE{" "}
             {myScore === null || myScore === undefined
               ? "—"
@@ -183,7 +196,7 @@ export function Floor() {
           <Link
             href={fixtureMode ? "/xray?fixture=1" : "/xray"}
             prefetch={false}
-            className="text-sealed ml-auto flex items-center gap-1 text-xs"
+            className={buttonStyles({ variant: "primary", size: "sm", className: "ml-auto" })}
           >
             Open X-ray <ArrowUpRight className="size-3" />
           </Link>
@@ -230,7 +243,7 @@ export function Floor() {
       </div>
       <nav
         aria-label="Floor panels"
-        className="floor-tabs border-line bg-surface fixed right-0 bottom-0 left-0 z-30 grid grid-cols-4 border-t px-1 pb-[env(safe-area-inset-bottom)] md:hidden"
+        className="floor-tabs border-primary bg-surface fixed right-0 bottom-0 left-0 z-30 grid grid-cols-4 gap-1 border-t-[3px] px-1 pb-[env(safe-area-inset-bottom)] md:hidden"
       >
         {(["Trade", "Capsules", "Seats", "Log"] as const).map((tab) => (
           <button
@@ -239,15 +252,16 @@ export function Floor() {
             aria-current={mobileTab === tab ? "page" : undefined}
             onClick={() => setMobileTab(tab)}
             className={cn(
-              "min-h-14 font-mono text-[10px]",
-              mobileTab === tab ? "text-sealed" : "text-muted",
+              "my-1 flex min-h-12 flex-col items-center justify-center gap-0.5 rounded-xl text-[11px] font-extrabold",
+              mobileTab === tab ? "bg-primary text-white" : "text-muted",
             )}
           >
+            <TabIcon tab={tab} />
             {tab}
           </button>
         ))}
       </nav>
-      <div className="text-faint flex items-center justify-between py-4 font-mono text-[9px] tracking-wider">
+      <div className="text-muted flex flex-wrap items-center justify-between gap-2 py-4 font-mono text-[10px] font-bold tracking-wider">
         <span className="flex items-center gap-2">
           <Activity className="size-3" />{" "}
           {status === "fixture"
@@ -255,13 +269,13 @@ export function Floor() {
             : "PUBLIC TRACES · PRIVATE ORDER FLOW"}
         </span>
         <div className="flex items-center gap-4">
-          <Link href="/table/privacy" className="hover:text-sealed flex items-center gap-1">
+          <Link href="/table/privacy" className="hover:text-brand flex items-center gap-1">
             <LockKeyhole className="size-3" /> PRIVACY CHECK
           </Link>
           <Link
             href={fixtureMode ? "/xray?fixture=1" : "/xray"}
             prefetch={false}
-            className="hover:text-sealed flex items-center gap-1"
+            className="hover:text-brand flex items-center gap-1"
           >
             X-RAY <ArrowUpRight className="size-3" />
           </Link>
@@ -269,4 +283,9 @@ export function Floor() {
       </div>
     </main>
   );
+}
+
+function TabIcon({ tab }: { tab: keyof typeof tabIcons }) {
+  const Icon = tabIcons[tab];
+  return <Icon aria-hidden className="size-4" />;
 }
