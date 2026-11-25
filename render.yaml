@@ -25,5 +25,10 @@ services:
         value: https://devnet-router.magicblock.app
       - key: MAGIC_ROUTER_WS_URL
         value: wss://devnet-router.magicblock.app
+      # Alpha Cup token mint and fee wallet (public keys; locally read from .keys/gates/)
+      - key: CUP_MINT
+        value: 2P93g7wmAgD8126oJbNWfHDkejiEyYJCcHYT7UiprLio
+      - key: CUP_FEE_WALLET
+        value: J98t7b2fZXbEEPKzfZvdLFs7CECNnRUeVxrK1btGXBDi
       - key: LOG_LEVEL
         value: info
