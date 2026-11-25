@@ -7,7 +7,7 @@ export function FloorSkeleton() {
   return (
     <main className="mx-auto w-full max-w-[1440px] flex-1 px-6 py-8">
       <Skeleton className="h-20 w-full" />
-      <div className="mt-4 grid grid-cols-[220px_1fr_290px] gap-4">
+      <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-[220px_minmax(0,1fr)_290px]">
         <Skeleton className="h-[480px]" />
         <Skeleton className="h-[480px]" />
         <Skeleton className="h-[480px]" />

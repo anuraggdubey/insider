@@ -7,8 +7,10 @@ import type { InsiderConfig, LeakVaultAccount, TableSnapshot, TableView } from "
 import type { PublicKey } from "@solana/web3.js";
 import { Badge, type BadgeTone } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Capsule, type CapsuleRarity, type CapsuleState } from "@/components/ui/capsule";
 import { Num } from "@/components/ui/num";
 import { Panel } from "@/components/ui/panel";
+import { Stamp } from "@/components/ui/stamp";
 import { useToast } from "@/components/ui/toast";
 import type { LeakAction } from "@/lib/floor-actions";
 import { cn } from "@/lib/cn";
@@ -33,17 +35,24 @@ function LeakCard({
   leak: Leak;
   view: TableView;
   vault?: LeakVaultAccount;
-  run: (action: LeakAction, leak: Leak, ask?: number) => Promise<void>;
+  run: (action: LeakAction, leak: Leak, ask?: number) => Promise<boolean>;
   snapshot: TableSnapshot;
 }) {
   const [editing, setEditing] = useState<"list" | "offer" | null>(null);
   const [ask, setAsk] = useState(50);
   const [busy, setBusy] = useState(false);
+  const [popped, setPopped] = useState(false);
   const perform = async (action: LeakAction, amount?: number) => {
     setBusy(true);
     try {
-      await run(action, leak, amount);
-      setEditing(null);
+      const ok = await run(action, leak, amount);
+      if (ok) {
+        setEditing(null);
+        if (action === "bid" || action === "buy") {
+          setPopped(true);
+          setTimeout(() => setPopped(false), 1400);
+        }
+      }
     } finally {
       setBusy(false);
     }
@@ -58,6 +67,17 @@ function LeakCard({
       </div>
     );
   const rarity = leak.rarityName.toLowerCase() as BadgeTone;
+  const capsuleRarity: CapsuleRarity = rarity === "rare" || rarity === "epic" ? rarity : "common";
+  const capsuleState: CapsuleState =
+    leak.state === 1
+      ? "sealed"
+      : leak.state === 2
+        ? "owned"
+        : leak.state === 3
+          ? "listed"
+          : leak.state === 4
+            ? "opened"
+            : "expired";
   const isOpened = leak.state === 4;
   const windowExpired = view.tick > leak.windowEnd;
   const canBid = leak.canBid && !windowExpired;
@@ -103,9 +123,55 @@ function LeakCard({
         <span className="text-faint font-mono text-[9px]">
           #{String(leak.leakId).padStart(3, "0")}
         </span>
-        <Badge tone={rarity} className="px-1 py-0.5 text-[8px]">
-          {leak.rarityName}
-        </Badge>
+        <div className="flex flex-wrap justify-end gap-1">
+          {leak.isMine && (
+            <Badge tone="opened" className="px-1 py-0.5 text-[8px]">
+              Yours
+            </Badge>
+          )}
+          <Badge tone={rarity} className="px-1 py-0.5 text-[8px]">
+            {leak.rarityName}
+          </Badge>
+        </div>
+      </div>
+      <div className="relative mx-auto mt-2 grid size-20 place-items-center">
+        {leak.state === 1 && (
+          <svg
+            viewBox="0 0 80 80"
+            className="absolute inset-0 size-full -rotate-90"
+            aria-hidden="true"
+          >
+            <circle
+              cx="40"
+              cy="40"
+              r="37"
+              fill="none"
+              stroke="var(--color-line-strong)"
+              strokeWidth="2"
+            />
+            <circle
+              cx="40"
+              cy="40"
+              r="37"
+              fill="none"
+              stroke="var(--color-sealed)"
+              strokeWidth="2"
+              strokeDasharray={`${Math.max(0, Math.min(1, leak.ticksLeft / 12)) * 232.5} 232.5`}
+            />
+          </svg>
+        )}
+        <Capsule
+          rarity={capsuleRarity}
+          state={capsuleState}
+          size={64}
+          mine={leak.isMine}
+          motion={
+            popped ? "pop" : leak.state === 1 && view.tick - leak.mintedTick <= 1 ? "drop" : "none"
+          }
+        />
+        {popped && (
+          <Stamp className="text-buy absolute -right-2 -bottom-1 text-[8px]">Bought</Stamp>
+        )}
       </div>
       <div className="mt-2 flex items-center gap-1.5">
         {isOpened && leak.isReader ? (
@@ -226,11 +292,11 @@ function LeakCard({
               className="h-7 w-full text-[10px]"
               disabled={!canBid}
               title={!canBid ? reason : "Buy sealed leak"}
-              aria-label={`Buy for ${leak.currentPrice} chips, ${leak.kindName} Leak`}
+              aria-label={`Bid · ${leak.currentPrice} chips for ${leak.kindName} Leak`}
               loading={busy}
               onClick={() => void perform("bid")}
             >
-              Buy for {leak.currentPrice}
+              Bid · {leak.currentPrice} chips
             </Button>
             {!canBid && <div className="text-faint mt-1 text-center text-[9px]">{reason}</div>}
           </div>
@@ -320,6 +386,7 @@ export function LeakBoard({
     title: string;
     lines: string[];
     returnFocus: HTMLElement | null;
+    rarity: CapsuleRarity;
   } | null>(null);
   const run = async (action: LeakAction, leak: Leak, ask?: number) => {
     const returnFocus = document.activeElement?.closest("article") ?? null;
@@ -328,16 +395,24 @@ export function LeakBoard({
       const vault = await actOnLeak(config, action, leak.slot, ask);
       if (vault) {
         playSound("crack");
-        setCrack({ title: leak.kindName, lines: payloadLines(vault, view), returnFocus });
+        const rarity = leak.rarityName.toLowerCase();
+        setCrack({
+          title: leak.kindName,
+          lines: payloadLines(vault, view),
+          returnFocus,
+          rarity: rarity === "rare" || rarity === "epic" ? rarity : "common",
+        });
       }
+      return true;
     } catch (error) {
       useToast.getState().add(friendlyError(error));
+      return false;
     }
   };
   return (
     <>
       <Panel
-        title="Leak board"
+        title="Capsule tray"
         action={<span className="micro-label">Private until opened · 6 slots</span>}
       >
         <div className="leak-grid grid grid-cols-2 gap-2 p-3 md:grid-cols-3 xl:grid-cols-6">
@@ -357,6 +432,7 @@ export function LeakBoard({
         <CrackOpen
           title={crack.title}
           lines={crack.lines}
+          rarity={crack.rarity}
           returnFocus={crack.returnFocus}
           close={() => setCrack(null)}
         />

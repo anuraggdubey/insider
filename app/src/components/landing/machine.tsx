@@ -37,13 +37,97 @@ function DemoCapsule({
         <path
           d="M51 34c0-8 5-12 11-12s10 4 10 10-10 7-10 13"
           fill="none"
-          stroke="#161513"
+          stroke={fill === "#161513" ? "#ffc21a" : "#161513"}
           strokeWidth="5"
           strokeLinecap="round"
         />
-        <circle cx="62" cy="51" r="3" fill="#161513" />
-        <rect x="14" y="55" width="92" height="8" rx="4" fill="#161513" />
+        <circle cx="62" cy="51" r="3" fill={fill === "#161513" ? "#ffc21a" : "#161513"} />
+        <rect
+          x="14"
+          y="55"
+          width="92"
+          height="8"
+          rx="4"
+          fill={fill === "#161513" ? "#ffc21a" : "#161513"}
+        />
       </g>
+    </svg>
+  );
+}
+
+function DemoLane({
+  priority = false,
+  progress,
+  label,
+  reset,
+}: {
+  priority?: boolean;
+  progress?: number;
+  label?: string;
+  reset?: boolean;
+}) {
+  return (
+    <div className="grid grid-cols-[4.2rem_minmax(0,1fr)] items-center gap-2 sm:grid-cols-[5.4rem_minmax(0,1fr)]">
+      <div className="font-mono text-[9px] leading-4 font-bold">
+        <span className={priority ? "text-priority" : "text-text"}>
+          {priority ? "PRIORITY" : "STANDARD"}
+        </span>
+        <br />
+        <span className="text-muted">{priority ? "2s" : "10s"}</span>
+      </div>
+      <div className="border-line-strong relative h-12 overflow-hidden rounded-md border bg-[#111113]">
+        <svg className="absolute inset-0 size-full" preserveAspectRatio="none" aria-hidden="true">
+          {Array.from({ length: 9 }, (_, i) => (
+            <line
+              key={i}
+              x1={`${(i + 1) * 10}%`}
+              x2={`${(i + 1) * 10}%`}
+              y1="35"
+              y2="43"
+              stroke="#4b4a49"
+              strokeWidth="1"
+            />
+          ))}
+        </svg>
+        <span className="absolute inset-y-0 right-2 border-r border-dashed border-[#ffb020]/70" />
+        <span className="absolute top-0 right-3 font-mono text-[7px] text-[#ffb020]">LAND</span>
+        {progress !== undefined && (
+          <span
+            key={`${label}-${reset ? "reset" : "running"}`}
+            className="machine-order absolute bottom-1 left-0"
+            style={{
+              transform: `translateX(calc(${progress}% - ${progress}px))`,
+              transition: "transform 100ms linear",
+            }}
+          >
+            <DemoCapsule size={30} fill={priority ? "#ff6a33" : "#161513"} />
+            <span className="text-text ml-1 font-mono text-[9px] font-bold whitespace-nowrap">
+              {label}
+            </span>
+          </span>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function Sparkline({ stage, completed }: { stage: number; completed: boolean }) {
+  const points =
+    stage < 3
+      ? "2,30 110,30"
+      : stage < 4
+        ? "2,30 48,30 48,24 110,24"
+        : completed
+          ? "2,30 32,30 32,24 65,24 65,7 96,7 96,14 110,14"
+          : "2,30 32,30 32,24 65,24 65,7 110,7";
+  return (
+    <svg viewBox="0 0 112 38" className="h-10 w-28" aria-hidden="true">
+      <path d="M2 36H110" fill="none" stroke="#3f3f46" strokeWidth="1" />
+      <polyline points={points} fill="none" stroke="#ffb020" strokeWidth="2" />
+      {stage >= 3 && (
+        <circle cx={stage >= 4 ? 65 : 48} cy={stage >= 4 ? 7 : 24} r="3" fill="#ffb020" />
+      )}
+      {completed && <circle cx="96" cy="14" r="3" fill="#f2f0ea" />}
     </svg>
   );
 }
@@ -93,7 +177,8 @@ export function Machine() {
       if (timer) clearInterval(timer);
     };
   }, []);
-  const { stage, price, leakPrice } = machineFrame(time);
+  const { stage, price, leakPrice, standardProgress, priorityProgress } = machineFrame(time);
+  const completed = time >= 8000;
   return (
     <div ref={machine}>
       <Screen
@@ -112,44 +197,27 @@ export function Machine() {
               <span className="text-muted font-mono text-[10px] uppercase">Market / price</span>
               <div className="led-readout mt-1 text-4xl font-black sm:text-5xl">{price}</div>
             </div>
-            <div className="border-line-strong rounded-md border px-3 py-2 text-right font-mono text-[10px]">
-              <span className="text-muted">ROUND 01</span>
-              <br />
-              <span className="text-buy">● LIVE</span>
+            <div className="text-right">
+              <div className="font-mono text-[10px]">
+                <span className="text-muted">ROUND 01</span>{" "}
+                <span className="text-buy">● LIVE</span>
+              </div>
+              <Sparkline stage={stage} completed={completed} />
             </div>
           </div>
           <div className="mt-6 space-y-2">
-            <div className="border-line bg-surface-2 relative h-14 overflow-hidden rounded-lg border px-3 py-2">
-              <span className="text-muted font-mono text-[9px]">STANDARD / 10s</span>
-              <span
-                className="machine-order absolute bottom-1 left-0"
-                style={{ transform: `translateX(${stage >= 4 ? 72 : stage >= 1 ? 43 : 8}%)` }}
-              >
-                <DemoCapsule size={28} />
-                <span className="text-text ml-1 font-mono text-[9px]">SILVER FOX</span>
-              </span>
-            </div>
-            <div className="border-line bg-surface-2 relative h-14 overflow-hidden rounded-lg border px-3 py-2">
-              <span className="text-priority font-mono text-[9px]">PRIORITY / 2s</span>
-              {stage >= 3 && (
-                <span
-                  className="machine-order absolute bottom-1 left-0"
-                  style={{ transform: `translateX(${stage >= 3 ? 72 : 40}%)` }}
-                >
-                  <DemoCapsule size={28} fill="#ff6a33" />
-                  <span className="text-you ml-1 font-mono text-[9px]">
-                    YOU{stage >= 5 ? " / SELL" : ""}
-                  </span>
-                </span>
-              )}
-            </div>
+            <DemoLane progress={standardProgress} label="SILVER FOX" reset={time < 100} />
+            <DemoLane
+              priority
+              progress={priorityProgress}
+              label={stage >= 5 ? "YOU / SELL" : "YOU"}
+            />
           </div>
           <div className="border-line mt-4 grid min-h-28 grid-cols-[auto_1fr] items-center gap-4 rounded-lg border p-3">
             <span
               className="demo-drop"
               style={{
-                opacity: stage >= 1 ? 1 : 0,
-                transform: stage >= 1 ? "translateY(0)" : "translateY(-30px)",
+                transform: stage === 0 ? "translateY(-4px)" : "translateY(0)",
               }}
             >
               <DemoCapsule size={70} fill="#2bb3e0" open={stage >= 2} />
@@ -174,11 +242,11 @@ export function Machine() {
             <span className="text-muted">
               {stage < 2
                 ? "A SECRET IS DROPPING"
-                : stage < 5
-                  ? "YOU JUMP THE LINE"
-                  : "TRADE COMPLETE"}
+                : completed
+                  ? "TRADE COMPLETE"
+                  : "YOU JUMP THE LINE"}
             </span>
-            {stage >= 5 && (
+            {completed && (
               <span className="border-capsule text-capsule -rotate-3 border-2 px-2 py-1 font-bold">
                 FRONT-RUN +412
               </span>
@@ -189,8 +257,8 @@ export function Machine() {
       <p className="sr-only">
         A Silver Fox order enters the standard lane. A Rare Leak drops from 20 to 14 chips; you buy
         and open it, see a buy of 1,200, and enter the priority lane. Your order lands first, the
-        price rises from 1.000 to 1.012, Silver Fox lands at 1.060, and your sell completes a
-        front-run worth 412 chips.
+        price rises from 1.000 to 1.012, Silver Fox lands at 1.060, and your sell lands at 1.051,
+        completing a front-run worth 412 chips.
       </p>
     </div>
   );

@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { Button } from "./button";
 
 export function Stepper({
@@ -10,6 +11,7 @@ export function Stepper({
   step = 50,
   presets = [250, 500, 1000, 2000],
   label = "Size in units",
+  id,
 }: {
   value: number;
   onChange: (value: number) => void;
@@ -18,7 +20,9 @@ export function Stepper({
   step?: number;
   presets?: number[];
   label?: string;
+  id?: string;
 }) {
+  const [input, setInput] = useState<string | null>(null);
   const set = (next: number) => onChange(Math.max(min, Math.min(max, next)));
   return (
     <div className="space-y-3">
@@ -34,12 +38,18 @@ export function Stepper({
         </Button>
         <input
           aria-label={label}
+          id={id}
           type="number"
           min={min}
           max={max}
           step={step}
-          value={value}
-          onChange={(event) => set(Number(event.target.value))}
+          value={input ?? value}
+          onFocus={() => setInput(String(value))}
+          onBlur={() => setInput(null)}
+          onChange={(event) => {
+            setInput(event.target.value);
+            if (event.target.value !== "") set(Number(event.target.value));
+          }}
           className="border-line-strong bg-surface-2 min-w-0 flex-1 rounded-md border px-3 py-2 text-center font-mono tabular-nums"
         />
         <Button

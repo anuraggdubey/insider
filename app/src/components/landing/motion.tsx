@@ -125,10 +125,7 @@ export function ScrollBand({ top, bottom }: { top: string; bottom: string }) {
         <div ref={first}>
           {top} <span className="text-brand">✦</span>
         </div>
-        <div
-          ref={second}
-          className="text-transparent [-webkit-text-stroke:2px_var(--color-line-strong)]"
-        >
+        <div ref={second} className="text-transparent [-webkit-text-stroke:2px_var(--color-ink)]">
           {bottom}
         </div>
       </div>

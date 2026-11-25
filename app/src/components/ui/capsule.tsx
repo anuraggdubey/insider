@@ -40,7 +40,11 @@ export function Capsule({
     () => false,
   );
   const open = state === "opened";
-  const mark = rarity === "epic" ? "#ffc21a" : "#161513";
+  const mark = mine
+    ? "var(--color-you-ink)"
+    : rarity === "epic" || topColor === "#161513"
+      ? "#ffc21a"
+      : "#161513";
   return (
     <LazyMotion features={domAnimation}>
       <m.span
@@ -137,7 +141,13 @@ export function Capsule({
               width="92"
               height="8"
               rx="4"
-              fill={mine ? "#2f5bff" : rarity === "epic" ? "#ffc21a" : "#161513"}
+              fill={
+                mine
+                  ? "var(--color-you)"
+                  : rarity === "epic" || topColor === "#161513"
+                    ? "#ffc21a"
+                    : "#161513"
+              }
             />
           </m.g>
         </svg>

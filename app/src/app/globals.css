@@ -13,6 +13,7 @@
   --color-capsule: #ffc21a;
   --color-signal: #ff5a1f;
   --color-you: #2f5bff;
+  --color-you-ink: #fff;
   --color-sealed: #9a6b00;
   --color-opened: #0b7fa6;
   --color-buy: #0b8a49;
@@ -49,6 +50,7 @@ html.dark {
   --color-capsule: #ffc21a;
   --color-signal: #ff6a33;
   --color-you: #7690ff;
+  --color-you-ink: #161513;
   --color-sealed: #ffc21a;
   --color-opened: #5ccbf0;
   --color-buy: #35d07f;
@@ -90,6 +92,7 @@ html.dark .wallet-adapter-modal-wrapper {
   --color-sell: #ff5c72;
   --color-priority: #ff6a33;
   --color-you: #7690ff;
+  --color-you-ink: #161513;
   --color-common: #ffc21a;
   --color-rare: #5ccbf0;
   --color-epic: #f2f0ea;
@@ -300,9 +303,15 @@ body:has(.record-floor) nextjs-portal,
   overflow-y: auto;
 }
 .record-floor .floor-chart {
+  display: flex;
+  flex-direction: column;
   min-height: 0;
 }
-.record-floor .floor-chart > section,
+.record-floor .floor-chart > div:first-child {
+  min-height: 0;
+  flex: 1;
+}
+.record-floor .floor-chart > div:first-child > section,
 .record-floor .floor-seats > section {
   display: flex;
   height: 100%;
@@ -314,6 +323,15 @@ body:has(.record-floor) nextjs-portal,
   min-height: 0;
   flex: 1;
   overflow: auto;
+}
+.record-floor .floor-seats > section > div:last-child {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.record-floor .floor-seats > section > div:last-child > div {
+  min-height: 0;
+  flex: 1;
 }
 .record-floor .leak-grid {
   grid-template-columns: repeat(6, minmax(0, 1fr));
@@ -500,6 +518,60 @@ html.dark .bg-you.text-white {
   align-items: center;
   transition: transform 600ms ease-out;
 }
+.seat-token-priority,
+.seat-token-standard {
+  animation: seat-send 800ms ease-out;
+}
+.seat-token-priority {
+  border-color: var(--color-signal);
+}
+@keyframes seat-send {
+  35% {
+    transform: scale(1.09);
+  }
+}
+.lane-traveler {
+  transform: translateX(var(--lane-start));
+}
+@media (prefers-reduced-motion: no-preference) {
+  .lane-traveler {
+    animation: lane-travel linear both;
+  }
+  .lane-land-flash {
+    animation: lane-flash 500ms ease-out;
+  }
+}
+@keyframes lane-travel {
+  from {
+    transform: translateX(var(--lane-start));
+  }
+  to {
+    transform: translateX(var(--lane-end));
+  }
+}
+@keyframes lane-flash {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0.5;
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .phase-banner {
+    animation: phase-slam 160ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+}
+@keyframes phase-slam {
+  from {
+    opacity: 0;
+    transform: translateY(-8px) scale(1.02);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
 .demo-drop,
 .demo-ticket,
 .demo-lid {
@@ -555,6 +627,13 @@ html.dark .bg-you.text-white {
   }
 }
 @media (prefers-reduced-motion: reduce) {
+  .seat-token-priority,
+  .seat-token-standard,
+  .lane-traveler,
+  .lane-land-flash,
+  .phase-banner {
+    animation: none !important;
+  }
   *,
   *::before,
   *::after {

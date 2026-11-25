@@ -12,6 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Panel } from "@/components/ui/panel";
 import { PageTransition } from "@/components/ui/page-transition";
+import { Screen } from "@/components/ui/screen";
 import { loadGuest } from "@/lib/guest";
 
 type Result = "readable" | "not returned" | "error";
@@ -119,7 +120,9 @@ function PrivacyContent() {
       <div className="mt-9 flex flex-wrap items-end justify-between gap-4">
         <div>
           <span className="micro-label text-sealed">A live RPC check</span>
-          <h1 className="mt-3 text-3xl font-medium tracking-tight">Can anyone see inside?</h1>
+          <h1 className="mt-3 text-4xl font-black tracking-tight sm:text-5xl">
+            Can anyone see inside?
+          </h1>
           <p className="text-muted mt-3 max-w-xl text-sm leading-6">
             The mempool and future are sealed from everyone. Only a Leak&apos;s owner or licensed
             readers should be able to read its opened vault.
@@ -144,12 +147,23 @@ function PrivacyContent() {
           {message}
         </div>
       )}
+      <Screen label="Privacy / the machine" className="mt-8 px-5 pb-5">
+        <div className="mt-4 flex flex-wrap items-center gap-4">
+          <div className="border-capsule text-capsule grid size-12 place-items-center rounded-full border-2 font-mono text-xl font-black">
+            ?
+          </div>
+          <p className="text-text max-w-xl text-sm leading-6">
+            Orders and the future stay sealed. An opened capsule reveals its ticket only to its
+            owner and licensed readers.
+          </p>
+        </div>
+      </Screen>
       <Panel
         title="Direct account reads"
         action={<span className="micro-label">TEE RPC · current table</span>}
         className="mt-8"
       >
-        <div className="border-line text-faint grid grid-cols-[1fr_160px_160px] border-b px-5 py-3 font-mono text-[10px]">
+        <div className="border-line text-muted grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)] gap-2 border-b px-3 py-3 font-mono text-[9px] sm:grid-cols-[1fr_160px_160px] sm:px-5 sm:text-[10px]">
           <span>ACCOUNT</span>
           <span>YOUR GUEST TOKEN</span>
           <span>ANONYMOUS</span>
@@ -158,7 +172,7 @@ function PrivacyContent() {
           rows.map((row) => (
             <div
               key={row.name}
-              className="border-line grid grid-cols-[1fr_160px_160px] items-center border-b px-5 py-3 last:border-0"
+              className="border-line grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)] items-center gap-2 border-b px-3 py-3 last:border-0 sm:grid-cols-[1fr_160px_160px] sm:px-5"
             >
               <span className="text-sm">{row.name}</span>
               {[row.guest, row.anonymous].map((result, i) => (
@@ -188,7 +202,7 @@ function PrivacyContent() {
         “Not returned” means the RPC returned no account data; an RPC error is shown separately and
         is not evidence of privacy. Public end-of-round X-ray disclosures are a separate account.
       </p>
-      <div className="border-line bg-surface mt-8 rounded-lg border p-5">
+      <div className="gcard mt-8 p-5">
         <div className="flex items-center gap-2 text-sm font-medium">
           <ShieldCheck className="text-sealed size-4" /> Two-browser demonstration
         </div>

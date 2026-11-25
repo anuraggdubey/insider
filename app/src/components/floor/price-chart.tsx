@@ -1,7 +1,7 @@
 "use client";
 
 import {
-  AreaSeries,
+  LineSeries,
   ColorType,
   createChart,
   createSeriesMarkers,
@@ -16,8 +16,8 @@ import { motion, useReducedMotion } from "framer-motion";
 import { Crosshair, TrendingUp } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import type { LeakVaultAccount, TableView } from "@insider/sdk";
-import { Num } from "@/components/ui/num";
 import { Panel } from "@/components/ui/panel";
+import { Readout } from "@/components/ui/readout";
 import { landingFlash } from "@/lib/motion";
 
 const EPOCH = 1_700_000_000;
@@ -41,7 +41,7 @@ export function PriceChart({
 }) {
   const node = useRef<HTMLDivElement>(null);
   const chart = useRef<IChartApi | null>(null);
-  const series = useRef<ISeriesApi<"Area"> | null>(null);
+  const series = useRef<ISeriesApi<"Line"> | null>(null);
   const [overlays, setOverlays] = useState<Overlay[]>([]);
   const reducedMotion = useReducedMotion();
 
@@ -71,10 +71,8 @@ export function PriceChart({
         horzLine: { color: "#566070", labelBackgroundColor: "#2a313b" },
       },
     });
-    const area = instance.addSeries(AreaSeries, {
-      lineColor: "#5ab4ff",
-      topColor: "rgba(90,180,255,.20)",
-      bottomColor: "rgba(90,180,255,0)",
+    const area = instance.addSeries(LineSeries, {
+      color: "#5ab4ff",
       lineWidth: 2,
       priceLineVisible: true,
       lastValueVisible: true,
@@ -249,7 +247,11 @@ export function PriceChart({
             <Crosshair className="size-3" /> Floor / virtual market
           </div>
           <div className="mt-1 flex items-baseline gap-3">
-            <Num value={view.price} kind="price" className="text-2xl font-medium tracking-tight" />
+            <Readout
+              value={view.price / 1_000_000}
+              format={{ minimumFractionDigits: 4, maximumFractionDigits: 4 }}
+              className="text-2xl font-bold tracking-tight"
+            />
             <span className={change >= 0 ? "text-buy text-[10px]" : "text-sell text-[10px]"}>
               {change >= 0 ? "+" : ""}
               {(change / 1_000_000).toFixed(4)}
@@ -270,10 +272,10 @@ export function PriceChart({
             overlay.kind === "landing" ? (
               <div
                 key={overlay.id}
-                className="border-priority/70 absolute top-3 bottom-8 border-l border-dashed"
+                className="border-you/70 absolute top-3 bottom-8 border-l border-dashed"
                 style={{ left: overlay.left }}
               >
-                <span className="bg-priority/15 text-priority absolute top-0 left-1 rounded px-1.5 py-1 font-mono text-[9px]">
+                <span className="bg-you/15 text-you absolute top-0 left-1 rounded px-1.5 py-1 font-mono text-[9px]">
                   {overlay.text}
                 </span>
               </div>

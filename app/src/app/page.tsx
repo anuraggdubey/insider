@@ -10,6 +10,7 @@ import {
   ScrollBand,
 } from "@/components/landing/motion";
 import { Machine } from "@/components/landing/machine";
+import { PlayerTokens } from "@/components/landing/player-tokens";
 import { PlayButton } from "@/components/onboarding/play-button";
 import { FastModeToggle, WalletPlayButton } from "@/components/onboarding/wallet";
 import { buttonStyles } from "@/components/ui/button";
@@ -140,14 +141,18 @@ export default function Home() {
             </HeroFade>
           </section>
           <section aria-label="The game at a glance" className="border-line bg-surface border-y">
-            <div className="mx-auto grid max-w-7xl grid-cols-2 divide-x divide-y sm:grid-cols-4 sm:divide-y-0">
+            <div className="mx-auto grid max-w-7xl grid-cols-2 divide-x divide-y sm:grid-cols-5 sm:divide-y-0">
               {[
                 ["90 s", "80s LIVE / 10s CLOSING"],
                 ["10 s", "X-RAY AFTER THE BELL"],
                 ["500 ms", "PER TICK"],
-                ["10 / 0", "SEATS / SOL TO PLAY"],
+                ["10", "SEATS"],
+                ["0 SOL", "TO PLAY"],
               ].map(([value, label]) => (
-                <div key={value} className="border-line p-5 sm:p-7">
+                <div
+                  key={value}
+                  className="border-line p-5 last:col-span-2 sm:p-7 sm:last:col-span-1"
+                >
                   <div className="text-3xl font-black tracking-tight">{value}</div>
                   <div className="micro-label mt-2">{label}</div>
                 </div>
@@ -176,26 +181,7 @@ export default function Home() {
               </div>
             </Reveal>
             <ScaleIn>
-              <div className="gcard p-5 sm:p-8">
-                <div className="micro-label mb-6">Player tokens / 10 occupied seats</div>
-                <div className="grid grid-cols-5 gap-3">
-                  {["B", "B", "B", "B", "B", "AI", "AI", "YOU", "H", "H"].map((seat, index) => (
-                    <div key={index} className="text-center">
-                      <div
-                        className={`mx-auto grid aspect-square w-full max-w-16 place-items-center rounded-full border-2 font-mono text-xs font-bold ${seat === "YOU" ? "border-you bg-you text-white" : "border-ink bg-surface-2 text-ink"}`}
-                      >
-                        {seat}
-                      </div>
-                      <span className="text-faint mt-2 block font-mono text-[9px]">
-                        {String(index + 1).padStart(2, "0")}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-                <p className="text-muted mt-6 font-mono text-[10px] uppercase">
-                  05 Bots / 02 AI / 03 Human
-                </p>
-              </div>
+              <PlayerTokens />
             </ScaleIn>
           </section>
           <section className="border-line bg-surface border-y">

@@ -2,23 +2,33 @@
 
 import { useEffect, useRef, useState } from "react";
 import type { TableSnapshot, TableView } from "@insider/sdk";
+import type { PublicKey } from "@solana/web3.js";
 import { Panel } from "@/components/ui/panel";
+import { Stamp } from "@/components/ui/stamp";
 import { updateFloor, useFloorStore } from "@/lib/floor-store";
 import { draftForFill } from "@/lib/order-prefill";
+import { seatsFromXray } from "@/lib/xray-seats";
 
-type LeakEvent = { key: string; tick: number; text: string };
+type LeakEvent = { key: string; tick: number; round: number; text: string; stamp: string };
 export function Feed({
   view,
   snapshot,
+  player,
   onPrefill,
 }: {
   view: TableView;
   snapshot: TableSnapshot;
+  player: PublicKey | null;
   onPrefill?: () => void;
 }) {
   const previous = useRef<Map<string, { state: number; owner: number }>>(new Map());
   const sequence = useRef(0);
   const [leakEvents, setLeakEvents] = useState<LeakEvent[]>([]);
+  const traceSeats =
+    snapshot.xray?.finalized && snapshot.xray.roundId === view.round
+      ? seatsFromXray(snapshot.xray)
+      : [];
+  const myTraceSeat = traceSeats.find((seat) => seat.owner === player?.toBase58())?.index;
   useEffect(() => {
     const events: LeakEvent[] = [];
     for (const leak of view.leaks) {
@@ -29,7 +39,9 @@ export function Feed({
         events.push({
           key: `${identity}-drop-${++sequence.current}`,
           tick: leak.mintedTick,
+          round: view.round,
           text: `${leak.kindName} dropped (${leak.rarityName})`,
+          stamp: "DROP",
         });
       else if (before && before.state !== leak.state) {
         const name = view.seats.find((seat) => seat.index === leak.ownerSeat)?.name ?? "A seat";
@@ -40,13 +52,17 @@ export function Feed({
           events.push({
             key: `${identity}-buy-${++sequence.current}`,
             tick: view.tick,
+            round: view.round,
             text: `${name} bought a sealed Leak for ${leak.paid}`,
+            stamp: "SOLD",
           });
         if (leak.state === 4)
           events.push({
             key: `${identity}-open-${++sequence.current}`,
             tick: leak.openedTick,
+            round: view.round,
             text: `${name} opened ${leak.kindName}`,
+            stamp: "OPENED",
           });
       }
       previous.current.set(identity, { state: leak.state, owner: leak.ownerSeat });
@@ -64,6 +80,7 @@ export function Feed({
             tick: event.tick,
             text: `${seat} sent a ${event.lane === 1 ? "PRIORITY" : "standard"} order`,
             color: event.lane === 1 ? "text-priority" : "text-sealed",
+            stamp: "SENT",
             fill: null,
           }
         : {
@@ -71,16 +88,29 @@ export function Feed({
             tick: event.tick,
             text: `${event.seat === 255 ? "Whale" : seat} fill ${event.side > 0 ? "+" : "−"}${event.size.toLocaleString()} @ ${(event.price / 1_000_000).toFixed(4)}`,
             color: event.seat === 255 ? "text-whale" : event.side > 0 ? "text-buy" : "text-sell",
+            stamp: "FILLED",
             fill: event,
           };
     }),
-    ...leakEvents.map((event) => ({ ...event, color: "text-opened", fill: undefined })),
+    ...leakEvents
+      .filter((event) => event.round === view.round)
+      .map((event) => ({ ...event, color: "text-opened", fill: undefined })),
+    ...(snapshot.xray?.finalized && snapshot.xray.roundId === view.round
+      ? snapshot.xray.tags.slice(0, snapshot.xray.tagCount).map((tag, index) => ({
+          key: `tag-${index}-${tag.frontTick}`,
+          tick: tag.victimTick,
+          text: `${traceSeats[tag.front]?.name ?? `Seat ${tag.front + 1}`} front-ran ${traceSeats[tag.victim]?.name ?? `Seat ${tag.victim + 1}`} · ${tag.profitEstimate >= 0 ? "+" : ""}${tag.profitEstimate} estimated chips`,
+          color: "text-priority",
+          stamp: tag.front === myTraceSeat ? "FRONT-RUN" : "SANDWICH",
+          fill: undefined,
+        }))
+      : []),
   ]
     .sort((a, b) => b.tick - a.tick)
     .slice(0, 8);
   return (
     <Panel
-      title="The tape"
+      title="Game log"
       action={<span className="micro-label">Public activity</span>}
       className="min-h-[220px]"
     >
@@ -126,6 +156,7 @@ export function Feed({
               >
                 <span className={`${row.color} mt-1.5 size-1 shrink-0 rounded-full bg-current`} />
                 <span className="text-muted flex-1 text-[10px] leading-4">
+                  <Stamp className={`${row.color} mr-2 px-1 py-0 text-[8px]`}>{row.stamp}</Stamp>
                   {row.text}
                   {row.fill !== undefined && (
                     <span className="mt-1 flex gap-2">
