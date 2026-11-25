@@ -7,7 +7,7 @@ import {
   useWalletModal,
 } from "@solana/wallet-adapter-react-ui";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useMemo, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useToast } from "@/components/ui/toast";
 import { friendlyError } from "@/lib/errors";
@@ -22,6 +22,18 @@ function WalletBridge() {
   const router = useRouter();
   const handled = useRef(0);
   const running = useRef(false);
+  const [target, setTarget] = useState<HTMLElement | null>(null);
+  useEffect(() => {
+    const update = () =>
+      setTarget(
+        document.getElementById("insider-wallet-button-mobile") ??
+          document.getElementById("insider-wallet-button"),
+      );
+    update();
+    const observer = new MutationObserver(update);
+    observer.observe(document.body, { childList: true, subtree: true });
+    return () => observer.disconnect();
+  }, []);
   useEffect(() => {
     const key = connected ? publicKey : null;
     syncWallet(
@@ -87,8 +99,6 @@ function WalletBridge() {
     }, 500);
     return () => clearTimeout(timer);
   }, [request, visible, connected, connecting]);
-  const target =
-    typeof document === "undefined" ? null : document.getElementById("insider-wallet-button");
   return target ? createPortal(<WalletMultiButton />, target) : null;
 }
 

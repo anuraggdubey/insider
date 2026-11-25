@@ -1,4 +1,5 @@
 import { ProofView } from "@/components/proof/proof-view";
+import { PageTransition } from "@/components/ui/page-transition";
 
 export const metadata = {
   title: "Proof — INSIDER",
@@ -6,5 +7,9 @@ export const metadata = {
 };
 
 export default function ProofPage() {
-  return <ProofView />;
+  return (
+    <PageTransition>
+      <ProofView />
+    </PageTransition>
+  );
 }

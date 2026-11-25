@@ -26,6 +26,7 @@ export function deskPlayer(): Player | null {
 }
 
 export function deskPlayerKey(): PublicKey | null {
+  if (typeof window === "undefined") return null;
   return deskPlayer()?.publicKey ?? null;
 }
 

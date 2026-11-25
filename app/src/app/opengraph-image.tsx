@@ -2,7 +2,10 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { ImageResponse } from "next/og";
 
-const logo = `data:image/svg+xml;base64,${readFileSync(join(process.cwd(), "public/brand/logo.svg")).toString("base64")}`;
+const logoSvg = readFileSync(join(process.cwd(), "public/brand/logo.svg"), "utf8")
+  .replaceAll("#1a0f2e", "#161513")
+  .replaceAll("#ffbf1f", "#ffc21a");
+const logo = `data:image/svg+xml;base64,${Buffer.from(logoSvg).toString("base64")}`;
 
 export const alt = "INSIDER: own the secret";
 export const size = { width: 1200, height: 630 };
@@ -19,14 +22,13 @@ export default function OpengraphImage() {
         flexDirection: "column",
         justifyContent: "center",
         alignItems: "center",
-        background: "linear-gradient(180deg, #bfe3ff 0%, #e4f2ff 60%, #fff3fa 100%)",
-        color: "#1a0f2e",
+        background: "#eceae4",
+        color: "#161513",
         fontFamily: "sans-serif",
       }}
     >
-      {/* eslint-disable-next-line @next/next/no-img-element */}
       <img src={logo} width={760} height={190} alt="" />
-      <div style={{ fontSize: 44, fontWeight: 700, marginTop: 34, color: "#5b4e7a" }}>
+      <div style={{ fontSize: 44, fontWeight: 700, marginTop: 34, color: "#5e5a52" }}>
         A multiplayer game of hidden information
       </div>
     </div>,

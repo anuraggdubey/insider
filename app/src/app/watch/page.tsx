@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import { FloorSkeleton } from "@/components/floor/states";
 import { WatchView } from "@/components/watch/watch-view";
 import { GameProvider } from "@/app/game-provider";
+import { PageTransition } from "@/components/ui/page-transition";
 
 export const metadata = {
   title: "Watch — INSIDER",
@@ -10,10 +11,12 @@ export const metadata = {
 
 export default function WatchPage() {
   return (
-    <Suspense fallback={<FloorSkeleton />}>
-      <GameProvider>
-        <WatchView />
-      </GameProvider>
-    </Suspense>
+    <PageTransition>
+      <Suspense fallback={<FloorSkeleton />}>
+        <GameProvider>
+          <WatchView />
+        </GameProvider>
+      </Suspense>
+    </PageTransition>
   );
 }

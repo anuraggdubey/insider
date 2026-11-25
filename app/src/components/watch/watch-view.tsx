@@ -77,10 +77,10 @@ export function WatchView() {
   return (
     <main
       style={scale ? { width: 1920, height: 1080, maxWidth: "none" } : undefined}
-      className={`watch-screen bg-bg mx-auto flex min-h-[820px] w-full max-w-[1920px] flex-col overflow-hidden p-[2.3%] md:aspect-video md:min-h-0 ${scale ? "watch-record" : ""}`}
+      className={`watch-screen screen mx-auto flex min-h-[820px] w-full max-w-[1920px] flex-col overflow-hidden p-[2.3%] md:aspect-video md:min-h-0 ${scale ? "watch-record" : ""}`}
     >
-      <div className="flex shrink-0 items-center justify-between">
-        <div className="flex items-center gap-4">
+      <div className="flex shrink-0 flex-wrap items-center justify-between gap-x-4 gap-y-3">
+        <div className="flex flex-wrap items-center gap-3 sm:gap-4">
           <div className="border-sealed text-sealed grid size-10 place-items-center border font-mono text-xl">
             I
           </div>
@@ -88,7 +88,7 @@ export function WatchView() {
           <span className="text-muted font-mono text-xs">/ THE FLOOR</span>
           {fixture && <Badge tone="opened">Fixture</Badge>}
         </div>
-        <div className="text-muted flex items-center gap-5 font-mono text-sm">
+        <div className="text-muted flex flex-wrap items-center gap-x-5 gap-y-1 font-mono text-sm">
           <span className={fixture ? "text-opened" : "text-buy"}>
             ● {fixture ? "SIMULATED" : "LIVE"}
           </span>

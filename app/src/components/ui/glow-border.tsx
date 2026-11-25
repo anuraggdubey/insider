@@ -3,8 +3,8 @@ import { cn } from "@/lib/cn";
 
 export function GlowBorder({ className, children, ...props }: HTMLAttributes<HTMLDivElement>) {
   return (
-    <div className={cn("glow-border", className)} {...props}>
-      <div className="glow-border-inner">{children}</div>
+    <div className={cn("gcard", className)} {...props}>
+      {children}
     </div>
   );
 }

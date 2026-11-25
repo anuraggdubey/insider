@@ -2,53 +2,99 @@
 
 import { Menu, X } from "lucide-react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import { useDialogFocus } from "@/lib/dialog-focus";
+import { SoundButton } from "./sound-button";
+import { ThemeToggle } from "./theme-toggle";
+import { WalletButton } from "./wallet-button";
 
 export function MobileNav({ items }: { items: string[][] }) {
-  const [open, setOpen] = useState(false);
+  const pathname = usePathname();
+  const [openedAt, setOpenedAt] = useState<string | null>(null);
+  const open = openedAt === pathname;
   const button = useRef<HTMLButtonElement>(null);
+  const dialog = useDialogFocus(open, () => setOpenedAt(null));
   useEffect(() => {
     if (!open) return;
-    const close = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        setOpen(false);
-        button.current?.focus();
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const closeForWallet = (event: MouseEvent) => {
+      const target = event.target;
+      if (
+        target instanceof Element &&
+        dialog.current?.contains(target) &&
+        target.closest(".wallet-adapter-button")
+      ) {
+        timer = setTimeout(() => setOpenedAt(null), 0);
       }
     };
-    window.addEventListener("keydown", close);
-    return () => window.removeEventListener("keydown", close);
-  }, [open]);
+    document.addEventListener("click", closeForWallet, true);
+    return () => {
+      document.removeEventListener("click", closeForWallet, true);
+      if (timer) clearTimeout(timer);
+    };
+  }, [open, dialog]);
   return (
-    <div className="relative md:hidden">
+    <div className="ml-auto md:hidden">
       <button
         ref={button}
         type="button"
         aria-label={open ? "Close navigation" : "Open navigation"}
         aria-expanded={open}
         aria-controls={open ? "mobile-navigation" : undefined}
-        className="border-line-strong text-muted bg-surface grid size-9 place-items-center rounded-lg border"
-        onClick={() => setOpen(!open)}
+        className="btn btn-outline grid size-10 place-items-center"
+        onClick={() => setOpenedAt(open ? null : pathname)}
       >
-        {open ? <X aria-hidden className="size-4" /> : <Menu aria-hidden className="size-4" />}
+        <Menu aria-hidden className="size-5" />
       </button>
       {open && (
-        <nav
-          id="mobile-navigation"
-          aria-label="Mobile navigation"
-          className="border-line bg-surface absolute top-12 left-0 z-50 flex w-48 flex-col rounded-2xl border p-2 shadow-2xl"
+        <div
+          className="fixed inset-0 z-50 flex items-end bg-black/70"
+          onClick={() => setOpenedAt(null)}
         >
-          {items.map(([label, href]) => (
-            <Link
-              key={href}
-              href={href!}
-              prefetch={false}
-              onClick={() => setOpen(false)}
-              className="text-muted hover:text-text hover:bg-surface-2 rounded-lg px-3 py-2.5 text-sm font-bold"
-            >
-              {label}
-            </Link>
-          ))}
-        </nav>
+          <div
+            ref={dialog}
+            id="mobile-navigation"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Navigation"
+            tabIndex={-1}
+            className="border-line bg-surface w-full rounded-t-xl border p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))]"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="flex items-center justify-between">
+              <span className="micro-label">Choose a channel</span>
+              <button
+                type="button"
+                className="btn btn-ghost grid size-10 place-items-center"
+                aria-label="Close navigation"
+                onClick={() => setOpenedAt(null)}
+              >
+                <X aria-hidden className="size-5" />
+              </button>
+            </div>
+            <nav aria-label="Mobile navigation" className="mt-3 grid gap-2">
+              {items.map(([label, href], index) => (
+                <Link
+                  key={href}
+                  href={href!}
+                  prefetch={false}
+                  onClick={() => setOpenedAt(null)}
+                  aria-current={pathname === href ? "page" : undefined}
+                  className="border-line bg-surface-2 hover:border-ink flex min-h-12 items-center justify-between rounded-lg border px-4 text-base font-bold"
+                >
+                  {label}
+                  <span className="text-muted font-mono text-xs">0{index + 1} /</span>
+                </Link>
+              ))}
+            </nav>
+            <div className="border-line mt-5 flex flex-wrap items-center gap-3 border-t pt-5">
+              <ThemeToggle />
+              <SoundButton />
+              <WalletButton id="insider-wallet-button-mobile" />
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

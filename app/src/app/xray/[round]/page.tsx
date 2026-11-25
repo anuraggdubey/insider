@@ -5,6 +5,7 @@ import { FloorSkeleton } from "@/components/floor/states";
 import { XrayView } from "@/components/xray/xray-view";
 import { parseOgParams } from "@/lib/og";
 import { GameProvider } from "@/app/game-provider";
+import { PageTransition } from "@/components/ui/page-transition";
 
 type Props = {
   params: Promise<{ round: string }>;
@@ -63,8 +64,10 @@ async function RoundContent({ params }: Pick<Props, "params">) {
 
 export default function RoundPage({ params }: Props) {
   return (
-    <Suspense fallback={<FloorSkeleton />}>
-      <RoundContent params={params} />
-    </Suspense>
+    <PageTransition>
+      <Suspense fallback={<FloorSkeleton />}>
+        <RoundContent params={params} />
+      </Suspense>
+    </PageTransition>
   );
 }

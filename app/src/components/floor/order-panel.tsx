@@ -264,12 +264,23 @@ export function OrderPanel({
                 transition={reducedMotion ? reducedTransition : spring}
                 className="border-priority/20 bg-priority/5 mb-1 flex items-center gap-2 rounded border px-2 py-1"
               >
-                <div
-                  className="grid size-7 place-items-center rounded-full"
-                  style={{
-                    background: `conic-gradient(#b58cff ${Math.max(0, 100 - (order.ticksToLand / (order.lane ? 4 : 20)) * 100)}%, #282431 0)`,
-                  }}
-                >
+                <div className="relative grid size-7 place-items-center rounded-full">
+                  <svg
+                    aria-hidden="true"
+                    viewBox="0 0 28 28"
+                    className="absolute inset-0 size-7 -rotate-90"
+                  >
+                    <circle cx="14" cy="14" r="12" fill="none" stroke="#2b2b30" strokeWidth="2" />
+                    <circle
+                      cx="14"
+                      cy="14"
+                      r="12"
+                      fill="none"
+                      stroke="#ff6a33"
+                      strokeWidth="2"
+                      strokeDasharray={`${Math.max(0, 1 - order.ticksToLand / (order.lane ? 4 : 20)) * 75.4} 75.4`}
+                    />
+                  </svg>
                   <span className="bg-surface text-priority grid size-5 place-items-center rounded-full font-mono text-[8px]">
                     {(order.ticksToLand / 2).toFixed(0)}
                   </span>

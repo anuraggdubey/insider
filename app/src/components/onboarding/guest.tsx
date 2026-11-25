@@ -93,7 +93,7 @@ export function GuestControls({ config, view }: { config: InsiderConfig; view: T
           </button>
         )}
         {identity === "guest" && settings && (
-          <div className="border-line-strong bg-surface absolute top-10 right-0 z-40 w-72 rounded-lg border p-4 text-left shadow-2xl">
+          <div className="border-line-strong bg-surface absolute top-10 right-0 z-40 w-72 rounded-lg border p-4 text-left">
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium">Guest key</span>
               <KeyRound className="text-sealed size-4" />
@@ -165,14 +165,14 @@ export function GuestControls({ config, view }: { config: InsiderConfig; view: T
       </div>
       {tutorial && view.mine && (
         <div
-          className="fixed inset-0 z-40 grid place-items-center bg-black/70 px-5 backdrop-blur-sm"
+          className="fixed inset-0 z-40 grid place-items-center bg-black/70 px-5"
           role="dialog"
           aria-modal="true"
           aria-label="Welcome to the floor"
           ref={dialog}
           tabIndex={-1}
         >
-          <div className="border-line-strong bg-surface relative w-full max-w-md rounded-xl border p-8 shadow-2xl">
+          <div className="border-line-strong bg-surface relative w-full max-w-md rounded-xl border p-8">
             <button
               type="button"
               aria-label="Close"

@@ -5,7 +5,7 @@ import dynamic from "next/dynamic";
 
 const Num = dynamic(() => import("./num").then((module) => module.Num), { ssr: false });
 
-export function WalletButton() {
+export function WalletButton({ id = "insider-wallet-button" }: { id?: string }) {
   const ready = useWalletUi((state) => state.ready);
   const active = useWalletUi((state) => state.active);
   const guest = useFloorStore((state) => state.guest);
@@ -36,7 +36,7 @@ export function WalletButton() {
           {active ? "Loading wallet…" : "Select Wallet"}
         </button>
       )}
-      <span id="insider-wallet-button" />
+      <span id={id} />
     </div>
   );
 }

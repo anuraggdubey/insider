@@ -19,6 +19,7 @@ export function Button({
   variant,
   size,
   loading = false,
+  shake = false,
   children,
   className,
   disabled,
@@ -28,17 +29,20 @@ export function Button({
   variant?: Variant;
   size?: Size;
   loading?: boolean;
+  shake?: boolean;
 }) {
   return (
     <button
       type={type}
       disabled={disabled || loading}
       aria-busy={loading || undefined}
-      className={buttonStyles({ variant, size, className })}
+      className={buttonStyles({ variant, size, className: cn(shake && "key-shake", className) })}
       {...props}
     >
-      {loading && <LoaderCircle aria-hidden className="size-4 animate-spin" />}
-      {children}
+      <span className={cn("inline-flex items-center gap-2", loading && "invisible")}>
+        {children}
+      </span>
+      {loading && <LoaderCircle aria-hidden className="absolute size-4 animate-spin" />}
     </button>
   );
 }

@@ -1,254 +1,269 @@
-import Image from "next/image";
 import Link from "next/link";
+import { ArrowRight, ArrowUpRight } from "lucide-react";
 import {
   HeroFade,
   HorizontalRounds,
+  LandingMotion,
   Parallax,
   Reveal,
   ScaleIn,
   ScrollBand,
 } from "@/components/landing/motion";
+import { Machine } from "@/components/landing/machine";
 import { PlayButton } from "@/components/onboarding/play-button";
 import { FastModeToggle, WalletPlayButton } from "@/components/onboarding/wallet";
 import { buttonStyles } from "@/components/ui/button";
+import { PageTransition } from "@/components/ui/page-transition";
 
 const rounds = [
   {
     tag: "01",
-    kicker: "Drop in",
-    title: "Take a seat",
-    text: "One click and you are at the table with nine rivals: bots, AI players and other people. Chips are play money. A round is about 100 seconds.",
+    kicker: "The order",
+    title: "Orders go in sealed",
+    text: "Every move waits in the dark. No one sees its side or size until it lands.",
     tone: "sun",
-    img: "/art/seats.jpg",
-    alt: "Ten sealed capsules in a ring, one for every seat",
+    img: "/art/drop.jpg",
+    alt: "A sealed order entering the machine",
   },
   {
     tag: "02",
-    kicker: "The secret",
-    title: "Move in the dark",
-    text: "Every move you make hides for 10 seconds where nobody can read it. A hidden future, rolled by on-chain randomness, decides where the round goes.",
+    kicker: "The drop",
+    title: "Capsules drop",
+    text: "Every ten seconds a Leak appears. Its Dutch auction price falls every 500 ms.",
     tone: "sky",
-    img: "/art/drop.jpg",
-    alt: "A buy order dropping into a capsule, sealed before anyone can read it",
+    img: "/art/sold.jpg",
+    alt: "A capsule beside a sold sign",
   },
   {
     tag: "03",
-    kicker: "Grab a leak",
-    title: "Pop a capsule",
-    text: "Every ten seconds a sealed Leak drops. Win it in a falling-price auction and you become its only reader: a peek at what rivals queued, or a fact about the future.",
+    kicker: "The secret",
+    title: "Peek, flip or license",
+    text: "Open a capsule to read it, flip it sealed or license its secret to other players.",
     tone: "pop",
     img: "/art/sold.jpg",
-    alt: "A mystery capsule next to a flip board that reads SOLD",
+    alt: "A sealed capsule ready to be sold",
   },
   {
     tag: "04",
-    kicker: "Cash it in",
-    title: "Play your read",
-    text: "Jump ahead of the moves you just saw, flip the capsule sealed to a rival who'll pay more, or licence it and watch its value fade. Then the X-ray shows everyone's hand.",
+    kicker: "The edge",
+    title: "Jump the line",
+    text: "Use the priority lane to act on your information before the order lands.",
     tone: "mint",
+    img: "/art/drop.jpg",
+    alt: "An order moving through the machine",
+  },
+  {
+    tag: "05",
+    kicker: "The reveal",
+    title: "Everything revealed",
+    text: "After the bell, the X-ray shows every move and every sandwich.",
+    tone: "sky",
     img: "/art/xray.jpg",
-    alt: "X-ray view showing three orders inside their capsules",
+    alt: "An X-ray of the round",
   },
 ];
-
 const modes = [
   {
     name: "The Arena",
-    text: "The core round: hidden moves, Leaks, front-running and the replay.",
     href: "/table",
+    copy: "Trade hidden moves and win the information game.",
+    preview: "10 SEATS / 2 LANES",
   },
   {
     name: "The Desk",
-    text: "Call the real SOL price up or down, sealed. Sell a read. Get judged by the oracle.",
     href: "/desk",
+    copy: "Make a sealed Call on the real SOL price.",
+    preview: "SOL / UP OR DOWN",
   },
   {
     name: "Alpha Cup",
-    text: "A five-round tournament for human players, with a prize pool.",
     href: "/cup",
+    copy: "Five rounds. Human seats. One prize pool.",
+    preview: "5 ROUNDS / TOP 3",
   },
   {
-    name: "Proof",
-    text: "Every claim on this site, with the real devnet transaction behind it.",
-    href: "/proof",
+    name: "Season",
+    href: "/season",
+    copy: "One good read can put you on the board.",
+    preview: "HIGH SCORES / LIVE",
+  },
+  {
+    name: "Watch",
+    href: "/watch",
+    copy: "See the public action unfold in real time.",
+    preview: "BROADCAST / LIVE",
+  },
+  {
+    name: "X-ray",
+    href: "/xray",
+    copy: "After the bell, see every secret revealed.",
+    preview: "REPLAY / DECLASSIFIED",
   },
 ];
-
-const facts = [
-  ["10", "seats per table"],
-  ["~100 s", "per round"],
-  ["10 s", "every move stays sealed"],
-  ["0", "real funds at stake"],
+const receipts = [
+  ["01", "Private rollup", "Permissions keep orders and future data sealed."],
+  ["02", "Verifiable randomness", "The market's hidden path is rolled by VRF."],
+  ["03", "Cranks", "The clock and the round move on chain."],
+  ["04", "Rollup speed", "A new tick every 500 milliseconds."],
+  ["05", "SOAR", "Scores travel to an on-chain leaderboard."],
 ];
 
 export default function Home() {
   return (
-    <main className="flex-1 overflow-x-clip">
-      {/* hero */}
-      <section className="relative mx-auto max-w-7xl px-5 pt-12 pb-14 sm:px-8 lg:pt-16 lg:pb-20">
-        <HeroFade className="grid items-center gap-12 lg:grid-cols-[1.02fr_.98fr]">
-          <div className="pop-in max-w-2xl">
-            <span className="micro-label text-ink border-ink inline-block border px-2.5 py-1">
-              A multiplayer game of secrets
-            </span>
-            <h1 className="mt-6 text-[clamp(3rem,7.4vw,6rem)] leading-[.92] font-extrabold tracking-[-0.045em]">
-              Own the
-              <br />
-              <span className="hl">secret.</span>
-            </h1>
-            <p className="text-muted mt-6 max-w-lg text-lg leading-7 font-medium">
-              Everyone trades on a hidden market. Your moves wait in the dark, Leaks drop as sealed
-              capsules, and you win the round by knowing what the others can&apos;t.
-            </p>
-            <div className="mt-8 flex flex-wrap items-center gap-3">
-              <PlayButton />
-              <WalletPlayButton />
-              <Link href="/rules" className={buttonStyles({ variant: "outline", size: "lg" })}>
-                How to play
-              </Link>
-            </div>
-            <div className="mt-4">
-              <FastModeToggle />
-            </div>
-          </div>
-
-          <div className="pop-in flex justify-center [animation-delay:.12s]">
-            <Parallax className="relative w-full max-w-[560px]">
-              <div className="border-line bg-surface overflow-hidden rounded-xl border p-1.5">
-                <Image
-                  src="/art/hero.jpg"
-                  alt="A capsule split open: the lid on the right, and a rival's buy order for 1,200 floating above it"
-                  width={1600}
-                  height={900}
-                  priority
-                  sizes="(min-width: 1024px) 560px, 92vw"
-                  className="aspect-[5/4] w-full rounded-lg object-cover object-[46%_50%]"
-                />
+    <PageTransition>
+      <LandingMotion>
+        <main className="flex-1 overflow-x-clip">
+          <section className="mx-auto max-w-7xl px-5 pt-14 pb-16 sm:px-8 lg:pt-20 lg:pb-24">
+            <HeroFade className="grid items-center gap-12 lg:grid-cols-[1fr_0.9fr]">
+              <div>
+                <span className="micro-label text-sealed">A game of hidden information / 01</span>
+                <h1 className="mt-6 max-w-3xl text-[clamp(3.4rem,7vw,6.5rem)] leading-[0.9] font-black tracking-[-0.04em]">
+                  Front-running is the <span className="hl">game.</span>
+                </h1>
+                <p className="text-muted mt-7 max-w-lg text-lg leading-7">
+                  Orders wait 10 seconds in a sealed mempool. Buy a capsule to peek. Jump the line.
+                </p>
+                <div className="mt-8 flex flex-wrap gap-3">
+                  <PlayButton />
+                  <WalletPlayButton size="lg" />
+                </div>
+                <p className="text-faint mt-6 font-mono text-[10px] leading-5 uppercase">
+                  No wallet, no deposit · Solana devnet · MagicBlock private rollup
+                </p>
+                <div className="mt-3">
+                  <FastModeToggle />
+                </div>
               </div>
-              <span className="glass text-ink absolute top-5 -left-3 px-3 py-1.5 text-xs font-bold sm:-left-5">
-                Only you can read it
-              </span>
-              <span className="glass text-ink absolute -right-3 -bottom-4 px-3 py-1.5 text-xs font-bold sm:-right-5">
-                Silver Fox just bought 1,200
-              </span>
-            </Parallax>
-          </div>
-        </HeroFade>
-
-        <Reveal className="mt-14">
-          <dl className="border-line bg-line grid grid-cols-2 gap-px overflow-hidden rounded-xl border lg:grid-cols-4">
-            {facts.map(([value, label]) => (
-              <div key={label} className="bg-surface px-5 py-4">
-                <dt className="font-[family-name:var(--font-display)] text-3xl font-extrabold tracking-tight">
-                  {value}
-                </dt>
-                <dd className="text-muted mt-1 text-sm font-medium">{label}</dd>
-              </div>
-            ))}
-          </dl>
-        </Reveal>
-      </section>
-
-      <ScrollBand top="Hidden moves" bottom="Sealed leaks" />
-
-      <HorizontalRounds rounds={rounds} />
-
-      {/* the table */}
-      <section className="mx-auto max-w-7xl px-5 pt-16 sm:px-8 lg:pt-24">
-        <div className="grid items-center gap-12 lg:grid-cols-[.95fr_1.05fr]">
-          <ScaleIn>
-            <div className="border-line bg-surface overflow-hidden rounded-xl border p-1.5">
-              <Image
-                src="/art/pyramid.jpg"
-                alt="Ten capsules stacked in a pyramid, one colour per seat"
-                width={1600}
-                height={900}
-                sizes="(min-width: 1024px) 560px, 92vw"
-                className="aspect-[5/4] w-full rounded-lg object-cover object-[50%_42%]"
-              />
+              <Parallax distance={24}>
+                <Machine />
+              </Parallax>
+            </HeroFade>
+          </section>
+          <section aria-label="The game at a glance" className="border-line bg-surface border-y">
+            <div className="mx-auto grid max-w-7xl grid-cols-2 divide-x divide-y sm:grid-cols-4 sm:divide-y-0">
+              {[
+                ["90 s", "80s LIVE / 10s CLOSING"],
+                ["10 s", "X-RAY AFTER THE BELL"],
+                ["500 ms", "PER TICK"],
+                ["10 / 0", "SEATS / SOL TO PLAY"],
+              ].map(([value, label]) => (
+                <div key={value} className="border-line p-5 sm:p-7">
+                  <div className="text-3xl font-black tracking-tight">{value}</div>
+                  <div className="micro-label mt-2">{label}</div>
+                </div>
+              ))}
             </div>
-          </ScaleIn>
-          <Reveal delay={0.12}>
-            <div>
-              <span className="micro-label text-ink">Ten seats. One table.</span>
-              <h2 className="mt-3 text-4xl sm:text-5xl">Everyone is hiding something.</h2>
-              <p className="text-muted mt-5 max-w-xl text-lg leading-7 font-medium">
-                Bots front-run you, bait you and flip your leaks. Two AI analysts call the real SOL
-                price in public. The table is never empty, and nobody, not even us, can read a move
-                until it lands.
-              </p>
-              <dl className="border-line divide-line mt-7 max-w-xl divide-y border-y">
-                {[
-                  ["Front-runner", "Reads your order, gets there first"],
-                  ["Baiter", "Sends decoys, watches you bite"],
-                  ["Flipper", "Never opens it. Sells it higher"],
-                  ["Analysts", "Call SOL up or down in public"],
-                ].map(([name, text]) => (
-                  <div key={name} className="flex items-baseline gap-4 py-3">
-                    <dt className="w-28 shrink-0 font-[family-name:var(--font-display)] font-bold">
-                      {name}
-                    </dt>
-                    <dd className="text-muted text-sm font-medium">{text}</dd>
-                  </div>
+          </section>
+          <ScrollBand top="HIDDEN MOVES" bottom="SEALED SECRETS" />
+          <HorizontalRounds rounds={rounds} />
+          <section className="mx-auto grid max-w-7xl items-center gap-12 px-5 py-20 sm:px-8 lg:grid-cols-[1fr_1fr] lg:py-28">
+            <Reveal>
+              <div>
+                <span className="micro-label text-sealed">The table / 10 seats</span>
+                <h2 className="mt-4 text-4xl leading-tight sm:text-6xl">
+                  Everyone is hiding something.
+                </h2>
+                <p className="text-muted mt-5 max-w-xl text-lg leading-7">
+                  Bots front-run and bait. AI analysts make their calls in public. Human players
+                  choose what to do with the secrets they buy.
+                </p>
+                <Link
+                  href="/table"
+                  className={buttonStyles({ variant: "outline", className: "mt-7" })}
+                >
+                  Meet the table <ArrowRight aria-hidden className="size-4" />
+                </Link>
+              </div>
+            </Reveal>
+            <ScaleIn>
+              <div className="gcard p-5 sm:p-8">
+                <div className="micro-label mb-6">Player tokens / 10 occupied seats</div>
+                <div className="grid grid-cols-5 gap-3">
+                  {["B", "B", "B", "B", "B", "AI", "AI", "YOU", "H", "H"].map((seat, index) => (
+                    <div key={index} className="text-center">
+                      <div
+                        className={`mx-auto grid aspect-square w-full max-w-16 place-items-center rounded-full border-2 font-mono text-xs font-bold ${seat === "YOU" ? "border-you bg-you text-white" : "border-ink bg-surface-2 text-ink"}`}
+                      >
+                        {seat}
+                      </div>
+                      <span className="text-faint mt-2 block font-mono text-[9px]">
+                        {String(index + 1).padStart(2, "0")}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+                <p className="text-muted mt-6 font-mono text-[10px] uppercase">
+                  05 Bots / 02 AI / 03 Human
+                </p>
+              </div>
+            </ScaleIn>
+          </section>
+          <section className="border-line bg-surface border-y">
+            <div className="mx-auto max-w-7xl px-5 py-20 sm:px-8">
+              <span className="micro-label text-sealed">Pick a channel</span>
+              <h2 className="mt-4 text-4xl sm:text-6xl">Game modes.</h2>
+              <ul className="border-line mt-10 border-t">
+                {modes.map((mode, index) => (
+                  <li key={mode.name} className="border-line border-b">
+                    <Link
+                      href={mode.href}
+                      prefetch={false}
+                      className="group grid grid-cols-[2.5rem_1fr_auto] items-center gap-3 py-6 sm:grid-cols-[4rem_1fr_1fr_auto]"
+                    >
+                      <span className="text-faint font-mono text-xs">0{index + 1} /</span>
+                      <span className="text-xl font-extrabold sm:text-2xl">{mode.name}</span>
+                      <span className="text-muted hidden text-sm sm:block">{mode.copy}</span>
+                      <span className="flex items-center gap-3">
+                        <span className="border-line-strong bg-surface-2 text-muted hidden rounded border px-2 py-1 font-mono text-[9px] group-hover:block group-focus-visible:block lg:block">
+                          {mode.preview}
+                        </span>
+                        <ArrowUpRight aria-hidden className="size-5" />
+                      </span>
+                      <span className="text-muted col-start-2 col-end-4 text-sm sm:hidden">
+                        {mode.copy}
+                      </span>
+                    </Link>
+                  </li>
                 ))}
-              </dl>
+              </ul>
             </div>
-          </Reveal>
-        </div>
-      </section>
-
-      {/* game modes */}
-      <section className="mx-auto max-w-7xl px-5 py-16 sm:px-8 lg:py-24">
-        <div className="mb-8">
-          <span className="micro-label text-ink">Pick your table</span>
-          <h2 className="mt-3 text-4xl sm:text-5xl">Game modes</h2>
-        </div>
-        <ul className="border-line divide-line divide-y border-y">
-          {modes.map(({ name, text, href }, i) => (
-            <li key={name}>
-              <Link
-                href={href}
-                prefetch={false}
-                className="group hover:bg-surface-2 grid grid-cols-[2.5rem_1fr_auto] items-baseline gap-x-4 gap-y-1 px-2 py-6 transition-colors sm:grid-cols-[3rem_14rem_1fr_auto]"
-              >
-                <span className="text-faint text-sm font-bold tabular-nums">0{i + 1}</span>
-                <span className="font-[family-name:var(--font-display)] text-2xl font-extrabold tracking-tight">
-                  {name}
-                </span>
-                <span className="text-muted col-start-2 text-sm font-medium sm:col-start-auto">
-                  {text}
-                </span>
-                <span className="text-ink row-start-1 text-lg font-bold transition-transform group-hover:translate-x-1 sm:row-start-auto">
-                  →
-                </span>
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </section>
-
-      {/* on-chain */}
-      <section className="mx-auto max-w-7xl px-5 pb-20 sm:px-8">
-        <ScaleIn>
-          <div className="border-ink grid gap-8 border-y-2 py-10 lg:grid-cols-[1fr_auto] lg:items-center">
-            <div>
-              <h2 className="text-3xl sm:text-4xl">Real game. Real chain.</h2>
-              <p className="text-muted mt-3 max-w-2xl text-base leading-7 font-medium">
-                The whole round runs inside a MagicBlock Private Ephemeral Rollup: a sealed mempool,
-                VRF-rolled rounds, cranks that keep the clock, and permissions that decide who can
-                read what. Nothing here uses real money.
+          </section>
+          <section className="mx-auto max-w-7xl px-5 py-20 sm:px-8 lg:py-28">
+            <Reveal>
+              <span className="micro-label text-sealed">The receipts / built on MagicBlock</span>
+              <h2 className="mt-4 max-w-2xl text-4xl sm:text-6xl">The machine runs on chain.</h2>
+              <p className="text-muted mt-5 max-w-2xl text-lg">
+                Privacy, randomness and a clock you can verify. No trust in the house required.
               </p>
+            </Reveal>
+            <div className="mt-10 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+              {receipts.map(([number, title, copy]) => (
+                <article key={number} className="gcard flex min-h-44 flex-col p-5">
+                  <span className="text-sealed font-mono text-xs">{number} / VERIFIED</span>
+                  <h3 className="mt-5 text-lg">{title}</h3>
+                  <p className="text-muted mt-2 text-sm leading-6">{copy}</p>
+                </article>
+              ))}
             </div>
             <Link
               href="/proof"
               prefetch={false}
-              className={buttonStyles({ variant: "outline", size: "lg" })}
+              className={buttonStyles({ variant: "outline", className: "mt-8" })}
             >
-              Explore the proof
+              Check the proof <ArrowUpRight aria-hidden className="size-4" />
             </Link>
-          </div>
-        </ScaleIn>
-      </section>
-    </main>
+          </section>
+          <section className="bg-capsule text-[#161513]">
+            <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-6 px-5 py-12 sm:px-8">
+              <div>
+                <span className="font-mono text-xs font-bold uppercase">The machine is ready</span>
+                <h2 className="mt-2 text-3xl sm:text-5xl">Take your seat.</h2>
+              </div>
+              <PlayButton />
+            </div>
+          </section>
+        </main>
+      </LandingMotion>
+    </PageTransition>
   );
 }

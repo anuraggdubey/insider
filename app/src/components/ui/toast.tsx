@@ -25,13 +25,14 @@ export function Toaster() {
   const dismiss = useToast((state) => state.dismiss);
   return (
     <div
-      className="fixed right-4 bottom-4 z-50 flex w-[min(22rem,calc(100%-2rem))] flex-col gap-2"
+      className="fixed right-4 bottom-4 z-50 flex w-[min(22rem,calc(100%-2rem))] flex-col gap-2 md:top-20 md:bottom-auto"
       aria-live="polite"
     >
       {items.map((item) => (
         <div
           key={item.id}
-          className="border-line-strong bg-surface-2 text-text flex items-center justify-between gap-4 rounded-lg border p-4 text-sm shadow-xl"
+          role="status"
+          className="toast-in border-ink bg-surface text-text flex items-center justify-between gap-4 border-2 p-4 font-mono text-xs font-bold uppercase"
         >
           {item.message}
           <button

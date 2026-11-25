@@ -118,7 +118,7 @@ function Share({ round }: { round: ArchivedRound }) {
         <Share2 className="size-3.5" /> Share
       </Button>
       {open && (
-        <div className="border-line-strong bg-surface absolute right-0 z-10 mt-2 w-72 rounded-lg border p-4 shadow-xl">
+        <div className="border-line-strong bg-surface absolute right-0 z-10 mt-2 w-72 rounded-lg border p-4">
           <p className="text-muted text-xs leading-5">{details.line}</p>
           <div className="mt-3 flex flex-wrap gap-2">
             <Button
@@ -316,7 +316,7 @@ export function XrayView({ roundNumber }: { roundNumber?: number }) {
             title="The whole tape"
             action={<span className="text-muted font-mono text-[10px]">T+{tick} / 180</span>}
           >
-            <div className="h-[300px] px-3 pt-3 sm:h-[370px]">
+            <div className="screen h-[300px] px-3 pt-3 sm:h-[370px]">
               <ReplayChart
                 round={round}
                 tick={tick}

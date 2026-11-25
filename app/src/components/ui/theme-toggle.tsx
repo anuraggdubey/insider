@@ -2,6 +2,7 @@
 
 import { Moon, Sun } from "lucide-react";
 import { useSyncExternalStore } from "react";
+import { Switch } from "./switch";
 
 const subscribe = (notify: () => void) => {
   const observer = new MutationObserver(notify);
@@ -16,19 +17,20 @@ export function ThemeToggle() {
   const toggle = () => {
     const next = !dark;
     document.documentElement.classList.toggle("dark", next);
+    document.querySelectorAll<HTMLMetaElement>('meta[name="theme-color"]').forEach((meta) => {
+      meta.content = next ? "#0E0E0F" : "#ECEAE4";
+    });
     try {
       localStorage.setItem("insider.theme", next ? "dark" : "light");
     } catch {}
   };
   return (
-    <button
-      type="button"
-      aria-label={dark ? "Switch to light mode" : "Switch to dark mode"}
-      title={dark ? "Light mode" : "Dark mode"}
-      className="border-line-strong text-muted hover:text-text bg-surface grid size-9 shrink-0 place-items-center rounded-lg border transition-colors"
-      onClick={toggle}
-    >
-      {dark ? <Sun aria-hidden className="size-4" /> : <Moon aria-hidden className="size-4" />}
-    </button>
+    <Switch
+      checked={dark}
+      onCheckedChange={toggle}
+      label={dark ? "Switch to light mode" : "Switch to dark mode"}
+      off={<Sun aria-hidden className="size-4" />}
+      on={<Moon aria-hidden className="size-4" />}
+    />
   );
 }

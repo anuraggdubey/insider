@@ -58,9 +58,7 @@ export function SeatRail({ view }: { view: TableView }) {
                   ) : (
                     <LockKeyhole className="text-sealed size-3" />
                   ))}
-                {pulse && (
-                  <span className="bg-priority size-1.5 animate-pulse rounded-full shadow-[0_0_8px_#b58cff]" />
-                )}
+                {pulse && <span className="bg-priority size-1.5 animate-pulse rounded-full" />}
                 <Badge tone="neutral" className="border-0 px-1 py-0 text-[8px]">
                   {seat.kind}
                 </Badge>

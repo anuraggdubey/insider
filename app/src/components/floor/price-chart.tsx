@@ -55,7 +55,7 @@ export function PriceChart({
         background: { type: ColorType.Solid, color: "#0c0e11" },
         textColor: "#8a93a0",
         fontSize: 10,
-        fontFamily: "var(--font-geist-mono), monospace",
+        fontFamily: "var(--font-jetbrains), monospace",
         attributionLogo: false,
       },
       grid: { vertLines: { color: "#14191f" }, horzLines: { color: "#171c23" } },
@@ -148,7 +148,7 @@ export function PriceChart({
           shape: event.side > 0 ? ("arrowUp" as const) : ("arrowDown" as const),
           color:
             event.seat === 255
-              ? "#7c8cff"
+              ? "#5ccbf0"
               : mine
                 ? "#ffb547"
                 : event.side > 0
@@ -242,7 +242,7 @@ export function PriceChart({
     (event) => event.type === "fill" && event.seat === view.mine?.index && event.tick === view.tick,
   );
   return (
-    <Panel className="h-[470px] min-[1440px]:flex min-[1440px]:h-full min-[1440px]:min-h-0 min-[1440px]:flex-col">
+    <Panel className="screen h-[470px] min-[1440px]:flex min-[1440px]:h-full min-[1440px]:min-h-0 min-[1440px]:flex-col">
       <div className="border-line flex h-[73px] shrink-0 items-center justify-between border-b px-5">
         <div>
           <div className="micro-label flex items-center gap-2">

@@ -1,16 +1,25 @@
 "use client";
 
+import { useState } from "react";
 import { Badge, type BadgeTone } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Capsule, type CapsuleRarity, type CapsuleState } from "@/components/ui/capsule";
 import { Countdown } from "@/components/ui/countdown";
 import { Divider } from "@/components/ui/divider";
-import { GlowBorder } from "@/components/ui/glow-border";
 import { Kbd } from "@/components/ui/kbd";
+import { MainNav } from "@/components/ui/main-nav";
 import { Num } from "@/components/ui/num";
 import { Panel } from "@/components/ui/panel";
 import { PhaseBar } from "@/components/ui/phase-bar";
+import { Readout } from "@/components/ui/readout";
+import { Screen } from "@/components/ui/screen";
 import { SealedCard } from "@/components/ui/sealed-card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Stamp } from "@/components/ui/stamp";
+import { Empty, ErrorState } from "@/components/ui/states";
+import { Stepper } from "@/components/ui/stepper";
+import { Switch } from "@/components/ui/switch";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { Ticker } from "@/components/ui/ticker";
 import { useToast } from "@/components/ui/toast";
 import { Tooltip } from "@/components/ui/tooltip";
@@ -28,21 +37,33 @@ const tones: BadgeTone[] = [
   "whale",
   "flow",
   "fundamentals",
+  "live",
 ];
+const rarities: CapsuleRarity[] = ["common", "rare", "epic"];
+const states: CapsuleState[] = ["sealed", "owned", "listed", "opened", "expired"];
+
 export function Showcase() {
   const toast = useToast((state) => state.add);
+  const [checked, setChecked] = useState(false);
+  const [value, setValue] = useState(500);
+  const [number, setNumber] = useState(1000);
+  const [shake, setShake] = useState(false);
   return (
-    <main className="mx-auto w-full max-w-6xl space-y-8 px-5 py-16 sm:px-8">
-      <div>
-        <p className="micro-label text-sealed">Development only</p>
-        <h1 className="mt-3 text-4xl font-medium tracking-tight">Terminal components</h1>
-        <p className="text-muted mt-3 text-sm">
-          A reference for interface states. All values are illustrative.
-        </p>
+    <main className="mx-auto w-full max-w-6xl space-y-6 px-5 py-16 sm:px-8">
+      <div className="flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <p className="micro-label text-sealed">Development only / component catalogue</p>
+          <h1 className="mt-3 text-4xl sm:text-6xl">The machine kit.</h1>
+          <p className="text-muted mt-3 text-sm">
+            Every state in light and dark. Switch the theme to inspect both.
+          </p>
+        </div>
+        <ThemeToggle />
       </div>
-      <Panel title="Buttons" label="Variants & sizes">
-        <div className="flex flex-wrap gap-3 p-5">
+      <Panel title="Keys / every variant" label="hover · press · focus">
+        <div className="flex flex-wrap items-center gap-4 p-5">
           <Button>Primary</Button>
+          <Button variant="ink">Ink</Button>
           <Button variant="ghost">Ghost</Button>
           <Button variant="outline">Outline</Button>
           <Button variant="buy">Buy</Button>
@@ -52,10 +73,44 @@ export function Showcase() {
           <Button size="lg">Large</Button>
           <Button loading>Loading</Button>
           <Button disabled>Disabled</Button>
+          <Button
+            shake={shake}
+            onClick={() => {
+              setShake(true);
+              setTimeout(() => setShake(false), 300);
+            }}
+          >
+            Error shake
+          </Button>
         </div>
       </Panel>
-      <Panel title="Signals" label="Badges, numerals & keys">
+      <Panel title="Capsules / rarity × state" label="hover to wobble">
         <div className="space-y-6 p-5">
+          {rarities.map((rarity) => (
+            <div key={rarity}>
+              <p className="micro-label mb-4">{rarity}</p>
+              <div className="grid grid-cols-2 gap-4 sm:grid-cols-5">
+                {states.map((state) => (
+                  <div
+                    key={state}
+                    className="bg-surface-2 flex flex-col items-center rounded-xl p-3"
+                  >
+                    <Capsule
+                      rarity={rarity}
+                      state={state}
+                      motion={state === "owned" ? "pop" : "drop"}
+                      mine={state === "owned"}
+                      label={state}
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </Panel>
+      <Panel title="Signals / badges · numerals · keys">
+        <div className="space-y-5 p-5">
           <div className="flex flex-wrap gap-2">
             {tones.map((tone) => (
               <Badge key={tone} tone={tone}>
@@ -64,7 +119,7 @@ export function Showcase() {
             ))}
           </div>
           <Divider />
-          <div className="flex flex-wrap items-center gap-8">
+          <div className="flex flex-wrap items-center gap-7">
             <div>
               <p className="micro-label">Chips</p>
               <Num value={12345} />
@@ -75,14 +130,64 @@ export function Showcase() {
             </div>
             <div>
               <p className="micro-label">Delta</p>
-              <Num kind="delta" value={21.5} /> <Num kind="delta" value={-9} />
+              <Num kind="delta" value={21.5} /> / <Num kind="delta" value={-9} />
             </div>
             <Tooltip content="An example keyboard shortcut">
-              <Kbd>⌘ K</Kbd>
+              <Kbd>Enter</Kbd>
             </Tooltip>
           </div>
           <Countdown ticks={14} totalTicks={24} />
           <PhaseBar tick={169} />
+        </div>
+      </Panel>
+      <div className="grid gap-6 md:grid-cols-2">
+        <Screen label="Readout / change">
+          <div className="space-y-5 p-5">
+            <Readout value={number} className="text-4xl" />
+            <div className="flex gap-3">
+              <Button size="sm" onClick={() => setNumber(number + 25)}>
+                +25
+              </Button>
+              <Button size="sm" variant="outline" onClick={() => setNumber(number - 25)}>
+                −25
+              </Button>
+            </div>
+          </div>
+        </Screen>
+        <Panel title="Controls / lane · order size">
+          <div className="space-y-5 p-5">
+            <Switch
+              checked={checked}
+              onCheckedChange={setChecked}
+              label="Priority lane"
+              off="Standard 10s · free"
+              on="Priority 2s · 3"
+            />
+            <Stepper value={value} onChange={setValue} />
+          </div>
+        </Panel>
+      </div>
+      <Panel title="Stamps / feedback">
+        <div className="flex flex-wrap items-center gap-5 p-6">
+          {["FILLED", "FRONT-RUN +412", "SANDWICHED", "HIT", "MISS", "VERIFIED"].map((label) => (
+            <Stamp key={label}>{label}</Stamp>
+          ))}
+          <Button variant="outline" onClick={() => toast("Filled · priority")}>
+            Show toast
+          </Button>
+        </div>
+      </Panel>
+      <Panel title="Channel switch">
+        <div className="p-5">
+          <MainNav
+            items={[
+              ["Floor", "/table"],
+              ["Desk", "/desk"],
+              ["Cup", "/cup"],
+              ["Season", "/season"],
+              ["Proof", "/proof"],
+            ]}
+          />
         </div>
       </Panel>
       <div className="grid gap-4 md:grid-cols-3">
@@ -90,26 +195,29 @@ export function Showcase() {
         <SealedCard kind="Whale" rarity="rare" state="opened" price={20} />
         <SealedCard kind="Full book" rarity="epic" state="sealed" price={60} />
       </div>
-      <GlowBorder>
-        <div className="p-5">
-          <p className="micro-label">Moving border</p>
-          <p className="mt-2 text-sm">A little light for the moments that matter.</p>
-        </div>
-      </GlowBorder>
-      <Ticker
-        events={[
-          "Example: a seat sends an order",
-          "Example: a leak is listed",
-          "Illustrative only",
-        ]}
-      />
-      <Panel title="Feedback">
+      <Ticker events={["A seat sends an order", "A capsule is listed", "Illustrative only"]} />
+      <Panel title="Loading · empty · error">
         <div className="space-y-4 p-5">
           <Skeleton className="h-4 w-48" />
-          <Skeleton className="h-12 w-full" />
-          <Button variant="outline" onClick={() => toast("Example notification")}>
-            Show toast
-          </Button>
+          <Skeleton className="h-24 w-full" />
+          <Empty
+            action={
+              <Button variant="outline" size="sm">
+                Explore
+              </Button>
+            }
+          >
+            No capsules yet. The first one drops at 0:05.
+          </Empty>
+          <ErrorState
+            retry={
+              <Button variant="outline" size="sm">
+                Retry
+              </Button>
+            }
+          >
+            Could not connect to the table.
+          </ErrorState>
         </div>
       </Panel>
     </main>

@@ -57,7 +57,7 @@ export function CrackOpen({
   const dialog = useDialogFocus(true, close, returnFocus);
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 px-4 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 px-4"
       role="dialog"
       aria-modal="true"
       aria-label={`Opening ${title}`}
@@ -68,7 +68,7 @@ export function CrackOpen({
         initial={{ opacity: 0, scale: reduced ? 1 : 0.96 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={reduced ? reducedTransition : spring}
-        className="border-opened/35 bg-surface relative w-full max-w-md overflow-hidden rounded-xl border p-8 text-center shadow-[0_0_100px_rgba(255,181,71,.12)]"
+        className="border-opened/35 bg-surface relative w-full max-w-md overflow-hidden rounded-xl border p-8 text-center"
       >
         <button
           type="button"
@@ -87,7 +87,6 @@ export function CrackOpen({
               : {
                   x: [0, -3, 3, -2, 0],
                   scale: [1, 1, 1.05, 1],
-                  boxShadow: ["0 0 0px #ffb54700", "0 0 70px #ffb54770", "0 0 35px #ffb54730"],
                 }
           }
           transition={{ duration: 1.2 }}

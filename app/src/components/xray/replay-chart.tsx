@@ -72,7 +72,7 @@ export function ReplayChart({
           markerHeight="5"
           orient="auto"
         >
-          <path d="M0 0 L6 3 L0 6 Z" fill="#b58cff" />
+          <path d="M0 0 L6 3 L0 6 Z" fill="#ff6a33" />
         </marker>
         <marker
           id="arrow-whale"
@@ -83,7 +83,7 @@ export function ReplayChart({
           markerHeight="5"
           orient="auto"
         >
-          <path d="M0 0 L6 3 L0 6 Z" fill="#7c8cff" />
+          <path d="M0 0 L6 3 L0 6 Z" fill="#5ccbf0" />
         </marker>
       </defs>
       {[0, 1, 2, 3, 4].map((line) => (
@@ -124,7 +124,7 @@ export function ReplayChart({
           return null;
         const landed = order.landTick <= tick;
         const color =
-          order.seat === WHALE_SEAT ? "#7c8cff" : order.lane === 1 ? "#b58cff" : "#aeb7c5";
+          order.seat === WHALE_SEAT ? "#5ccbf0" : order.lane === 1 ? "#ff6a33" : "#aeb7c5";
         const highlighted = selected && landed && payloadOrders(selected, order);
         const startY = landed ? y(order.fillPrice) : y(currentPrice(order.sentTick));
         const endY = landed ? y(order.fillPrice) : y(currentPrice(tick));

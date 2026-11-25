@@ -9,18 +9,18 @@ export function LogoMark({ className }: { className?: string }) {
         <path
           d="M14 64a46 46 0 0 0 92 0Z"
           fill="#fff"
-          stroke="#1a0f2e"
+          stroke="#161513"
           strokeWidth="6"
           strokeLinejoin="round"
         />
         <path
           d="M14 60a46 46 0 0 1 92 0Z"
-          fill="#ffbf1f"
-          stroke="#1a0f2e"
+          fill="#ffc21a"
+          stroke="#161513"
           strokeWidth="6"
           strokeLinejoin="round"
         />
-        <rect x="11" y="57" width="98" height="9" rx="4.5" fill="#1a0f2e" />
+        <rect x="11" y="57" width="98" height="9" rx="4.5" fill="#161513" />
         <ellipse
           cx="37"
           cy="33"
@@ -33,12 +33,12 @@ export function LogoMark({ className }: { className?: string }) {
         <path
           d="M49 36C49 27 54 23 61 23C68 23 73 27 73 33C73 39.5 61 40 61 45"
           fill="none"
-          stroke="#1a0f2e"
+          stroke="#161513"
           strokeWidth="7"
           strokeLinecap="round"
           strokeLinejoin="round"
         />
-        <circle cx="61" cy="52.6" r="3.7" fill="#1a0f2e" />
+        <circle cx="61" cy="52.6" r="3.7" fill="#161513" />
       </g>
     </svg>
   );
@@ -71,9 +71,7 @@ export function Logo({
           size === "lg" ? "size-14" : "size-10",
         )}
       />
-      <span>
-        <span className="text-[#ffbf1f]">I</span>NSIDER
-      </span>
+      <span>INSIDER</span>
     </Link>
   );
 }

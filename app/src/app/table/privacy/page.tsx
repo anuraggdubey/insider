@@ -11,6 +11,7 @@ import { FloorSkeleton, TableOffline } from "@/components/floor/states";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Panel } from "@/components/ui/panel";
+import { PageTransition } from "@/components/ui/page-transition";
 import { loadGuest } from "@/lib/guest";
 
 type Result = "readable" | "not returned" | "error";
@@ -206,8 +207,10 @@ function PrivacyContent() {
 
 export default function PrivacyPage() {
   return (
-    <GameProvider>
-      <PrivacyContent />
-    </GameProvider>
+    <PageTransition>
+      <GameProvider>
+        <PrivacyContent />
+      </GameProvider>
+    </PageTransition>
   );
 }

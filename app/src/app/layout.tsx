@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Bricolage_Grotesque, Hanken_Grotesk } from "next/font/google";
+import { Archivo, Doto, JetBrains_Mono } from "next/font/google";
 import { SiteFooter } from "@/components/site-footer";
 import { Logo } from "@/components/ui/logo";
 import { MainNav } from "@/components/ui/main-nav";
@@ -11,8 +11,18 @@ import { WalletButton } from "@/components/ui/wallet-button";
 import { Providers } from "./providers";
 import "./globals.css";
 
-const bodyFont = Hanken_Grotesk({ variable: "--font-body", subsets: ["latin"] });
-const displayFont = Bricolage_Grotesque({ variable: "--font-display", subsets: ["latin"] });
+const bodyFont = Archivo({
+  variable: "--font-archivo",
+  subsets: ["latin"],
+  axes: ["wdth"],
+  display: "swap",
+});
+const monoFont = JetBrains_Mono({
+  variable: "--font-jetbrains",
+  subsets: ["latin"],
+  display: "swap",
+});
+const ledFont = Doto({ variable: "--font-led", subsets: ["latin"], display: "swap" });
 
 const description = "Orders wait in a TEE-sealed dark mempool. Buy a look. Jump the line.";
 
@@ -33,7 +43,12 @@ export const metadata: Metadata = {
     description,
   },
 };
-export const viewport: Viewport = { themeColor: "#f6f5f1" };
+export const viewport: Viewport = {
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#ECEAE4" },
+    { media: "(prefers-color-scheme: dark)", color: "#0E0E0F" },
+  ],
+};
 
 // Five links in the bar; everything else lives in the footer.
 const nav = [
@@ -44,7 +59,7 @@ const nav = [
   ["Proof", "/proof"],
 ];
 
-const THEME_SCRIPT = `try{var t=localStorage.getItem("insider.theme");if(t==="dark"||(!t&&matchMedia("(prefers-color-scheme: dark)").matches))document.documentElement.classList.add("dark")}catch(e){}`;
+const THEME_SCRIPT = `try{var t=localStorage.getItem("insider.theme");var d=t==="dark"||(!t&&matchMedia("(prefers-color-scheme: dark)").matches);if(d)document.documentElement.classList.add("dark");document.querySelectorAll('meta[name="theme-color"]').forEach(function(m){m.content=d?"#0E0E0F":"#ECEAE4"})}catch(e){}`;
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
@@ -52,7 +67,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="en"
       data-scroll-behavior="smooth"
       suppressHydrationWarning
-      className={`${bodyFont.variable} ${displayFont.variable} h-full antialiased`}
+      className={`${bodyFont.variable} ${monoFont.variable} ${ledFont.variable} h-full antialiased`}
     >
       <head>
         <script
@@ -63,12 +78,15 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       </head>
       <body className="flex min-h-full flex-col">
         <Providers>
-          <header className="border-line bg-surface/75 sticky top-0 z-30 border-b backdrop-blur">
+          <header
+            className="border-line bg-surface sticky top-0 z-30 border-b"
+            style={{ viewTransitionName: "site-header" }}
+          >
             <div className="mx-auto flex h-14 max-w-7xl items-center gap-2 px-4 sm:px-8 md:gap-5">
               <Logo />
               <MobileNav items={nav} />
               <MainNav items={nav} />
-              <div className="ml-auto flex items-center gap-3">
+              <div className="ml-auto hidden items-center gap-3 md:flex">
                 <ThemeToggle />
                 <SoundButton />
                 <WalletButton />

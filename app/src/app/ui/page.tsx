@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { Showcase } from "./showcase";
+import { PageTransition } from "@/components/ui/page-transition";
 
 export const metadata = {
   title: "UI showcase — INSIDER",
@@ -9,5 +10,9 @@ export const metadata = {
 
 export default function UiPage() {
   if (process.env.NODE_ENV === "production") notFound();
-  return <Showcase />;
+  return (
+    <PageTransition>
+      <Showcase />
+    </PageTransition>
+  );
 }

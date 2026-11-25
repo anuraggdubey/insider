@@ -1,11 +1,10 @@
-export type Variant = "primary" | "ghost" | "outline" | "buy" | "sell" | "priority";
+export type Variant = "primary" | "ink" | "ghost" | "outline" | "buy" | "sell" | "priority";
 export type Size = "sm" | "md" | "lg";
 
-// Game buttons: gradient face, darker lower edge, soft glow, springy press (see .btn in globals.css).
-export const buttonBase =
-  "btn focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-brand/60 disabled:pointer-events-none disabled:opacity-50";
+export const buttonBase = "btn relative disabled:pointer-events-none";
 export const buttonVariants: Record<Variant, string> = {
   primary: "",
+  ink: "btn-ink",
   ghost: "btn-ghost",
   outline: "btn-outline",
   buy: "btn-buy",
@@ -13,7 +12,7 @@ export const buttonVariants: Record<Variant, string> = {
   priority: "btn-priority",
 };
 export const buttonSizes: Record<Size, string> = {
-  sm: "h-9 px-3.5 text-sm",
+  sm: "btn-sm h-9 px-3.5 text-sm",
   md: "h-10 px-4 text-sm",
   lg: "h-12 px-6 text-base",
 };

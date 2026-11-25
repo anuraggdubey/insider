@@ -22,7 +22,7 @@ export function PhaseBar({ tick, className }: { tick: number; className?: string
           style={{ width: `${((ROUND_TICKS - CLOSING_END_TICK) / ROUND_TICKS) * 100}%` }}
         />
         <span
-          className="bg-text absolute -top-1 h-4 w-0.5 shadow-[0_0_6px_white]"
+          className="bg-text absolute -top-1 h-4 w-0.5"
           style={{ left: `${(current / ROUND_TICKS) * 100}%` }}
         />
       </div>
