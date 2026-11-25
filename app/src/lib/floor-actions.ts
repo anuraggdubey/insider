@@ -29,6 +29,7 @@ import {
   useFloorStore,
   type WalletSigner,
 } from "./floor-store";
+import { currentActionActor, sessionActionError, type ActionActor } from "./session-routing";
 
 function current() {
   const state = useFloorStore.getState();
@@ -58,12 +59,16 @@ function currentPlayer(): Player {
 
 async function execute(
   config: InsiderConfig,
-  player: Player,
+  actor: ActionActor,
   instruction: Parameters<typeof tx>[number],
 ) {
-  const connection = await teeConnection(config, player);
-  if (player instanceof Keypair) await sendTx(connection, tx(instruction), [player]);
-  else await sendWithWallet(connection, tx(instruction), player);
+  try {
+    const connection = await teeConnection(config, actor.signer);
+    if (actor.signer instanceof Keypair) await sendTx(connection, tx(instruction), [actor.signer]);
+    else await sendWithWallet(connection, tx(instruction), actor.signer);
+  } catch (error) {
+    throw sessionActionError(error, actor);
+  }
 }
 
 export async function joinFloor(config: InsiderConfig) {
@@ -78,7 +83,10 @@ export async function joinFloor(config: InsiderConfig) {
     .slice(0, 5)
     .filter(
       (seat) =>
-        seat.owner.equals(PublicKey.default) || state.snapshot.table.tick - seat.lastSeenTick >= 60,
+        seat.owner.equals(PublicKey.default) ||
+        (state.snapshot.table.tick - seat.lastSeenTick >= 60 &&
+          seat.position === 0 &&
+          seat.pendingCount === 0),
     )
     .sort((a, b) => a.lastSeenTick - b.lastSeenTick);
   const selected = human ?? bots[0];
@@ -88,16 +96,24 @@ export async function joinFloor(config: InsiderConfig) {
     fixtureClaim(state.fixture, player.publicKey, selected.index);
     publishFixture(state.fixture);
   } else {
-    await execute(config, player, claimSeat(config, player.publicKey, selected.index));
+    await execute(
+      config,
+      currentActionActor("claimSeat", player),
+      claimSeat(config, player.publicKey, selected.index),
+    );
   }
   updateFloor({ tutorial: true });
 }
 
 export async function keepSeatAlive(config: InsiderConfig) {
   const state = current();
-  if (state.identity !== "guest" || !state.guest || state.fixture) return;
-  const seat = state.snapshot.seats.find((s) => s.owner.equals(state.guest!.publicKey));
-  if (seat) await execute(config, state.guest, ping(config, state.guest.publicKey, seat.index));
+  if (state.fixture || (state.identity === "wallet" && !state.session)) return;
+  const player = currentPlayer();
+  const seat = state.snapshot.seats.find((s) => s.owner.equals(player.publicKey));
+  if (seat) {
+    const actor = currentActionActor("ping", player);
+    await execute(config, actor, ping(config, actor.signer.publicKey, seat.index, actor.token));
+  }
 }
 
 export async function submitOrder(config: InsiderConfig, sideSize: number, lane: number) {
@@ -119,7 +135,12 @@ export async function submitOrder(config: InsiderConfig, sideSize: number, lane:
     publishFixture(state.fixture);
     updateFloor({ pending: [...pending, order] });
   } else {
-    await execute(config, player, sendOrder(config, player.publicKey, seat.index, sideSize, lane));
+    const actor = currentActionActor("sendOrder", player);
+    await execute(
+      config,
+      actor,
+      sendOrder(config, actor.signer.publicKey, seat.index, sideSize, lane, actor.token),
+    );
     const sentTick = state.snapshot.table.tick;
     const delay = lane === 1 ? params.priorityDelay : params.standardDelay;
     if (!playerKey(useFloorStore.getState())?.equals(player.publicKey)) return;
@@ -207,20 +228,29 @@ export async function actOnLeak(config: InsiderConfig, action: LeakAction, slot:
     }
     publishFixture(state.fixture);
   } else {
-    const owner = player.publicKey;
+    const kind = {
+      bid: "bid",
+      open: "openLeak",
+      list: "listLeak",
+      buy: "buyListed",
+      offer: "offerLicense",
+      license: "buyLicense",
+    } as const;
+    const actor = currentActionActor(kind[action], player);
+    const owner = actor.signer.publicKey;
     const instruction =
       action === "bid"
-        ? bid(config, owner, seat.index, slot)
+        ? bid(config, owner, seat.index, slot, actor.token)
         : action === "open"
-          ? openLeak(config, owner, seat.index, slot)
+          ? openLeak(config, owner, seat.index, slot, actor.token)
           : action === "list"
-            ? listLeak(config, owner, seat.index, slot, ask)
+            ? listLeak(config, owner, seat.index, slot, ask, actor.token)
             : action === "buy"
-              ? buyListed(config, owner, seat.index, slot, header.ownerSeat)
+              ? buyListed(config, owner, seat.index, slot, header.ownerSeat, actor.token)
               : action === "offer"
-                ? offerLicense(config, owner, seat.index, slot, ask)
-                : buyLicense(config, owner, seat.index, slot, header.ownerSeat);
-    await execute(config, player, instruction);
+                ? offerLicense(config, owner, seat.index, slot, ask, actor.token)
+                : buyLicense(config, owner, seat.index, slot, header.ownerSeat, actor.token);
+    await execute(config, actor, instruction);
   }
   if (action === "open" || action === "license") {
     if (!playerKey(useFloorStore.getState())?.equals(player.publicKey))

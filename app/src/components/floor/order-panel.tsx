@@ -4,6 +4,7 @@ import type { InsiderConfig, TableSnapshot, TableView } from "@insider/sdk";
 import { TICK_MILLIS } from "@insider/sdk/constants";
 import { previewOrder } from "@insider/sdk/vamm";
 import { ArrowDownLeft, ArrowUpRight } from "lucide-react";
+import { FastModeToggle } from "@/components/onboarding/wallet";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Kbd } from "@/components/ui/kbd";
@@ -235,6 +236,7 @@ export function OrderPanel({
         <p className="text-muted text-center font-mono text-[9px]">
           {pendingFull ? "PENDING ORDER LIMIT REACHED" : "SIDE + SIZE STAY PRIVATE UNTIL FILL"}
         </p>
+        <FastModeToggle walletOnly />
         <div className="border-line bg-surface fixed right-0 bottom-14 left-0 z-20 flex items-center justify-between gap-3 border-t px-4 py-2 md:hidden">
           <span className="min-w-0 font-mono text-[10px]">
             <strong className={side === "buy" ? "text-buy" : "text-sell"}>

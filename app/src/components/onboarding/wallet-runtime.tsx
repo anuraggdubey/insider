@@ -24,11 +24,15 @@ function WalletBridge() {
   const running = useRef(false);
   const [target, setTarget] = useState<HTMLElement | null>(null);
   useEffect(() => {
-    const update = () =>
+    const update = () => {
       setTarget(
         document.getElementById("insider-wallet-button-mobile") ??
           document.getElementById("insider-wallet-button"),
       );
+      document
+        .querySelector(".wallet-adapter-modal-button-close")
+        ?.setAttribute("aria-label", "Close wallet selector");
+    };
     update();
     const observer = new MutationObserver(update);
     observer.observe(document.body, { childList: true, subtree: true });

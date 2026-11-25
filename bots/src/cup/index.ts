@@ -38,7 +38,7 @@ import {
   tx as buildTx,
 } from "@insider/sdk/node";
 
-import { CreditLedger, FaucetLimiter, payouts, verifyJoin } from "./logic.js";
+import { CreditLedger, FaucetLimiter, mintFaucet, payouts, verifyJoin } from "./logic.js";
 import { Payments } from "./payments.js";
 
 const log = pino({ level: process.env.LOG_LEVEL || "info" });
@@ -252,15 +252,20 @@ async function main() {
           return send(400, { error: "invalid wallet owner" });
         }
         const result = await exclusive(async () => {
-          if (!faucetLimiter.claim(owner.toBase58()))
+          const minted = await mintFaucet(faucetLimiter, owner.toBase58(), async () => {
+            const ata = await getOrCreateAssociatedTokenAccount(base, authority, mint, owner);
+            return mintTo(base, authority, mint, ata.address, authority, buyIn * 2n);
+          });
+          if (!minted.ok)
             return {
               status: 429,
               body: { error: "faucet is limited to once per wallet per hour" },
             };
           persist();
-          const ata = await getOrCreateAssociatedTokenAccount(base, authority, mint, owner);
-          const signature = await mintTo(base, authority, mint, ata.address, authority, buyIn * 2n);
-          return { status: 200, body: { signature, amount: (buyIn * 2n).toString() } };
+          return {
+            status: 200,
+            body: { signature: minted.result, amount: (buyIn * 2n).toString() },
+          };
         });
         return send(result.status, result.body);
       }

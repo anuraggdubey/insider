@@ -9,11 +9,12 @@ import { selectGuest, updateFloor, useFloorStore } from "@/lib/floor-store";
 import { createGuest, exportGuest, importGuest } from "@/lib/guest";
 import { friendlyError } from "@/lib/errors";
 import { useDialogFocus } from "@/lib/dialog-focus";
-import { WalletPlayButton } from "./wallet";
+import { FastModeToggle, WalletPlayButton } from "./wallet";
 
 export function GuestControls({ config, view }: { config: InsiderConfig; view: TableView }) {
   const guest = useFloorStore((state) => state.guest);
   const identity = useFloorStore((state) => state.identity);
+  const session = useFloorStore((state) => state.session);
   const joinRequested = useFloorStore((state) => state.joinRequested);
   const tutorial = useFloorStore((state) => state.tutorial);
   const [settings, setSettings] = useState(false);
@@ -73,7 +74,7 @@ export function GuestControls({ config, view }: { config: InsiderConfig; view: T
         )}
         {identity === "wallet" && (
           <span className="text-muted hidden text-[10px] lg:inline">
-            Each action asks your wallet
+            {session ? "Fast mode active" : "Each action asks your wallet"}
           </span>
         )}
         {identity === "guest" && (
@@ -183,9 +184,16 @@ export function GuestControls({ config, view }: { config: InsiderConfig; view: T
             <p className="text-muted mt-2 text-sm">
               1,000 chips.{" "}
               {identity === "wallet"
-                ? "Each action asks your wallet."
+                ? session
+                  ? "Fast mode is active."
+                  : "Each action asks your wallet."
                 : "Your key stays on this device."}
             </p>
+            {identity === "wallet" && (
+              <div className="mt-4">
+                <FastModeToggle walletOnly />
+              </div>
+            )}
             <div className="border-line mt-6 space-y-4 border-t pt-5">
               {[
                 ["01", "Send into the dark", "Orders wait in a sealed mempool."],

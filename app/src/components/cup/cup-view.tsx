@@ -27,6 +27,7 @@ export function CupView() {
   const params = useSearchParams();
   const fixture = process.env.NODE_ENV !== "production" && params.get("fixture") === "1";
   const [fixtureSettled, setFixtureSettled] = useState(false);
+  const [showJoin, setShowJoin] = useState(false);
   const [cup, setCup] = useState<CupData | null>(null);
   const [operator, setOperator] = useState<CupStatus | null>(null);
   const [status, setStatus] = useState<"loading" | "online" | "offline" | "operator-offline">(
@@ -174,7 +175,7 @@ export function CupView() {
             ))}
           </div>
 
-          {operator && (
+          {operator && (fixture || showJoin) ? (
             <CupJoinCard
               config={config}
               status={operator}
@@ -183,7 +184,16 @@ export function CupView() {
               fixture={fixture}
               onJoined={() => setRefresh((value) => value + 1)}
             />
-          )}
+          ) : operator ? (
+            <Panel title="Enter the cup" label="wallet · human seats only">
+              <div className="space-y-3 p-5">
+                <p className="text-muted text-sm">
+                  Check your wallet, seat and buy-in before joining.
+                </p>
+                <Button onClick={() => setShowJoin(true)}>Start checklist</Button>
+              </div>
+            </Panel>
+          ) : null}
           <Panel
             title="Standings"
             label={

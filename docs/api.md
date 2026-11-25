@@ -248,6 +248,6 @@ mint, operator, history }`. The `Cup` account (`decodeCup`) is public: entries, 
 settlement the winners with their shares in basis points.
 
 `POST /cup/faucet` with `{ "owner": "<wallet public key>" }` creates the wallet's associated token
-account if needed and mints twice the buy-in in devnet test tokens. It is limited to one request per
-wallet per hour, persisted in the operator state; a failed mint still consumes the reservation.
+account if needed and mints twice the buy-in in devnet test tokens. It is limited to one successful
+mint per wallet per hour, persisted in the operator state; a failed mint can be retried.
 The host proxies `/cup/*` to the operator. The faucet does not provide SOL for transaction fees.

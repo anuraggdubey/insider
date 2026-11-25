@@ -17,6 +17,9 @@ type FloorState = {
   identity: "guest" | "wallet";
   walletKey: PublicKey | null;
   wallet: WalletSigner | null;
+  session: FastSession | null;
+  sessionStatus: "off" | "restoring" | "enabling" | "on" | "disabling" | "expired";
+  sessionError: string | null;
   joinRequested: boolean;
   fixture: Fixture | null;
   pending: LocalOrder[];
@@ -24,6 +27,13 @@ type FloorState = {
   tutorial: boolean;
   error: string | null;
   orderDraft: { side: "buy" | "sell"; size: number; id: number } | null;
+};
+
+export type FastSession = {
+  wallet: PublicKey;
+  signer: Keypair;
+  token: PublicKey;
+  validUntil: number;
 };
 
 export type WalletSigner = {
@@ -40,6 +50,9 @@ export const useFloorStore = create<FloorState>(() => ({
   identity: "guest",
   walletKey: null,
   wallet: null,
+  session: null,
+  sessionStatus: "off",
+  sessionError: null,
   joinRequested: false,
   fixture: null,
   pending: [],
@@ -81,6 +94,9 @@ export function selectGuest(guest: Keypair) {
   const previous = playerKey(useFloorStore.getState());
   updateFloor({
     identity: "guest",
+    session: null,
+    sessionStatus: "off",
+    sessionError: null,
     guest,
     joinRequested: false,
     ...(previous?.equals(guest.publicKey) ? {} : { pending: [], vaults: {} }),
@@ -94,6 +110,7 @@ export function syncWallet(key: PublicKey | null, signer: WalletSigner | null) {
   updateFloor({
     walletKey: key,
     wallet: signer,
+    ...(changed ? { session: null, sessionStatus: "off" as const, sessionError: null } : {}),
     ...(changed && state.identity === "wallet" ? { pending: [], vaults: {} } : {}),
   });
 }
@@ -104,6 +121,9 @@ export function selectWallet(signer: WalletSigner) {
     identity: "wallet",
     walletKey: signer.publicKey,
     wallet: signer,
+    ...(previous?.equals(signer.publicKey)
+      ? {}
+      : { session: null, sessionStatus: "off" as const, sessionError: null }),
     ...(previous?.equals(signer.publicKey) ? {} : { pending: [], vaults: {} }),
   });
   rememberIdentity("wallet");

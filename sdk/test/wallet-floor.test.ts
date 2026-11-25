@@ -17,6 +17,11 @@ const mock = vi.hoisted(() => ({
     getAccountInfo: vi.fn<() => Promise<{ data: Buffer }>>(),
   },
   endpoints: [] as string[],
+  sessionSends: [] as Array<{ transaction: Transaction; signers: Keypair[] }>,
+  sendSession: vi.fn(async (_connection: unknown, transaction: Transaction, signers: Keypair[]) => {
+    mock.sessionSends.push({ transaction, signers });
+    return { signature: "mock-session-signature", ms: 1 };
+  }),
 }));
 vi.mock("@magicblock-labs/ephemeral-rollups-sdk", async (importOriginal) => ({
   ...(await importOriginal<typeof import("@magicblock-labs/ephemeral-rollups-sdk")>()),
@@ -31,6 +36,7 @@ vi.mock("@insider/sdk", async (importOriginal) => {
       mock.endpoints.push(auth.url);
       return mock.connection;
     }),
+    sendTx: mock.sendSession,
   };
 });
 
@@ -51,10 +57,13 @@ import {
   useFloorStore,
 } from "../../app/src/lib/floor-store";
 import vectors from "./fixtures/vectors.json";
+import { sessionTokenPda } from "../src/pdas";
+import { buyDeskLicense, mintDeskCall, tradeDesk } from "../../app/src/lib/desk-actions";
 
 beforeEach(() => {
   vi.clearAllMocks();
   mock.endpoints.length = 0;
+  mock.sessionSends.length = 0;
   mock.auth.mockImplementation(async (_url, _key, sign) => {
     await sign(new Uint8Array([3, 1, 4]));
     return { token: "mock-private-token", expiresAt: Date.now() + 60_000 };
@@ -73,6 +82,9 @@ beforeEach(() => {
     identity: "guest",
     walletKey: null,
     wallet: null,
+    session: null,
+    sessionStatus: "off",
+    sessionError: null,
     fixture: null,
     snapshot: null,
     pending: [],
@@ -163,5 +175,71 @@ describe("wallet floor identity", () => {
     resolve({ data: Buffer.from(vectors.raw.leakVault, "base64") });
     await expect(loading).rejects.toThrow("player changed");
     expect(useFloorStore.getState().vaults).toEqual({});
+  });
+
+  it("routes session-capable Floor and Desk writes through the key while private reads use the wallet", async () => {
+    const owner = Keypair.generate(),
+      signer = Keypair.generate();
+    const wallet = {
+      publicKey: owner.publicKey,
+      signMessage: vi.fn(async () => new Uint8Array(64)),
+      signTransaction: vi.fn(async (transaction: Transaction) => {
+        transaction.partialSign(owner);
+        return transaction;
+      }),
+    };
+    const config = createConfig({
+      tableAuthority: Keypair.generate().publicKey,
+      teeRpcUrl: "https://session-action-test.example",
+    });
+    const snapshot = createFixture().snapshot;
+    const vault = decodeLeakVault(Buffer.from(vectors.raw.leakVault, "base64"));
+    snapshot.table.roundId = vault.roundId;
+    snapshot.board.headers[0]!.leakId = vault.leakId;
+    snapshot.seats[7]!.owner = owner.publicKey;
+    updateFloor({ snapshot, status: "live" });
+    selectWallet(wallet);
+    const token = sessionTokenPda(owner.publicKey, signer.publicKey, config.programId);
+    updateFloor({
+      session: {
+        wallet: owner.publicKey,
+        signer,
+        token,
+        validUntil: Math.floor(Date.now() / 1000) + 3600,
+      },
+      sessionStatus: "on",
+    });
+
+    await keepSeatAlive(config);
+    await submitOrder(config, 100, 0);
+    await actOnLeak(config, "bid", 0);
+    snapshot.board.headers[0]!.ownerSeat = 7;
+    await actOnLeak(config, "open", 0);
+    await actOnLeak(config, "list", 0, 10);
+    await actOnLeak(config, "offer", 0, 10);
+    snapshot.board.headers[0]!.ownerSeat = 1;
+    await actOnLeak(config, "buy", 0);
+    await actOnLeak(config, "license", 0);
+    await mintDeskCall(config, 7, { direction: 1, horizon: 60, stake: 10, licenseAsk: 5 });
+    await buyDeskLicense(config, 7, 1);
+    await tradeDesk(config, 7, 1);
+    expect(mock.sessionSends).toHaveLength(11);
+    for (const { transaction, signers } of mock.sessionSends) {
+      expect(signers[0]).toBe(signer);
+      expect(transaction.instructions[0]!.keys[0]!.pubkey.equals(signer.publicKey)).toBe(true);
+      expect(transaction.instructions[0]!.keys.some((key) => key.pubkey.equals(token))).toBe(true);
+    }
+    expect(wallet.signTransaction).not.toHaveBeenCalled();
+    expect(wallet.signMessage).toHaveBeenCalledTimes(1);
+    expect(mock.auth.mock.calls.map((call) => call[1].toBase58())).toEqual([
+      signer.publicKey.toBase58(),
+      owner.publicKey.toBase58(),
+    ]);
+    expect(mock.connection.getAccountInfo).toHaveBeenCalledTimes(2);
+
+    mock.sendSession.mockRejectedValueOnce(new Error("InvalidToken"));
+    await expect(submitOrder(config, 100, 0)).rejects.toThrow("Fast mode expired");
+    expect(useFloorStore.getState().session).toBeNull();
+    expect(useFloorStore.getState().sessionStatus).toBe("expired");
   });
 });

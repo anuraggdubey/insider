@@ -6,6 +6,7 @@ import { createConfig, cupJoin, deskTrade } from "@insider/sdk";
 import {
   CreditLedger,
   FaucetLimiter,
+  mintFaucet,
   FAUCET_INTERVAL_MS,
   payouts,
   verifyJoin,
@@ -23,6 +24,21 @@ describe("cup faucet limit", () => {
     const restarted = new FaucetLimiter(JSON.parse(JSON.stringify(timestamps)));
     expect(restarted.claim("alice", 100 + FAUCET_INTERVAL_MS - 1)).toBe(false);
     expect(restarted.claim("alice", 100 + FAUCET_INTERVAL_MS)).toBe(true);
+  });
+  it("allows a retry after a failed mint and limits a successful one", async () => {
+    const timestamps: Record<string, number> = {};
+    const limiter = new FaucetLimiter(timestamps);
+    await expect(
+      mintFaucet(limiter, "alice", async () => {
+        throw new Error("mint failed");
+      }),
+    ).rejects.toThrow("mint failed");
+    expect(timestamps.alice).toBeUndefined();
+    expect(await mintFaucet(limiter, "alice", async () => "signature")).toEqual({
+      ok: true,
+      result: "signature",
+    });
+    expect(await mintFaucet(limiter, "alice", async () => "duplicate")).toEqual({ ok: false });
   });
 });
 describe("CreditLedger", () => {

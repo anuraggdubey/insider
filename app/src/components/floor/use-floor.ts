@@ -5,6 +5,7 @@ import { useEffect } from "react";
 import { publishFixture, updateFloor, useFloorStore } from "@/lib/floor-store";
 import { loadGuest } from "@/lib/guest";
 import { createRoundObserver } from "@/lib/xray-archive";
+import { useToast } from "@/components/ui/toast";
 
 export function useFloor(config: InsiderConfig, fixtureMode: boolean) {
   useEffect(() => {
@@ -115,15 +116,19 @@ export function useFloor(config: InsiderConfig, fixtureMode: boolean) {
     const timer = setInterval(() => {
       const state = useFloorStore.getState();
       if (
-        document.visibilityState === "visible" &&
+        (document.visibilityState === "visible" ||
+          (state.identity === "wallet" && state.session)) &&
         state.snapshot &&
-        state.identity === "guest" &&
-        state.guest &&
+        ((state.identity === "guest" && state.guest) ||
+          (state.identity === "wallet" && state.wallet && state.session)) &&
         !state.fixture
       )
         void import("@/lib/floor-actions")
           .then(({ keepSeatAlive }) => keepSeatAlive(config))
-          .catch(() => {});
+          .catch((error: unknown) => {
+            if (error instanceof Error && error.message.includes("Fast mode expired"))
+              useToast.getState().add(error.message);
+          });
     }, 20_000);
     return () => clearInterval(timer);
   }, [config]);

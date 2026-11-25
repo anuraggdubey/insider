@@ -13,11 +13,22 @@ export class FaucetLimiter {
   constructor(private readonly timestamps: Record<string, number>) {}
 
   claim(owner: string, now = Date.now()) {
-    const previous = this.timestamps[owner];
-    if (previous !== undefined && now - previous < FAUCET_INTERVAL_MS) return false;
+    if (!this.canClaim(owner, now)) return false;
     this.timestamps[owner] = now;
     return true;
   }
+
+  canClaim(owner: string, now = Date.now()) {
+    const previous = this.timestamps[owner];
+    return previous === undefined || now - previous >= FAUCET_INTERVAL_MS;
+  }
+}
+
+export async function mintFaucet<T>(limiter: FaucetLimiter, owner: string, mint: () => Promise<T>) {
+  if (!limiter.canClaim(owner)) return { ok: false as const };
+  const result = await mint();
+  limiter.claim(owner);
+  return { ok: true as const, result };
 }
 
 /**
