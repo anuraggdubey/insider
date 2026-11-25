@@ -122,18 +122,29 @@ refuses it before the timeout.
 
 ## Hosting on Render (A-4.3)
 
+**Live:** app [insiderz.vercel.app](https://insiderz.vercel.app) (Vercel), services
+[insider-services.onrender.com](https://insider-services.onrender.com/health) (Render, free plan).
+
 The frontend goes to Vercel. The always-on services run in one Docker web service on Render
 (`render.yaml`, `Dockerfile`, `bots/src/host.ts`): bots, operator, cup-operator and analysts in one
 process tree, with `GET /health` (503 when a service is down) and the caption feed and cup operator
 proxied at `/captions` and `/cup/*`. Render's free web service sleeps after 15 minutes without
-traffic, so an uptime monitor must call `/health` every 5 minutes.
+traffic, so an uptime monitor must call `/health` every 5 minutes. The image bundles the services
+to plain JavaScript (`pnpm --filter bots build`, `bots/build.mjs`) and runs all four in one `node`
+process (about 100 MB idle): running them as separate `pnpm exec tsx` processes, or even as four
+`node` processes, exceeded the free 512 MB instance and Render restarted it. `SERVICE_MODE=processes`
+brings back one process per service (with `SERVICE_HEAP_MB` heap caps) on a bigger instance.
 
 1. `pnpm pack-keys` writes `.soak/keys.b64` (all service keys; never commit or share it).
 2. Render: New, Blueprint, pick the GitHub repo, then set `KEYS_B64` (the file's content) and
    `GROQ_API_KEY` in the service's environment. Use a dedicated devnet RPC for `SOLANA_RPC_URL` when you have one.
-3. When it is live, `https://<name>.onrender.com/health` must answer `{"ok":true,...}`; add it to an
+3. When it is live, `https://insider-services.onrender.com/health` must answer `{"ok":true,...}`; add it to an
    uptime monitor (5-minute interval).
-4. In Vercel set the app's caption and cup URLs to the Render address.
+4. Vercel: import the repo with **Root Directory `app`** and set the `NEXT_PUBLIC_*` values from
+   `.env.example` (RPC URLs, program id, `NEXT_PUBLIC_TABLE_AUTHORITY`,
+   `NEXT_PUBLIC_CUP_URL=https://insider-services.onrender.com`,
+   `NEXT_PUBLIC_COMMENTARY_URL=https://insider-services.onrender.com/captions`,
+   `NEXT_PUBLIC_SITE_URL=https://insiderz.vercel.app`). They are built into the app: redeploy after a change.
 5. Run only one copy of the services: stop the local `pnpm bots` stack before the host starts.
 
 The cup operator's state lives in `.keys/cup-operator.json`, and a free Render disk is wiped on every

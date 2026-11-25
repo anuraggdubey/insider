@@ -16,7 +16,7 @@
 </p>
 
 <p align="center">
-  <b><a href="LIVE_APP_URL">▶ Live app</a></b> &nbsp;·&nbsp; <b><a href="DEMO_VIDEO_URL">🎬 Demo video</a></b>
+  <b><a href="https://insiderz.vercel.app">▶ Live app</a></b> &nbsp;·&nbsp; <b><a href="DEMO_VIDEO_URL">🎬 Demo video</a></b>
 </p>
 
 <p align="center">
@@ -27,7 +27,8 @@ Built by **Anurag Dubey** and **Misbah Ansari** for **Solana Blitz v10** (MagicB
 
 |                    |                                                                                                                                                                                            |
 | ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Live app           | _added when deployed_                                                                                                                                                                      |
+| Live app           | [insiderz.vercel.app](https://insiderz.vercel.app) (Vercel)                                                                                                                                |
+| Services           | [insider-services.onrender.com/health](https://insider-services.onrender.com/health) (Render: bots, AI analysts, operator, cup operator)                                                   |
 | Demo video         | _added when recorded_                                                                                                                                                                      |
 | Game program       | [`7mTtHsFMYnZRnhd3SRzhj8Nm1U2T3s33dnbJwa9zBErW`](https://explorer.solana.com/address/7mTtHsFMYnZRnhd3SRzhj8Nm1U2T3s33dnbJwa9zBErW?cluster=devnet) (devnet)                                 |
 | Live table         | [`DjnqzKQsUU1fmRztBAiUkPn8VwsnFYgMedcg1BPyA1k`](https://explorer.solana.com/address/DjnqzKQsUU1fmRztBAiUkPn8VwsnFYgMedcg1BPyA1k?cluster=devnet), delegated to the MagicBlock TEE validator |
@@ -244,7 +245,8 @@ Prerequisites: Node 24, pnpm 10, Rust 1.89, Solana CLI 4.x, Anchor CLI 1.2.2 (on
 
 ```bash
 pnpm install
-cp .env.example .env            # defaults already point at devnet
+cp .env.example .env            # defaults already point at devnet (services and scripts)
+cp .env.example app/.env.local  # the app reads env only from app/; it uses the hosted services
 pnpm dev                        # the Next.js app on http://localhost:3000
 pnpm test                       # TypeScript tests
 cd programs && cargo test -p insider   # program tests (LiteSVM)
@@ -261,7 +263,9 @@ pnpm cup-operator        # Alpha Cup buy-ins, co-signing and payouts
 pnpm analysts            # the 2 AI analysts + caption feed (set XAI_API_KEY, GROQ_API_KEY or ANTHROPIC_API_KEY)
 ```
 
-Build and deploy the program: `pnpm program:build`, `pnpm program:idl`, `pnpm program:deploy` (on Windows use these instead of `anchor build`). Hosting the services (Render) and the app (Vercel) is in the [runbook](docs/runbook.md#hosting-on-render-a-43). The SDK is documented in [docs/api.md](docs/api.md).
+Or all four services in one process, as they run on Render: `pnpm --filter bots host` (health on `http://localhost:8080/health`). Run only one copy of the services at a time: the hosted one is live, so stop it or skip this when testing locally.
+
+Build and deploy the program: `pnpm program:build`, `pnpm program:idl`, `pnpm program:deploy` (on Windows use these instead of `anchor build`). The app is hosted on Vercel ([insiderz.vercel.app](https://insiderz.vercel.app)) and the services on Render ([insider-services.onrender.com](https://insider-services.onrender.com/health)); how to set both up is in the [runbook](docs/runbook.md#hosting-on-render-a-43). The SDK is documented in [docs/api.md](docs/api.md).
 
 ---
 

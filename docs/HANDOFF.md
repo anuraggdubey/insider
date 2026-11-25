@@ -16,7 +16,7 @@ You are working with Anurag (user). Misbah is the other teammate (UI, engine, SD
 
 ## Status in numbers
 
-- Anurag: about 96%. What is left is deployment and submission (below).
+- Anurag: about 98%. Deployed; what is left is the demo video link and submission (below).
 - Misbah: about 92%. What is left: the UI redesign of every page (game-playing style, strong motion and effects), all end-to-end testing and QA on the deployed app, and the small wiring items.
 
 ## State: everything in the plan is built
@@ -24,8 +24,8 @@ You are working with Anurag (user). Misbah is the other teammate (UI, engine, SD
 All live on devnet: program `7mTtHsFMYnZRnhd3SRzhj8Nm1U2T3s33dnbJwa9zBErW`, table `DjnqzKQsUU1fmRztBAiUkPn8VwsnFYgMedcg1BPyA1k`, authority `23k9UnCKBkFyci6Sv1RhuFXUXFgTnjV6oeTZyMaxopWm`.
 
 - Session keys (A-4.1), model providers (Grok, Groq `openai/gpt-oss-120b`, Claude; chosen by env key, `bots/src/ai/provider.ts`), 60-minute soak (35 rounds, 0 failed steps), SOAR leaderboard, `/desk` `/cup` `/proof` screens: done and verified (see STEPS.md).
-- A-4.3 hosting is prepared, not deployed: `bots/src/host.ts`, `Dockerfile`, `render.yaml`, `pnpm pack-keys`, runbook.
-- README rewritten for judges (game framing, IDs, creators); `LIVE_APP_URL` and `DEMO_VIDEO_URL` placeholders still need real links.
+- A-4.3 hosting is deployed: app [insiderz.vercel.app](https://insiderz.vercel.app) (Vercel, root directory `app`), services [insider-services.onrender.com](https://insider-services.onrender.com/health) (Render free plan, Docker, built with `bots/build.mjs`, all four services in one `node` process to fit 512 MB), uptime monitor on `/health`.
+- README rewritten for judges (game framing, IDs, creators); the live app link is in; `DEMO_VIDEO_URL` still needs the real link.
 - Teaser video made (no voice, 3D, about 25 s, "coming soon" end card); not committed or hosted.
 
 ## Frontend (latest work, `app/`)
@@ -43,11 +43,11 @@ Misbah's redesign may replace all of this. **Not re-checked since the flat resty
 
 ## What is left
 
-1. **Deploy to Render (the user does this, after everything is ready).** Follow runbook "Hosting on Render": `pnpm pack-keys`, Blueprint from the repo, set `KEYS_B64` and `GROQ_API_KEY`, add an uptime monitor on `/health`, then set the frontend's `NEXT_PUBLIC_CUP_URL` and caption URL in Vercel. Stop local services first. The Docker image and `host.ts` were never run, so the first deploy may need a fix; check the Render logs.
+1. **Render and Vercel: done.** Render's `autoDeploy` is off: use Manual Deploy after a push to `bots/` or `sdk/`. Never run the local services while Render is live (duplicate transactions). Redeploying Render wipes the cup operator's state: run `pnpm pack-keys` and update `KEYS_B64` first if a cup changed.
 2. **Dedicated devnet RPC** (Helius or QuickNode free tier): the public RPC rate-limits (429s). Set `SOLANA_RPC_URL` (services) and `NEXT_PUBLIC_SOLANA_RPC_URL` (app).
-3. **Frontend on Vercel** with the `NEXT_PUBLIC_*` values in `.env.example` (`NEXT_PUBLIC_SITE_URL`, `NEXT_PUBLIC_DEMO_URL`, `NEXT_PUBLIC_CUP_URL`, `NEXT_PUBLIC_TABLE_AUTHORITY`, program id, RPC).
+3. **Vercel env:** the `NEXT_PUBLIC_*` values in `.env.example` are set; add `NEXT_PUBLIC_DEMO_URL` once the teaser is hosted, then redeploy.
 4. **Misbah (UI + all testing):** redesign every page (landing, Floor, X-ray, Season, Watch, Rules, Desk, Cup, Proof, `/ui`) in a game-playing style of his choosing, with crazy but smooth effects, keeping light/dark, mobile, reduced motion and performance; then run a full end-to-end test on the deployed app (cold visitor, guest and wallet, every game mode, privacy test, mobile, both themes) and fix what he finds. Also: session-key toggle (`NEXT_PUBLIC_SESSIONS`, `app/src/components/onboarding/wallet.tsx`) to `sessionTokenPda` + Gum `createSessionV2`; B-2.7 playtest; B-5.2 QA sweep (now including the checks under "Frontend" above); browser join flow for the Alpha Cup (private buy-in); wallet-signed SOAR registration for humans; click-through of the `/desk` write actions with a wallet.
-5. **Anurag only:** deploy, replace the README placeholders, host the teaser.
+5. **Anurag only:** host the teaser and replace the `DEMO_VIDEO_URL` placeholder in the README.
 6. **Submission checklist** (STEPS.md section 13): live URL, replace the README placeholders, host the teaser and add the demo link, form, X post, tag `v1.0-blitz`.
 
-Known limits to say honestly: the Alpha Cup has no human entrants yet in the soak; the Desk write actions and `open_leak`/`buy_license` through a session were not exercised live; the xAI provider is unit-tested only; no SOAR achievements; free Render wipes the cup operator's state on redeploy; the Desk shows "offline" locally unless the table authority env is set.
+Known limits to say honestly: the Alpha Cup has no human entrants yet in the soak; the Desk write actions and `open_leak`/`buy_license` through a session were not exercised live; the xAI provider is unit-tested only; no SOAR achievements; free Render wipes the cup operator's state on redeploy; the app reads env only from `app/` (copy `.env.example` to `app/.env.local`), otherwise the pages show "offline".
