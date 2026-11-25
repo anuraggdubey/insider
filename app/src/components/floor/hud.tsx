@@ -22,10 +22,10 @@ export function FloorHud({
 }) {
   const phase = view.phase === "xray" ? "X-RAY" : view.phase.toUpperCase();
   return (
-    <div className="floor-hud border-line bg-surface sticky top-14 z-20 mb-3 grid shrink-0 grid-cols-[1fr_auto] items-center gap-3 rounded-xl border p-3 md:static md:flex md:flex-wrap md:gap-5 md:px-4">
+    <div className="floor-hud border-line bg-surface sticky top-14 z-20 mb-3 grid shrink-0 grid-cols-[1fr_auto] items-center gap-x-3 gap-y-1 rounded-xl border p-2 md:static md:flex md:flex-wrap md:gap-5 md:px-4 md:py-3">
       <div className="min-w-0">
-        <div className="micro-label">Arena / round {String(view.round).padStart(2, "0")}</div>
-        <div className="mt-1 flex flex-wrap items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="micro-label">Arena / round {String(view.round).padStart(2, "0")}</span>
           <Badge
             tone={
               view.phase === "live"
@@ -39,30 +39,48 @@ export function FloorHud({
           >
             {phase}
           </Badge>
-          {status === "fixture" && <Badge tone="opened">Fixture</Badge>}
-          {status === "reconnecting" && <Badge tone="neutral">Reconnecting</Badge>}
+          {status === "fixture" && (
+            <>
+              <Badge tone="opened" className="hidden md:inline-flex">
+                Fixture
+              </Badge>
+              <span className="text-opened font-mono text-[9px] font-bold md:hidden">
+                <span aria-hidden="true">FIX</span>
+                <span className="sr-only">Fixture</span>
+              </span>
+            </>
+          )}
+          {status === "reconnecting" && (
+            <>
+              <Badge tone="neutral" className="hidden md:inline-flex">
+                Reconnecting
+              </Badge>
+              <span className="text-muted font-mono text-[9px] font-bold md:hidden">RETRY</span>
+            </>
+          )}
         </div>
       </div>
-      <Screen className="min-w-24 px-3 py-1.5 text-center">
-        <div className="micro-label">Phase / seconds</div>
-        <Readout
-          value={view.secondsLeft}
-          format={{ minimumFractionDigits: 1, maximumFractionDigits: 1 }}
-          className="text-3xl font-black"
-        />
+      <Screen className="min-w-20 px-2 py-1 text-center md:min-w-24 md:px-3 md:py-1.5">
+        <div className="micro-label hidden md:block">Phase / seconds</div>
+        <span className="led-readout text-xl font-black tabular-nums md:text-3xl">
+          {view.secondsLeft.toFixed(1)}
+        </span>
       </Screen>
-      <PhaseBar tick={view.tick} className="col-span-2 w-full md:w-44 md:flex-1" />
+      <PhaseBar tick={view.tick} className="hidden md:block md:w-44 md:flex-1" />
       {view.mine && (
-        <div className="border-line min-w-0 border-l pl-3">
-          <div className="micro-label">Your seat / {view.mine.name}</div>
-          <div className="mt-1 flex flex-wrap items-baseline gap-2 font-mono text-xs">
-            <Readout value={view.mine.chips} className="text-xl font-bold" />
+        <div className="border-line min-w-0 md:border-l md:pl-3">
+          <div className="micro-label truncate">Your seat / {view.mine.name}</div>
+          <div className="flex flex-wrap items-baseline gap-2 font-mono text-xs md:mt-1">
+            <Readout value={view.mine.chips} className="text-base font-bold md:text-xl" />
             <span className="text-muted">CHIPS</span>
             <Num value={view.mine.pnl} kind="delta" />
           </div>
         </div>
       )}
-      <div id="join-seat" className="col-span-2 md:ml-auto">
+      <div
+        id="join-seat"
+        className={view.mine ? "justify-self-end md:ml-auto" : "col-span-2 md:ml-auto"}
+      >
         <GuestControls config={config} view={view} />
       </div>
     </div>

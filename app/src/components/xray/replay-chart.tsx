@@ -48,10 +48,6 @@ export function ReplayChart({
       aria-label={`Price replay through tick ${tick}`}
     >
       <defs>
-        <linearGradient id="replay-fill" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="#5ab4ff" stopOpacity=".15" />
-          <stop offset="1" stopColor="#5ab4ff" stopOpacity="0" />
-        </linearGradient>
         <marker
           id="arrow-standard"
           viewBox="0 0 6 6"
@@ -110,15 +106,7 @@ export function ReplayChart({
           </text>
         </g>
       ))}
-      {path && (
-        <>
-          <path
-            d={`${path} L${x(Math.min(tick, history.length - 1))} ${BOTTOM} L${LEFT} ${BOTTOM} Z`}
-            fill="url(#replay-fill)"
-          />
-          <path d={path} fill="none" stroke="#5ab4ff" strokeWidth="2" />
-        </>
-      )}
+      {path && <path d={path} fill="none" stroke="#ffc21a" strokeWidth="2" />}
       {round.xray.orders.map((order, i) => {
         if (order.sentTick > tick || (order.seat === WHALE_SEAT && order.landTick > tick))
           return null;

@@ -1,6 +1,6 @@
 "use client";
 
-import { LoaderCircle } from "lucide-react";
+import { LoaderCircle, Wallet } from "lucide-react";
 import { useEffect, useRef } from "react";
 import { basicButtonStyles } from "@/components/ui/button-classes";
 import { Tooltip } from "@/components/ui/tooltip";
@@ -9,9 +9,11 @@ import { cancelWalletRequest, requestWallet, useWalletUi } from "@/lib/wallet-ui
 export function WalletPlayButton({
   onReady,
   size = "lg",
+  compact = false,
 }: {
   onReady?: () => Promise<void>;
   size?: "sm" | "lg";
+  compact?: boolean;
 }) {
   const busy = useWalletUi(
     (state) => state.busy || state.connecting || state.request?.action === "play",
@@ -28,13 +30,15 @@ export function WalletPlayButton({
       type="button"
       className={basicButtonStyles("outline", size)}
       disabled={busy}
+      aria-label="Play with wallet"
       aria-busy={busy || undefined}
       onClick={() => {
         requestId.current = requestWallet("play", onReady);
       }}
     >
       {busy && <LoaderCircle aria-hidden className="size-4 animate-spin" />}
-      Play with wallet
+      {compact && <Wallet aria-hidden className="size-4 sm:hidden" />}
+      <span className={compact ? "hidden sm:inline" : undefined}>Play with wallet</span>
     </button>
   );
 }

@@ -10,7 +10,37 @@ export type LaneOrder = {
   mine: boolean;
 };
 
+const ORDER_WIDTH = 104;
+
+export function stackLaneOrders(orders: LaneOrder[], tick: number, delay: number, width: number) {
+  const rows: number[] = [];
+  const distance = Math.max(0, width - ORDER_WIDTH);
+  return [...orders]
+    .sort((a, b) => a.sentTick - b.sentTick || a.key.localeCompare(b.key))
+    .map((order) => {
+      const x = Math.max(0, Math.min(1, (tick - order.sentTick) / delay)) * distance;
+      let row = rows.findIndex((last) => Math.abs(last - x) >= ORDER_WIDTH);
+      if (row === -1) row = rows.length;
+      rows[row] = x;
+      return { order, row };
+    });
+}
+
 type Pending = TableView["myPending"][number];
+
+export function currentRoundSends(tape: Pick<TapeAccount, "sends" | "sendsHead">, tick: number) {
+  const count = Math.min(tape.sendsHead, tape.sends.length);
+  const events: { sequence: number; event: TapeAccount["sends"][number] }[] = [];
+  let newerTick = tick;
+  for (let sequence = tape.sendsHead - 1; sequence >= tape.sendsHead - count; sequence--) {
+    const event = tape.sends[sequence % tape.sends.length];
+    if (!event) continue;
+    if (event.sentTick > newerTick) break;
+    newerTick = event.sentTick;
+    events.push({ sequence, event });
+  }
+  return events.reverse();
+}
 
 export function mempoolLanes({
   tape,
@@ -32,11 +62,8 @@ export function mempoolLanes({
   if (phase !== "live" && phase !== "closing") return [];
   const matched = new Set<string>();
   const orders: LaneOrder[] = [];
-  const count = Math.min(tape.sendsHead, tape.sends.length);
-  const first = tape.sendsHead - count;
-  for (let sequence = first; sequence < tape.sendsHead; sequence++) {
-    const event = tape.sends[sequence % tape.sends.length];
-    if (!event || event.seat >= 10 || (event.lane !== 0 && event.lane !== 1)) continue;
+  for (const { sequence, event } of currentRoundSends(tape, tick)) {
+    if (event.seat >= 10 || (event.lane !== 0 && event.lane !== 1)) continue;
     const delay = event.lane === 1 ? priorityDelay : standardDelay;
     const landTick = event.sentTick + delay;
     if (delay <= 0 || event.sentTick > tick || landTick <= tick) continue;

@@ -25,7 +25,7 @@ export function Toaster() {
   const dismiss = useToast((state) => state.dismiss);
   return (
     <div
-      className="fixed right-4 bottom-4 z-50 flex w-[min(22rem,calc(100%-2rem))] flex-col gap-2 md:top-20 md:bottom-auto"
+      className="fixed right-4 bottom-36 z-50 flex w-[min(22rem,calc(100%-2rem))] flex-col gap-2 md:bottom-16"
       aria-live="polite"
     >
       {items.map((item) => (

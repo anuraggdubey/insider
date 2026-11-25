@@ -55,14 +55,7 @@ export function GuestControls({ config, view }: { config: InsiderConfig; view: T
   return (
     <>
       <div className="relative flex items-center gap-2">
-        {view.mine ? (
-          <div className="border-sealed/20 bg-sealed/5 hidden items-center gap-2 rounded border px-2.5 py-2 font-mono text-[10px] md:flex">
-            <span className="text-sealed">●</span>
-            <span>{view.mine.name}</span>
-            <span className="text-faint">/</span>
-            <span>{view.mine.chips.toLocaleString()} CHIPS</span>
-          </div>
-        ) : (
+        {!view.mine && (
           <div className="flex flex-wrap items-center gap-2">
             <Button size="sm" onClick={() => void join()} loading={busy}>
               Play as guest
@@ -70,7 +63,9 @@ export function GuestControls({ config, view }: { config: InsiderConfig; view: T
             <WalletPlayButton size="sm" onReady={joinFloor} />
           </div>
         )}
-        {view.mine && identity === "guest" && <WalletPlayButton size="sm" onReady={joinFloor} />}
+        {view.mine && identity === "guest" && (
+          <WalletPlayButton size="sm" compact onReady={joinFloor} />
+        )}
         {view.mine && identity === "wallet" && (
           <Button size="sm" variant="outline" onClick={() => void join()} loading={busy}>
             Play as guest

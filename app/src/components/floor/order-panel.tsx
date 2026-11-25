@@ -248,12 +248,12 @@ export function OrderPanel({
           <Button
             variant={side}
             size="sm"
-            aria-label={`Quick send ${side} order`}
+            aria-label={`Send order, quick ${side}`}
             onClick={() => void send()}
             loading={busy}
             disabled={!canSend}
           >
-            Send order ↵
+            Send order <span aria-hidden="true">↵</span>
           </Button>
         </div>
       </div>

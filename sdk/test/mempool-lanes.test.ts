@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { mempoolLanes } from "../../app/src/lib/mempool-lanes";
+import { mempoolLanes, stackLaneOrders, type LaneOrder } from "../../app/src/lib/mempool-lanes";
 
 const pending = (id: string, sentTick: number, lane = 0, sideSize = 200) => ({
   id,
@@ -9,6 +9,49 @@ const pending = (id: string, sentTick: number, lane = 0, sideSize = 200) => ({
   landTick: sentTick + (lane ? 4 : 20),
   round: 1,
   ticksToLand: 1,
+});
+
+describe("mempool lane stacking", () => {
+  const order = (key: string, sentTick: number): LaneOrder => ({
+    key,
+    sentTick,
+    seat: 1,
+    lane: 0,
+    landTick: sentTick + 20,
+    mine: false,
+  });
+
+  it("places same-tick orders in separate rows at every width", () => {
+    const orders = [order("a", 9), order("b", 9), order("c", 9)];
+    for (const width of [0, 180, 300, 800]) {
+      expect(stackLaneOrders(orders, 10, 20, width).map(({ row }) => row)).toEqual([0, 1, 2]);
+    }
+  });
+
+  it("shares a row only when the whole capsule and label fit apart", () => {
+    const orders = [order("a", 1), order("b", 6), order("c", 11), order("d", 16)];
+    expect(stackLaneOrders(orders, 19, 20, 600).map(({ row }) => row)).toEqual([0, 0, 0, 0]);
+    expect(stackLaneOrders(orders, 19, 20, 240).map(({ row }) => row)).toEqual([0, 1, 2, 3]);
+  });
+
+  it("keeps same-row orders at least one label width apart throughout a tick", () => {
+    const orders = Array.from({ length: 20 }, (_, tick) => order(String(tick), tick));
+    for (const width of [120, 240, 390, 600, 1024, 1920]) {
+      const arranged = stackLaneOrders(orders, 19, 20, width);
+      for (const [i, first] of arranged.entries()) {
+        for (const second of arranged.slice(i + 1)) {
+          if (first.row !== second.row) continue;
+          for (const fraction of [0, 0.5, 1]) {
+            const x = (sentTick: number) =>
+              Math.min(1, Math.max(0, (19 + fraction - sentTick) / 20)) * (width - 104);
+            expect(
+              Math.abs(x(first.order.sentTick) - x(second.order.sentTick)),
+            ).toBeGreaterThanOrEqual(104 - 1e-8);
+          }
+        }
+      }
+    }
+  });
 });
 const empty = () => Array.from({ length: 64 }, () => ({ seat: 0, lane: 0, sentTick: 0 }));
 const run = (
@@ -69,10 +112,10 @@ describe("public mempool lanes", () => {
     const sends = [
       { seat: 1, lane: 1, sentTick: 6 },
       { seat: 2, lane: 1, sentTick: 7 },
-      { seat: 3, lane: 0, sentTick: 11 },
       { seat: 4, lane: 2, sentTick: 9 },
     ];
     expect(run(sends, []).map((item) => item.seat)).toEqual([2]);
+    expect(run([...sends, { seat: 3, lane: 0, sentTick: 11 }], [])).toEqual([]);
     expect(run(sends, [], { phase: "closing" })).toHaveLength(1);
     expect(run(sends, [], { phase: "xray" })).toEqual([]);
     expect(run(sends, [], { phase: "idle" })).toEqual([]);
@@ -86,5 +129,18 @@ describe("public mempool lanes", () => {
     expect(result.at(-2)).toMatchObject({ seat: 3, key: "send-63" });
     expect(result.at(-1)).toMatchObject({ seat: 4, key: "send-64" });
     expect(run(sends, [], { tape: { sends, sendsHead: 0 } })).toEqual([]);
+  });
+
+  it("stops at the previous round even when the ring wraps", () => {
+    const sends = empty();
+    sends[61] = { seat: 1, lane: 0, sentTick: 149 };
+    sends[62] = { seat: 2, lane: 0, sentTick: 155 };
+    sends[63] = { seat: 3, lane: 0, sentTick: 159 };
+    sends[0] = { seat: 4, lane: 0, sentTick: 1 };
+    sends[1] = { seat: 5, lane: 0, sentTick: 1 };
+    sends[2] = { seat: 6, lane: 0, sentTick: 4 };
+    sends[3] = { seat: 7, lane: 0, sentTick: 9 };
+    const result = run(sends, [], { tape: { sends, sendsHead: 68 } });
+    expect(result.map((order) => order.seat)).toEqual([4, 5, 6, 7]);
   });
 });

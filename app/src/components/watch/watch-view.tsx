@@ -10,13 +10,19 @@ import { FloorSkeleton, TableOffline } from "@/components/floor/states";
 import { useFloor } from "@/components/floor/use-floor";
 import { PriceChart } from "@/components/floor/lazy-price-chart";
 import { Badge } from "@/components/ui/badge";
+import { Capsule } from "@/components/ui/capsule";
 import { cameraEvent, caption } from "@/lib/captions";
 import { useFloorStore } from "@/lib/floor-store";
 
 function Ladder({ view }: { view: TableView }) {
   const active = view.seats.filter((seat) => !seat.isFree).sort((a, b) => b.pnl - a.pnl);
   return (
-    <div className="border-line bg-surface flex max-h-72 min-h-0 flex-col overflow-auto rounded-lg border p-6 md:max-h-none">
+    <div
+      role="region"
+      aria-label="Public equity ladder"
+      tabIndex={0}
+      className="border-line bg-surface flex max-h-72 min-h-0 flex-col overflow-auto rounded-lg border p-6 md:max-h-none"
+    >
       <div className="micro-label">The ladder / public equity</div>
       <div className="mt-4 flex-1 space-y-1">
         {active.map((seat, index) => (
@@ -79,21 +85,25 @@ export function WatchView() {
       style={scale ? { width: 1920, height: 1080, maxWidth: "none" } : undefined}
       className={`watch-screen screen mx-auto flex min-h-[820px] w-full max-w-[1920px] flex-col overflow-hidden p-[2.3%] md:aspect-video md:min-h-0 ${scale ? "watch-record" : ""}`}
     >
-      <div className="flex shrink-0 flex-wrap items-center justify-between gap-x-4 gap-y-3">
-        <div className="flex flex-wrap items-center gap-3 sm:gap-4">
-          <div className="border-sealed text-sealed grid size-10 place-items-center border font-mono text-xl">
+      <div className="grid shrink-0 grid-cols-1 gap-3 sm:grid-cols-[1fr_auto] sm:items-center">
+        <div className="flex min-w-0 items-center gap-3 sm:gap-4">
+          <div className="border-sealed text-sealed grid size-10 shrink-0 place-items-center border font-mono text-xl">
             I
           </div>
           <span className="font-mono text-xl font-bold tracking-[.2em]">INSIDER</span>
-          <span className="text-muted font-mono text-xs">/ THE FLOOR</span>
+          <span className="text-muted hidden font-mono text-xs sm:inline">/ THE FLOOR</span>
           {fixture && <Badge tone="opened">Fixture</Badge>}
         </div>
-        <div className="text-muted flex flex-wrap items-center gap-x-5 gap-y-1 font-mono text-sm">
-          <span className={fixture ? "text-opened" : "text-buy"}>
+        <div className="text-muted flex min-w-0 items-center gap-x-4 font-mono text-xs whitespace-nowrap sm:gap-x-5 sm:text-sm">
+          <span
+            className={`rounded-sm px-2 py-1 font-bold text-[#161513] ${fixture ? "bg-opened" : "bg-sell"}`}
+          >
             ● {fixture ? "SIMULATED" : "LIVE"}
           </span>
-          <span>ROUND {view.round}</span>
-          <span>T+{view.tick}</span>
+          <span className="border-line-strong flex gap-3 rounded-sm border px-2 py-1">
+            <span>ROUND {view.round}</span>
+            <span>T+{view.tick}</span>
+          </span>
         </div>
       </div>
       <div className="mt-5 grid min-h-0 flex-1 grid-cols-1 gap-4 md:grid-cols-[minmax(0,1fr)_24%]">
@@ -122,20 +132,43 @@ export function WatchView() {
         {view.leaks.map((leak) => (
           <div
             key={leak.slot}
-            className="border-line bg-surface min-w-0 rounded-lg border px-3 py-3"
+            className="border-line bg-surface flex min-w-0 items-center gap-2 rounded-lg border px-3 py-3"
           >
-            <div className="text-muted font-mono text-[10px]">SLOT {leak.slot + 1}</div>
-            <div className="mt-2 truncate text-sm">
-              {leak.state ? leak.kindName : "Awaiting drop"}
-            </div>
-            <div className="text-muted mt-1 font-mono text-[10px]">
-              {leak.state ? `${leak.rarityName} / ${leak.stateName}` : "—"}
+            {leak.state ? (
+              <Capsule
+                size={32}
+                rarity={leak.rarity === 2 ? "epic" : leak.rarity === 1 ? "rare" : "common"}
+                state={
+                  leak.state === 2
+                    ? "owned"
+                    : leak.state === 3
+                      ? "listed"
+                      : leak.state === 4
+                        ? "opened"
+                        : leak.state === 5
+                          ? "expired"
+                          : "sealed"
+                }
+                motion="none"
+              />
+            ) : (
+              <span
+                aria-hidden="true"
+                className="border-line-strong size-8 shrink-0 rounded-full border border-dashed"
+              />
+            )}
+            <div className="min-w-0">
+              <div className="text-muted font-mono text-[10px]">SLOT {leak.slot + 1}</div>
+              <div className="mt-1 truncate text-xs">{leak.state ? leak.kindName : "Empty"}</div>
+              <div className="text-muted mt-1 truncate font-mono text-[9px]">
+                {leak.state ? `${leak.rarityName} / ${leak.stateName}` : "—"}
+              </div>
             </div>
           </div>
         ))}
       </div>
-      <div className="border-sealed/30 bg-surface mt-4 flex min-h-[70px] shrink-0 items-center gap-5 rounded-lg border px-6">
-        <div className="border-sealed/30 text-sealed border-r pr-5 font-mono text-xs tracking-wider">
+      <div className="border-signal/50 bg-surface mt-4 flex min-h-[70px] shrink-0 items-center gap-5 rounded-lg border px-3">
+        <div className="bg-signal rounded-sm px-3 py-2 font-mono text-xs font-bold tracking-wider text-[#161513]">
           AUTO
           <br />
           CAMERA

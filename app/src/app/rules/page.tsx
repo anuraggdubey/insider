@@ -1,8 +1,10 @@
 import { BANKROLL_CHIPS, E1_PRIORITY_FEE_CHIPS } from "@insider/sdk";
 import { ArrowRight, Eye, LockKeyhole, ScanLine } from "lucide-react";
 import Link from "next/link";
+import { RulesDiagrams } from "@/components/rules/diagrams";
 import { Badge, type BadgeTone } from "@/components/ui/badge";
 import { buttonStyles } from "@/components/ui/button";
+import { Kbd } from "@/components/ui/kbd";
 import { PageTransition } from "@/components/ui/page-transition";
 
 const leaks: { name: string; rarity: BadgeTone; family: string; text: string }[] = [
@@ -81,7 +83,9 @@ export default function RulesPage() {
           </Link>
         </div>
 
-        <section aria-labelledby="lanes" className="border-line border-t pt-8">
+        <RulesDiagrams />
+
+        <section aria-labelledby="lanes" className="border-line mt-12 border-t pt-8">
           <div className="mb-5 flex items-baseline justify-between gap-4">
             <h2 id="lanes" className="text-xl font-medium">
               Two ways in.
@@ -186,6 +190,16 @@ export default function RulesPage() {
               </p>
             </article>
           </div>
+        </section>
+        <section aria-labelledby="shortcuts" className="border-line mt-12 border-t pt-8">
+          <h2 id="shortcuts" className="text-xl font-bold">
+            Keys for the floor.
+          </h2>
+          <p className="text-muted mt-3 flex flex-wrap items-center gap-2 text-sm">
+            <Kbd>B</Kbd> buy <Kbd>S</Kbd> sell <Kbd>P</Kbd> priority <Kbd>Enter</Kbd> send
+            <span className="mx-1">·</span>
+            focus a fill in the log, then <Kbd>C</Kbd> copy or <Kbd>F</Kbd> fade.
+          </p>
         </section>
       </main>
     </PageTransition>

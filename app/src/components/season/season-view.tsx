@@ -3,22 +3,27 @@
 import { teeConnection } from "@insider/sdk";
 import { type PublicKey } from "@solana/web3.js";
 import { ArrowUpRight, RefreshCw } from "lucide-react";
+import { motion, useReducedMotion } from "framer-motion";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { useInsider } from "@/app/providers";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Capsule } from "@/components/ui/capsule";
 import { Num } from "@/components/ui/num";
+import { Stamp } from "@/components/ui/stamp";
 import { useFloorStore } from "@/lib/floor-store";
 import { loadGuest } from "@/lib/guest";
 import { deriveSeason, fetchSeason, shortKey, type SeasonData } from "@/lib/season";
 import { loadRounds, type ArchivedRound } from "@/lib/xray-archive";
+import { SoarCard } from "./soar-card";
 
 const signed = (value: bigint) => `${value > BigInt(0) ? "+" : ""}${value.toLocaleString("en-US")}`;
 
 export function SeasonView() {
   const config = useInsider();
+  const reducedMotion = useReducedMotion();
   const params = useSearchParams();
   const fixture = process.env.NODE_ENV !== "production" && params.get("fixture") === "1";
   const guest = useFloorStore((state) => state.guest);
@@ -71,6 +76,7 @@ export function SeasonView() {
     );
     return data ? deriveSeason(data, identities) : null;
   }, [data, guest, storedGuest, walletKey]);
+  const yourStanding = season?.leaderboard.find((entry) => entry.isYou);
 
   return (
     <main className="mx-auto w-full max-w-7xl flex-1 px-5 py-10 sm:px-8 lg:py-14">
@@ -94,6 +100,8 @@ export function SeasonView() {
           </Button>
         </div>
       </div>
+
+      <SoarCard />
 
       {status === "loading" && (
         <p role="status" className="text-muted mt-10 text-sm">
@@ -135,6 +143,32 @@ export function SeasonView() {
             ))}
           </div>
 
+          {season.leaderboard.length > 0 && (
+            <section
+              aria-label="Season podium"
+              className="mt-8 grid grid-cols-3 items-end gap-2 sm:gap-4"
+            >
+              {season.leaderboard.slice(0, 3).map((entry, index) => (
+                <div
+                  key={entry.owner.toBase58()}
+                  className={`border-ink bg-surface flex min-w-0 flex-col items-center rounded-lg border-2 p-3 text-center sm:p-5 ${index === 0 ? "min-h-44" : "min-h-36"}`}
+                >
+                  <Capsule
+                    rarity={index === 0 ? "epic" : index === 1 ? "rare" : "common"}
+                    size={index === 0 ? 64 : 48}
+                    motion="none"
+                  />
+                  <Stamp className="text-priority mt-1">#{entry.rank}</Stamp>
+                  <span className="mt-3 max-w-full truncate text-sm font-bold">
+                    {entry.name}
+                    {entry.isYou ? " · YOU" : ""}
+                  </span>
+                  <span className="text-muted mt-1 font-mono text-xs">{signed(entry.score)}</span>
+                </div>
+              ))}
+            </section>
+          )}
+
           <div className="mt-10 grid gap-8 lg:grid-cols-[1.2fr_1fr]">
             <section aria-labelledby="leaderboard-title" className="min-w-0">
               <div className="mb-4 flex items-end justify-between">
@@ -148,7 +182,12 @@ export function SeasonView() {
                   Best round / top 20
                 </span>
               </div>
-              <div className="border-line bg-surface overflow-x-auto rounded-lg border">
+              <div
+                role="region"
+                aria-label="Season leaderboard"
+                tabIndex={0}
+                className="border-line bg-surface overflow-x-auto rounded-lg border"
+              >
                 {season.leaderboard.length ? (
                   <table className="w-full min-w-[440px] text-left text-sm">
                     <thead className="border-line text-faint border-b font-mono text-[10px] uppercase">
@@ -161,9 +200,10 @@ export function SeasonView() {
                     </thead>
                     <tbody>
                       {season.leaderboard.map((entry) => (
-                        <tr
+                        <motion.tr
                           key={entry.owner.toBase58()}
-                          className={`border-line border-b last:border-0 ${entry.isYou ? "bg-sealed/5" : ""}`}
+                          layout={!reducedMotion}
+                          className={`border-line border-b last:border-0 ${entry.isYou ? "bg-you/10" : ""}`}
                         >
                           <td className="text-faint p-4 font-mono text-xs">
                             {String(entry.rank).padStart(2, "0")}
@@ -171,7 +211,7 @@ export function SeasonView() {
                           <td className="p-4">
                             <span className="font-medium">{entry.name}</span>
                             {entry.isYou && (
-                              <span className="text-sealed ml-2 font-mono text-[10px] uppercase">
+                              <span className="ml-2 font-mono text-[10px] text-[#2342c0] uppercase dark:text-[#abc0ff]">
                                 You
                               </span>
                             )}
@@ -187,7 +227,7 @@ export function SeasonView() {
                           <td className="text-muted p-4 text-right font-mono tabular-nums">
                             {entry.rounds}
                           </td>
-                        </tr>
+                        </motion.tr>
                       ))}
                     </tbody>
                   </table>
@@ -195,6 +235,17 @@ export function SeasonView() {
                   <p className="text-muted p-6 text-sm">No scores recorded this epoch yet.</p>
                 )}
               </div>
+              {yourStanding && (
+                <div
+                  data-testid="season-your-row"
+                  className="border-you bg-surface sticky bottom-0 z-10 flex justify-between gap-3 rounded-b-lg border-2 px-4 py-2 font-mono text-xs"
+                >
+                  <span className="text-[#2342c0] dark:text-[#abc0ff]">
+                    YOU / RANK {yourStanding.rank}
+                  </span>
+                  <span>{signed(yourStanding.score)}</span>
+                </div>
+              )}
             </section>
             <section aria-labelledby="analysts-title" className="min-w-0">
               <div className="mb-4 flex items-end justify-between">
@@ -206,7 +257,12 @@ export function SeasonView() {
                 </div>
                 <span className="text-faint font-mono text-[10px] uppercase">Per seat</span>
               </div>
-              <div className="border-line bg-surface overflow-x-auto rounded-lg border">
+              <div
+                role="region"
+                aria-label="Analyst statistics"
+                tabIndex={0}
+                className="border-line bg-surface overflow-x-auto rounded-lg border"
+              >
                 <table className="w-full min-w-[530px] text-left text-sm">
                   <thead className="border-line text-faint border-b font-mono text-[10px] uppercase">
                     <tr>

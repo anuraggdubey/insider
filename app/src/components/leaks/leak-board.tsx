@@ -16,6 +16,7 @@ import type { LeakAction } from "@/lib/floor-actions";
 import { cn } from "@/lib/cn";
 import { friendlyError } from "@/lib/errors";
 import { leakEdge } from "@/lib/leak-edge";
+import { nextLeakDrop } from "@/lib/next-leak-drop";
 import { playSound } from "@/lib/sound";
 import { leakHint } from "./hints";
 import { payloadLines } from "./payload";
@@ -31,12 +32,14 @@ function LeakCard({
   vault,
   run,
   snapshot,
+  nextDrop,
 }: {
   leak: Leak;
   view: TableView;
   vault?: LeakVaultAccount;
   run: (action: LeakAction, leak: Leak, ask?: number) => Promise<boolean>;
   snapshot: TableSnapshot;
+  nextDrop?: string;
 }) {
   const [editing, setEditing] = useState<"list" | "offer" | null>(null);
   const [ask, setAsk] = useState(50);
@@ -59,11 +62,15 @@ function LeakCard({
   };
   if (leak.state === 0)
     return (
-      <div className="border-line/70 bg-bg/50 flex min-h-[180px] flex-col justify-between rounded-md border border-dashed p-3">
+      <div className="border-line/70 bg-bg/50 flex min-h-20 w-full items-center gap-3 self-start rounded-md border border-dashed p-3">
+        <span
+          aria-hidden
+          className="border-line-strong size-11 shrink-0 rounded-full border-2 border-dashed"
+        />
         <span className="text-faint font-mono text-[9px]">
           SLOT {String(leak.slot + 1).padStart(2, "0")}
+          {nextDrop && <span className="text-opened mt-1 block">NEXT DROP IN {nextDrop}</span>}
         </span>
-        <span className="text-faint font-mono text-[9px]">AWAITING DROP</span>
       </div>
     );
   const rarity = leak.rarityName.toLowerCase() as BadgeTone;
@@ -134,6 +141,9 @@ function LeakCard({
           </Badge>
         </div>
       </div>
+      {nextDrop && (
+        <span className="text-opened mt-2 font-mono text-[9px]">NEXT DROP IN {nextDrop}</span>
+      )}
       <div className="relative mx-auto mt-2 grid size-20 place-items-center">
         {leak.state === 1 && (
           <svg
@@ -388,6 +398,7 @@ export function LeakBoard({
     returnFocus: HTMLElement | null;
     rarity: CapsuleRarity;
   } | null>(null);
+  const nextDrop = nextLeakDrop(snapshot.board, view.round, view.tick, view.phase);
   const run = async (action: LeakAction, leak: Leak, ask?: number) => {
     const returnFocus = document.activeElement?.closest("article") ?? null;
     try {
@@ -424,6 +435,7 @@ export function LeakBoard({
               vault={vaults[leak.leakId]}
               run={run}
               snapshot={snapshot}
+              nextDrop={nextDrop && nextDrop.slot === leak.slot ? nextDrop.time : undefined}
             />
           ))}
         </div>

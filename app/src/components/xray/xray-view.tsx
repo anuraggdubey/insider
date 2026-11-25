@@ -1,6 +1,6 @@
 "use client";
 
-import { CLOSING_END_TICK } from "@insider/sdk/constants";
+import { CLOSING_END_TICK, WHALE_SEAT } from "@insider/sdk/constants";
 import { ArrowLeft, ArrowUpRight, Copy, Pause, Play, RotateCcw, Share2 } from "lucide-react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
@@ -10,7 +10,10 @@ import { FloorSkeleton } from "@/components/floor/states";
 import { useFloor } from "@/components/floor/use-floor";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Capsule } from "@/components/ui/capsule";
 import { Panel } from "@/components/ui/panel";
+import { Screen } from "@/components/ui/screen";
+import { Stamp } from "@/components/ui/stamp";
 import { useToast } from "@/components/ui/toast";
 import { useFloorStore } from "@/lib/floor-store";
 import { playSound } from "@/lib/sound";
@@ -33,10 +36,11 @@ function Scoreboard({ round }: { round: ArchivedRound }) {
     .sort((a, b) => (b.score ?? -Infinity) - (a.score ?? -Infinity));
   return (
     <Panel title="Scoreboard" label="After close-out" className="mt-3">
-      <div className="overflow-x-auto">
+      <div role="region" aria-label="Ranked scoreboard" tabIndex={0} className="overflow-x-auto">
         <table className="w-full min-w-[510px] text-left text-xs">
           <thead className="text-muted border-line border-b font-mono text-[10px] uppercase">
             <tr>
+              <th className="px-4 py-3 font-normal">Rank</th>
               <th className="px-4 py-3 font-normal">Seat</th>
               <th className="px-3 py-3 font-normal">Kind</th>
               <th className="px-3 py-3 font-normal">Held / opened</th>
@@ -45,7 +49,7 @@ function Scoreboard({ round }: { round: ArchivedRound }) {
             </tr>
           </thead>
           <tbody>
-            {seats.map((seat) => {
+            {seats.map((seat, rank) => {
               const held = round.xray.leaks.filter(
                 (leak) => leak.header.ownerSeat === seat.index && leak.header.paid > 0,
               );
@@ -55,6 +59,9 @@ function Scoreboard({ round }: { round: ArchivedRound }) {
                 .sort((a, b) => b.profitEstimate - a.profitEstimate)[0];
               return (
                 <tr key={seat.index} className="border-line border-b last:border-0">
+                  <td className="text-muted px-4 py-3 font-mono">
+                    {String(rank + 1).padStart(2, "0")}
+                  </td>
                   <td className="px-4 py-3 font-medium">{seat.name}</td>
                   <td className="px-3 py-3">
                     <Badge>{seat.kind}</Badge>
@@ -259,6 +266,11 @@ export function XrayView({ roundNumber }: { roundNumber?: number }) {
     const orders = sandwichOrders(tag, round.xray.orders);
     return orders && orders.exit.landTick <= tick;
   });
+  const visibleOrders = round.xray.orders
+    .filter(
+      (order) => order.sentTick <= tick && (order.seat !== WHALE_SEAT || order.landTick <= tick),
+    )
+    .slice(-6);
   return (
     <main className="mx-auto w-full max-w-[1440px] flex-1 px-4 py-8 sm:px-7">
       <Link
@@ -277,7 +289,7 @@ export function XrayView({ roundNumber }: { roundNumber?: number }) {
               </Badge>
             )}
           </div>
-          <h1 className="mt-2 text-3xl font-medium tracking-tight sm:text-4xl">
+          <h1 className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">
             Round {String(round.round).padStart(2, "0")} <span className="text-muted">/</span> X-ray
           </h1>
           <p className="text-muted mt-2 text-xs">90 seconds of decisions, finally in the open.</p>
@@ -313,15 +325,62 @@ export function XrayView({ roundNumber }: { roundNumber?: number }) {
       <div className="mt-3 grid gap-3 lg:grid-cols-[minmax(0,1fr)_290px]">
         <div className="min-w-0">
           <Panel
-            title="The whole tape"
+            title="Declassified / the whole tape"
             action={<span className="text-muted font-mono text-[10px]">T+{tick} / 180</span>}
           >
-            <div className="screen h-[300px] px-3 pt-3 sm:h-[370px]">
-              <ReplayChart
-                round={round}
-                tick={tick}
-                selected={selected && isVisible(selected) ? selected : undefined}
-              />
+            <Screen
+              label="REEL 01 / PRICE & ORDER TRACE"
+              className="mx-2 mt-2 flex h-[300px] flex-col rounded-md px-3 pt-3 sm:h-[370px]"
+            >
+              <div className="min-h-0 flex-1">
+                <ReplayChart
+                  round={round}
+                  tick={tick}
+                  selected={selected && isVisible(selected) ? selected : undefined}
+                />
+              </div>
+            </Screen>
+            <div className="screen mx-2 mt-2 rounded-md px-3 py-3" aria-label="Revealed orders">
+              <div className="text-muted mb-2 flex items-center justify-between font-mono text-[9px]">
+                <span>FRAME / ORDERS</span>
+                <Stamp className="text-priority !text-[8px]">DECLASSIFIED</Stamp>
+              </div>
+              {visibleOrders.length ? (
+                <div
+                  role="region"
+                  aria-label="Order frames"
+                  tabIndex={0}
+                  className="flex gap-3 overflow-x-auto pb-1"
+                >
+                  {visibleOrders.map((order, index) => {
+                    const landed = order.landTick <= tick;
+                    return (
+                      <div
+                        key={`${order.sentTick}-${order.seat}-${index}`}
+                        className="flex min-w-24 items-center gap-1"
+                      >
+                        <Capsule
+                          size={32}
+                          state={landed ? "opened" : "sealed"}
+                          rarity={order.lane === 1 ? "rare" : "common"}
+                          motion="none"
+                        />
+                        <span className="font-mono text-[9px] leading-4">
+                          {traceName(round, order.seat)}
+                          <br />
+                          <strong>
+                            {landed
+                              ? `${order.sideSize > 0 ? "BUY" : "SELL"} ${Math.abs(order.sideSize)}`
+                              : "SEALED"}
+                          </strong>
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <p className="text-muted font-mono text-[10px]">NO ORDERS IN THIS FRAME</p>
+              )}
             </div>
             <div className="border-line flex flex-wrap items-center gap-3 border-t px-4 py-3">
               <button

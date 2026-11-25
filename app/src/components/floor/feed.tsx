@@ -152,14 +152,14 @@ export function Feed({
                     makeDraft(true);
                   }
                 }}
-                className="flex items-start gap-2 px-3 py-2"
+                className="group flex items-start gap-2 px-3 py-2"
               >
                 <span className={`${row.color} mt-1.5 size-1 shrink-0 rounded-full bg-current`} />
                 <span className="text-muted flex-1 text-[10px] leading-4">
                   <Stamp className={`${row.color} mr-2 px-1 py-0 text-[8px]`}>{row.stamp}</Stamp>
                   {row.text}
                   {row.fill !== undefined && (
-                    <span className="mt-1 flex gap-2">
+                    <span className="ml-2 inline-flex gap-1 opacity-100 transition-opacity [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:group-focus-within:opacity-100 [@media(hover:hover)]:group-hover:opacity-100">
                       <button
                         type="button"
                         disabled={!copy}
@@ -169,7 +169,7 @@ export function Feed({
                             : "Side and size are private until fill"
                         }
                         onClick={() => makeDraft(false)}
-                        className="text-sealed disabled:text-muted"
+                        className="border-line text-sealed disabled:text-muted rounded border px-1"
                       >
                         Copy
                       </button>
@@ -182,7 +182,7 @@ export function Feed({
                             : "Side and size are private until fill"
                         }
                         onClick={() => makeDraft(true)}
-                        className="text-sealed disabled:text-muted"
+                        className="border-line text-sealed disabled:text-muted rounded border px-1"
                       >
                         Fade
                       </button>
