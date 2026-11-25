@@ -8,7 +8,7 @@ import type { PublicKey } from "@solana/web3.js";
 import { Badge, type BadgeTone } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Capsule, type CapsuleRarity, type CapsuleState } from "@/components/ui/capsule";
-import { Num } from "@/components/ui/num";
+import { FlipBoard } from "@/components/ui/flip-board";
 import { Panel } from "@/components/ui/panel";
 import { Stamp } from "@/components/ui/stamp";
 import { useToast } from "@/components/ui/toast";
@@ -179,7 +179,7 @@ function LeakCard({
         <Capsule
           rarity={capsuleRarity}
           state={capsuleState}
-          size={64}
+          size={72}
           mine={leak.isMine}
           motion={
             popped ? "pop" : leak.state === 1 && view.tick - leak.mintedTick <= 1 ? "drop" : "none"
@@ -213,12 +213,15 @@ function LeakCard({
           </div>
         ) : leak.state === 1 ? (
           <>
-            <div className="flex items-baseline justify-between">
-              <span className="text-muted text-[11px] font-extrabold">Price now</span>
-              <span className="text-text text-base font-black">
-                <Num value={leak.currentPrice} />{" "}
-                <span className="text-faint text-[11px]">CHIPS</span>
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-muted text-[11px] leading-4 font-extrabold">
+                Price now
+                <br />
+                <span className="text-faint">chips</span>
               </span>
+              <FlipBoard flipKey={leak.currentPrice} className="text-2xl">
+                {leak.currentPrice.toLocaleString("en-US")}
+              </FlipBoard>
             </div>
             <div className="bg-line mt-2 h-1.5 overflow-hidden rounded-full">
               <div
@@ -241,7 +244,14 @@ function LeakCard({
           </div>
         ) : (
           <div className="text-muted font-mono text-[11px]">
-            {isOpened ? `OPENED BY ${owner.toUpperCase()}` : `HELD BY ${owner.toUpperCase()}`}
+            {!isOpened && (
+              <FlipBoard flipKey="sold" sold className="mb-1 text-sm">
+                SOLD
+              </FlipBoard>
+            )}
+            <span className="block">
+              {isOpened ? `OPENED BY ${owner.toUpperCase()}` : `HELD BY ${owner.toUpperCase()}`}
+            </span>
           </div>
         )}
       </div>

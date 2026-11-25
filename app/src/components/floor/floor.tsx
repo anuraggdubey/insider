@@ -17,12 +17,14 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useInsider } from "@/app/providers";
 import { LeakBoard } from "@/components/leaks/leak-board";
 import { buttonStyles } from "@/components/ui/button";
+import { Capsule } from "@/components/ui/capsule";
 import { Stamp } from "@/components/ui/stamp";
 import { useToast } from "@/components/ui/toast";
 import { updateFloor, useFloorStore } from "@/lib/floor-store";
 import { seatsFromXray } from "@/lib/xray-seats";
 import { cn } from "@/lib/cn";
 import { reducedTransition, spring } from "@/lib/motion";
+import { seatColor } from "@/lib/seat-colors";
 import { playSound } from "@/lib/sound";
 import { floorSoundEvents, type FloorSoundState } from "@/lib/sound-events";
 import { FloorCoach } from "./coach";
@@ -170,9 +172,27 @@ export function Floor() {
           initial={{ opacity: 0, y: reducedMotion ? 0 : 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={reducedMotion ? reducedTransition : spring}
-          className="bg-surface mb-3 flex flex-wrap items-center gap-4 rounded-2xl border-[3px] border-[#0f1f5c] px-4 py-3 shadow-[0_5px_0_#0f1f5c]"
+          className="studio-stage mb-3 flex flex-wrap items-center gap-4 px-4 py-3"
           aria-label="Round summary"
         >
+          {top.length > 0 && (
+            <div aria-hidden className="flex items-end">
+              {[top[1], top[0], top[2]].map(
+                (seat) =>
+                  seat && (
+                    <span key={seat.index} className="-mx-1">
+                      <Capsule
+                        size={seat === top[0] ? 62 : 46}
+                        topColor={seatColor(seat.index, finalMine?.index)}
+                        mine={seat.index === finalMine?.index}
+                        motion="drop"
+                        decorative
+                      />
+                    </span>
+                  ),
+              )}
+            </div>
+          )}
           <div>
             <Stamp className="text-priority">Round complete</Stamp>
             <div className="mt-2.5 text-sm font-extrabold">

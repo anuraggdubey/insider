@@ -1,9 +1,10 @@
 "use client";
 
 import { SEAT_NAMES } from "@insider/sdk/names";
-import { Bot, Cpu, UserRound } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { CapsuleArt } from "@/components/ui/capsule-art";
 import { cn } from "@/lib/cn";
+import { seatColor } from "@/lib/seat-colors";
 
 export function PlayerTokens() {
   const container = useRef<HTMLDivElement>(null);
@@ -44,55 +45,58 @@ export function PlayerTokens() {
     };
   }, []);
   return (
-    <div ref={container} className="gcard p-5 sm:p-8">
-      <div className="micro-label mb-6">Player tokens / 10 seats</div>
-      <div className="grid grid-cols-5 gap-2 sm:gap-3">
+    <div ref={container} className="studio-stage px-2 py-6 sm:px-6">
+      <div className="relative mx-auto aspect-[16/13] w-full max-w-xl">
+        <div className="absolute inset-0 grid place-items-center text-center">
+          <div>
+            <div className="font-[family-name:var(--font-brand)] text-4xl sm:text-5xl">10</div>
+            <div className="micro-label">seats at the table</div>
+          </div>
+        </div>
         {Array.from({ length: 10 }, (_, index) => {
           const name = SEAT_NAMES[index]!;
           const kind = index < 5 ? "bot" : index < 7 ? "AI analyst" : "human";
-          const Icon = index < 5 ? Bot : index < 7 ? Cpu : UserRound;
           const mine = index === 7;
           const active = pulse?.index === index;
+          // Your seat sits at the front of the ring.
+          const angle = ((index - 7) / 10) * Math.PI * 2;
+          const depth = (Math.cos(angle) + 1) / 2;
           return (
             <div
               key={name}
-              className="min-w-0 text-center"
+              className="absolute -translate-x-1/2 -translate-y-1/2 text-center"
+              style={{
+                left: `${(50 + 40 * Math.sin(angle)).toFixed(2)}%`,
+                top: `${(48 + 40 * Math.cos(angle)).toFixed(2)}%`,
+                zIndex: Math.round(depth * 10),
+                width: "19%",
+              }}
               aria-label={`${name}, ${kind}${mine ? ", you" : ""}`}
             >
-              <div
+              <span
                 className={cn(
-                  "seat-token border-ink relative mx-auto flex aspect-square w-full max-w-16 flex-col overflow-hidden rounded-full border-2",
+                  "seat-token ring-capsule mx-auto block",
                   active && (pulse.priority ? "seat-token-priority" : "seat-token-standard"),
                 )}
+                style={{ width: `${(46 + depth * 26).toFixed(2)}%` }}
               >
-                <div
-                  className={cn(
-                    "grid h-1/2 place-items-center",
-                    mine
-                      ? "bg-you text-white"
-                      : index < 5
-                        ? "bg-[#1565ff] text-white"
-                        : index < 7
-                          ? "bg-[#7c3aed] text-white"
-                          : "bg-[#0b8f55] text-white",
-                    active && pulse.priority && "bg-signal !text-[#0f1f5c]",
-                    active && !pulse.priority && "brightness-125",
-                  )}
-                >
-                  <Icon aria-hidden className="size-4" />
-                </div>
-                <div className="border-ink grid h-1/2 place-items-center border-t-2 bg-[#ffffff] font-mono text-[8px] font-bold text-[#0f1f5c]">
-                  {mine ? "YOU" : String(index + 1).padStart(2, "0")}
-                </div>
-              </div>
-              <span className="text-muted mt-2 block font-mono text-[9px] leading-tight">
-                {name}
+                <CapsuleArt size={96} color={seatColor(index, 7)} mark={index === 4} />
+              </span>
+              <span
+                className={cn(
+                  "block text-[9px] leading-tight font-extrabold sm:text-[11px]",
+                  mine ? "text-brand" : "text-muted",
+                )}
+              >
+                {mine ? "You" : name}
               </span>
             </div>
           );
         })}
       </div>
-      <p className="text-muted mt-6 font-mono text-[10px] uppercase">05 Bots / 02 AI / 03 Human</p>
+      <p className="text-muted mt-4 text-center text-[11px] font-black tracking-wider uppercase">
+        05 Bots / 02 AI / 03 Human
+      </p>
     </div>
   );
 }

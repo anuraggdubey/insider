@@ -209,7 +209,7 @@ export function OrderPanel({
             label="Priority lane"
             className={cn(
               "w-full",
-              lane === 1 && "[--switch-ink:#0f1f5c] [--switch-thumb:var(--color-signal)]",
+              lane === 1 && "[--switch-ink:#0d1633] [--switch-thumb:var(--color-signal)]",
             )}
             checked={lane === 1}
             onCheckedChange={(checked) => setLane(checked ? 1 : 0)}

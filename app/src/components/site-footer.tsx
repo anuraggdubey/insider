@@ -1,5 +1,6 @@
 import { ArrowUpRight } from "lucide-react";
 import Link from "next/link";
+import { CapsuleRow } from "@/components/ui/capsule-pyramid";
 import { Logo } from "@/components/ui/logo";
 
 const PROGRAM =
@@ -50,8 +51,9 @@ const linkClass =
 
 export function SiteFooter() {
   return (
-    <footer className="footer-blue border-ink/20 relative mt-auto overflow-hidden border-t-4">
-      <div className="mx-auto max-w-7xl px-5 pt-14 sm:px-8">
+    <footer className="footer-blue relative mt-auto overflow-hidden">
+      <CapsuleRow size={58} className="footer-capsules overflow-hidden pt-4" />
+      <div className="mx-auto max-w-7xl px-5 pt-10 sm:px-8">
         <div className="grid gap-12 lg:grid-cols-[1.3fr_2fr]">
           <div>
             <Logo />
@@ -108,7 +110,7 @@ export function SiteFooter() {
       </div>
       <div
         aria-hidden="true"
-        className="pointer-events-none -mb-[0.2em] text-center font-[family-name:var(--font-display)] text-[clamp(4rem,19vw,17rem)] leading-[.85] font-extrabold tracking-[-0.04em] text-white/10 select-none before:content-['INSIDER']"
+        className="pointer-events-none -mb-[0.2em] text-center font-[family-name:var(--font-brand)] text-[clamp(4rem,19vw,17rem)] leading-[.85] text-white/10 select-none before:content-['INSIDER']"
       />
     </footer>
   );

@@ -10,8 +10,9 @@ import { FloorSkeleton } from "@/components/floor/states";
 import { useFloor } from "@/components/floor/use-floor";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Capsule } from "@/components/ui/capsule";
+import { GlassCapsule } from "@/components/ui/glass-capsule";
 import { Panel } from "@/components/ui/panel";
+import { seatColor } from "@/lib/seat-colors";
 import { Screen } from "@/components/ui/screen";
 import { Stamp } from "@/components/ui/stamp";
 import { useToast } from "@/components/ui/toast";
@@ -171,6 +172,9 @@ export function XrayView({ roundNumber }: { roundNumber?: number }) {
   useFloor(config, fixture);
   const snapshot = useFloorStore((state) => state.snapshot);
   const status = useFloorStore((state) => state.status);
+  const guest = useFloorStore((state) => state.guest);
+  const identity = useFloorStore((state) => state.identity);
+  const walletKey = useFloorStore((state) => state.walletKey);
   const [round, setRound] = useState<ArchivedRound | null>(null);
   const [loaded, setLoaded] = useState(false);
   const [tick, setTick] = useState(180);
@@ -271,6 +275,9 @@ export function XrayView({ roundNumber }: { roundNumber?: number }) {
       (order) => order.sentTick <= tick && (order.seat !== WHALE_SEAT || order.landTick <= tick),
     )
     .slice(-6);
+  // Only used to paint your own capsule blue, as on the floor.
+  const player = identity === "wallet" ? walletKey : guest?.publicKey;
+  const mySeat = roundSeats(round).find((seat) => seat.owner === player?.toBase58())?.index;
   return (
     <main className="mx-auto w-full max-w-[1440px] flex-1 px-4 py-8 sm:px-7">
       <Link
@@ -350,30 +357,22 @@ export function XrayView({ roundNumber }: { roundNumber?: number }) {
                   role="region"
                   aria-label="Order frames"
                   tabIndex={0}
-                  className="flex gap-3 overflow-x-auto pb-1"
+                  className="flex gap-3 overflow-x-auto pt-1 pb-2"
                 >
                   {visibleOrders.map((order, index) => {
                     const landed = order.landTick <= tick;
                     return (
-                      <div
-                        key={`${order.sentTick}-${order.seat}-${index}`}
-                        className="flex min-w-24 items-center gap-1"
-                      >
-                        <Capsule
-                          size={32}
-                          state={landed ? "opened" : "sealed"}
-                          rarity={order.lane === 1 ? "rare" : "common"}
-                          motion="none"
-                        />
-                        <span className="font-mono text-[9px] leading-4">
-                          {traceName(round, order.seat)}
-                          <br />
-                          <strong>
-                            {landed
+                      <div key={`${order.sentTick}-${order.seat}-${index}`} className="shrink-0">
+                        <GlassCapsule
+                          name={traceName(round, order.seat)}
+                          order={
+                            landed
                               ? `${order.sideSize > 0 ? "BUY" : "SELL"} ${Math.abs(order.sideSize)}`
-                              : "SEALED"}
-                          </strong>
-                        </span>
+                              : "SEALED"
+                          }
+                          revealed={landed}
+                          color={seatColor(order.seat, mySeat)}
+                        />
                       </div>
                     );
                   })}

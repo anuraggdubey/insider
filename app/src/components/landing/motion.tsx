@@ -120,8 +120,8 @@ export function ScrollBand({ top, bottom }: { top: string; bottom: string }) {
   const first = useScrollMotion("band", -80);
   const second = useScrollMotion("band", 80);
   return (
-    <div aria-hidden className="cta-sky overflow-hidden border-y-4 border-[#0f1f5c] py-8">
-      <div className="mx-auto max-w-7xl space-y-2 px-5 font-[family-name:var(--font-display)] text-[clamp(2rem,7vw,6.5rem)] leading-none font-bold sm:px-8">
+    <div aria-hidden className="cta-sky overflow-hidden py-8">
+      <div className="mx-auto max-w-7xl space-y-2 px-5 font-[family-name:var(--font-brand)] text-[clamp(2rem,7vw,6.5rem)] leading-none sm:px-8">
         <div ref={first}>
           {top} <span className="sun-text">✦</span>
         </div>

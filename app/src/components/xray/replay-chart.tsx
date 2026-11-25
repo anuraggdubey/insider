@@ -89,12 +89,12 @@ export function ReplayChart({
           x2={RIGHT}
           y1={TOP + line * 60}
           y2={TOP + line * 60}
-          stroke="#243a85"
+          stroke="#262e4b"
         />
       ))}
       {[0, 45, 90, 135, 180].map((t) => (
         <g key={t}>
-          <line x1={x(t)} x2={x(t)} y1={TOP} y2={BOTTOM} stroke="#1a2c6b" />
+          <line x1={x(t)} x2={x(t)} y1={TOP} y2={BOTTOM} stroke="#1a2138" />
           <text
             x={x(t)}
             y="299"

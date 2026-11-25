@@ -52,23 +52,23 @@ export function PriceChart({
       width: host.clientWidth,
       height: host.clientHeight,
       layout: {
-        background: { type: ColorType.Solid, color: "#0a1445" },
+        background: { type: ColorType.Solid, color: "#0a0d18" },
         textColor: "#a8baee",
         fontSize: 10,
         fontFamily: "var(--font-jetbrains), monospace",
         attributionLogo: false,
       },
-      grid: { vertLines: { color: "#16265f" }, horzLines: { color: "#1a2c6b" } },
-      rightPriceScale: { borderColor: "#243a85", scaleMargins: { top: 0.16, bottom: 0.18 } },
+      grid: { vertLines: { color: "#151b2e" }, horzLines: { color: "#1a2138" } },
+      rightPriceScale: { borderColor: "#262e4b", scaleMargins: { top: 0.16, bottom: 0.18 } },
       timeScale: {
-        borderColor: "#243a85",
+        borderColor: "#262e4b",
         timeVisible: true,
         secondsVisible: true,
         tickMarkFormatter: (value: Time) => `T+${Number(value) - EPOCH}`,
       },
       crosshair: {
-        vertLine: { color: "#6b86d6", labelBackgroundColor: "#2a4196" },
-        horzLine: { color: "#6b86d6", labelBackgroundColor: "#2a4196" },
+        vertLine: { color: "#6b86d6", labelBackgroundColor: "#2b3454" },
+        horzLine: { color: "#6b86d6", labelBackgroundColor: "#2b3454" },
       },
     });
     const area = instance.addSeries(LineSeries, {
@@ -308,7 +308,7 @@ export function PriceChart({
               <div
                 key={overlay.id}
                 data-testid={`chart-overlay-${overlay.kind}`}
-                className="text-opened absolute rounded border border-[#ffd21f55] bg-[#1b2d75] px-1.5 py-1 font-mono text-[11px]"
+                className="text-opened absolute rounded border border-[#ffd21f55] bg-[#1a2138] px-1.5 py-1 font-mono text-[11px]"
                 style={{
                   left: overlay.left,
                   top: `min(${Math.max(10, overlay.top ?? 40)}px, calc(100% - 35px))`,

@@ -3,16 +3,11 @@
 import type { TableView } from "@insider/sdk";
 import { Bot, Cpu, UserRound } from "lucide-react";
 import Link from "next/link";
+import { Capsule } from "@/components/ui/capsule";
 import { Num } from "@/components/ui/num";
 import { Panel } from "@/components/ui/panel";
 import { cn } from "@/lib/cn";
-
-// Each kind of player gets its own colour so the table reads at a glance.
-const kindTone: Record<string, string> = {
-  bot: "bg-[#1565ff] text-white",
-  ai: "bg-[#7c3aed] text-white",
-  human: "bg-[#0b8f55] text-white",
-};
+import { seatColor } from "@/lib/seat-colors";
 
 export function SeatRail({ view }: { view: TableView }) {
   return (
@@ -42,23 +37,18 @@ export function SeatRail({ view }: { view: TableView }) {
               <div
                 key={`${seat.index}-${pulse ? seat.lastSend?.tick : "idle"}`}
                 className={cn(
-                  "flex size-9 shrink-0 flex-col overflow-hidden rounded-full border-2 border-[#0f1f5c]",
-                  seat.isFree && !seat.isMe && "opacity-45",
+                  "seat-capsule shrink-0",
                   pulse && (priority ? "seat-token-priority" : "seat-token-standard"),
+                  seat.isFree && !seat.isMe && "opacity-35 grayscale",
                 )}
               >
-                <div
-                  className={cn(
-                    "grid h-1/2 place-items-center",
-                    seat.isMe ? "bg-you text-white" : kindTone[seat.kind],
-                    priority && "bg-signal !text-[#0f1f5c]",
-                  )}
-                >
-                  <Icon aria-hidden className="size-3" />
-                </div>
-                <div className="grid h-1/2 place-items-center border-t-2 border-[#0f1f5c] bg-white font-mono text-[8px] font-bold text-[#0f1f5c]">
-                  {String(seat.index + 1).padStart(2, "0")}
-                </div>
+                <Capsule
+                  size={38}
+                  topColor={seatColor(seat.index, view.mine?.index)}
+                  mine={seat.isMe}
+                  motion="none"
+                  decorative
+                />
               </div>
               <div className="min-w-0 flex-1">
                 <div
@@ -67,6 +57,7 @@ export function SeatRail({ view }: { view: TableView }) {
                     seat.liquidated && "line-through",
                   )}
                 >
+                  <Icon aria-hidden className="text-faint mr-1 inline size-3 align-[-1px]" />
                   {seat.isFree ? "Open seat" : seat.name}
                   {seat.isMe && (
                     <span className="bg-you ml-1.5 rounded-full px-1.5 py-0.5 text-[9px] font-black text-[var(--color-you-ink)]">

@@ -60,7 +60,7 @@ export function RulesDiagrams() {
                     <Capsule
                       size={31}
                       motion="none"
-                      topColor={index === 3 ? "var(--color-signal)" : "#1565ff"}
+                      topColor={index === 3 ? "var(--color-signal)" : "#ff6a35"}
                     />
                   </span>
                 </LaneTrack>

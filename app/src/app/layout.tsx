@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Doto, Fredoka, JetBrains_Mono, Nunito } from "next/font/google";
+import { Doto, Fredoka, JetBrains_Mono, Lilita_One, Nunito } from "next/font/google";
 import { SiteFooter } from "@/components/site-footer";
 import { Logo } from "@/components/ui/logo";
 import { MainNav } from "@/components/ui/main-nav";
@@ -19,6 +19,12 @@ const bodyFont = Nunito({
 const displayFont = Fredoka({
   variable: "--font-fredoka",
   subsets: ["latin"],
+  display: "swap",
+});
+const brandFont = Lilita_One({
+  variable: "--font-lilita",
+  subsets: ["latin"],
+  weight: "400",
   display: "swap",
 });
 const monoFont = JetBrains_Mono({
@@ -49,8 +55,8 @@ export const metadata: Metadata = {
 };
 export const viewport: Viewport = {
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#8FCBFF" },
-    { media: "(prefers-color-scheme: dark)", color: "#14307F" },
+    { media: "(prefers-color-scheme: light)", color: "#E4EBFB" },
+    { media: "(prefers-color-scheme: dark)", color: "#0D1430" },
   ],
 };
 
@@ -63,7 +69,7 @@ const nav = [
   ["Proof", "/proof"],
 ];
 
-const THEME_SCRIPT = `try{var t=localStorage.getItem("insider.theme");var d=t==="dark"||(!t&&matchMedia("(prefers-color-scheme: dark)").matches);if(d)document.documentElement.classList.add("dark");document.querySelectorAll('meta[name="theme-color"]').forEach(function(m){m.content=d?"#14307F":"#8FCBFF"})}catch(e){}`;
+const THEME_SCRIPT = `try{var t=localStorage.getItem("insider.theme");var d=t==="dark"||(!t&&matchMedia("(prefers-color-scheme: dark)").matches);if(d)document.documentElement.classList.add("dark");document.querySelectorAll('meta[name="theme-color"]').forEach(function(m){m.content=d?"#0D1430":"#E4EBFB"})}catch(e){}`;
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
@@ -71,7 +77,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="en"
       data-scroll-behavior="smooth"
       suppressHydrationWarning
-      className={`${bodyFont.variable} ${displayFont.variable} ${monoFont.variable} ${ledFont.variable} h-full antialiased`}
+      className={`${bodyFont.variable} ${displayFont.variable} ${brandFont.variable} ${monoFont.variable} ${ledFont.variable} h-full antialiased`}
     >
       <head>
         <script

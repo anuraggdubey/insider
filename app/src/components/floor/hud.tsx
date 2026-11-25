@@ -106,7 +106,7 @@ export function PhaseBanner({
   if (!visible || !["live", "closing", "xray"].includes(phase)) return null;
   return (
     <div
-      className="phase-banner bg-capsule mb-3 flex shrink-0 flex-wrap items-center justify-between gap-3 rounded-2xl border-[3px] border-[#0f1f5c] px-4 py-3 text-[#0f1f5c] shadow-[0_5px_0_#0f1f5c]"
+      className="phase-banner bg-capsule mb-3 flex shrink-0 flex-wrap items-center justify-between gap-3 rounded-full px-6 py-3 text-[#1d1600] shadow-[0_5px_0_#b87a00]"
       role="status"
     >
       <strong className="font-[family-name:var(--font-display)] text-xl font-bold uppercase">

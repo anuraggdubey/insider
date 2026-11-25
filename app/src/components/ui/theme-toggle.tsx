@@ -18,7 +18,7 @@ export function ThemeToggle() {
     const next = !dark;
     document.documentElement.classList.toggle("dark", next);
     document.querySelectorAll<HTMLMetaElement>('meta[name="theme-color"]').forEach((meta) => {
-      meta.content = next ? "#14307F" : "#8FCBFF";
+      meta.content = next ? "#0D1430" : "#E4EBFB";
     });
     try {
       localStorage.setItem("insider.theme", next ? "dark" : "light");

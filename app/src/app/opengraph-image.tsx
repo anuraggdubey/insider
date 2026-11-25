@@ -3,8 +3,8 @@ import { join } from "node:path";
 import { ImageResponse } from "next/og";
 
 const logoSvg = readFileSync(join(process.cwd(), "public/brand/logo.svg"), "utf8")
-  .replaceAll("#1a0f2e", "#0f1f5c")
-  .replaceAll("#ffbf1f", "#ffd21f");
+  .replaceAll("#1a0f2e", "#0d1633")
+  .replaceAll("#ffbf1f", "#ffc52e");
 const logo = `data:image/svg+xml;base64,${Buffer.from(logoSvg).toString("base64")}`;
 
 export const alt = "INSIDER: own the secret";
@@ -23,7 +23,7 @@ export default function OpengraphImage() {
         justifyContent: "center",
         alignItems: "center",
         background: "#dcefff",
-        color: "#0f1f5c",
+        color: "#0d1633",
         fontFamily: "sans-serif",
       }}
     >

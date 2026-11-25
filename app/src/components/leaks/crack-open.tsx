@@ -65,7 +65,7 @@ export function CrackOpen({
   }, [reduced]);
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 px-4"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-[#05070f]/85 px-4"
       role="dialog"
       aria-modal="true"
       aria-label={`Opening ${title}`}
@@ -76,7 +76,7 @@ export function CrackOpen({
         initial={{ opacity: 0, scale: reduced ? 1 : 0.96 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={reduced ? reducedTransition : spring}
-        className="border-opened/35 bg-surface relative w-full max-w-md overflow-hidden rounded-xl border p-8 text-center"
+        className="studio-stage relative w-full max-w-md overflow-hidden p-8 text-center"
       >
         <button
           type="button"
@@ -88,11 +88,11 @@ export function CrackOpen({
         </button>
         <div className="micro-label text-opened">Private intelligence / decrypted</div>
         <h2 className="mt-2 text-xl font-medium">{title}</h2>
-        <div className="mx-auto my-5 grid size-36 place-items-center">
+        <div className="mx-auto mt-10 mb-5 grid size-40 place-items-center">
           <Capsule
             rarity={rarity}
             state={opened || reduced ? "opened" : "sealed"}
-            size={138}
+            size={150}
             motion="none"
             mine
           />
@@ -101,9 +101,9 @@ export function CrackOpen({
           initial={reduced ? false : { opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: reduced ? 0 : 0.45, duration: reduced ? 0 : 0.3 }}
-          className="min-h-14 space-y-1 border-2 border-[#0f1f5c] bg-[#ffffff] p-4 font-mono text-xs leading-6 text-[#0f1f5c]"
+          className="secret-ticket min-h-14 space-y-1 p-4 text-sm leading-6 font-extrabold"
         >
-          <div className="mb-2 border-b border-[#8fbcf0] pb-2 text-[10px] font-bold">
+          <div className="mb-2 border-b border-white/35 pb-2 text-[10px] font-black tracking-widest">
             PRIVATE / PAYLOAD TICKET
           </div>
           {lines.map((line, index) => (

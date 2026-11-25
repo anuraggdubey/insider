@@ -9,6 +9,7 @@ import { LaneTrack } from "@/components/ui/lane-track";
 import { Panel } from "@/components/ui/panel";
 import { currentRoundSends, mempoolLanes, stackLaneOrders } from "@/lib/mempool-lanes";
 import { bouncy, reducedTransition } from "@/lib/motion";
+import { seatColor } from "@/lib/seat-colors";
 
 export function MempoolLanes({ snapshot, view }: { snapshot: TableSnapshot; view: TableView }) {
   const host = useRef<HTMLDivElement>(null);
@@ -63,7 +64,7 @@ export function MempoolLanes({ snapshot, view }: { snapshot: TableSnapshot; view
             const stacked = stackLaneOrders(onLane, view.tick, delay, trackWidth);
             const height = Math.max(
               56,
-              (Math.max(-1, ...stacked.map(({ row }) => row)) + 1) * 32 + 8,
+              (Math.max(-1, ...stacked.map(({ row }) => row)) + 1) * 32 + 16,
             );
             const landing = recent.some(
               (event) => event.lane === lane && event.sentTick + delay === view.tick,
@@ -102,7 +103,7 @@ export function MempoolLanes({ snapshot, view }: { snapshot: TableSnapshot; view
                         animate={{ opacity: 1 }}
                         transition={reducedMotion ? reducedTransition : bouncy}
                         className="pointer-events-none absolute inset-x-0"
-                        style={{ top: 2 + row * 32 }}
+                        style={{ top: 9 + row * 32 }}
                       >
                         <div
                           key={view.tick}
@@ -128,20 +129,15 @@ export function MempoolLanes({ snapshot, view }: { snapshot: TableSnapshot; view
                             transition={reducedMotion ? reducedTransition : bouncy}
                             className="inline-flex shrink-0"
                           >
-                            <Capsule
-                              size={29}
-                              rarity="common"
-                              state="sealed"
-                              motion="none"
-                              mine={order.mine}
-                              topColor={
-                                order.mine
-                                  ? "var(--color-you)"
-                                  : lane
-                                    ? "var(--color-signal)"
-                                    : "#1565ff"
-                              }
-                            />
+                            <span className={lane ? "capsule-hop" : undefined}>
+                              <Capsule
+                                size={31}
+                                state="sealed"
+                                motion="none"
+                                mine={order.mine}
+                                topColor={seatColor(order.seat, view.mine?.index)}
+                              />
+                            </span>
                           </motion.span>
                           <span className="text-ink ml-1 w-16 truncate font-mono text-[10px] font-bold">
                             {order.sideSize !== undefined

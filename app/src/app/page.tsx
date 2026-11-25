@@ -23,6 +23,8 @@ import { PlayerTokens } from "@/components/landing/player-tokens";
 import { PlayButton } from "@/components/onboarding/play-button";
 import { FastModeToggle, WalletPlayButton } from "@/components/onboarding/wallet";
 import { buttonStyles } from "@/components/ui/button";
+import { CapsuleArt } from "@/components/ui/capsule-art";
+import { CapsulePyramid } from "@/components/ui/capsule-pyramid";
 import { PageTransition } from "@/components/ui/page-transition";
 
 const rounds = [
@@ -76,7 +78,7 @@ const modes = [
   {
     name: "The Arena",
     icon: Swords,
-    tile: "bg-[#1565ff] text-[#fff]",
+    tile: "bg-[#2f6bff] text-[#fff]",
     href: "/table",
     copy: "Trade hidden moves and win the information game.",
     preview: "10 SEATS / 2 LANES",
@@ -84,7 +86,7 @@ const modes = [
   {
     name: "The Desk",
     icon: Target,
-    tile: "bg-[#0b8f55] text-[#fff]",
+    tile: "bg-[#2fc073] text-[#fff]",
     href: "/desk",
     copy: "Make a sealed Call on the real SOL price.",
     preview: "SOL / UP OR DOWN",
@@ -92,7 +94,7 @@ const modes = [
   {
     name: "Alpha Cup",
     icon: Trophy,
-    tile: "bg-[#ffd21f] text-[#0f1f5c]",
+    tile: "bg-[#ffc52e] text-[#0d1633]",
     href: "/cup",
     copy: "Five rounds. Human seats. One prize pool.",
     preview: "5 ROUNDS / TOP 3",
@@ -100,7 +102,7 @@ const modes = [
   {
     name: "Season",
     icon: Medal,
-    tile: "bg-[#7c3aed] text-[#fff]",
+    tile: "bg-[#7448f5] text-[#fff]",
     href: "/season",
     copy: "One good read can put you on the board.",
     preview: "HIGH SCORES / LIVE",
@@ -108,7 +110,7 @@ const modes = [
   {
     name: "Watch",
     icon: Radio,
-    tile: "bg-[#e6275c] text-[#fff]",
+    tile: "bg-[#f5404a] text-[#fff]",
     href: "/watch",
     copy: "See the public action unfold in real time.",
     preview: "BROADCAST / LIVE",
@@ -116,7 +118,7 @@ const modes = [
   {
     name: "X-ray",
     icon: ScanEye,
-    tile: "bg-[#19b5ff] text-[#0f1f5c]",
+    tile: "bg-[#25b8d1] text-[#0d1633]",
     href: "/xray",
     copy: "After the bell, see every secret revealed.",
     preview: "REPLAY / DECLASSIFIED",
@@ -135,15 +137,13 @@ export default function Home() {
     <PageTransition>
       <LandingMotion>
         <main className="flex-1 overflow-x-clip">
-          <section className="sky-hero mx-auto max-w-7xl px-5 pt-14 pb-16 sm:px-8 lg:pt-20 lg:pb-24">
-            <span aria-hidden className="sky-cloud top-12 right-[40%] hidden scale-75 sm:block" />
-            <span aria-hidden className="sky-cloud bottom-8 left-[40%] scale-75" />
+          <section className="mx-auto max-w-7xl px-5 pt-14 pb-16 sm:px-8 lg:pt-20 lg:pb-24">
             <HeroFade className="grid items-center gap-12 lg:grid-cols-[1fr_0.9fr]">
               <div>
                 <span className="micro-label bg-surface border-primary text-brand inline-block rounded-full border-2 px-3 py-1">
                   A game of hidden information
                 </span>
-                <h1 className="hero-title mt-6 max-w-3xl text-[clamp(3.4rem,7vw,6.5rem)] leading-[0.98] font-bold">
+                <h1 className="hero-title mt-6 max-w-3xl text-[clamp(3rem,6vw,5.6rem)] leading-[1.02]">
                   Front-running is the <span className="hl">game.</span>
                 </h1>
                 <p className="text-ink mt-7 max-w-lg text-xl leading-8 font-bold">
@@ -168,20 +168,19 @@ export default function Home() {
           <section aria-label="The game at a glance" className="px-5 pb-14 sm:px-8">
             <div className="mx-auto grid max-w-7xl grid-cols-2 gap-4 sm:grid-cols-5">
               {[
-                ["90 s", "80s live / 10s closing", "bg-[#1565ff] text-white"],
-                ["10 s", "X-ray after the bell", "bg-[#ffd21f] text-[#0f1f5c]"],
-                ["500 ms", "per tick", "bg-[#19b5ff] text-[#0f1f5c]"],
-                ["10", "seats", "bg-[#7c3aed] text-white"],
-                ["0 SOL", "to play", "bg-[#2adb86] text-[#032b19]"],
-              ].map(([value, label, tone]) => (
+                ["90 s", "80s live / 10s closing", "#2f6bff"],
+                ["10 s", "X-ray after the bell", "#ffc52e"],
+                ["500 ms", "per tick", "#25b8d1"],
+                ["10", "seats", "#7448f5"],
+                ["0 SOL", "to play", "#2fc073"],
+              ].map(([value, label, color]) => (
                 <div
                   key={value}
-                  className={`rounded-3xl border-[3px] border-[#0f1f5c] p-5 text-center shadow-[0_6px_0_#0f1f5c] last:col-span-2 sm:last:col-span-1 ${tone}`}
+                  className="gcard flex flex-col items-center p-4 text-center last:col-span-2 sm:last:col-span-1"
                 >
-                  <div className="font-[family-name:var(--font-display)] text-4xl font-bold">
-                    {value}
-                  </div>
-                  <div className="mt-1 text-[11px] font-black tracking-wider uppercase">
+                  <CapsuleArt size={52} color={color} />
+                  <div className="mt-2 font-[family-name:var(--font-brand)] text-4xl">{value}</div>
+                  <div className="text-muted mt-1 text-[11px] font-black tracking-wider uppercase">
                     {label}
                   </div>
                 </div>
@@ -227,7 +226,7 @@ export default function Home() {
                     >
                       <span className="flex items-start justify-between gap-3">
                         <span
-                          className={`grid size-14 place-items-center rounded-2xl border-[3px] border-[#0f1f5c] shadow-[0_4px_0_#0f1f5c] ${mode.tile}`}
+                          className={`grid size-14 place-items-center rounded-2xl shadow-[inset_0_2px_0_rgb(255_255_255/0.4),0_10px_16px_-8px_rgb(13_22_51/0.45)] ${mode.tile}`}
                         >
                           <mode.icon aria-hidden className="size-7" />
                         </span>
@@ -278,15 +277,23 @@ export default function Home() {
               Check the proof <ArrowUpRight aria-hidden className="size-4" />
             </Link>
           </section>
-          <section className="cta-sky border-t-4 border-[#0f1f5c]">
-            <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-6 px-5 py-12 sm:px-8">
-              <div>
+          <section className="home-cta cta-sky overflow-hidden">
+            <div className="mx-auto grid max-w-7xl items-center gap-10 px-5 py-16 sm:px-8 md:grid-cols-2">
+              <div className="text-center md:text-left">
                 <span className="sun-text font-mono text-xs font-bold uppercase">
                   The machine is ready
                 </span>
-                <h2 className="mt-2 text-3xl sm:text-5xl">Take your seat.</h2>
+                <h2 className="mt-2 text-4xl sm:text-6xl">Take your seat.</h2>
+                <p className="mt-4 text-lg font-bold text-white/85">
+                  Ten capsules, ten secrets. One of them can be yours.
+                </p>
+                <div className="mt-8">
+                  <PlayButton />
+                </div>
               </div>
-              <PlayButton />
+              <div className="float-capsule">
+                <CapsulePyramid size={86} />
+              </div>
             </div>
           </section>
         </main>

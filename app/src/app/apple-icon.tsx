@@ -3,7 +3,7 @@ import { ImageResponse } from "next/og";
 export const size = { width: 180, height: 180 };
 export const contentType = "image/png";
 
-/** The INSIDER capsule on a soft sky tile. */
+/** The INSIDER capsule on a cobalt tile. */
 export default function AppleIcon() {
   return new ImageResponse(
     <div
@@ -13,35 +13,21 @@ export default function AppleIcon() {
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        background: "#1565ff",
+        background: "#2259f2",
       }}
     >
       <svg width={150} height={150} viewBox="0 0 120 124">
         <g transform="translate(0 2)">
+          <path d="M12 60a48 48 0 0 0 96 0Z" fill="#ffffff" />
+          <path d="M12 60a48 48 0 0 1 96 0Q60 69 12 60Z" fill="#ffc52e" />
           <path
-            d="M14 64a46 46 0 0 0 92 0Z"
-            fill="#fff"
-            stroke="#0f1f5c"
-            strokeWidth={6}
-            strokeLinejoin="round"
-          />
-          <path
-            d="M14 60a46 46 0 0 1 92 0Z"
-            fill="#ffd21f"
-            stroke="#0f1f5c"
-            strokeWidth={6}
-            strokeLinejoin="round"
-          />
-          <rect x={11} y={57} width={98} height={9} rx={4.5} fill="#0f1f5c" />
-          <path
-            d="M49 36C49 27 54 23 61 23C68 23 73 27 73 33C73 39.5 61 40 61 45"
+            d="M51 29c0-8 5-11 11-11s10 4 10 10-9 7-9 14"
             fill="none"
-            stroke="#0f1f5c"
-            strokeWidth={7}
+            stroke="#2b2b33"
+            strokeWidth={8}
             strokeLinecap="round"
-            strokeLinejoin="round"
           />
-          <circle cx={61} cy={52.6} r={3.7} fill="#0f1f5c" />
+          <circle cx={63} cy={53} r={4.8} fill="#2b2b33" />
         </g>
       </svg>
     </div>,
