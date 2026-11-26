@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { basicButtonStyles } from "@/components/ui/button-classes";
 import { useToast } from "@/components/ui/toast";
-import { selectGuest } from "@/lib/floor-store";
+import { selectGuest, updateFloor } from "@/lib/floor-store";
 
 export function PlayButton() {
   const router = useRouter();
@@ -20,6 +20,8 @@ export function PlayButton() {
         void import("@/lib/guest")
           .then(({ createGuest }) => {
             selectGuest(createGuest());
+            // The floor takes a seat for this guest as soon as the table has loaded.
+            updateFloor({ joinRequested: true });
             router.push("/table");
           })
           .catch((error: unknown) => {

@@ -77,7 +77,7 @@ export function Feed({
         ? {
             key: `s-${event.tick}-${event.seat}-${event.order}`,
             tick: event.tick,
-            text: `${seat} sent a ${event.lane === 1 ? "PRIORITY" : "standard"} order`,
+            text: `${seat} sent a ${event.lane === 1 ? "PRIORITY" : "standard"} order (hidden)`,
             color: event.lane === 1 ? "text-priority" : "text-sealed",
             stamp: "SENT",
             fill: null,
@@ -85,7 +85,7 @@ export function Feed({
         : {
             key: `f-${event.tick}-${event.seat}-${event.order}`,
             tick: event.tick,
-            text: `${event.seat === 255 ? "Whale" : seat} fill ${event.side > 0 ? "+" : "−"}${event.size.toLocaleString()} @ ${(event.price / 1_000_000).toFixed(4)}`,
+            text: `${event.seat === 255 ? "Whale" : seat} ${event.side > 0 ? "bought" : "sold"} ${event.size.toLocaleString()} at ${(event.price / 1_000_000).toFixed(4)}`,
             color: event.seat === 255 ? "text-whale" : event.side > 0 ? "text-buy" : "text-sell",
             stamp: "FILLED",
             fill: event,

@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import { useInsider } from "@/app/providers";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { PageGuide } from "@/components/ui/page-guide";
 import { Panel } from "@/components/ui/panel";
 import { Capsule } from "@/components/ui/capsule";
 import { Stamp } from "@/components/ui/stamp";
@@ -115,6 +116,26 @@ export function CupView() {
           </Button>
         </div>
       </div>
+
+      <PageGuide
+        className="mt-8"
+        title="How to enter the Cup"
+        action={{ label: "Practise on the Floor", href: fixture ? "/table?fixture=1" : "/table" }}
+        steps={[
+          {
+            title: "Connect a wallet",
+            text: "The Cup is for people only. Claim one of the human seats with your wallet.",
+          },
+          {
+            title: "Pay the buy-in",
+            text: "Get free test tokens and a little devnet SOL, then pay privately. No real money.",
+          },
+          {
+            title: "Play five rounds",
+            text: "Trade on the Floor. The best scores share the prize pool in test tokens.",
+          },
+        ]}
+      />
 
       {status === "loading" && (
         <p role="status" className="text-muted mt-10 text-sm">

@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Capsule, type CapsuleRarity } from "@/components/ui/capsule";
 import { useDialogFocus } from "@/lib/dialog-focus";
+import { leakPlain } from "@/lib/onboarding";
 import { reducedTransition, spring } from "@/lib/motion";
 
 function DecryptedText({ text, reduced }: { text: string; reduced: boolean | null }) {
@@ -44,12 +45,16 @@ function DecryptedText({ text, reduced }: { text: string; reduced: boolean | nul
 }
 
 export function CrackOpen({
+  kind,
+  tick,
   title,
   lines,
   rarity,
   close,
   returnFocus,
 }: {
+  kind: number;
+  tick: number;
   title: string;
   lines: string[];
   rarity: CapsuleRarity;
@@ -65,7 +70,7 @@ export function CrackOpen({
   }, [reduced]);
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-[#05070f]/85 px-4"
+      className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-[#05070f]/85 px-4 py-4"
       role="dialog"
       aria-modal="true"
       aria-label={`Opening ${title}`}
@@ -76,7 +81,7 @@ export function CrackOpen({
         initial={{ opacity: 0, scale: reduced ? 1 : 0.96 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={reduced ? reducedTransition : spring}
-        className="studio-stage relative w-full max-w-md overflow-hidden p-8 text-center"
+        className="studio-stage relative my-auto w-full max-w-md overflow-hidden p-6 text-center sm:p-8"
       >
         <button
           type="button"
@@ -88,11 +93,11 @@ export function CrackOpen({
         </button>
         <div className="micro-label text-opened">Private intelligence / decrypted</div>
         <h2 className="mt-2 text-xl font-medium">{title}</h2>
-        <div className="mx-auto mt-10 mb-5 grid size-40 place-items-center">
+        <div className="mx-auto mt-10 mb-3 grid size-32 place-items-center">
           <Capsule
             rarity={rarity}
             state={opened || reduced ? "opened" : "sealed"}
-            size={150}
+            size={124}
             motion="none"
             mine
           />
@@ -112,9 +117,18 @@ export function CrackOpen({
             </div>
           ))}
         </motion.div>
-        <p className="text-faint mt-4 text-[11px]">Only you and licensed readers can see this.</p>
+        <div className="border-line bg-surface-2 mt-4 rounded-2xl border p-3 text-left">
+          <p className="text-xs leading-5 font-bold">
+            <span className="text-muted">What this tells you: </span>
+            {leakPlain(kind)}
+          </p>
+          <p className="text-muted mt-1.5 text-[11px] leading-4 font-semibold">
+            “T+” is the round&apos;s tick count, 2 ticks per second. It is T+{tick} now.
+          </p>
+        </div>
+        <p className="text-faint mt-3 text-[11px]">Only you and licensed readers can see this.</p>
         <Button variant="outline" size="sm" onClick={close} className="mt-5">
-          Return to chart
+          Got it, back to trading
         </Button>
       </motion.div>
     </div>

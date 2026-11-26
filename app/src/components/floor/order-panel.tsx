@@ -15,16 +15,20 @@ import { useToast } from "@/components/ui/toast";
 import { cn } from "@/lib/cn";
 import { friendlyError } from "@/lib/errors";
 import { useFloorStore } from "@/lib/floor-store";
+import { seatAvailable, seconds, signed } from "@/lib/onboarding";
 import { playSound } from "@/lib/sound";
 
 export function OrderPanel({
   config,
   snapshot,
   view,
+  simple = false,
 }: {
   config: InsiderConfig;
   snapshot: TableSnapshot;
   view: TableView;
+  /** The simple floor view keeps the price details folded away. */
+  simple?: boolean;
 }) {
   const [side, setSide] = useState<"buy" | "sell">("buy");
   const [lane, setLane] = useState(0);
@@ -52,9 +56,12 @@ export function OrderPanel({
     view.mine && view.phase === "live" && effectiveSize && !view.mine.liquidated && !pendingFull,
   );
 
+  const seatOpen = Boolean(view.mine) || seatAvailable(snapshot);
   // Explains a disabled Send button. Display only: `canSend` above is still the gate.
   const blocker = !view.mine
-    ? "Join at the top of the floor to start trading"
+    ? seatOpen
+      ? "Join at the top of the floor to start trading"
+      : "All seats are taken. You can watch this round"
     : view.mine.liquidated
       ? "You are out for this round"
       : view.phase !== "live"
@@ -127,6 +134,7 @@ export function OrderPanel({
     const keydown = (event: KeyboardEvent) => {
       const target = event.target as HTMLElement | null;
       if (
+        document.querySelector('[aria-modal="true"]') ||
         target?.closest("input, textarea, select, button, a, [role=button], [role=dialog]") ||
         target?.isContentEditable ||
         event.defaultPrevented ||
@@ -147,46 +155,81 @@ export function OrderPanel({
 
   return (
     <Panel
-      title="Action pad"
+      title="Make a trade"
       action={
         <span className="micro-label">
-          {pendingCount}/{params.maxPending} pending
+          {pendingCount}/{params.maxPending} on the way
         </span>
       }
     >
       <div className="space-y-4 p-3">
-        <div className="grid grid-cols-2 gap-2">
-          {(["buy", "sell"] as const).map((value) => (
-            <Button
-              key={value}
-              variant={side === value ? value : "outline"}
-              aria-pressed={side === value}
-              onClick={() => setSide(value)}
-              className="min-h-16 px-2"
-            >
-              <span className="flex flex-col items-center leading-tight">
-                <span className="flex items-center gap-1.5 text-lg font-bold">
-                  {value === "buy" ? (
-                    <ArrowUpRight aria-hidden className="size-4" />
-                  ) : (
-                    <ArrowDownLeft aria-hidden className="size-4" />
-                  )}
-                  {value.toUpperCase()}
-                </span>
-                <span className="font-[family-name:var(--font-body)] text-[11px] font-extrabold whitespace-nowrap">
-                  {value === "buy" ? "Price goes up" : "Price goes down"}
-                </span>
+        {view.mine && (view.phase === "live" || view.phase === "closing") && (
+          <div
+            data-testid="position-summary"
+            className="border-line bg-surface-2 flex items-center justify-between gap-3 rounded-xl border-2 px-3 py-2"
+          >
+            <span className="text-xs leading-4 font-extrabold">
+              {view.mine.position === 0 ? (
+                "No bet open yet"
+              ) : (
+                <>
+                  Betting the price goes {view.mine.position > 0 ? "up" : "down"}
+                  <span className="text-muted block font-bold">
+                    {view.mine.position > 0 ? "Bought" : "Sold"}{" "}
+                    {Math.abs(view.mine.position).toLocaleString("en-US")} units
+                  </span>
+                </>
+              )}
+            </span>
+            <span className="text-right">
+              <span className="micro-label block">Score now</span>
+              <span
+                className={cn(
+                  "font-mono text-lg font-black tabular-nums",
+                  view.mine.pnl > 0 && "text-buy",
+                  view.mine.pnl < 0 && "text-sell",
+                )}
+              >
+                {signed(view.mine.pnl)}
               </span>
-              <Kbd className="absolute top-1 right-1 hidden border-current/30 bg-transparent px-1 py-0 text-[9px] text-inherit sm:block">
-                {value[0]!.toUpperCase()}
-              </Kbd>
-            </Button>
-          ))}
+            </span>
+          </div>
+        )}
+        <div>
+          <span className="micro-label mb-2 block">1 · Which way?</span>
+          <div className="grid grid-cols-2 gap-2">
+            {(["buy", "sell"] as const).map((value) => (
+              <Button
+                key={value}
+                variant={side === value ? value : "outline"}
+                aria-pressed={side === value}
+                onClick={() => setSide(value)}
+                className="min-h-16 px-2"
+              >
+                <span className="flex flex-col items-center leading-tight">
+                  <span className="flex items-center gap-1.5 text-lg font-bold">
+                    {value === "buy" ? (
+                      <ArrowUpRight aria-hidden className="size-4" />
+                    ) : (
+                      <ArrowDownLeft aria-hidden className="size-4" />
+                    )}
+                    {value.toUpperCase()}
+                  </span>
+                  <span className="font-[family-name:var(--font-body)] text-[11px] font-extrabold whitespace-nowrap">
+                    {value === "buy" ? "Price goes up" : "Price goes down"}
+                  </span>
+                </span>
+                <Kbd className="absolute top-1 right-1 hidden border-current/30 bg-transparent px-1 py-0 text-[9px] text-inherit sm:block">
+                  {value[0]!.toUpperCase()}
+                </Kbd>
+              </Button>
+            ))}
+          </div>
         </div>
         <div>
           <div className="mb-2 flex items-center justify-between">
             <label htmlFor="order-size" className="micro-label">
-              Size / units
+              2 · How much? (units)
             </label>
             <span className="text-muted font-mono text-[11px] font-bold">
               MAX {max.toLocaleString()}
@@ -194,7 +237,7 @@ export function OrderPanel({
           </div>
           <Stepper
             id="order-size"
-            label="Size / units"
+            label="Order size"
             value={effectiveSize}
             max={Math.floor(max / 50) * 50}
             onChange={(value) => setSize(Math.floor(value / 50) * 50)}
@@ -202,8 +245,8 @@ export function OrderPanel({
         </div>
         <div>
           <div className="mb-2 flex items-center justify-between">
-            <span className="micro-label">Execution lane</span>
-            <Kbd>P</Kbd>
+            <span className="micro-label">3 · How fast?</span>
+            <Kbd className="hidden sm:inline">P</Kbd>
           </div>
           <Switch
             label="Priority lane"
@@ -229,28 +272,37 @@ export function OrderPanel({
             }
           />
         </div>
-        <div className="border-line bg-surface-2 text-muted space-y-1.5 rounded-xl border-2 px-3 py-2.5 text-xs font-bold">
-          <div className="flex justify-between">
-            <span>Average price</span>
-            <span className="text-ink font-mono">
-              {quote ? (quote.avgPrice / 1_000_000).toFixed(4) : "—"}
-            </span>
+        <details
+          open={!simple}
+          className="border-line bg-surface-2 text-muted rounded-xl border-2 px-3 py-2 text-xs font-bold"
+        >
+          <summary className="cursor-pointer">Price details</summary>
+          <div className="space-y-1.5 pt-2 pb-0.5">
+            <div className="flex justify-between">
+              <span>Average price</span>
+              <span className="text-ink font-mono">
+                {quote ? (quote.avgPrice / 1_000_000).toFixed(4) : "—"}
+              </span>
+            </div>
+            <div className="flex justify-between">
+              <span>Price impact</span>
+              <span className="text-ink font-mono">
+                {quote ? `${(quote.impactBps / 100).toFixed(2)}%` : "—"}
+              </span>
+            </div>
+            <div className="flex justify-between">
+              <span>Estimated fee</span>
+              <span className="text-ink font-mono">
+                {quote
+                  ? `${(quote.fee + BigInt(lane ? params.priorityFee : 0)).toString()} chips`
+                  : "—"}
+              </span>
+            </div>
           </div>
-          <div className="flex justify-between">
-            <span>Price impact</span>
-            <span className="text-ink font-mono">
-              {quote ? `${(quote.impactBps / 100).toFixed(2)}%` : "—"}
-            </span>
-          </div>
-          <div className="flex justify-between">
-            <span>Estimated fee</span>
-            <span className="text-ink font-mono">
-              {quote
-                ? `${(quote.fee + BigInt(lane ? params.priorityFee : 0)).toString()} chips`
-                : "—"}
-            </span>
-          </div>
-        </div>
+          <p className="text-faint pt-1 text-[11px] leading-4">
+            Price impact is how far your own order moves the price.
+          </p>
+        </details>
         <Button
           variant={side}
           onClick={() => void send()}
@@ -260,13 +312,13 @@ export function OrderPanel({
           size="lg"
           className="w-full text-lg"
         >
-          {view.mine ? `Send ${side} order` : "Claim a seat to trade"}{" "}
+          {view.mine ? `Send ${side} order` : seatOpen ? "Join the game to trade" : "Watching only"}{" "}
           <Kbd className="border-current/20 bg-transparent text-inherit">↵</Kbd>
         </Button>
         <div className="text-center text-[11px] leading-5 font-bold">
           {blocker ? (
             <p className="text-priority">
-              {view.mine ? (
+              {view.mine || !seatOpen ? (
                 blocker
               ) : (
                 <a href="#join-seat" className="underline underline-offset-4">
@@ -277,8 +329,23 @@ export function OrderPanel({
           ) : (
             <p className="text-muted">Side and size stay private until your order fills.</p>
           )}
-          <p className="text-faint hidden md:block">Keys: B buy · S sell · P lane · Enter send</p>
+          <p className="text-faint hidden md:block">Keys: B buy · S sell · P speed · Enter send</p>
         </div>
+        {view.myPending.length > 0 && (
+          <ul aria-label="Your orders on the way" className="space-y-1.5">
+            {view.myPending.map((order) => (
+              <li
+                key={order.id}
+                className="border-line flex items-center justify-between gap-2 rounded-xl border-2 border-dashed px-3 py-1.5 text-xs font-extrabold"
+              >
+                <span className={order.sideSize > 0 ? "text-buy" : "text-sell"}>
+                  {order.sideSize > 0 ? "BUY" : "SELL"} {Math.abs(order.sideSize)}
+                </span>
+                <span className="text-muted">lands in {seconds(order.ticksToLand)}</span>
+              </li>
+            ))}
+          </ul>
+        )}
         <FastModeToggle walletOnly />
         <div className="border-line bg-surface fixed right-0 bottom-[3.75rem] left-0 z-20 flex items-center justify-between gap-3 border-t-2 px-4 py-2 md:hidden">
           <span className="min-w-0 font-mono text-[10px]">

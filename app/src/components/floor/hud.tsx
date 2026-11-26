@@ -15,14 +15,23 @@ export function FloorHud({
   config,
   view,
   status,
+  result,
+  counting = false,
 }: {
   config: InsiderConfig;
   view: TableView;
   status: string;
+  /** Final score once the round is scored; chips have already reset by then. */
+  result?: number;
+  /** The replay phase has started but the scores are not in yet. */
+  counting?: boolean;
 }) {
   const phase = view.phase === "xray" ? "X-RAY" : view.phase.toUpperCase();
   return (
-    <div className="floor-hud border-line bg-surface sticky top-14 z-20 mb-3 grid shrink-0 grid-cols-[1fr_auto] items-center gap-x-3 gap-y-1 rounded-xl border p-2 md:static md:flex md:flex-wrap md:gap-5 md:px-4 md:py-3">
+    <div
+      data-tour="status"
+      className="floor-hud border-line bg-surface sticky top-14 z-20 mb-3 grid shrink-0 grid-cols-[1fr_auto] items-center gap-x-3 gap-y-1 rounded-xl border p-2 md:static md:flex md:flex-wrap md:gap-5 md:px-4 md:py-3"
+    >
       <div className="min-w-0">
         <div className="flex flex-wrap items-center gap-2">
           <span className="text-ink font-[family-name:var(--font-display)] text-lg leading-none font-bold md:text-2xl">
@@ -63,7 +72,15 @@ export function FloorHud({
         </div>
       </div>
       <Screen className="min-w-20 px-2 py-1 text-center md:min-w-24 md:px-3 md:py-1.5">
-        <div className="micro-label hidden md:block">Seconds left</div>
+        <div className="micro-label hidden md:block">
+          {view.phase === "live"
+            ? "Seconds to trade"
+            : view.phase === "closing"
+              ? "Closing in"
+              : view.phase === "xray"
+                ? "Next round in"
+                : "Waiting"}
+        </div>
         <span className="led-readout text-xl font-black tabular-nums md:text-3xl">
           {view.secondsLeft.toFixed(1)}
         </span>
@@ -72,10 +89,23 @@ export function FloorHud({
       {view.mine && (
         <div className="border-line min-w-0 md:border-l md:pl-3">
           <div className="micro-label truncate">You are {view.mine.name}</div>
-          <div className="flex flex-wrap items-baseline gap-2 font-mono text-xs md:mt-1">
-            <Readout value={view.mine.chips} className="text-base font-bold md:text-xl" />
-            <span className="text-muted">CHIPS</span>
-            <Num value={view.mine.pnl} kind="delta" />
+          <div className="flex flex-wrap items-baseline gap-x-3 text-xs font-extrabold md:mt-1">
+            <span className="flex items-baseline gap-1.5">
+              <span className="text-muted">Score</span>
+              {counting ? (
+                <span className="text-base font-bold md:text-xl">…</span>
+              ) : (
+                <Num
+                  value={result ?? view.mine.pnl}
+                  kind="delta"
+                  className="text-base font-bold md:text-xl"
+                />
+              )}
+            </span>
+            <span className="text-muted flex items-baseline gap-1">
+              <Readout value={view.mine.chips} className="text-sm font-bold" />
+              chips
+            </span>
           </div>
         </div>
       )}

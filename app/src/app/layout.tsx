@@ -60,8 +60,9 @@ export const viewport: Viewport = {
   ],
 };
 
-// Five links in the bar; everything else lives in the footer.
+// The main links in the bar; everything else lives in the footer.
 const nav = [
+  ["How to play", "/rules"],
   ["Floor", "/table"],
   ["Desk", "/desk"],
   ["Cup", "/cup"],
@@ -92,11 +93,11 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             className="site-header sticky top-0"
             style={{ viewTransitionName: "site-header" }}
           >
-            <div className="mx-auto flex h-14 max-w-7xl items-center gap-2 px-4 sm:px-8 md:gap-5">
+            <div className="mx-auto flex h-14 max-w-7xl items-center gap-2 px-4 sm:px-8 xl:gap-5">
               <Logo />
               <MobileNav items={nav} />
               <MainNav items={nav} />
-              <div className="ml-auto hidden items-center gap-3 md:flex">
+              <div className="ml-auto hidden shrink-0 items-center gap-2 lg:flex xl:gap-3">
                 <ThemeToggle />
                 <SoundButton />
                 <WalletButton />

@@ -16,6 +16,7 @@ import type { LeakAction } from "@/lib/floor-actions";
 import { cn } from "@/lib/cn";
 import { friendlyError } from "@/lib/errors";
 import { leakEdge } from "@/lib/leak-edge";
+import { leakPlain, seatAvailable, seconds } from "@/lib/onboarding";
 import { nextLeakDrop } from "@/lib/next-leak-drop";
 import { playSound } from "@/lib/sound";
 import { leakHint } from "./hints";
@@ -98,13 +99,15 @@ function LeakCard({
     (item) => item.isMine && (item.state === 2 || item.state === 3),
   ).length;
   const reason = windowExpired
-    ? "Leak window expired"
+    ? "This clue has expired"
     : leak.ticksLeft <= 0
-      ? "Auction ended"
+      ? "Nobody bought it in time"
       : !view.mine
-        ? "Claim a seat to buy"
+        ? seatAvailable(snapshot)
+          ? "Join the game to buy"
+          : "Watching only: all seats taken"
         : unopened >= 2
-          ? "Unopened leak limit reached"
+          ? "Open one of yours first (2 sealed max)"
           : view.mine.chips < leak.currentPrice
             ? "Not enough chips"
             : "Unavailable";
@@ -205,11 +208,15 @@ function LeakCard({
           {leak.family}
         </Badge>
       </div>
+      <p className="leak-tells text-ink mt-1.5 text-[11px] leading-4 font-semibold">
+        <span className="text-muted font-extrabold">Tells you: </span>
+        {leakPlain(leak.kind)}
+      </p>
       <div className="text-faint mt-1 font-mono text-[10px]">{leakHint(leak, view.tick)}</div>
       <div className="mt-2 min-h-[38px]">
         {leak.state === 5 ? (
           <div className="text-faint font-mono text-[11px]">
-            {windowExpired ? "WINDOW EXPIRED" : "AUCTION ENDED"}
+            {windowExpired ? "CLUE EXPIRED" : "NOBODY BOUGHT IT"}
           </div>
         ) : leak.state === 1 ? (
           <>
@@ -259,7 +266,7 @@ function LeakCard({
         <div className="mt-2" aria-label="Edge left">
           <div className="text-muted flex justify-between gap-1 font-mono text-[11px]">
             <span>{leak.readerCount}/4 READERS</span>
-            <span>{edge.ticksLeft} TICKS LEFT</span>
+            <span>{seconds(edge.ticksLeft)} LEFT</span>
           </div>
           <div className="bg-line mt-1 h-1 rounded-full">
             <div
@@ -271,8 +278,8 @@ function LeakCard({
           </div>
           <div className="text-muted mt-1 font-mono text-[11px]">
             {edge.impactBps === null
-              ? "NO PENDING ORDER IMPACT"
-              : `IF PENDING: ${(edge.impactBps / 100).toFixed(2)}% IMPACT`}
+              ? "NO WAITING ORDER INSIDE"
+              : `BIGGEST ORDER IN IT: ${(edge.impactBps / 100).toFixed(2)}% PRICE MOVE`}
           </div>
         </div>
       )}
@@ -285,7 +292,9 @@ function LeakCard({
         {editing && leak.state !== 5 ? (
           <div className="flex gap-1">
             <input
-              aria-label={`${editing === "list" ? "Flip" : "License"} ask in chips`}
+              aria-label={
+                editing === "list" ? "Resale price in chips" : "Price per reader in chips"
+              }
               type="number"
               min={0}
               value={ask}
@@ -300,7 +309,7 @@ function LeakCard({
               disabled={editing === "list" && ask === 0}
               onClick={() => void perform(editing, ask)}
             >
-              Set
+              {editing === "list" ? "Put up for sale" : "Set price"}
             </Button>
             <button
               type="button"
@@ -317,35 +326,40 @@ function LeakCard({
               size="sm"
               className="h-9 w-full text-xs"
               disabled={!canBid}
-              title={!canBid ? reason : "Buy sealed leak"}
-              aria-label={`Bid · ${leak.currentPrice} chips for ${leak.kindName} Leak`}
+              title={!canBid ? reason : "Buy this secret, still sealed"}
+              aria-label={`Buy for ${leak.currentPrice} chips: ${leak.kindName} capsule`}
               loading={busy}
               onClick={() => void perform("bid")}
             >
-              Bid · {leak.currentPrice} chips
+              Buy for {leak.currentPrice} chips
             </Button>
             {!canBid && <div className="text-faint mt-1 text-center text-[11px]">{reason}</div>}
           </div>
         ) : leak.state === 2 && leak.isMine ? (
-          <div className="grid grid-cols-2 gap-1">
-            <Button
-              size="sm"
-              className="h-9 text-xs"
-              disabled={!leak.canOpen}
-              loading={busy}
-              onClick={() => void perform("open")}
-            >
-              <Eye className="size-3" /> Open
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              className="h-9 text-xs"
-              disabled={!leak.canList}
-              onClick={() => setEditing("list")}
-            >
-              Flip
-            </Button>
+          <div>
+            <div className="grid grid-cols-2 gap-1">
+              <Button
+                size="sm"
+                className="h-9 text-xs"
+                disabled={!leak.canOpen}
+                loading={busy}
+                onClick={() => void perform("open")}
+              >
+                <Eye className="size-3" /> Open
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-9 text-xs"
+                disabled={!leak.canList}
+                onClick={() => setEditing("list")}
+              >
+                Resell
+              </Button>
+            </div>
+            <p className="text-faint mt-1 text-center text-[10px] leading-3.5 font-semibold">
+              Open: read it. Resell: sell it unread.
+            </p>
           </div>
         ) : leak.state === 3 && leak.isMine ? (
           <Button
@@ -365,7 +379,7 @@ function LeakCard({
             loading={busy}
             onClick={() => void perform("buy")}
           >
-            Buy for {leak.ask}
+            Buy for {leak.ask} chips
           </Button>
         ) : leak.state === 4 && leak.isMine ? (
           <Button
@@ -374,7 +388,7 @@ function LeakCard({
             className="h-9 w-full text-xs"
             onClick={() => setEditing("offer")}
           >
-            License · {leak.readerCount}/4 readers
+            Sell access · {leak.readerCount}/4
           </Button>
         ) : leak.state === 4 && !leak.isReader && leak.licenseAsk > 0 ? (
           <Button
@@ -385,7 +399,7 @@ function LeakCard({
             loading={busy}
             onClick={() => void perform("license")}
           >
-            License for {leak.licenseAsk}
+            Read for {leak.licenseAsk} chips
           </Button>
         ) : (
           <span className="text-muted font-mono text-[11px] font-bold">
@@ -409,6 +423,7 @@ export function LeakBoard({
   snapshot: TableSnapshot;
 }) {
   const [crack, setCrack] = useState<{
+    kind: number;
     title: string;
     lines: string[];
     returnFocus: HTMLElement | null;
@@ -424,6 +439,7 @@ export function LeakBoard({
         playSound("crack");
         const rarity = leak.rarityName.toLowerCase();
         setCrack({
+          kind: leak.kind,
           title: leak.kindName,
           lines: payloadLines(vault, view),
           returnFocus,
@@ -439,13 +455,24 @@ export function LeakBoard({
   return (
     <>
       <Panel
-        title="Capsule tray"
+        title="Secret capsules"
         action={
           <span className="micro-label hidden text-right sm:inline">
-            Secrets for sale · price falls until someone bids
+            Private clues about this round
           </span>
         }
       >
+        <ol className="leak-steps border-line text-muted flex flex-wrap gap-x-4 gap-y-1 border-b px-3 py-2 text-xs font-bold">
+          <li>
+            <strong className="text-ink">1. Buy</strong> while the price falls
+          </li>
+          <li>
+            <strong className="text-ink">2. Open</strong> to read it privately
+          </li>
+          <li>
+            <strong className="text-ink">3. Trade</strong> before everyone else finds out
+          </li>
+        </ol>
         <div className="leak-grid grid grid-cols-2 gap-2 p-3 md:grid-cols-3 xl:grid-cols-6">
           {view.leaks.map((leak) => (
             <LeakCard
@@ -462,6 +489,8 @@ export function LeakBoard({
       </Panel>
       {crack && (
         <CrackOpen
+          kind={crack.kind}
+          tick={view.tick}
           title={crack.title}
           lines={crack.lines}
           rarity={crack.rarity}

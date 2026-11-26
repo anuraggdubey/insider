@@ -28,7 +28,7 @@ export function PhaseBar({ tick, className }: { tick: number; className?: string
       </div>
       <div className="text-muted mt-2 flex gap-0.5 pb-3 text-[9px] font-bold uppercase sm:pb-0 sm:text-[10px]">
         <span className="min-w-0" style={{ width: `${(LIVE_TICKS / ROUND_TICKS) * 100}%` }}>
-          Live
+          Trade
         </span>
         <span
           className="min-w-0 text-center whitespace-nowrap max-sm:translate-y-3"

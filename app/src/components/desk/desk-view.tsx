@@ -8,6 +8,7 @@ import { useInsider } from "@/app/providers";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Capsule } from "@/components/ui/capsule";
+import { PageGuide } from "@/components/ui/page-guide";
 import { Panel } from "@/components/ui/panel";
 import { Screen } from "@/components/ui/screen";
 import { Stamp } from "@/components/ui/stamp";
@@ -211,6 +212,29 @@ export function DeskView() {
           </Button>
         </div>
       </div>
+
+      <PageGuide
+        className="mt-8"
+        title="New to the Desk? Here is what to do"
+        action={{
+          label: "Take a seat on the Floor",
+          href: fixture ? "/table?fixture=1" : "/table",
+        }}
+        steps={[
+          {
+            title: "Get a seat",
+            text: "Join the Floor once, then come back. Your seat works here too.",
+          },
+          {
+            title: "Make a Call",
+            text: "Will SOL go up or down? Pick a time and a stake. Nobody sees your direction.",
+          },
+          {
+            title: "Wait for the verdict",
+            text: "The real price decides. Right: your stake back plus 50%. Others can pay to read your Call early.",
+          },
+        ]}
+      />
 
       {status === "loading" && (
         <p role="status" className="text-muted mt-10 text-sm">

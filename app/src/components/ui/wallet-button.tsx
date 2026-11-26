@@ -23,7 +23,7 @@ export function WalletButton({ id = "insider-wallet-button" }: { id?: string }) 
   return (
     <div className="flex items-center gap-3">
       {mine && pathname !== "/table" && (
-        <span className="text-muted hidden font-mono text-[10px] tracking-wider uppercase lg:inline">
+        <span className="text-muted hidden font-mono text-[10px] tracking-wider uppercase xl:inline">
           Seat {mine.index + 1} · Chips{" "}
           <Num value={Number(mine.chips.toString())} className="text-text" />
         </span>

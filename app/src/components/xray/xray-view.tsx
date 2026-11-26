@@ -11,6 +11,7 @@ import { useFloor } from "@/components/floor/use-floor";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { GlassCapsule } from "@/components/ui/glass-capsule";
+import { PageGuide } from "@/components/ui/page-guide";
 import { Panel } from "@/components/ui/panel";
 import { seatColor } from "@/lib/seat-colors";
 import { Screen } from "@/components/ui/screen";
@@ -313,7 +314,26 @@ export function XrayView({ roundNumber }: { roundNumber?: number }) {
           </Button>
         </div>
       </div>
-      <div className="border-line bg-surface mt-6 grid grid-cols-2 divide-x rounded-lg border sm:grid-cols-4">
+      <PageGuide
+        className="mt-6"
+        title="How to read the replay"
+        action={{ label: "Back to the Floor", href: fixture ? "/table?fixture=1" : "/table" }}
+        steps={[
+          {
+            title: "Press Replay round",
+            text: "Or drag the slider under the chart to move through the round.",
+          },
+          {
+            title: "Watch capsules light up",
+            text: "When an order lands you see who sent it, BUY or SELL, and how much.",
+          },
+          {
+            title: "Open the secrets",
+            text: "Click a name on the Leak timeline to read it. Sandwiches are listed beside it.",
+          },
+        ]}
+      />
+      <div className="border-line bg-surface mt-3 grid grid-cols-2 divide-x rounded-lg border sm:grid-cols-4">
         {[
           [
             "Orders",

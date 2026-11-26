@@ -5,6 +5,7 @@ import { RulesDiagrams } from "@/components/rules/diagrams";
 import { Badge, type BadgeTone } from "@/components/ui/badge";
 import { buttonStyles } from "@/components/ui/button";
 import { Kbd } from "@/components/ui/kbd";
+import { PageGuide } from "@/components/ui/page-guide";
 import { PageTransition } from "@/components/ui/page-transition";
 
 const leaks: { name: string; rarity: BadgeTone; family: string; text: string }[] = [
@@ -58,6 +59,24 @@ const leaks: { name: string; rarity: BadgeTone; family: string; text: string }[]
   },
 ];
 
+const words: [string, string][] = [
+  ["Chips", "Play money. You start every round with the same amount."],
+  [
+    "Score",
+    `What your chips and open bet are worth, minus the ${BANKROLL_CHIPS.toLocaleString("en-US")} you started with.`,
+  ],
+  ["Units", "How big your bet is. More units means bigger gains and bigger losses."],
+  ["Standard / Priority", "How fast your order lands. Priority is quicker and costs chips."],
+  ["Capsule (Leak)", "A private clue about the round, sold at a falling price."],
+  ["Open", "Read a capsule you own. Only you can see it."],
+  ["Resell (flip)", "Sell a capsule you have not opened to another player."],
+  ["Sell access (license)", "Let others pay to read a capsule you opened."],
+  ["Front-run", "Trade just before a big order you know is coming."],
+  ["Sandwich", "Trade before and after another player's order to profit from it."],
+  ["X-ray", "The replay after the round that reveals every hidden order and secret."],
+  ["T+ (tick)", "The round clock. Two ticks make one second."],
+];
+
 export const metadata = {
   title: "Rules — INSIDER",
   description: "The lanes, leaks, and information edge in 30 seconds.",
@@ -82,6 +101,26 @@ export default function RulesPage() {
             Open the floor <ArrowRight aria-hidden="true" className="size-4" />
           </Link>
         </div>
+
+        <PageGuide
+          className="mb-10"
+          title="Start here: your first round"
+          action={{ label: "Play now", href: "/table" }}
+          steps={[
+            {
+              title: "Join",
+              text: "Open the Floor and press Play as guest. No wallet and no real money.",
+            },
+            {
+              title: "Trade",
+              text: "BUY if you expect the price to rise, SELL if you expect it to fall, then Send.",
+            },
+            {
+              title: "Peek",
+              text: "Buy a capsule, open it, and trade on the clue before the round ends.",
+            },
+          ]}
+        />
 
         <RulesDiagrams />
 
@@ -190,6 +229,19 @@ export default function RulesPage() {
               </p>
             </article>
           </div>
+        </section>
+        <section aria-labelledby="words" className="border-line mt-12 border-t pt-8">
+          <h2 id="words" className="text-xl font-bold">
+            Words you&apos;ll see.
+          </h2>
+          <dl className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {words.map(([word, meaning]) => (
+              <div key={word} className="gcard p-4">
+                <dt className="font-black">{word}</dt>
+                <dd className="text-muted mt-1 text-sm leading-6">{meaning}</dd>
+              </div>
+            ))}
+          </dl>
         </section>
         <section aria-labelledby="shortcuts" className="border-line mt-12 border-t pt-8">
           <h2 id="shortcuts" className="text-xl font-bold">

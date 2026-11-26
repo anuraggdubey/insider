@@ -17,6 +17,7 @@ import { useFloorStore } from "@/lib/floor-store";
 import { loadGuest } from "@/lib/guest";
 import { deriveSeason, fetchSeason, shortKey, type SeasonData } from "@/lib/season";
 import { loadRounds, type ArchivedRound } from "@/lib/xray-archive";
+import { PageGuide } from "@/components/ui/page-guide";
 import { SoarCard } from "./soar-card";
 
 const signed = (value: bigint) => `${value > BigInt(0) ? "+" : ""}${value.toLocaleString("en-US")}`;
@@ -100,6 +101,23 @@ export function SeasonView() {
           </Button>
         </div>
       </div>
+
+      <PageGuide
+        className="mt-8"
+        title="How to climb the leaderboard"
+        action={{ label: "Play a round", href: fixture ? "/table?fixture=1" : "/table" }}
+        steps={[
+          { title: "Play on the Floor", text: "Every finished round gives your seat a score." },
+          {
+            title: "One great round counts",
+            text: "Your best single round in a season of 10 rounds is your leaderboard score.",
+          },
+          {
+            title: "Keep it on chain",
+            text: "Optional: register a wallet once below to appear on the SOAR leaderboard too.",
+          },
+        ]}
+      />
 
       <SoarCard />
 

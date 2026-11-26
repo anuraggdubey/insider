@@ -256,6 +256,9 @@ a.gcard:hover {
   --edge: var(--color-line-strong);
   --fg: var(--color-ink);
 }
+html.dark .btn-outline:not(:disabled) {
+  background: var(--color-surface-2);
+}
 .btn-ghost {
   background: transparent;
   border-color: transparent;
@@ -362,6 +365,12 @@ body:has(.record-floor) nextjs-portal,
 .record-floor .floor-seats > section > div:last-child > div {
   min-height: 0;
   flex: 1;
+}
+.record-floor .floor-next,
+.record-floor .floor-next-tools,
+.record-floor .leak-steps,
+.record-floor .leak-tells {
+  display: none;
 }
 .record-floor .leak-grid {
   grid-template-columns: repeat(6, minmax(0, 1fr));
@@ -707,10 +716,18 @@ html.dark .bg-you.text-white {
 /* ---------- Game chrome ---------- */
 .site-header {
   z-index: 40;
-  background: color-mix(in srgb, var(--color-surface) 82%, transparent);
-  backdrop-filter: blur(14px);
   border-bottom: 1px solid var(--color-line);
   box-shadow: 0 8px 24px -18px var(--color-shadow);
+}
+/* The blur sits on a pseudo-element: a filter on the header itself would trap the phone
+   menu (a fixed child) inside the 56px bar. */
+.site-header::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: color-mix(in srgb, var(--color-surface) 82%, transparent);
+  backdrop-filter: blur(14px);
 }
 .panel-head {
   background: linear-gradient(180deg, var(--color-surface-2), var(--color-surface));
@@ -787,6 +804,47 @@ html.dark .footer-blue {
   font-size: 9.5px;
   font-weight: 900;
   letter-spacing: 0.04em;
+}
+
+/* Simple floor: a shorter chart so price, trade pad and capsules share one screen. */
+.floor-simple .floor-chart section {
+  display: flex;
+  height: 18rem;
+  flex-direction: column;
+}
+.floor-simple .floor-chart [data-testid="price-chart"] {
+  height: auto;
+  min-height: 0;
+  flex: 1;
+}
+@media (min-width: 1024px) {
+  .floor-simple .floor-chart section {
+    height: 20rem;
+  }
+}
+/* Room above a panel for the sticky header and next-move bar when scrolling to it. */
+[data-tour] {
+  scroll-margin-top: 10.5rem;
+}
+@media (min-width: 768px) {
+  [data-tour] {
+    scroll-margin-top: 11.5rem;
+  }
+}
+.attention {
+  outline: 4px solid var(--color-sun);
+  outline-offset: 3px;
+}
+.tour-spot {
+  position: fixed;
+  border-radius: 20px;
+  outline: 4px solid var(--color-sun);
+  box-shadow: 0 0 0 200vmax rgb(5 7 15 / 0.7);
+  transition:
+    top 200ms ease-out,
+    left 200ms ease-out,
+    width 200ms ease-out,
+    height 200ms ease-out;
 }
 
 /* Floor guide: the four steps of a round. */

@@ -1,49 +1,42 @@
 "use client";
 
 import { type InsiderConfig, type TableView } from "@insider/sdk";
-import { Download, KeyRound, Settings2, X } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { Download, KeyRound, Settings2 } from "lucide-react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/toast";
 import { selectGuest, updateFloor, useFloorStore } from "@/lib/floor-store";
-import { createGuest, exportGuest, importGuest } from "@/lib/guest";
+import { exportGuest, importGuest } from "@/lib/guest";
 import { friendlyError } from "@/lib/errors";
-import { useDialogFocus } from "@/lib/dialog-focus";
-import { FastModeToggle, WalletPlayButton } from "./wallet";
+import { seatAvailable } from "@/lib/onboarding";
+import { useJoin } from "./use-join";
+import { WalletPlayButton } from "./wallet";
 
 export function GuestControls({ config, view }: { config: InsiderConfig; view: TableView }) {
   const guest = useFloorStore((state) => state.guest);
   const identity = useFloorStore((state) => state.identity);
   const session = useFloorStore((state) => state.session);
   const joinRequested = useFloorStore((state) => state.joinRequested);
-  const tutorial = useFloorStore((state) => state.tutorial);
   const [settings, setSettings] = useState(false);
   const [importText, setImportText] = useState("");
-  const [busy, setBusy] = useState(false);
-  const dialog = useDialogFocus(Boolean(tutorial && view.mine), () =>
-    updateFloor({ tutorial: false }),
+  const snapshot = useFloorStore((state) => state.snapshot);
+  // A saved guest key that already holds a seat can always come back to it.
+  const guestSeated = Boolean(
+    guest && snapshot?.seats.some((s) => s.owner.equals(guest.publicKey)),
   );
+  const tableFull = Boolean(snapshot && !guestSeated && !seatAvailable(snapshot));
   const fail = (error: unknown) => useToast.getState().add(friendlyError(error));
-  const joinFloor = useCallback(
-    async () => (await import("@/lib/floor-actions")).joinFloor(config),
-    [config],
-  );
-  const join = async () => {
-    setBusy(true);
-    try {
-      selectGuest(createGuest());
-      await joinFloor();
-    } catch (error) {
-      fail(error);
-    } finally {
-      setBusy(false);
-    }
-  };
+  const { joining, seat, joinAsGuest } = useJoin(config);
   useEffect(() => {
-    if (!joinRequested || identity !== "wallet") return;
-    updateFloor({ joinRequested: false });
-    void joinFloor().catch((error) => useToast.getState().add(friendlyError(error)));
-  }, [identity, joinRequested, joinFloor]);
+    if (!joinRequested) return;
+    // Deferred so a table left over from an earlier visit is never joined: the floor resets it
+    // first, which unmounts these controls until the fresh table arrives.
+    const timer = setTimeout(() => {
+      updateFloor({ joinRequested: false });
+      void seat();
+    }, 0);
+    return () => clearTimeout(timer);
+  }, [identity, joinRequested, seat]);
   const download = () => {
     if (!guest) return;
     const url = URL.createObjectURL(new Blob([exportGuest(guest)], { type: "application/json" }));
@@ -58,17 +51,24 @@ export function GuestControls({ config, view }: { config: InsiderConfig; view: T
       <div className="relative flex items-center gap-2">
         {!view.mine && (
           <div className="flex flex-wrap items-center gap-2">
-            <Button size="sm" onClick={() => void join()} loading={busy}>
-              Play as guest
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => void joinAsGuest()}
+              loading={joining}
+              disabled={tableFull}
+              title={tableFull ? "All seats are taken right now" : undefined}
+            >
+              {tableFull ? "Table full" : "Play as guest"}
             </Button>
-            <WalletPlayButton size="sm" onReady={joinFloor} />
+            <WalletPlayButton size="sm" onReady={() => seat()} />
           </div>
         )}
         {view.mine && identity === "guest" && (
-          <WalletPlayButton size="sm" compact onReady={joinFloor} />
+          <WalletPlayButton size="sm" compact onReady={() => seat()} />
         )}
         {view.mine && identity === "wallet" && (
-          <Button size="sm" variant="outline" onClick={() => void join()} loading={busy}>
+          <Button size="sm" variant="outline" onClick={() => void joinAsGuest()} loading={joining}>
             Play as guest
           </Button>
         )}
@@ -159,62 +159,6 @@ export function GuestControls({ config, view }: { config: InsiderConfig; view: T
           </div>
         )}
       </div>
-      {tutorial && view.mine && (
-        <div
-          className="fixed inset-0 z-40 grid place-items-center bg-black/70 px-5"
-          role="dialog"
-          aria-modal="true"
-          aria-label="Welcome to the floor"
-          ref={dialog}
-          tabIndex={-1}
-        >
-          <div className="border-line-strong bg-surface relative w-full max-w-md rounded-xl border p-8">
-            <button
-              type="button"
-              aria-label="Close"
-              onClick={() => updateFloor({ tutorial: false })}
-              className="text-muted absolute top-4 right-4"
-            >
-              <X className="size-4" />
-            </button>
-            <span className="micro-label text-brand">Welcome to the floor</span>
-            <h2 className="mt-2 text-xl font-medium">
-              You are seat {view.mine.index + 1} · {view.mine.name}
-            </h2>
-            <p className="text-muted mt-2 text-sm">
-              1,000 chips.{" "}
-              {identity === "wallet"
-                ? session
-                  ? "Fast mode is active."
-                  : "Each action asks your wallet."
-                : "Your key stays on this device."}
-            </p>
-            {identity === "wallet" && (
-              <div className="mt-4">
-                <FastModeToggle walletOnly />
-              </div>
-            )}
-            <div className="border-line mt-6 space-y-4 border-t pt-5">
-              {[
-                ["01", "Send into the dark", "Orders wait in a sealed mempool."],
-                ["02", "Buy a look", "Leaks reveal a private piece of the market."],
-                ["03", "Jump the line", "Priority orders land faster, for a fee."],
-              ].map(([n, title, text]) => (
-                <div key={n} className="flex gap-4">
-                  <span className="text-brand font-mono text-xs">{n}</span>
-                  <div>
-                    <div className="text-sm">{title}</div>
-                    <p className="text-muted mt-1 text-xs">{text}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-            <Button className="mt-7 w-full" onClick={() => updateFloor({ tutorial: false })}>
-              Enter the floor
-            </Button>
-          </div>
-        </div>
-      )}
     </>
   );
 }

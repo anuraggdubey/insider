@@ -21,6 +21,7 @@ type FloorState = {
   sessionStatus: "off" | "restoring" | "enabling" | "on" | "disabling" | "expired";
   sessionError: string | null;
   joinRequested: boolean;
+  joining: boolean;
   fixture: Fixture | null;
   pending: LocalOrder[];
   vaults: Record<number, LeakVaultAccount>;
@@ -54,6 +55,7 @@ export const useFloorStore = create<FloorState>(() => ({
   sessionStatus: "off",
   sessionError: null,
   joinRequested: false,
+  joining: false,
   fixture: null,
   pending: [],
   vaults: {},

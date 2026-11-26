@@ -1,27 +1,10 @@
-<p align="center">
-  <img src="app/public/brand/logo.svg" alt="INSIDER" width="440">
-</p>
+# INSIDER
 
-<h3 align="center">Own the secret. Front-running is the game.</h3>
+**Own the secret. Front-running is the game.**
 
-<p align="center">
-  A multiplayer <b>game of hidden information</b> on Solana. Every round is a 100-second fight to learn what the others can't see.<br>
-  Moves wait in a sealed dark mempool inside MagicBlock's Private Ephemeral Rollup. Nobody can read them: not the other players, not the RPC, not us.
-</p>
+A multiplayer **game of hidden information** on Solana. Every round is a 100-second fight to learn what the others can't see. Moves wait in a sealed dark mempool inside MagicBlock's Private Ephemeral Rollup. Nobody can read them: not the other players, not the RPC, not us.
 
-<p align="center">
-  <img src="https://img.shields.io/badge/network-Solana%20devnet-14f195?style=for-the-badge" alt="Solana devnet">
-  <img src="https://img.shields.io/badge/MagicBlock-Private%20ER%20%28TEE%29%20%C2%B7%20VRF%20%C2%B7%20Cranks-a64dff?style=for-the-badge" alt="MagicBlock">
-  <img src="https://img.shields.io/badge/soak-60%20min%20%C2%B7%200%20failed%20steps-5ab4ff?style=for-the-badge" alt="Soak">
-</p>
-
-<p align="center">
-  <b><a href="https://insiderz.vercel.app">▶ Live app</a></b> &nbsp;·&nbsp; <b><a href="DEMO_VIDEO_URL">🎬 Demo video</a></b>
-</p>
-
-<p align="center">
-  <img src="docs/screenshots/landing.png" alt="INSIDER landing page" width="100%">
-</p>
+**[Play it now: insiderz.vercel.app](https://insiderz.vercel.app)** · [How to play](#new-here-play-your-first-round) · Solana devnet · MagicBlock Private ER (TEE), VRF and cranks · 60-minute soak with 0 failed steps
 
 Built by **Anurag Dubey** and **Misbah Ansari** for **Solana Blitz v10** (MagicBlock, theme: _Entertainment Finance_). The setting is a trading floor, but INSIDER is played like a game: rounds, scores, rivals and replays, with play-money chips. Everything below runs on **Solana devnet**; nothing here uses real funds.
 
@@ -34,6 +17,31 @@ Built by **Anurag Dubey** and **Misbah Ansari** for **Solana Blitz v10** (MagicB
 | Live table         | [`DjnqzKQsUU1fmRztBAiUkPn8VwsnFYgMedcg1BPyA1k`](https://explorer.solana.com/address/DjnqzKQsUU1fmRztBAiUkPn8VwsnFYgMedcg1BPyA1k?cluster=devnet), delegated to the MagicBlock TEE validator |
 | Proof of live runs | [docs/proofs/README.md](docs/proofs/README.md) (every row is a devnet transaction) and the app's `/proof` page                                                                             |
 | Honest status      | [What is verified](#what-is-verified) and [Known limits](#known-limits)                                                                                                                    |
+
+---
+
+## New here? Play your first round
+
+You need nothing but a browser: no wallet, no deposit, no real money. The table has ten seats; if none is open you can watch the round.
+
+1. **Join.** Press **Play as guest** on the home page. You are given a seat and 1,000 play chips.
+2. **Trade.** Press **BUY** if you think the price will rise, **SELL** if you think it will fall. Pick how much, then **Send**. Your order is hidden while it travels: 10 seconds on the free Standard lane, or 2 seconds on Priority for a few chips.
+3. **Grab a capsule.** A capsule (a **Leak**) is a private clue about the round. Its price falls until someone buys it or the auction ends. **Open** it to read it, or **resell** it unread.
+4. **Finish ahead.** You can trade for 80 seconds. At 90 seconds every position closes, and your score is your chips minus 1,000.
+5. **See the replay.** The **X-ray** shows every hidden order and secret. Then the next round starts with fresh chips.
+
+### The app helps you along
+
+| Help                     | What it does                                                                                                       |
+| ------------------------ | ------------------------------------------------------------------------------------------------------------------ |
+| **How to play**          | A four-step guide that opens on your first visit to the Floor. Reopen it any time from the Floor                   |
+| **Your next move**       | A bar on the Floor that says the most useful thing to do right now, with a button that takes you there             |
+| **Show me around**       | A guided tour that highlights each part of the screen in turn                                                      |
+| **Simple / All panels**  | Simple (the default) shows price, trading and capsules. All panels adds the players, orders on the way and the log |
+| **Guides on every page** | The Desk, Alpha Cup, Season, X-ray and Rules pages each start with three plain steps                               |
+| **Words you'll see**     | The [`/rules`](https://insiderz.vercel.app/rules) page explains the main game terms                                |
+
+Keyboard on the Floor: **B** buy, **S** sell, **P** switch lane, **Enter** send.
 
 ---
 
@@ -58,14 +66,9 @@ Built by **Anurag Dubey** and **Misbah Ansari** for **Solana Blitz v10** (MagicB
 
 The market is the setting, not the point: there is no real money, no deposits and no yield. It is devnet and play-money chips (the Alpha Cup pays a test token).
 
-<p align="center">
-  <img src="docs/screenshots/floor.png" alt="The Floor: a round in progress" width="49%">
-  <img src="docs/screenshots/crack-open.png" alt="Cracking open a sealed Leak" width="49%">
-</p>
-
 ### A round in about 110 seconds
 
-1. **Sit down.** One click gets a guest a seat (a browser key and chips). A wallet user signs each action; popup-free session keys work on chain and in the SDK, the app toggle is not wired yet.
+1. **Sit down.** One click gets a guest a seat (a browser key and chips). A wallet user signs each action, or turns on **Fast mode** (a session key) so orders, Leak and Desk actions need no pop-ups.
 2. **The future is written.** A VRF request seeds the round inside the TEE: a hidden price path, hidden whale orders and the Leak schedule.
 3. **Send orders into the dark.** The standard lane lands in 10 s. The priority lane lands in 2 s for a fee, and using it is a tell. Everyone sees _who_ sent an order, never what it was.
 4. **Leaks drop** every 10 s, sealed, with a public label and rarity. The price falls every 500 ms until someone takes it.
@@ -189,18 +192,18 @@ Tested by [`pnpm privacy-test`](docs/proofs/privacy-test.json): the opener, anot
 
 ## MagicBlock features used
 
-| Feature                         | What it does in INSIDER                                                                                                         | Status                                                         |
-| ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------- |
-| **Ephemeral Rollup** (required) | The whole table runs delegated: 500 ms ticks, order maturity, auctions, zero-fee trades                                         | done: live table, 35 rounds in the soak                        |
-| **Private ER (TEE)**            | Hides the pending-order mempool, the future, and every sealed Leak and Call; ownership, flips and licences are permission edits | done: 43 of 43 privacy probes                                  |
-| **Ephemeral permissions**       | Per-account reader lists rewritten by `open_leak`, `buy_license`, `mint_call` and `buy_call_license`                            | done                                                           |
-| **VRF**                         | Seeds each round's hidden future in the TEE                                                                                     | done: every round                                              |
-| **Cranks**                      | 500 ms ticks, finite crank re-armed by the bots                                                                                 | done: never ran out in the soak                                |
-| **Pricing oracle**              | Real SOL/USD for The Desk: Call snapshots and settlement                                                                        | done: Calls minted and judged on devnet                        |
-| **Private Payments**            | Alpha Cup buy-ins and private prize payouts through an operator service                                                         | done with a test token; entry is scripted, no browser flow yet |
-| **Session keys** (Gum)          | Popup-free play: a key with no SOL signs for the wallet                                                                         | program and SDK done and live-tested; app toggle not wired yet |
-| **SOAR**                        | Season scores published to a leaderboard on the base layer by the operator                                                      | done                                                           |
-| **Magic Action**                | Post-commit action on `commit_epoch`                                                                                            | **cut on purpose**, see [Known limits](#known-limits)          |
+| Feature                         | What it does in INSIDER                                                                                                         | Status                                                                                  |
+| ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| **Ephemeral Rollup** (required) | The whole table runs delegated: 500 ms ticks, order maturity, auctions, zero-fee trades                                         | done: live table, 35 rounds in the soak                                                 |
+| **Private ER (TEE)**            | Hides the pending-order mempool, the future, and every sealed Leak and Call; ownership, flips and licences are permission edits | done: 43 of 43 privacy probes                                                           |
+| **Ephemeral permissions**       | Per-account reader lists rewritten by `open_leak`, `buy_license`, `mint_call` and `buy_call_license`                            | done                                                                                    |
+| **VRF**                         | Seeds each round's hidden future in the TEE                                                                                     | done: every round                                                                       |
+| **Cranks**                      | 500 ms ticks, finite crank re-armed by the bots                                                                                 | done: never ran out in the soak                                                         |
+| **Pricing oracle**              | Real SOL/USD for The Desk: Call snapshots and settlement                                                                        | done: Calls minted and judged on devnet                                                 |
+| **Private Payments**            | Alpha Cup buy-ins and private prize payouts through an operator service                                                         | done with a test token; browser join flow on `/cup` built, live wallet run not recorded |
+| **Session keys** (Gum)          | Popup-free play: a key with no SOL signs for the wallet                                                                         | program and SDK done and live-tested; app Fast mode built, live wallet run not recorded |
+| **SOAR**                        | Season scores published to a leaderboard on the base layer by the operator                                                      | done                                                                                    |
+| **Magic Action**                | Post-commit action on `commit_epoch`                                                                                            | **cut on purpose**, see [Known limits](#known-limits)                                   |
 
 ---
 
@@ -220,22 +223,17 @@ Each line links to a proof file produced by a script in `scripts/` against the l
 | The whole table (37 accounts) torn down and set up again                                                                                                      | [`teardown.json`](docs/proofs/teardown.json)             |
 | Risky bets tested before building (11 gates, G0 to G10)                                                                                                       | [`docs/gates.md`](docs/gates.md)                         |
 
-Tests: **179 Rust tests** (`cd programs && cargo test -p insider`: engine maths, economics, leaks, desk, cup, recovery, session keys) and **217 TypeScript tests** (`pnpm test`: SDK, bots, scripts). CI runs format, lint, typecheck, tests, the web build and `cargo check` on every push.
+Tests: **179 Rust tests** (`cd programs && cargo test -p insider`: engine maths, economics, leaks, desk, cup, recovery, session keys) and **264 TypeScript tests** (`pnpm test`: SDK, bots, scripts). CI runs format, lint, typecheck, tests, the web build and `cargo check` on every push.
 
 ---
 
 ## Try it in three minutes (for judges)
 
-1. Open the **live app** (link above) and click **Play**. No wallet is needed: a guest key and chips are created in the browser.
-2. On the **Floor**, send an order. It stays hidden until it lands; the bots and analysts are trading on the same table.
-3. Buy a **Leak** in its Dutch auction, **open** it, and see what it reveals. Check the **X-ray** after the round.
+1. Open the **live app** (link above) and press **Play as guest**. No wallet is needed: a guest key and chips are created in the browser, you are seated, and a short guide explains the round.
+2. On the **Floor**, follow **Your next move**: send an order. It stays hidden until it lands; the bots and analysts are trading on the same table.
+3. Buy a capsule (a **Leak**) in its Dutch auction, **open** it, and see what it reveals. Check the **X-ray** after the round. Switch to **All panels** to see the players and the order lanes.
 4. Open **Desk**: see the analysts' sealed and judged Calls and the live oracle price. **Cup** shows standings, **Season** the leaderboard, **Proof** every transaction behind these claims.
 5. Optional, from a terminal: `pnpm privacy-test` tries to read sealed data as four different parties; `pnpm session-demo` shows a key with no SOL playing for a wallet.
-
-<p align="center">
-  <img src="docs/screenshots/xray.png" alt="The X-ray replay" width="49%">
-  <img src="docs/screenshots/rules.png" alt="The rules page" width="49%">
-</p>
 
 ---
 
@@ -248,6 +246,7 @@ pnpm install
 cp .env.example .env            # defaults already point at devnet (services and scripts)
 cp .env.example app/.env.local  # the app reads env only from app/; it uses the hosted services
 pnpm dev                        # the Next.js app on http://localhost:3000
+                                # offline UI work: /table?fixture=1 simulates a table (dev only)
 pnpm test                       # TypeScript tests
 cd programs && cargo test -p insider   # program tests (LiteSVM)
 ```
@@ -275,7 +274,7 @@ Build and deploy the program: `pnpm program:build`, `pnpm program:idl`, `pnpm pr
 programs/insider/   Anchor program: instructions/ (setup, seats, orders, leaks, licences, desk, cup,
                     epoch, recovery, session keys), engine/, math/, state/ and tests/ (LiteSVM)
 sdk/                Typed TypeScript client: accounts, instruction builders, TEE auth, oracle decoder
-app/                Next.js app: floor, Leaks, X-ray, Season, Desk, Cup, Proof
+app/                Next.js app: floor with guide and tour, Leaks, X-ray, Season, Desk, Cup, Rules, Proof
 bots/               5 bots, 2 AI analysts, commentary feed, operator, cup operator, host (one process)
 scripts/            Setup, gates, demos and proofs (session-demo, desk-demo, cup-demo, soak-report, ...)
 docs/               Spec, build plan (STEPS.md), gates, runbook, SDK guide, devnet proofs
@@ -292,9 +291,9 @@ Design: [docs/TECHNICAL_SPEC.md](docs/TECHNICAL_SPEC.md). Product: [docs/PROJECT
 ## Known limits
 
 - **Devnet only.** Nothing here is deployed on mainnet and no real value is at stake. The Alpha Cup uses a test token.
-- **Alpha Cup entry is scripted.** The program, operator and payouts work (see the proof), but a browser join flow with the private buy-in is not built. The `/cup` page shows standings and says so.
-- **Session keys are not switched on in the app.** The program, SDK and a live demo work; the app toggle is the next step. `open_leak` and `buy_license` through a session were not exercised live (they use the same check as the ones that were).
-- **Magic Action cut.** We did not attach a post-commit action to `commit_epoch`: it needs a funded escrow for every seat that can send the commit, and a failing action could stall the epoch cycle. The operator publishes scores to SOAR off-chain instead. No SOAR achievements. A human appears on the SOAR board only after registering once (not in the app yet).
+- **Alpha Cup browser entry is not proven live.** The program, operator and payouts work (see the proof, run by script). The `/cup` page has a wallet join flow with a test-token faucet, but no live run of it is recorded.
+- **Fast mode is not proven live in the app.** The program, SDK and a live script demo of session keys work, and the app has the toggle, but no live run from the app is recorded. `open_leak` and `buy_license` through a session were not exercised live (they use the same check as the ones that were).
+- **Magic Action cut.** We did not attach a post-commit action to `commit_epoch`: it needs a funded escrow for every seat that can send the commit, and a failing action could stall the epoch cycle. The operator publishes scores to SOAR off-chain instead. No SOAR achievements. A human appears on the SOAR board only after registering once (a wallet button on `/season`; no live run of it is recorded).
 - **The soak had no human players.** Rounds ran with bots and analysts; a cup with real entrants was run only by the demo script.
 - **The `/desk` write buttons** (make a Call, buy a licence, trade) are built on the tested SDK builders but were not clicked through with a wallet.
 - **The TEE is the trust anchor.** Privacy rests on MagicBlock's validator and its permission checks; the program cannot prove privacy by itself.

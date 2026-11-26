@@ -25,6 +25,7 @@ import { FastModeToggle, WalletPlayButton } from "@/components/onboarding/wallet
 import { buttonStyles } from "@/components/ui/button";
 import { CapsuleArt } from "@/components/ui/capsule-art";
 import { CapsulePyramid } from "@/components/ui/capsule-pyramid";
+import { PageGuide } from "@/components/ui/page-guide";
 import { PageTransition } from "@/components/ui/page-transition";
 
 const rounds = [
@@ -164,6 +165,26 @@ export default function Home() {
                 <Machine />
               </Parallax>
             </HeroFade>
+          </section>
+          <section className="mx-auto max-w-7xl px-5 pb-10 sm:px-8">
+            <PageGuide
+              title="Start playing in 3 steps"
+              action={{ label: "Read the 1-minute guide", href: "/rules" }}
+              steps={[
+                {
+                  title: "Press Play as guest",
+                  text: "You get a seat and play chips. No wallet, no deposit, nothing to install.",
+                },
+                {
+                  title: "Buy or Sell",
+                  text: "Guess where the price goes. End the round with more chips than you started.",
+                },
+                {
+                  title: "Grab a capsule",
+                  text: "Buy a secret about what is coming, open it and act first.",
+                },
+              ]}
+            />
           </section>
           <section aria-label="The game at a glance" className="px-5 pb-14 sm:px-8">
             <div className="mx-auto grid max-w-7xl grid-cols-2 gap-4 sm:grid-cols-5">

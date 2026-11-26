@@ -35,7 +35,7 @@ export function MobileNav({ items }: { items: string[][] }) {
     };
   }, [open, dialog]);
   return (
-    <div className="ml-auto md:hidden">
+    <div className="ml-auto lg:hidden">
       <button
         ref={button}
         type="button"
