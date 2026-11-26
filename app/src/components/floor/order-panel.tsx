@@ -61,11 +61,13 @@ export function OrderPanel({
   const blocker = !view.mine
     ? seatOpen
       ? "Join at the top of the floor to start trading"
-      : "All seats are taken. You can watch this round"
+      : "Every seat is busy. You can watch for now"
     : view.mine.liquidated
-      ? "You are out for this round"
+      ? "You ran out of chips this round"
       : view.phase !== "live"
-        ? "Orders open when the round is live"
+        ? view.phase === "closing"
+          ? "Orders are closed for this round"
+          : "Orders open when the next round goes live"
         : pendingFull
           ? "Pending order limit reached"
           : !effectiveSize

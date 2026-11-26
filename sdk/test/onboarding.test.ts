@@ -143,10 +143,20 @@ describe("open seats", () => {
     expect(step.action).toBeUndefined();
   });
 
+  it("frees a human seat left behind in an earlier round", async () => {
+    const fixture = createFixture();
+    fillHumans(fixture);
+    fixture.snapshot.seats[8]!.lastSeenTick = 150;
+    expect(seatAvailable(fixture.snapshot)).toBe(true);
+    expect(await joins(fixture)).toBe(true);
+  });
+
   it("opens again when a flat bot goes idle", async () => {
     const fixture = createFixture();
     fillHumans(fixture);
     fixture.snapshot.table.tick = 60;
+    // The people at the table are still active.
+    for (const index of [7, 8, 9]) fixture.snapshot.seats[index]!.lastSeenTick = 60;
     expect(seatAvailable(fixture.snapshot)).toBe(false);
     fixture.snapshot.seats[0]!.position = 0;
     expect(seatAvailable(fixture.snapshot)).toBe(true);

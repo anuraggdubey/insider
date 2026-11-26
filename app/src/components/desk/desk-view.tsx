@@ -2,11 +2,12 @@
 
 import { teeConnection } from "@insider/sdk";
 import { RefreshCw } from "lucide-react";
+import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useInsider } from "@/app/providers";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Button, buttonStyles } from "@/components/ui/button";
 import { Capsule } from "@/components/ui/capsule";
 import { PageGuide } from "@/components/ui/page-guide";
 import { Panel } from "@/components/ui/panel";
@@ -175,6 +176,18 @@ export function DeskView() {
   const open = data?.calls.filter((call) => call.state === "open") ?? [];
   const judged = (data?.calls.filter((call) => call.state !== "open") ?? []).slice(0, 8);
   const myOpen = open.some((call) => call.mine);
+  // Why "Call" is disabled, in words; the same checks gate the button.
+  const callBlocker = !mySeat
+    ? "Take a seat first (see Your Desk)."
+    : myOpen
+      ? "One open Call per seat: wait for the oracle to judge it."
+      : stake < 10 || stake > 200
+        ? "Stake must be 10 to 200 chips."
+        : licenseAsk < 0 || licenseAsk > 100
+          ? "Peek price must be 0 to 100 chips."
+          : stake > mySeat.deskChips
+            ? `Not enough Desk chips (you have ${mySeat.deskChips}).`
+            : null;
   const low = Math.min(...prices.map((point) => point.value));
   const high = Math.max(...prices.map((point) => point.value));
   const points = prices
@@ -191,8 +204,9 @@ export function DeskView() {
           <div className="micro-label text-priority">Exchange / The Desk</div>
           <h1 className="mt-3 text-4xl font-medium tracking-tight sm:text-5xl">Call the market.</h1>
           <p className="text-muted mt-3 max-w-xl text-sm leading-6">
-            Commit to SOL up or down. The direction stays sealed until the oracle judges it; sell a
-            licence and others can read it first. Right Calls return the stake plus 50%.
+            Predict whether the real SOL price is higher or lower after 1 to 3 minutes. Your call
+            stays secret until the price oracle judges it. Right: you get your stake back plus 50%.
+            You can also sell a peek at your call to other players.
           </p>
           {fixture && (
             <Badge tone="opened" className="mt-3">
@@ -216,10 +230,14 @@ export function DeskView() {
       <PageGuide
         className="mt-8"
         title="New to the Desk? Here is what to do"
-        action={{
-          label: "Take a seat on the Floor",
-          href: fixture ? "/table?fixture=1" : "/table",
-        }}
+        action={
+          mySeat
+            ? undefined
+            : {
+                label: "Take a free seat",
+                href: fixture ? "/table?fixture=1&join=1" : "/table?join=1",
+              }
+        }
         steps={[
           {
             title: "Get a seat",
@@ -414,9 +432,25 @@ export function DeskView() {
                   </p>
                 </div>
               ) : (
-                <p className="text-muted p-5 text-sm leading-6">
-                  Take a seat on the floor first, then come back to make Calls and trade.
-                </p>
+                <div className="space-y-3 p-5">
+                  <p className="text-muted text-sm leading-6">
+                    Calls use your seat&apos;s Desk chips, so you need a seat first. It&apos;s free
+                    and takes one click.
+                  </p>
+                  <Link
+                    href={fixture ? "/table?fixture=1&join=1" : "/table?join=1"}
+                    className={buttonStyles({
+                      variant: "primary",
+                      size: "md",
+                      className: "w-full",
+                    })}
+                  >
+                    Take a free seat
+                  </Link>
+                  <p className="text-faint text-xs">
+                    You&apos;ll land on the Floor; come back here after.
+                  </p>
+                </div>
               )}
             </Panel>
 
@@ -444,7 +478,7 @@ export function DeskView() {
                   ))}
                 </div>
                 <div>
-                  <span className="micro-label">Horizon</span>
+                  <span className="micro-label">Judged after</span>
                   <div
                     className="mt-2 grid grid-cols-3 gap-2"
                     role="group"
@@ -464,7 +498,7 @@ export function DeskView() {
                   </div>
                 </div>
                 <div>
-                  <div className="micro-label mb-2">Stake · 10 to 200 chips</div>
+                  <div className="micro-label mb-2">Stake · 10 to 200 chips (what you risk)</div>
                   <Stepper
                     value={stake}
                     onChange={setStake}
@@ -476,7 +510,9 @@ export function DeskView() {
                   />
                 </div>
                 <div>
-                  <div className="micro-label mb-2">Licence · 0 to 100 (0 = not for sale)</div>
+                  <div className="micro-label mb-2">
+                    Peek price · 0 to 100 (0 = keep it private)
+                  </div>
                   <Stepper
                     value={licenseAsk}
                     onChange={setLicenseAsk}
@@ -491,20 +527,13 @@ export function DeskView() {
                   type="submit"
                   className="w-full"
                   loading={busy === "mint"}
-                  disabled={
-                    !mySeat ||
-                    myOpen ||
-                    stake < 10 ||
-                    stake > 200 ||
-                    licenseAsk < 0 ||
-                    licenseAsk > 100 ||
-                    (mySeat ? stake > mySeat.deskChips : false)
-                  }
+                  disabled={Boolean(callBlocker)}
                 >
-                  {myOpen
-                    ? "You have an open Call"
-                    : `Seal call · ${direction > 0 ? "up" : "down"}`}
+                  {myOpen ? "You have an open Call" : `Call ${direction > 0 ? "up" : "down"}`}
                 </Button>
+                {callBlocker && (
+                  <p className="text-priority text-center text-xs font-bold">{callBlocker}</p>
+                )}
               </form>
             </Panel>
           </div>

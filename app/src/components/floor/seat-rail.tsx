@@ -70,7 +70,7 @@ export function SeatRail({ view }: { view: TableView }) {
                     href="#join-seat"
                     className="text-brand text-[11px] font-extrabold underline-offset-4 hover:underline"
                   >
-                    + JOIN
+                    + Sit here
                   </Link>
                 ) : (
                   <div className="text-muted flex gap-2 font-mono text-[10px] font-bold">

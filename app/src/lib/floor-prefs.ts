@@ -6,6 +6,8 @@ export type FloorView = "simple" | "full";
 
 const GUIDE_KEY = "insider.guide.v1";
 const VIEW_KEY = "insider.floor.view.v1";
+/** Set by an earlier version of the guide; those players have already been introduced. */
+const OLD_GUIDE_KEY = "insider.guide.seen.v1";
 
 type Prefs = {
   /** False until the saved choices are read, so the guide never flashes for returning players. */
@@ -25,7 +27,9 @@ export function loadFloorPrefs() {
   try {
     useFloorPrefs.setState({
       loaded: true,
-      guideSeen: window.localStorage.getItem(GUIDE_KEY) === "seen",
+      guideSeen:
+        window.localStorage.getItem(GUIDE_KEY) === "seen" ||
+        window.localStorage.getItem(OLD_GUIDE_KEY) !== null,
       view: window.localStorage.getItem(VIEW_KEY) === "full" ? "full" : "simple",
     });
   } catch {

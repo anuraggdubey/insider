@@ -21,6 +21,7 @@ import {
 } from "@insider/sdk";
 import { Keypair, PublicKey } from "@solana/web3.js";
 import { createGuest } from "./guest";
+import { pickSeat } from "./pick-seat";
 import {
   playerKey,
   publishFixture,
@@ -30,6 +31,8 @@ import {
   type WalletSigner,
 } from "./floor-store";
 import { currentActionActor, sessionActionError, type ActionActor } from "./session-routing";
+
+export { pickSeat };
 
 function current() {
   const state = useFloorStore.getState();
@@ -77,20 +80,11 @@ export async function joinFloor(config: InsiderConfig) {
   const player = currentPlayer();
   const existing = state.snapshot.seats.find((seat) => seat.owner.equals(player.publicKey));
   if (existing) return;
-  const seats = state.snapshot.seats;
-  const human = seats.slice(7, 10).find((seat) => seat.owner.equals(PublicKey.default));
-  const bots = seats
-    .slice(0, 5)
-    .filter(
-      (seat) =>
-        seat.owner.equals(PublicKey.default) ||
-        (state.snapshot.table.tick - seat.lastSeenTick >= 60 &&
-          seat.position === 0 &&
-          seat.pendingCount === 0),
-    )
-    .sort((a, b) => a.lastSeenTick - b.lastSeenTick);
-  const selected = human ?? bots[0];
-  if (!selected) throw new Error("No human seat or idle bot seat is available.");
+  const selected = pickSeat(state.snapshot);
+  if (!selected)
+    throw new Error(
+      "Every seat is busy right now. A seat frees up when a player goes quiet, usually within a round: try again shortly.",
+    );
   if (process.env.NODE_ENV !== "production" && state.fixture) {
     const { fixtureClaim } = await import("./fixture");
     fixtureClaim(state.fixture, player.publicKey, selected.index);

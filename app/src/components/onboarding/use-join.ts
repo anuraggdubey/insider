@@ -22,14 +22,7 @@ export function useJoin(config: InsiderConfig) {
         const { joinFloor } = await import("@/lib/floor-actions");
         await joinFloor(config);
       } catch (error) {
-        const message = friendlyError(error);
-        useToast
-          .getState()
-          .add(
-            message.startsWith("No human seat")
-              ? "All seats are taken right now. You can watch this round."
-              : message,
-          );
+        useToast.getState().add(friendlyError(error));
       } finally {
         updateFloor({ joining: false });
       }

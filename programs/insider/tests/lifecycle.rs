@@ -432,6 +432,86 @@ fn an_idle_bot_with_a_position_or_pending_orders_cannot_be_displaced() {
 }
 
 #[test]
+fn a_human_seat_left_in_an_earlier_round_can_be_claimed() {
+    let (mut svm, authority) = table_with_seats();
+    let first = Keypair::new();
+    let second = Keypair::new();
+    for key in [&first, &second] {
+        svm.airdrop(&key.pubkey(), 1_000_000_000).unwrap();
+    }
+    let table = table_pda(&authority.pubkey());
+
+    // seen late in a round
+    set_tick(&mut svm, &authority.pubkey(), 150);
+    send(&mut svm, &[&first], claim_ix(&first.pubkey(), &authority.pubkey(), 8)).unwrap();
+
+    // a new round starts (the tick restarts): the holder has not been seen in it, so the seat is free
+    set_tick(&mut svm, &authority.pubkey(), 4);
+    svm.expire_blockhash();
+    send(&mut svm, &[&second], claim_ix(&second.pubkey(), &authority.pubkey(), 8)).unwrap();
+    let seat: Seat = read(&svm, &seat_pda(&table, 8));
+    assert_eq!(seat.owner, second.pubkey());
+    assert_eq!(seat.chips, BANKROLL_CHIPS);
+    assert_eq!(seat.claims, 2);
+}
+
+#[test]
+fn an_active_or_invested_human_seat_is_protected() {
+    let (mut svm, authority) = table_with_seats();
+    let holder = Keypair::new();
+    let newcomer = Keypair::new();
+    for key in [&holder, &newcomer] {
+        svm.airdrop(&key.pubkey(), 1_000_000_000).unwrap();
+    }
+    let table = table_pda(&authority.pubkey());
+    let seat_key = seat_pda(&table, 9);
+    set_tick(&mut svm, &authority.pubkey(), 20);
+    send(&mut svm, &[&holder], claim_ix(&holder.pubkey(), &authority.pubkey(), 9)).unwrap();
+
+    // seen this round, less than SEAT_IDLE_TICKS ago: refused
+    set_tick(&mut svm, &authority.pubkey(), 20 + SEAT_IDLE_TICKS - 1);
+    svm.expire_blockhash();
+    assert!(send(&mut svm, &[&newcomer], claim_ix(&newcomer.pubkey(), &authority.pubkey(), 9)).is_err());
+
+    // idle, but holding a position or queued orders: refused
+    set_tick(&mut svm, &authority.pubkey(), 20 + SEAT_IDLE_TICKS);
+    for (position, pending) in [(100i32, 0u8), (0, 1)] {
+        let mut seat: Seat = read(&svm, &seat_key);
+        seat.position = position;
+        seat.pending_count = pending;
+        write(&mut svm, &seat_key, &seat);
+        svm.expire_blockhash();
+        assert!(
+            send(&mut svm, &[&newcomer], claim_ix(&newcomer.pubkey(), &authority.pubkey(), 9)).is_err(),
+            "position {position}, pending {pending}"
+        );
+    }
+
+    // idle and flat: the newcomer gets the seat
+    let mut seat: Seat = read(&svm, &seat_key);
+    seat.position = 0;
+    seat.pending_count = 0;
+    write(&mut svm, &seat_key, &seat);
+    svm.expire_blockhash();
+    send(&mut svm, &[&newcomer], claim_ix(&newcomer.pubkey(), &authority.pubkey(), 9)).unwrap();
+}
+
+#[test]
+fn a_bot_seat_last_seen_in_an_earlier_round_is_still_protected() {
+    let (mut svm, authority) = table_with_seats();
+    let bot = Keypair::new();
+    let human = Keypair::new();
+    for key in [&bot, &human] {
+        svm.airdrop(&key.pubkey(), 1_000_000_000).unwrap();
+    }
+    set_tick(&mut svm, &authority.pubkey(), 150);
+    send(&mut svm, &[&bot], claim_ix(&bot.pubkey(), &authority.pubkey(), 2)).unwrap();
+    set_tick(&mut svm, &authority.pubkey(), 4);
+    svm.expire_blockhash();
+    assert!(send(&mut svm, &[&human], claim_ix(&human.pubkey(), &authority.pubkey(), 2)).is_err());
+}
+
+#[test]
 fn the_default_priority_fee_is_three_chips() {
     let (mut svm, authority) = setup();
     init_everything(&mut svm, &authority);

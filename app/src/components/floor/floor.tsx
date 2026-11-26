@@ -58,6 +58,8 @@ export function Floor() {
   const prefs = useFloorPrefs();
   const tutorial = useFloorStore((state) => state.tutorial);
   const { joining, seat: takeSeat, joinAsGuest } = useJoin(config);
+  const autoJoin = params.get("join") === "1";
+  const autoJoined = useRef(false);
   useEffect(loadFloorPrefs, []);
   useEffect(() => {
     if (!spot) return;
@@ -101,6 +103,17 @@ export function Floor() {
   useEffect(() => {
     if (error) useToast.getState().add(error);
   }, [error]);
+  // `/table?join=1` (from the Desk or a link): take a seat once the table has loaded.
+  useEffect(() => {
+    if (!autoJoin || autoJoined.current || !snapshot) return;
+    // Deferred so a table left over from an earlier visit is never joined: loading resets it first.
+    const timer = setTimeout(() => {
+      autoJoined.current = true;
+      const { identity, wallet } = useFloorStore.getState();
+      void (identity === "wallet" && wallet ? takeSeat() : joinAsGuest());
+    }, 0);
+    return () => clearTimeout(timer);
+  }, [autoJoin, snapshot, takeSeat, joinAsGuest]);
   useEffect(() => {
     if (status === "offline" && joinRequested) updateFloor({ joinRequested: false });
   }, [status, joinRequested]);

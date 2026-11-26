@@ -193,7 +193,7 @@ export function GuideDialog({
             </Button>
           ) : !seatOpen ? (
             <>
-              <span className="text-muted ml-auto text-xs font-bold">All seats are taken</span>
+              <span className="text-muted ml-auto text-xs font-bold">Every seat is busy</span>
               <Button onClick={onClose}>Watch the round</Button>
             </>
           ) : (

@@ -4,6 +4,7 @@
  */
 import { BANKROLL_CHIPS, TICK_MILLIS } from "@insider/sdk/constants";
 import type { TableSnapshot } from "@insider/sdk";
+import { pickSeat } from "./pick-seat";
 
 /** What each secret tells you, by Leak kind (the order matches the program's `LeakKind`). */
 export const LEAK_PLAIN = [
@@ -35,25 +36,9 @@ export function seconds(ticks: number) {
   return `${((Math.max(0, ticks) * TICK_MILLIS) / 1000).toFixed(1)}s`;
 }
 
-/** How long a bot must be silent before its seat can be taken (the program's rule). */
-const IDLE_TICKS = 60;
-
-/**
- * Whether a new player could get a seat right now. It mirrors the choice `joinFloor` makes: a
- * free human seat, else a bot seat that is empty or idle with nothing open.
- */
+/** Whether a new player could get a seat right now, by the same rule joining uses. */
 export function seatAvailable(snapshot: Pick<TableSnapshot, "seats" | "table">) {
-  const free = (index: number) => snapshot.seats[index]?.owner.toBytes().every((b) => b === 0);
-  if ([7, 8, 9].some(free)) return true;
-  return snapshot.seats
-    .slice(0, 5)
-    .some(
-      (seat, index) =>
-        free(index) ||
-        (snapshot.table.tick - seat.lastSeenTick >= IDLE_TICKS &&
-          seat.position === 0 &&
-          seat.pendingCount === 0),
-    );
+  return pickSeat(snapshot) !== null;
 }
 
 export type GuideView = {
@@ -125,9 +110,9 @@ export function nextStep(view: GuideView): NextStep {
     return {
       id: "full",
       stage: 0,
-      title: "All seats are taken right now",
+      title: "Every seat is busy right now",
       detail:
-        "You can watch the round and learn the game. The join button returns if a seat opens.",
+        "Watch and learn for now. A seat frees up when a player goes quiet, and the join button returns.",
     };
   if (!mine)
     return {

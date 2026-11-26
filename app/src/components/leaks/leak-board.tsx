@@ -105,7 +105,7 @@ function LeakCard({
       : !view.mine
         ? seatAvailable(snapshot)
           ? "Join the game to buy"
-          : "Watching only: all seats taken"
+          : "Watching only: every seat is busy"
         : unopened >= 2
           ? "Open one of yours first (2 sealed max)"
           : view.mine.chips < leak.currentPrice

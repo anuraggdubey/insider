@@ -57,7 +57,7 @@ export function GuestControls({ config, view }: { config: InsiderConfig; view: T
               onClick={() => void joinAsGuest()}
               loading={joining}
               disabled={tableFull}
-              title={tableFull ? "All seats are taken right now" : undefined}
+              title={tableFull ? "Every seat is busy right now" : undefined}
             >
               {tableFull ? "Table full" : "Play as guest"}
             </Button>

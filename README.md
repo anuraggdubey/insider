@@ -22,7 +22,7 @@ Built by **Anurag Dubey** and **Misbah Ansari** for **Solana Blitz v10** (MagicB
 
 ## New here? Play your first round
 
-You need nothing but a browser: no wallet, no deposit, no real money. The table has ten seats; if none is open you can watch the round.
+You need nothing but a browser: no wallet, no deposit, no real money. The table has ten seats. A seat frees up when its player goes quiet; if none is open you can watch the round meanwhile.
 
 1. **Join.** Press **Play as guest** on the home page. You are given a seat and 1,000 play chips.
 2. **Trade.** Press **BUY** if you think the price will rise, **SELL** if you think it will fall. Pick how much, then **Send**. Your order is hidden while it travels: 10 seconds on the free Standard lane, or 2 seconds on Priority for a few chips.
@@ -223,7 +223,7 @@ Each line links to a proof file produced by a script in `scripts/` against the l
 | The whole table (37 accounts) torn down and set up again                                                                                                      | [`teardown.json`](docs/proofs/teardown.json)             |
 | Risky bets tested before building (11 gates, G0 to G10)                                                                                                       | [`docs/gates.md`](docs/gates.md)                         |
 
-Tests: **179 Rust tests** (`cd programs && cargo test -p insider`: engine maths, economics, leaks, desk, cup, recovery, session keys) and **264 TypeScript tests** (`pnpm test`: SDK, bots, scripts). CI runs format, lint, typecheck, tests, the web build and `cargo check` on every push.
+Tests: **182 Rust tests** (`cd programs && cargo test -p insider`: engine maths, economics, leaks, desk, cup, recovery, session keys) and **275 TypeScript tests** (`pnpm test`: SDK, bots, scripts). CI runs format, lint, typecheck, tests, the web build and `cargo check` on every push.
 
 ---
 
