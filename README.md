@@ -124,7 +124,7 @@ The app guides new players with a first-visit tutorial, a **Your next move** hin
 
 | Feature                   | Role in INSIDER                                                                          | Status                               |
 | ------------------------- | ---------------------------------------------------------------------------------------- | ------------------------------------ |
-| **Ephemeral Rollup**      | The whole table runs delegated: 500 ms ticks, order maturity, auctions, zero-fee trades. | ✅ Live, 2,366 txns over 35 rounds   |
+| **Ephemeral Rollup**      | The whole table runs delegated: 500 ms ticks, order maturity, auctions, zero-fee trades. | ✅ Live — 500+ rounds on devnet      |
 | **Private ER (TEE)**      | Hides the mempool, the round's future, and every sealed Leak and Call.                   | ✅ 43 / 43 privacy probes passed     |
 | **Ephemeral permissions** | Opening, flipping or licensing a Leak rewrites who the TEE lets read that account.       | ✅ Live                              |
 | **VRF**                   | One seed per round writes the hidden price path, whale orders and Leak schedule.         | ✅ Every round                       |
@@ -215,7 +215,7 @@ Every claim links to a proof file produced by a script against the live table.
 | Epoch cycle: commit to base layer and re-delegate                                  | [`epoch.json`](docs/proofs/epoch.json)                   |
 | Recovery: undelegation honoured, table rebuilt from base layer                     | [`recovery.json`](docs/proofs/recovery.json)             |
 
-**Tests:** 189 Rust tests (LiteSVM) and 279 TypeScript tests. CI runs format, lint, typecheck, tests, the web build and `cargo check` on every push.
+**Tests:** 197 Rust tests (LiteSVM) and 280 TypeScript tests. CI runs format, lint, typecheck, tests, the web build and `cargo check` on every push.
 
 ---
 
@@ -316,6 +316,8 @@ Further reading: [Technical spec](docs/TECHNICAL_SPEC.md) · [Project info](docs
 - **Private payments take ~150 s on devnet.** Cup buy-ins and payouts use the scripted path; the browser flow falls back to the operator if the payment doesn't arrive in time.
 - **VRF callback (G10) not wired.** The VRF request lands but the on-chain callback is not consumed; the round seed is applied by the crank instead.
 - **The TEE is the trust anchor.** Privacy relies on MagicBlock's validator and its permission checks, not on client-side encryption.
+
+---
 
 ## What's next
 
