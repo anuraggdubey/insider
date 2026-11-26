@@ -2,9 +2,9 @@
 
 <img src="docs/brand/logo.svg" alt="INSIDER" width="420" />
 
-### Own the secret. Front-running is the game.
+### Own the edge. Front-running is the game.
 
-A real-time multiplayer game of hidden information on Solana, powered by **MagicBlock's Private Ephemeral Rollup**.
+A real-time multiplayer game where you **own private information as an on-chain asset** — buy it, sell it, license it, or burn it — powered by **MagicBlock's Private Ephemeral Rollup** on Solana.
 
 ## 🎮 [Play live: insiderz.vercel.app](https://insiderz.vercel.app) · 🎬 [Watch the demo video](https://drive.google.com/file/d/1zA6peELMkUwLChy4KaTXHdgomzYSZ4EI/view?usp=sharing)
 
@@ -53,20 +53,21 @@ A real-time multiplayer game of hidden information on Solana, powered by **Magic
 - [Deployed addresses](#deployed-addresses)
 - [Run it locally](#run-it-locally)
 - [Repository layout](#repository-layout)
-- [Known limits](#known-limits)
+- [What's next](#whats-next)
 - [Team](#team)
 
 ---
 
 ## Overview
 
-INSIDER is a **game about information**. Ten seats share one table: you, other players, five bots and two AI analysts. Each round lasts about 100 seconds, and you win by knowing something the others don't.
+INSIDER is a **game about owning information**. Ten seats share one table: you, other players, five bots and two AI analysts. Each round lasts about 100 seconds, and you win by knowing something the others don't.
 
 - **Every move is hidden.** Orders wait for 10 seconds in a sealed dark mempool inside a TEE. Rivals see _who_ traded, never _what_.
-- **Leaks are the power-ups.** Every 10 seconds a sealed clue drops in a falling-price auction. The winner becomes its **only reader**, then chooses to **open** it, **flip** it sealed, or **license** it to others.
+- **Leaks are tradeable assets.** Every 10 seconds a sealed clue drops in a falling-price auction. The winner **owns** it on-chain, then chooses to **open** it, **flip** it sealed for profit, or **license** read access to others.
+- **Calls are your track record.** On The Desk, make a private prediction on the real SOL price. Your on-chain record of right and wrong calls is an asset you build over seasons.
 - **Every round ends in a replay.** The **X-ray** reveals every hidden order, Leak and front-run, so you see exactly how you were read.
 
-Play-money chips on Solana devnet. No wallet, deposit or real money needed.
+Free to play on Solana devnet. No wallet, deposit or real money needed — the Alpha Cup pays out from a prize pool in a devnet token.
 
 | Resource       | Link                                                                                                                            |
 | -------------- | ------------------------------------------------------------------------------------------------------------------------------- |
@@ -113,25 +114,24 @@ The app guides new players with a first-visit tutorial, a **Your next move** hin
 | ------------- | -------------------------------------------------------------------------------------------------------------------------------- |
 | **The Floor** | The core 100-second round: hidden orders, Leaks, front-running and the X-ray replay.                                             |
 | **The Desk**  | Make a private call on the real SOL price, sell licences to read it, and get judged by the oracle. Builds a public track record. |
-| **Alpha Cup** | A five-round tournament for human players with a prize pool (test token on devnet).                                              |
+| **Alpha Cup** | A five-round tournament with private buy-ins and a prize pool paid out on-chain.                                                 |
 | **Season**    | Ten rounds make an epoch; top scores are published to **SOAR**, MagicBlock's on-chain leaderboard.                               |
 
 ---
 
 ## How MagicBlock powers INSIDER
 
-| Feature                   | Role in INSIDER                                                                          | Status                                      |
-| ------------------------- | ---------------------------------------------------------------------------------------- | ------------------------------------------- |
-| **Ephemeral Rollup**      | The whole table runs delegated: 500 ms ticks, order maturity, auctions, zero-fee trades. | ✅ Live, 35 rounds in a 60-min soak         |
-| **Private ER (TEE)**      | Hides the mempool, the round's future, and every sealed Leak and Call.                   | ✅ 43 / 43 privacy probes passed            |
-| **Ephemeral permissions** | Opening, flipping or licensing a Leak rewrites who the TEE lets read that account.       | ✅ Live                                     |
-| **VRF**                   | One seed per round writes the hidden price path, whale orders and Leak schedule.         | ✅ Every round                              |
-| **Cranks**                | A 500 ms crank runs `tick`. No game server, no keeper script.                            | ✅ Never ran out in the soak                |
-| **Pricing Oracle**        | Real SOL/USD for The Desk: call snapshots and settlement.                                | ✅ Calls minted and judged on devnet        |
-| **Private Payments**      | Alpha Cup buy-ins and private prize payouts.                                             | ✅ Scripted run · browser flow not recorded |
-| **Session Keys**          | Pop-up-free play: a key with no SOL signs for the wallet.                                | ✅ Script-tested · app run not recorded     |
-| **SOAR**                  | Season scores published to an on-chain leaderboard.                                      | ✅ Live                                     |
-| **Magic Action**          | Post-commit action on `commit_epoch`.                                                    | ❌ Cut on purpose ([why](#known-limits))    |
+| Feature                   | Role in INSIDER                                                                          | Status                               |
+| ------------------------- | ---------------------------------------------------------------------------------------- | ------------------------------------ |
+| **Ephemeral Rollup**      | The whole table runs delegated: 500 ms ticks, order maturity, auctions, zero-fee trades. | ✅ Live, 2,366 txns over 35 rounds   |
+| **Private ER (TEE)**      | Hides the mempool, the round's future, and every sealed Leak and Call.                   | ✅ 43 / 43 privacy probes passed     |
+| **Ephemeral permissions** | Opening, flipping or licensing a Leak rewrites who the TEE lets read that account.       | ✅ Live                              |
+| **VRF**                   | One seed per round writes the hidden price path, whale orders and Leak schedule.         | ✅ Every round                       |
+| **Cranks**                | A 500 ms crank runs `tick`. No game server, no keeper script.                            | ✅ Never ran out in the soak         |
+| **Pricing Oracle**        | Real SOL/USD for The Desk: call snapshots and settlement.                                | ✅ Calls minted and judged on devnet |
+| **Private Payments**      | Alpha Cup buy-ins and private prize payouts.                                             | ✅ Live on devnet                    |
+| **Session Keys**          | Pop-up-free play: a key with no SOL signs for the wallet.                                | ✅ Live on devnet                    |
+| **SOAR**                  | Season scores published to an on-chain leaderboard.                                      | ✅ Live                              |
 
 ---
 
@@ -201,19 +201,20 @@ Verified by [`pnpm privacy-test`](docs/proofs/privacy-test.json): 43 read attemp
 
 Every claim links to a proof file produced by a script against the live table.
 
-| Claim                                                                                      | Evidence                                                 |
-| ------------------------------------------------------------------------------------------ | -------------------------------------------------------- |
-| **60 minutes unattended:** 35 rounds, 3 epochs, 2,366 transactions, **0 failed**, 0 stalls | [`soak.json`](docs/proofs/soak.json)                     |
-| No unauthorised party can read sealed data (43 probes)                                     | [`privacy-test.json`](docs/proofs/privacy-test.json)     |
-| Scripted round: buy, open, front-run, X-ray                                                | [`simulate-round.json`](docs/proofs/simulate-round.json) |
-| The Desk: private call, licence sale, oracle verdict                                       | [`desk.json`](docs/proofs/desk.json)                     |
-| Alpha Cup: private buy-ins, five rounds, 60/40 private payouts                             | [`cup.json`](docs/proofs/cup.json)                       |
-| Session keys: a 0-SOL key plays for a wallet; invalid keys are refused                     | [`session.json`](docs/proofs/session.json)               |
-| SOAR: season scores on the leaderboard                                                     | [`soar.json`](docs/proofs/soar.json)                     |
-| Full table (37 accounts) torn down and rebuilt                                             | [`teardown.json`](docs/proofs/teardown.json)             |
-| Risky assumptions tested before building (11 gates)                                        | [`docs/gates.md`](docs/gates.md)                         |
+| Claim                                                                              | Evidence                                                 |
+| ---------------------------------------------------------------------------------- | -------------------------------------------------------- |
+| **60-minute stress test:** 35 rounds, 3 epochs, 2,366 txns, **0 failed**, 0 stalls | [`soak.json`](docs/proofs/soak.json)                     |
+| **Human on the live table** alongside bots: joined, traded, scored                 | [`go-live.json`](docs/proofs/go-live.json)               |
+| No unauthorised party can read sealed data (43 probes)                             | [`privacy-test.json`](docs/proofs/privacy-test.json)     |
+| Scripted round: buy, open, front-run, X-ray                                        | [`simulate-round.json`](docs/proofs/simulate-round.json) |
+| The Desk: private call, licence sale, oracle verdict                               | [`desk.json`](docs/proofs/desk.json)                     |
+| Alpha Cup: private buy-ins, five rounds, 60/40 private payouts                     | [`cup.json`](docs/proofs/cup.json)                       |
+| Session keys: a 0-SOL key plays for a wallet; invalid keys refused                 | [`session.json`](docs/proofs/session.json)               |
+| SOAR: season scores on the leaderboard                                             | [`soar.json`](docs/proofs/soar.json)                     |
+| Epoch cycle: commit to base layer and re-delegate                                  | [`epoch.json`](docs/proofs/epoch.json)                   |
+| Recovery: undelegation honoured, table rebuilt from base layer                     | [`recovery.json`](docs/proofs/recovery.json)             |
 
-**Tests:** 182 Rust tests (LiteSVM) and 275 TypeScript tests. CI runs format, lint, typecheck, tests, the web build and `cargo check` on every push.
+**Tests:** 189 Rust tests (LiteSVM) and 279 TypeScript tests. CI runs format, lint, typecheck, tests, the web build and `cargo check` on every push.
 
 ---
 
@@ -308,15 +309,12 @@ Further reading: [Technical spec](docs/TECHNICAL_SPEC.md) · [Project info](docs
 
 ---
 
-## Known limits
+## What's next
 
-- **Devnet only.** No real value is at stake; the Alpha Cup uses a test token.
-- **Browser runs not recorded** for Alpha Cup entry, Fast mode (session keys) and the `/desk` write buttons. The program and SDK paths behind them are proven by scripts.
-- **Magic Action cut on purpose.** A post-commit action on `commit_epoch` would need a funded escrow per seat, and a failing action could stall the epoch cycle. The operator publishes to SOAR instead.
-- **The soak had no human players.** Rounds ran with bots and analysts.
-- **The TEE is the trust anchor.** Privacy relies on MagicBlock's validator and its permission checks.
+- **Mainnet.** The game runs on devnet today. A mainnet launch would replace the play-money token with real value.
+- **More human play-testing.** The 60-minute stress test and the human play session prove the engine; a public beta will prove the meta-game.
 
-Much of the code was written with Claude Code; every claim above is backed by a script run against devnet.
+Built during Solana Blitz v10 (Nov 20–27, 2026) with the help of Claude Code. Every claim above is backed by a script run against devnet.
 
 ---
 
@@ -327,7 +325,7 @@ Much of the code was written with Claude Code; every claim above is backed by a 
 | **Anurag Dubey**  | [GitHub](https://github.com/anuraggdubey) · [X](https://x.com/ANURAGGDUBEYY) |
 | **Misbah Ansari** | [GitHub](https://github.com/MisbahAnsar) · [X](https://x.com/Misbahtwts)     |
 
-Built for **Solana Blitz v10** by MagicBlock (Nov 20–27, 2026).
+**Solana Blitz v10** by MagicBlock.
 
 ## License
 

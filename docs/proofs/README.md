@@ -15,7 +15,8 @@ Raw data: [vertical-slice.json](vertical-slice.json)
 - **table:** `DjnqzKQsUU1fmRztBAiUkPn8VwsnFYgMedcg1BPyA1k`
 - **program:** `7mTtHsFMYnZRnhd3SRzhj8Nm1U2T3s33dnbJwa9zBErW`
 
-
+- PASS: the round completed with 5 orders and 8 Leak drops
+- PASS: the X-ray was finalized and scored
 
 ## A scripted round: buy, open, front-run, X-ray
 
@@ -33,26 +34,26 @@ Raw data: [simulate-round.json](simulate-round.json)
 - PASS: Bob's order landed
 - PASS: Alice front-ran Bob on the priority lane
 
-| Step | Layer | Transaction |
-|---|---|---|
-| finish_round (previous round) (802 ms) |  | [open](https://explorer.solana.com/tx/31f5ZofrUaRsEXe97wjqCTdngxC3aB4r6moV4qyTcfgpF99WHaoR3BVhhpwWtiVW8kbbN7jCrjgPowrAujp8HRuB?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app) |
-| reseal_leaks (previous round) (237 ms) |  | [open](https://explorer.solana.com/tx/5rN97mW9dTuAV8sLsksd43sH3531JuHQ6boj4AMS4fPFHAZXPFmL61owwGwj6fVGDWBGE4fS3vTjuHYPRxe3BaDS?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app) |
-| request_round_seed (483 ms) |  | [open](https://explorer.solana.com/tx/b5yi6SzxC2T5BAqnwhRrQUqwGs4ahiAoVs9xJLeRwa5ieKurDaa86finVMXEHeSdu92BExuSWTptteS3ZJaqoQf?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app) |
-| claim seat 7 (164 ms) |  | [open](https://explorer.solana.com/tx/5HQNuZLY44AqiVpxtDQrPhqK7piShM4wGGqXeXbQWnpq65jyhquDjCMQ2K3qJq6CrSBs69bPYf95U99cbE3FrMmy?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app) |
-| claim seat 8 (661 ms) |  | [open](https://explorer.solana.com/tx/5rsKhrmPAGqVCtFTvWXX8VvihswJrD8ZyqVi6wnT9uXbe666dTf9AaS19t5E4T71y3yyVjAhY4n7PcMqnZPYvcjc?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app) |
-| claim seat 9 (801 ms) |  | [open](https://explorer.solana.com/tx/4aoH8FExWMvRda5e12HrJUAfRQarCUNRw5NUE2R9Bkx8zDnn8RmE355nFiuqEzkZQ53gL44kNj9wgs6sqKkLwymx?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app) |
-| order: buy 600 on the standard lane (411 ms) |  | [open](https://explorer.solana.com/tx/4eRADBsqjydTA4L4JuTKtajNpo9NhtvjLK59chqT653wPcMF1FujA5qQaXWBf6TfdxRTtv1FAv9WMZHujztvRVbw?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app) |
-| bid on slot 0 (kind 0) (671 ms) |  | [open](https://explorer.solana.com/tx/4NmY9aPj5spTjAo9jduLyT8gzSxXoiuV2dvCFNaT5iuUtaguLJYwJpqSBBCnr3kHtByurgQep9S7ysAZZHz1kQGA?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app) |
-| open slot 0 (637 ms) |  | [open](https://explorer.solana.com/tx/3VX4QMV3hs43X5F3tQ3SjXAxCebWUoiNB5zdY8Kbdg88o2WzkAKUrfH6bmfCtK78ENqr5RVjC8Ru8YgQW68MWi74?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app) |
-| front-run: buy 400 on the priority lane (568 ms) |  | [open](https://explorer.solana.com/tx/2wAGrK4v3TFUpJ69KXSrYUFXwZ5VCpSjRC73i96D2YkLNbAh9kDP48YVFdGb1TpWLaTsbcV1eYz2mEDqAznWEu9q?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app) |
-| bid on slot 1 (kind 5) (580 ms) |  | [open](https://explorer.solana.com/tx/61tbnHKjigHr2Mg2tHg6p9HUinbZXvBKuNv12tPx8pAt5xtXzSSucznhxVk5hgjsyNc6835URDYjBfMkaffRahE7?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app) |
-| open slot 1 (549 ms) |  | [open](https://explorer.solana.com/tx/2FZCYkC79Q2zpEgeXAKBcoVMivcWEDLHSYR1GwgDe9obR5rukbgjx4Zy35VZxfEhH2ojyzWjvMhXP6ZxGVS75cTR?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app) |
-| bid on slot 2 (kind 6) (458 ms) |  | [open](https://explorer.solana.com/tx/2JaKKMu8GKyohboUJVU3jNCKSKrMeW59hhyyuZJxxzTyu8xM2vme1WxD1efiSTJ3drqncB78SW9QMW15oEtPwe53?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app) |
-| open slot 2 (489 ms) |  | [open](https://explorer.solana.com/tx/3mXxKnGJXoKaH8M6ymtWDi2KEdmKBVtwwsw6U8HdJrS9Zn34MCf13kVmZKiAqf7PjqUViQ9X4bqqwNPjTTLyThBz?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app) |
-| bid on slot 3 (kind 4) (588 ms) |  | [open](https://explorer.solana.com/tx/4Ng8nWaVEcqLj7eRXJTrRxhSfieUeN8BDyBYCCSpSKvuR8GVmJde2x69HhJAwBZ5k2dYzyjXsdY3H9g2LFSdV6ci?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app) |
-| open slot 3 (676 ms) |  | [open](https://explorer.solana.com/tx/4o3EJQuTFC7TKk7AQPPcvWHG13k6jkF7E9hRXFrWVkcSXH8SAH4EmYdsxpDCGynH2yXqbD1kv4RhLdT6ycZXhhVs?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app) |
-| finish_round (579 ms) |  | [open](https://explorer.solana.com/tx/hRGHAoPDwNYHKe28fNjN24w9BqJVbMWoPwjpiK9xXV5iTbiMW7krX6vrhf5Rpx1EeF37gJGEwmi4ZedK1bivjmG?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app) |
-| reseal_leaks(0, 6) (525 ms) |  | [open](https://explorer.solana.com/tx/4be2Dmr66uWkvKp1sivWpmrsdMhFBWFnA2EVjbUXR2t26Z94u1xcasRK4CfcHieuSQijGxBYtdFSymo67vcN1eL?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app) |
+| Step                                             | Layer | Transaction                                                                                                                                                                                      |
+| ------------------------------------------------ | ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| finish_round (previous round) (802 ms)           |       | [open](https://explorer.solana.com/tx/31f5ZofrUaRsEXe97wjqCTdngxC3aB4r6moV4qyTcfgpF99WHaoR3BVhhpwWtiVW8kbbN7jCrjgPowrAujp8HRuB?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app) |
+| reseal_leaks (previous round) (237 ms)           |       | [open](https://explorer.solana.com/tx/5rN97mW9dTuAV8sLsksd43sH3531JuHQ6boj4AMS4fPFHAZXPFmL61owwGwj6fVGDWBGE4fS3vTjuHYPRxe3BaDS?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app) |
+| request_round_seed (483 ms)                      |       | [open](https://explorer.solana.com/tx/b5yi6SzxC2T5BAqnwhRrQUqwGs4ahiAoVs9xJLeRwa5ieKurDaa86finVMXEHeSdu92BExuSWTptteS3ZJaqoQf?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app)  |
+| claim seat 7 (164 ms)                            |       | [open](https://explorer.solana.com/tx/5HQNuZLY44AqiVpxtDQrPhqK7piShM4wGGqXeXbQWnpq65jyhquDjCMQ2K3qJq6CrSBs69bPYf95U99cbE3FrMmy?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app) |
+| claim seat 8 (661 ms)                            |       | [open](https://explorer.solana.com/tx/5rsKhrmPAGqVCtFTvWXX8VvihswJrD8ZyqVi6wnT9uXbe666dTf9AaS19t5E4T71y3yyVjAhY4n7PcMqnZPYvcjc?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app) |
+| claim seat 9 (801 ms)                            |       | [open](https://explorer.solana.com/tx/4aoH8FExWMvRda5e12HrJUAfRQarCUNRw5NUE2R9Bkx8zDnn8RmE355nFiuqEzkZQ53gL44kNj9wgs6sqKkLwymx?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app) |
+| order: buy 600 on the standard lane (411 ms)     |       | [open](https://explorer.solana.com/tx/4eRADBsqjydTA4L4JuTKtajNpo9NhtvjLK59chqT653wPcMF1FujA5qQaXWBf6TfdxRTtv1FAv9WMZHujztvRVbw?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app) |
+| bid on slot 0 (kind 0) (671 ms)                  |       | [open](https://explorer.solana.com/tx/4NmY9aPj5spTjAo9jduLyT8gzSxXoiuV2dvCFNaT5iuUtaguLJYwJpqSBBCnr3kHtByurgQep9S7ysAZZHz1kQGA?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app) |
+| open slot 0 (637 ms)                             |       | [open](https://explorer.solana.com/tx/3VX4QMV3hs43X5F3tQ3SjXAxCebWUoiNB5zdY8Kbdg88o2WzkAKUrfH6bmfCtK78ENqr5RVjC8Ru8YgQW68MWi74?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app) |
+| front-run: buy 400 on the priority lane (568 ms) |       | [open](https://explorer.solana.com/tx/2wAGrK4v3TFUpJ69KXSrYUFXwZ5VCpSjRC73i96D2YkLNbAh9kDP48YVFdGb1TpWLaTsbcV1eYz2mEDqAznWEu9q?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app) |
+| bid on slot 1 (kind 5) (580 ms)                  |       | [open](https://explorer.solana.com/tx/61tbnHKjigHr2Mg2tHg6p9HUinbZXvBKuNv12tPx8pAt5xtXzSSucznhxVk5hgjsyNc6835URDYjBfMkaffRahE7?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app) |
+| open slot 1 (549 ms)                             |       | [open](https://explorer.solana.com/tx/2FZCYkC79Q2zpEgeXAKBcoVMivcWEDLHSYR1GwgDe9obR5rukbgjx4Zy35VZxfEhH2ojyzWjvMhXP6ZxGVS75cTR?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app) |
+| bid on slot 2 (kind 6) (458 ms)                  |       | [open](https://explorer.solana.com/tx/2JaKKMu8GKyohboUJVU3jNCKSKrMeW59hhyyuZJxxzTyu8xM2vme1WxD1efiSTJ3drqncB78SW9QMW15oEtPwe53?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app) |
+| open slot 2 (489 ms)                             |       | [open](https://explorer.solana.com/tx/3mXxKnGJXoKaH8M6ymtWDi2KEdmKBVtwwsw6U8HdJrS9Zn34MCf13kVmZKiAqf7PjqUViQ9X4bqqwNPjTTLyThBz?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app) |
+| bid on slot 3 (kind 4) (588 ms)                  |       | [open](https://explorer.solana.com/tx/4Ng8nWaVEcqLj7eRXJTrRxhSfieUeN8BDyBYCCSpSKvuR8GVmJde2x69HhJAwBZ5k2dYzyjXsdY3H9g2LFSdV6ci?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app) |
+| open slot 3 (676 ms)                             |       | [open](https://explorer.solana.com/tx/4o3EJQuTFC7TKk7AQPPcvWHG13k6jkF7E9hRXFrWVkcSXH8SAH4EmYdsxpDCGynH2yXqbD1kv4RhLdT6ycZXhhVs?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app) |
+| finish_round (579 ms)                            |       | [open](https://explorer.solana.com/tx/hRGHAoPDwNYHKe28fNjN24w9BqJVbMWoPwjpiK9xXV5iTbiMW7krX6vrhf5Rpx1EeF37gJGEwmi4ZedK1bivjmG?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app)  |
+| reseal_leaks(0, 6) (525 ms)                      |       | [open](https://explorer.solana.com/tx/4be2Dmr66uWkvKp1sivWpmrsdMhFBWFnA2EVjbUXR2t26Z94u1xcasRK4CfcHieuSQijGxBYtdFSymo67vcN1eL?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app)  |
 
 ## Privacy probes
 
@@ -65,16 +66,16 @@ Raw data: [privacy-test.json](privacy-test.json)
 
 - PASS: 43 of 43 privacy probes passed
 
-| Step | Layer | Transaction |
-|---|---|---|
-| request_round_seed (671 ms) |  | [open](https://explorer.solana.com/tx/2hnUJYxFNLhWRWgiLd4t26irD5mSDUBFpi9KSzmz68bcjqZJGHiXrWJRrJcu31SBnqx4GXfzaAVdG2SmqKF6rBFw?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app) |
-| Bob claims seat 8 (823 ms) |  | [open](https://explorer.solana.com/tx/4pcNLf5U1fPNcPAjSzvpsCSXT7cH2z2qrFSfDnorMzNGy2x9zxd5VYcKgUDwkRWCDnf7BnyRuDdmNoGPY2keprSx?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app) |
-| Carol claims seat 9 (558 ms) |  | [open](https://explorer.solana.com/tx/yKZ6Ba8mkc5k5DUdbZA1jcecDFioEgm7f7o49SVQmKqARuEG1k3CxhgoPv29YkxmQzJoYNKAsFLEzgUd98rNbj4?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app) |
-| Bob bids on slot 0 (543 ms) |  | [open](https://explorer.solana.com/tx/YPyN4hAazazREPVY33gkRY5qKxe7Zvk7RG55vWxAVHMvoLuB1KhPuyVDk2XeRR5tFofux26eAh3XjxST2j6Ug3G?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app) |
-| Bob opens slot 0 (458 ms) |  | [open](https://explorer.solana.com/tx/5BgS1yYGxbDLWbUziKKuKEsFWhbNJGQAhnN18KsrDKPDzTPY5AYedAfWvhfPT2DPMvW52VqmVSW5mou8ckCsyQDD?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app) |
-| Bob sends a 300-unit buy (the pending order we try to find) (495 ms) |  | [open](https://explorer.solana.com/tx/Nc5zbUPt5NGhuoBFX6dJZL6oyx4s11xtwzi4RA5kv1fB6hwddsZc7UkxwFnMfxbsJN7Kp6MYc3jbE18FeEqXRML?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app) |
-| finish_round (1591 ms) |  | [open](https://explorer.solana.com/tx/dAKi8HoDA5wQctfgcyFaMbM5BnMghka7kFuJAHy98XapbyY5nGAEnvTJarFtuPoWqiYGfZqKizV5VycYcJ439Vv?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app) |
-| reseal_leaks(0, 6) (1452 ms) |  | [open](https://explorer.solana.com/tx/23iYCy8WE2KRfopwcNs1PyN5riPdce1Hpi8HTQ9BYLeQ5crpsVNX9QMGz1NZE47mGhcaoughKf616CHzH4FpQzEC?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app) |
+| Step                                                                 | Layer | Transaction                                                                                                                                                                                      |
+| -------------------------------------------------------------------- | ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| request_round_seed (671 ms)                                          |       | [open](https://explorer.solana.com/tx/2hnUJYxFNLhWRWgiLd4t26irD5mSDUBFpi9KSzmz68bcjqZJGHiXrWJRrJcu31SBnqx4GXfzaAVdG2SmqKF6rBFw?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app) |
+| Bob claims seat 8 (823 ms)                                           |       | [open](https://explorer.solana.com/tx/4pcNLf5U1fPNcPAjSzvpsCSXT7cH2z2qrFSfDnorMzNGy2x9zxd5VYcKgUDwkRWCDnf7BnyRuDdmNoGPY2keprSx?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app) |
+| Carol claims seat 9 (558 ms)                                         |       | [open](https://explorer.solana.com/tx/yKZ6Ba8mkc5k5DUdbZA1jcecDFioEgm7f7o49SVQmKqARuEG1k3CxhgoPv29YkxmQzJoYNKAsFLEzgUd98rNbj4?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app)  |
+| Bob bids on slot 0 (543 ms)                                          |       | [open](https://explorer.solana.com/tx/YPyN4hAazazREPVY33gkRY5qKxe7Zvk7RG55vWxAVHMvoLuB1KhPuyVDk2XeRR5tFofux26eAh3XjxST2j6Ug3G?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app)  |
+| Bob opens slot 0 (458 ms)                                            |       | [open](https://explorer.solana.com/tx/5BgS1yYGxbDLWbUziKKuKEsFWhbNJGQAhnN18KsrDKPDzTPY5AYedAfWvhfPT2DPMvW52VqmVSW5mou8ckCsyQDD?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app) |
+| Bob sends a 300-unit buy (the pending order we try to find) (495 ms) |       | [open](https://explorer.solana.com/tx/Nc5zbUPt5NGhuoBFX6dJZL6oyx4s11xtwzi4RA5kv1fB6hwddsZc7UkxwFnMfxbsJN7Kp6MYc3jbE18FeEqXRML?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app)  |
+| finish_round (1591 ms)                                               |       | [open](https://explorer.solana.com/tx/dAKi8HoDA5wQctfgcyFaMbM5BnMghka7kFuJAHy98XapbyY5nGAEnvTJarFtuPoWqiYGfZqKizV5VycYcJ439Vv?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app)  |
+| reseal_leaks(0, 6) (1452 ms)                                         |       | [open](https://explorer.solana.com/tx/23iYCy8WE2KRfopwcNs1PyN5riPdce1Hpi8HTQ9BYLeQ5crpsVNX9QMGz1NZE47mGhcaoughKf616CHzH4FpQzEC?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app) |
 
 ## A human seat on the live table
 
@@ -85,13 +86,12 @@ Raw data: [go-live.json](go-live.json)
 - **table:** `DjnqzKQsUU1fmRztBAiUkPn8VwsnFYgMedcg1BPyA1k`
 - **program:** `7mTtHsFMYnZRnhd3SRzhj8Nm1U2T3s33dnbJwa9zBErW`
 
-
-| Step | Layer | Transaction |
-|---|---|---|
-| human claims seat 7 |  | [open](https://explorer.solana.com/tx/2pKJr7hRL36dPcRYhzQ3NpoLjsK5MmP1DpPXUvUFePwET9xs6Dtd19uu6TfaJtQEf16B6wLZSPNxRHu7JAKnZ8Z3?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app) |
-| human order 1: buy 120 |  | [open](https://explorer.solana.com/tx/2WnsabPW6iiqM3SVQoR7q4zbKux2horKrJ91p1Z2tAwsWqiyCTpoZSMRprzKciJCmqrW5QnS3aGLEQTJZHHu8SrB?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app) |
-| human order 2: sell 120 |  | [open](https://explorer.solana.com/tx/2kZeKRdaKW9qATMfzmR6r7uHcxCHvrMPutfsEXJzJUMG2zs2FL2a9hEUDp5xhDK4n6TV7wdWp9AXGmexYycGDwQC?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app) |
-| human order 3: buy 120 |  | [open](https://explorer.solana.com/tx/5SWpTQz5VJqmA9mbp2WEa8SsTHJGWwNVpmNiR5CS4rXgANxhD2L7vygETDMvTkeYuuqdwqvxf1RbzMEGrDyaodw4?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app) |
+| Step                    | Layer | Transaction                                                                                                                                                                                      |
+| ----------------------- | ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| human claims seat 7     |       | [open](https://explorer.solana.com/tx/2pKJr7hRL36dPcRYhzQ3NpoLjsK5MmP1DpPXUvUFePwET9xs6Dtd19uu6TfaJtQEf16B6wLZSPNxRHu7JAKnZ8Z3?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app) |
+| human order 1: buy 120  |       | [open](https://explorer.solana.com/tx/2WnsabPW6iiqM3SVQoR7q4zbKux2horKrJ91p1Z2tAwsWqiyCTpoZSMRprzKciJCmqrW5QnS3aGLEQTJZHHu8SrB?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app) |
+| human order 2: sell 120 |       | [open](https://explorer.solana.com/tx/2kZeKRdaKW9qATMfzmR6r7uHcxCHvrMPutfsEXJzJUMG2zs2FL2a9hEUDp5xhDK4n6TV7wdWp9AXGmexYycGDwQC?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app) |
+| human order 3: buy 120  |       | [open](https://explorer.solana.com/tx/5SWpTQz5VJqmA9mbp2WEa8SsTHJGWwNVpmNiR5CS4rXgANxhD2L7vygETDMvTkeYuuqdwqvxf1RbzMEGrDyaodw4?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app) |
 
 ## Epoch cycle
 
@@ -102,7 +102,13 @@ Raw data: [epoch.json](epoch.json)
 - **table:** `DjnqzKQsUU1fmRztBAiUkPn8VwsnFYgMedcg1BPyA1k`
 - **program:** `7mTtHsFMYnZRnhd3SRzhj8Nm1U2T3s33dnbJwa9zBErW`
 
+- PASS: epoch went 0 → 1 → 2 with rounds_played counting correctly
+- PASS: open_epoch delegated each new season
 
+| Step                 | Layer | Transaction                                                                                                                                    |
+| -------------------- | ----- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| open_epoch (epoch 1) | base  | [open](https://explorer.solana.com/tx/H7jf8fudmxwMwzrV4dh6geCf785eyuHPgp1LufMY5HkMuRYbkLrVkHAPrHGKugBQM2534ofJXmfgeusj7dNQfu6?cluster=devnet)  |
+| open_epoch (epoch 2) | base  | [open](https://explorer.solana.com/tx/3x8ri3eZbco8cGpvemkXNePjEiHJMx7zQjC4Kr4LUHdx2SevmoRJ7sgJmS5DehKDpzR1u7ig9mQH8X7AMc7z6ZCo?cluster=devnet) |
 
 ## The Desk: a Call from mint to judgement
 
@@ -120,12 +126,12 @@ Raw data: [desk.json](desk.json)
 - PASS: the stake came back with a bonus or was burned
 - PASS: Alice's public record counts the Call
 
-| Step | Layer | Transaction |
-|---|---|---|
-| alice mints a 60 s Call: up, stake 50, licence 20 (495 ms) |  | [open](https://explorer.solana.com/tx/4YCW1iw9PXYs7272stTyzJDLCW6KTSsjBuywsxyTE12iLosszC1HpyJqFyoJYXcKTtuKHPyvQ4osGufTvRrpeG5q?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app) |
-| bob buys the licence from seat 7 for 20 (561 ms) |  | [open](https://explorer.solana.com/tx/5mUUqgxfSqyCLYYiy24MbyKeUgdG1b7dTmZSnHwffkMQkUz6ArNE8AL6od6VFrE6ffuMy9cwAZ79GrAcDu4EFCaf?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app) |
-| bob trades +100 Desk units on the Call (407 ms) |  | [open](https://explorer.solana.com/tx/4oAHz4BSobpaxxX9DDuhdDVjsLoWXMHRaDsuYWM4LtpKc9QXxri1TLtkcgh3SjfkeUHJXV3T1ohVrKFMBVbkfFvp?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app) |
-| carol settles the Call (656 ms) |  | [open](https://explorer.solana.com/tx/2hrQUT1n7kUEBXaHuZSj99E2vn3qvWngL21HvGzbxZocbduL9Yq2H3GAT2wt8jFcrRjaaPCNG1U4e4dbkuufbgHu?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app) |
+| Step                                                       | Layer | Transaction                                                                                                                                                                                      |
+| ---------------------------------------------------------- | ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| alice mints a 60 s Call: up, stake 50, licence 20 (495 ms) |       | [open](https://explorer.solana.com/tx/4YCW1iw9PXYs7272stTyzJDLCW6KTSsjBuywsxyTE12iLosszC1HpyJqFyoJYXcKTtuKHPyvQ4osGufTvRrpeG5q?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app) |
+| bob buys the licence from seat 7 for 20 (561 ms)           |       | [open](https://explorer.solana.com/tx/5mUUqgxfSqyCLYYiy24MbyKeUgdG1b7dTmZSnHwffkMQkUz6ArNE8AL6od6VFrE6ffuMy9cwAZ79GrAcDu4EFCaf?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app) |
+| bob trades +100 Desk units on the Call (407 ms)            |       | [open](https://explorer.solana.com/tx/4oAHz4BSobpaxxX9DDuhdDVjsLoWXMHRaDsuYWM4LtpKc9QXxri1TLtkcgh3SjfkeUHJXV3T1ohVrKFMBVbkfFvp?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app) |
+| carol settles the Call (656 ms)                            |       | [open](https://explorer.solana.com/tx/2hrQUT1n7kUEBXaHuZSj99E2vn3qvWngL21HvGzbxZocbduL9Yq2H3GAT2wt8jFcrRjaaPCNG1U4e4dbkuufbgHu?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app) |
 
 ## The Alpha Cup
 
@@ -141,7 +147,6 @@ Raw data: [cup.json](cup.json)
 - PASS: two prizes were paid, 60/40 of the pool
 - PASS: each winner's private balance rose by exactly the prize
 - PASS: the next cup is open
-
 
 ## Session keys
 
@@ -161,15 +166,15 @@ Raw data: [session.json](session.json)
 - PASS: the seat still belongs to bob
 - PASS: the session token is gone after revoke
 
-| Step | Layer | Transaction |
-|---|---|---|
-| createSessionV2 (bob authorises a zero-SOL key) | base | [open](https://explorer.solana.com/tx/T6gPJAe8Qxb5HsCsnJS8tJ8uNPxezxKxzr8EFqHJWMdA2o9U1iGA6TBpX86QysdxUdtizccMF7UPHkWRz8igdpB?cluster=devnet) |
-| session key pings for bob: landed (838 ms) | TEE | [open](https://explorer.solana.com/tx/EFVE3jM8CgUYsPdXizSwb6qbAgRD2fwBvLdkf4M44DhpXU7oBLFKjoKLhzMKokj7PWngs86Zz5UyEqV8GDntj3b?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app) |
-| session key buys 1 Desk unit for bob: landed (567 ms) | TEE | [open](https://explorer.solana.com/tx/4x5cUJ4PgZHvmGZLvbXrxozNthfkVpbLLvv6iRJWjWTnFy8Do7jX9sFBNQUrXfkTCJGFWeX6Lqk4VznHxv2Bzmuc?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app) |
-| session key sells 1 Desk unit for bob: landed (165 ms) | TEE | [open](https://explorer.solana.com/tx/4DqaZxGV4qTH8JaKo6D7HHttQ57xZLaZWPgoK5ebCRiA8h7cFCVcghWssG9f7pnvUE79TaoUzeo5dvRQxhvectZt?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app) |
-| session key sends a floor order for bob: landed (250 ms) | TEE | [open](https://explorer.solana.com/tx/4A5zLhvrT5QGWJxut5zqKiVeumx9H7KvcXQpga7t3AeyGmHGRKaQmuH8swJJNLFUx3xRhKn3Jf2N1rkJa61pMkrE?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app) |
-| bob pings directly (fallback): landed (644 ms) | TEE | [open](https://explorer.solana.com/tx/4NWvGZ5UnH2PFYg8NNC2nnGyqHHNMy1QiTUGvKS15jWjbEogsdRQhvTNGRKXbFXfJeajLtLdp82R7UZUtpYewuUu?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app) |
-| revokeSessionV2 | base | [open](https://explorer.solana.com/tx/26QCaA9v8kzS2NB19YmgZsP8BMmmQ9FkeAbnBejHjAgffSSCTmf6kdJBmrACLhdw6qaicncmngFdN3bEUJAVpYUH?cluster=devnet) |
+| Step                                                     | Layer | Transaction                                                                                                                                                                                      |
+| -------------------------------------------------------- | ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| createSessionV2 (bob authorises a zero-SOL key)          | base  | [open](https://explorer.solana.com/tx/T6gPJAe8Qxb5HsCsnJS8tJ8uNPxezxKxzr8EFqHJWMdA2o9U1iGA6TBpX86QysdxUdtizccMF7UPHkWRz8igdpB?cluster=devnet)                                                    |
+| session key pings for bob: landed (838 ms)               | TEE   | [open](https://explorer.solana.com/tx/EFVE3jM8CgUYsPdXizSwb6qbAgRD2fwBvLdkf4M44DhpXU7oBLFKjoKLhzMKokj7PWngs86Zz5UyEqV8GDntj3b?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app)  |
+| session key buys 1 Desk unit for bob: landed (567 ms)    | TEE   | [open](https://explorer.solana.com/tx/4x5cUJ4PgZHvmGZLvbXrxozNthfkVpbLLvv6iRJWjWTnFy8Do7jX9sFBNQUrXfkTCJGFWeX6Lqk4VznHxv2Bzmuc?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app) |
+| session key sells 1 Desk unit for bob: landed (165 ms)   | TEE   | [open](https://explorer.solana.com/tx/4DqaZxGV4qTH8JaKo6D7HHttQ57xZLaZWPgoK5ebCRiA8h7cFCVcghWssG9f7pnvUE79TaoUzeo5dvRQxhvectZt?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app) |
+| session key sends a floor order for bob: landed (250 ms) | TEE   | [open](https://explorer.solana.com/tx/4A5zLhvrT5QGWJxut5zqKiVeumx9H7KvcXQpga7t3AeyGmHGRKaQmuH8swJJNLFUx3xRhKn3Jf2N1rkJa61pMkrE?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app) |
+| bob pings directly (fallback): landed (644 ms)           | TEE   | [open](https://explorer.solana.com/tx/4NWvGZ5UnH2PFYg8NNC2nnGyqHHNMy1QiTUGvKS15jWjbEogsdRQhvTNGRKXbFXfJeajLtLdp82R7UZUtpYewuUu?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app) |
+| revokeSessionV2                                          | base  | [open](https://explorer.solana.com/tx/26QCaA9v8kzS2NB19YmgZsP8BMmmQ9FkeAbnBejHjAgffSSCTmf6kdJBmrACLhdw6qaicncmngFdN3bEUJAVpYUH?cluster=devnet)                                                   |
 
 ## 60-minute soak
 
@@ -188,7 +193,6 @@ Raw data: [soak.json](soak.json)
 - PASS: failed steps stay under 2% of the transactions sent
 - PASS: no error-level log lines
 
-
 ## SOAR leaderboard
 
 A SOAR game and leaderboard on devnet fed with season scores by the game authority.
@@ -202,27 +206,42 @@ Raw data: [soar.json](soar.json)
 - PASS: the leaderboard lists both players, best first
 - PASS: a player cannot submit their own score
 
-| Step | Layer | Transaction |
-|---|---|---|
-| bot-front-runner registers on the leaderboard |  | [open](https://explorer.solana.com/tx/tH1BbiX2AppQKDokJ4t3uCx8EgbX4wJpVNMs6EwfYAs9iXS3K2GYYZqTuJhv9bwy3bEAXN1nNenxp6C56r9wp3o?cluster=devnet) |
-| submit bob: 1240 |  | [open](https://explorer.solana.com/tx/2ecFpfgSrnkWfxQnP2ka13MLiTFTmV93eQsZtoLKeVsZWUikSeGvUN1ZEW7MvQuCpTsYL1Y9Ke8RxqYNwV2gFQGg?cluster=devnet) |
-| submit carol: 860 |  | [open](https://explorer.solana.com/tx/3QWXAczyUMbB1kpdZDRDJrEVGjMUvQ6Zawe3prYYXTVPUwJE1mYxWsyzspXXyup5UaaNCSf5LN4FE7ZKxiqgjAcJ?cluster=devnet) |
+| Step                                          | Layer | Transaction                                                                                                                                    |
+| --------------------------------------------- | ----- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| bot-front-runner registers on the leaderboard |       | [open](https://explorer.solana.com/tx/tH1BbiX2AppQKDokJ4t3uCx8EgbX4wJpVNMs6EwfYAs9iXS3K2GYYZqTuJhv9bwy3bEAXN1nNenxp6C56r9wp3o?cluster=devnet)  |
+| submit bob: 1240                              |       | [open](https://explorer.solana.com/tx/2ecFpfgSrnkWfxQnP2ka13MLiTFTmV93eQsZtoLKeVsZWUikSeGvUN1ZEW7MvQuCpTsYL1Y9Ke8RxqYNwV2gFQGg?cluster=devnet) |
+| submit carol: 860                             |       | [open](https://explorer.solana.com/tx/3QWXAczyUMbB1kpdZDRDJrEVGjMUvQ6Zawe3prYYXTVPUwJE1mYxWsyzspXXyup5UaaNCSf5LN4FE7ZKxiqgjAcJ?cluster=devnet) |
 
 ## Teardown and re-setup
 
-The whole table recovered from the base layer.
+The whole table (25 accounts) undelegated in groups, returned to the base layer, and re-delegated.
 
 Raw data: [teardown.json](teardown.json)
 
 - **table:** `DjnqzKQsUU1fmRztBAiUkPn8VwsnFYgMedcg1BPyA1k`
 
+- PASS: all 25 accounts undelegated across 5 groups
+- PASS: `setup-table --arm` re-delegated every account
 
+| Step                                         | Layer | Transaction                                                                                                                                                                                      |
+| -------------------------------------------- | ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| undelegate group 1 (4 leak vaults)           | TEE   | [open](https://explorer.solana.com/tx/2CGoc8sp5Rcn71yUC8pZjmeKzgzwBe2un4AzMpcbJnW4D1asD8g5CCkNbLSfBKP4F7Uute8DPWarHeiqgM2EBmBD?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app) |
+| undelegate group 2 (4 call vaults)           | TEE   | [open](https://explorer.solana.com/tx/ZZA4qkbmxE4ibDDZNABhAMRujK6Q2wMoyCUEqp9HTLKMGVUvBM9Y1i6otKqZCUDjcgScJ3Nxp2DzfVD8Y37cKms?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app)  |
+| undelegate group 3 (6 call vaults + 2 seats) | TEE   | [open](https://explorer.solana.com/tx/5qs3iDJ4ySrLbBuBe6m6YgxoQ1hWTjbiwsHJFeKUyb9CPW24oQZXzqCEEZekbTuLc3G9sKEZJf91cppUrXEUR6SK?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app) |
+| undelegate group 4 (8 seats)                 | TEE   | [open](https://explorer.solana.com/tx/4vzDkH7Y2sGQqH9pGySFN1y1feE8ZWFT8wWhWSyCvhSZDPG6rWdvy6PB37rjeaEx6Z2PAeuCCNrY4Xb8ymwHPspo?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app) |
 
 ## Recovery paths
 
-Undelegation requests honoured by the validator.
+Undelegation requests honoured by the validator; bots resumed on their own afterwards.
 
 Raw data: [recovery.json](recovery.json)
 
+- **table:** `DjnqzKQsUU1fmRztBAiUkPn8VwsnFYgMedcg1BPyA1k`
 
+- PASS: the validator undelegated the cup account within seconds
+- PASS: a rollback attempt was correctly refused ("Invalid account owner for undelegation request")
+- PASS: `setup-table` re-delegated every account; bots finished the round and seeded the next one
 
+| Step                      | Layer | Transaction                                                                                                                                                                                      |
+| ------------------------- | ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| requestUndelegation (cup) | TEE   | [open](https://explorer.solana.com/tx/3sbu5YKBdVev3zyHsXJMPq28sFrmsG4ffdaSnmKHTMVE2UeV7ZxwevV63xFUyLFjFm3Le9sXgUhbHSAC28L4uPLs?cluster=custom&customUrl=https%3A%2F%2Fdevnet-tee.magicblock.app) |
