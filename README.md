@@ -1,10 +1,12 @@
 <div align="center">
 
-# INSIDER
+<img src="docs/brand/logo.svg" alt="INSIDER" width="420" />
 
 ### Own the secret. Front-running is the game.
 
 A real-time multiplayer game of hidden information on Solana, powered by **MagicBlock's Private Ephemeral Rollup**.
+
+## 🎮 [Play live: insiderz.vercel.app](https://insiderz.vercel.app) · 🎬 [Watch the demo video](https://drive.google.com/file/d/1zA6peELMkUwLChy4KaTXHdgomzYSZ4EI/view?usp=sharing)
 
 [![Play](https://img.shields.io/badge/Play-insiderz.vercel.app-14F195?style=for-the-badge)](https://insiderz.vercel.app)
 [![Demo](https://img.shields.io/badge/Watch-Demo%20Video-9945FF?style=for-the-badge)](https://drive.google.com/file/d/1zA6peELMkUwLChy4KaTXHdgomzYSZ4EI/view?usp=sharing)
@@ -13,12 +15,33 @@ A real-time multiplayer game of hidden information on Solana, powered by **Magic
 
 **Solana Blitz v10 · MagicBlock · Theme: Entertainment Finance**
 
+<a href="https://insiderz.vercel.app"><img src="docs/screenshots/landing.png" alt="INSIDER landing page" width="100%" /></a>
+
 </div>
+
+---
+
+## Screenshots
+
+<table>
+  <tr>
+    <td width="50%"><img src="docs/screenshots/floor.png" alt="The Floor: live round, sealed capsules and the trade panel" /><br/><b>The Floor</b>: a live round with sealed capsules and the trade panel</td>
+    <td width="50%"><img src="docs/screenshots/desk.png" alt="The Desk: private calls on the real SOL price" /><br/><b>The Desk</b>: private calls on the real SOL/USD oracle price</td>
+  </tr>
+  <tr>
+    <td width="50%"><img src="docs/screenshots/cup.png" alt="Alpha Cup tournament" /><br/><b>Alpha Cup</b>: five-round tournament with private buy-ins and payouts</td>
+    <td width="50%"><img src="docs/screenshots/season.png" alt="Season leaderboard" /><br/><b>Season</b>: on-chain leaderboard published to SOAR</td>
+  </tr>
+  <tr>
+    <td colspan="2"><img src="docs/screenshots/proof.png" alt="Proof page" /><br/><b>Proof</b>: every claim backed by a devnet transaction</td>
+  </tr>
+</table>
 
 ---
 
 ## Table of contents
 
+- [Screenshots](#screenshots)
 - [Overview](#overview)
 - [Try it in three minutes](#try-it-in-three-minutes)
 - [How to play](#how-to-play)
