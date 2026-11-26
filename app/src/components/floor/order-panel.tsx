@@ -3,8 +3,9 @@
 import type { InsiderConfig, TableSnapshot, TableView } from "@insider/sdk";
 import { TICK_MILLIS } from "@insider/sdk/constants";
 import { previewOrder } from "@insider/sdk/vamm";
-import { ArrowDownLeft, ArrowUpRight } from "lucide-react";
-import { FastModeToggle } from "@/components/onboarding/wallet";
+import { ArrowDownLeft, ArrowUpRight, ChevronDown } from "lucide-react";
+import { useJoin } from "@/components/onboarding/guest";
+import { FastModeToggle, WalletPlayButton } from "@/components/onboarding/wallet";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Kbd } from "@/components/ui/kbd";
@@ -54,11 +55,13 @@ export function OrderPanel({
 
   // Explains a disabled Send button. Display only: `canSend` above is still the gate.
   const blocker = !view.mine
-    ? "Join at the top of the floor to start trading"
+    ? "Take a seat to start trading"
     : view.mine.liquidated
-      ? "You are out for this round"
+      ? "You ran out of chips this round"
       : view.phase !== "live"
-        ? "Orders open when the round is live"
+        ? view.phase === "closing"
+          ? "Orders are closed for this round"
+          : "Orders open when the next round goes live"
         : pendingFull
           ? "Pending order limit reached"
           : !effectiveSize
@@ -145,20 +148,27 @@ export function OrderPanel({
     return () => window.removeEventListener("keydown", keydown);
   }, [send]);
 
+  if (!view.mine) return <JoinCard config={config} />;
+
   return (
     <Panel
-      title="Action pad"
+      id="action-pad"
+      title="Buy or Sell"
       action={
-        <span className="micro-label">
-          {pendingCount}/{params.maxPending} pending
+        <span className="micro-label" title="Orders waiting to land">
+          {pendingCount}/{params.maxPending} waiting
         </span>
       }
     >
       <div className="space-y-4 p-3">
+        <p className="text-muted text-xs leading-5 font-bold">
+          Think the price goes up? Buy. Down? Sell. You score when you&apos;re right.
+        </p>
         <div className="grid grid-cols-2 gap-2">
           {(["buy", "sell"] as const).map((value) => (
             <Button
               key={value}
+              data-spot-focus={value === "buy" ? "" : undefined}
               variant={side === value ? value : "outline"}
               aria-pressed={side === value}
               onClick={() => setSide(value)}
@@ -186,7 +196,7 @@ export function OrderPanel({
         <div>
           <div className="mb-2 flex items-center justify-between">
             <label htmlFor="order-size" className="micro-label">
-              Size / units
+              How much (units)
             </label>
             <span className="text-muted font-mono text-[11px] font-bold">
               MAX {max.toLocaleString()}
@@ -200,57 +210,80 @@ export function OrderPanel({
             onChange={(value) => setSize(Math.floor(value / 50) * 50)}
           />
         </div>
-        <div>
-          <div className="mb-2 flex items-center justify-between">
-            <span className="micro-label">Execution lane</span>
-            <Kbd>P</Kbd>
-          </div>
-          <Switch
-            label="Priority lane"
-            className={cn(
-              "w-full",
-              lane === 1 && "[--switch-ink:#0f1f5c] [--switch-thumb:var(--color-signal)]",
-            )}
-            checked={lane === 1}
-            onCheckedChange={(checked) => setLane(checked ? 1 : 0)}
-            off={
-              <span>
-                Standard
-                <br />
-                {(params.standardDelay * TICK_MILLIS) / 1000}s · free
+        <details className="group border-line rounded-xl border-2">
+          <summary className="flex cursor-pointer list-none items-center justify-between px-3 py-2 text-xs font-extrabold">
+            <span>
+              Speed:{" "}
+              <span className={lane ? "text-priority" : "text-muted"}>
+                {lane
+                  ? `Priority, ${(params.priorityDelay * TICK_MILLIS) / 1000}s`
+                  : `Standard, ${(params.standardDelay * TICK_MILLIS) / 1000}s`}
               </span>
-            }
-            on={
-              <span>
-                Priority
-                <br />
-                {(params.priorityDelay * TICK_MILLIS) / 1000}s · {params.priorityFee} chips
-              </span>
-            }
-          />
-        </div>
-        <div className="border-line bg-surface-2 text-muted space-y-1.5 rounded-xl border-2 px-3 py-2.5 text-xs font-bold">
-          <div className="flex justify-between">
-            <span>Average price</span>
-            <span className="text-ink font-mono">
-              {quote ? (quote.avgPrice / 1_000_000).toFixed(4) : "—"}
             </span>
-          </div>
-          <div className="flex justify-between">
-            <span>Price impact</span>
-            <span className="text-ink font-mono">
-              {quote ? `${(quote.impactBps / 100).toFixed(2)}%` : "—"}
+            <span className="text-muted flex items-center gap-1">
+              More options
+              <ChevronDown
+                aria-hidden
+                className="size-3.5 transition-transform group-open:rotate-180"
+              />
             </span>
+          </summary>
+          <div className="space-y-3 px-3 pb-3">
+            <p className="text-muted text-[11px] leading-4 font-bold">
+              Every order waits hidden before it lands. Priority lands sooner for a small fee: use
+              it to get in ahead of an order you know about.
+            </p>
+            <div className="flex items-center justify-between">
+              <span className="micro-label">Speed lane</span>
+              <Kbd>P</Kbd>
+            </div>
+            <Switch
+              label="Priority lane"
+              className={cn(
+                "w-full",
+                lane === 1 && "[--switch-ink:#0f1f5c] [--switch-thumb:var(--color-signal)]",
+              )}
+              checked={lane === 1}
+              onCheckedChange={(checked) => setLane(checked ? 1 : 0)}
+              off={
+                <span>
+                  Standard
+                  <br />
+                  {(params.standardDelay * TICK_MILLIS) / 1000}s · free
+                </span>
+              }
+              on={
+                <span>
+                  Priority
+                  <br />
+                  {(params.priorityDelay * TICK_MILLIS) / 1000}s · {params.priorityFee} chips
+                </span>
+              }
+            />
+            <div className="border-line bg-surface-2 text-muted space-y-1.5 rounded-xl border-2 px-3 py-2.5 text-xs font-bold">
+              <div className="flex justify-between">
+                <span>Average price</span>
+                <span className="text-ink font-mono">
+                  {quote ? (quote.avgPrice / 1_000_000).toFixed(4) : "—"}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span>Price impact</span>
+                <span className="text-ink font-mono">
+                  {quote ? `${(quote.impactBps / 100).toFixed(2)}%` : "—"}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span>Estimated fee</span>
+                <span className="text-ink font-mono">
+                  {quote
+                    ? `${(quote.fee + BigInt(lane ? params.priorityFee : 0)).toString()} chips`
+                    : "—"}
+                </span>
+              </div>
+            </div>
           </div>
-          <div className="flex justify-between">
-            <span>Estimated fee</span>
-            <span className="text-ink font-mono">
-              {quote
-                ? `${(quote.fee + BigInt(lane ? params.priorityFee : 0)).toString()} chips`
-                : "—"}
-            </span>
-          </div>
-        </div>
+        </details>
         <Button
           variant={side}
           onClick={() => void send()}
@@ -260,22 +293,13 @@ export function OrderPanel({
           size="lg"
           className="w-full text-lg"
         >
-          {view.mine ? `Send ${side} order` : "Claim a seat to trade"}{" "}
-          <Kbd className="border-current/20 bg-transparent text-inherit">↵</Kbd>
+          {`Send ${side}`} <Kbd className="border-current/20 bg-transparent text-inherit">↵</Kbd>
         </Button>
         <div className="text-center text-[11px] leading-5 font-bold">
           {blocker ? (
-            <p className="text-priority">
-              {view.mine ? (
-                blocker
-              ) : (
-                <a href="#join-seat" className="underline underline-offset-4">
-                  {blocker} ↑
-                </a>
-              )}
-            </p>
+            <p className="text-priority">{blocker}</p>
           ) : (
-            <p className="text-muted">Side and size stay private until your order fills.</p>
+            <p className="text-muted">Nobody can see your order until it lands.</p>
           )}
           <p className="text-faint hidden md:block">Keys: B buy · S sell · P lane · Enter send</p>
         </div>
@@ -300,6 +324,41 @@ export function OrderPanel({
           >
             Send order <span aria-hidden="true">↵</span>
           </Button>
+        </div>
+      </div>
+    </Panel>
+  );
+}
+
+/** Shown instead of the order ticket until the visitor has a seat. */
+function JoinCard({ config }: { config: InsiderConfig }) {
+  const { busy, joinAsGuest, joinFloor } = useJoin(config);
+  return (
+    <Panel id="action-pad" title="Buy or Sell">
+      <div className="space-y-4 p-4">
+        <div>
+          <div className="text-ink text-base font-extrabold">You&apos;re watching</div>
+          <p className="text-muted mt-1 text-xs leading-5 font-bold">
+            Sit down to trade. You get 1,000 play chips: buy if you think the price goes up, sell if
+            you think it goes down.
+          </p>
+        </div>
+        <Button
+          size="lg"
+          className="w-full"
+          data-spot-focus=""
+          loading={busy}
+          onClick={() => void joinAsGuest()}
+        >
+          Take a free seat
+        </Button>
+        <div className="space-y-1.5">
+          <div className="[&>button]:w-full">
+            <WalletPlayButton size="sm" onReady={joinFloor} />
+          </div>
+          <p className="text-faint text-center text-[11px] font-bold">
+            No wallet needed for a free seat.
+          </p>
         </div>
       </div>
     </Panel>

@@ -19,7 +19,9 @@ import { LeakBoard } from "@/components/leaks/leak-board";
 import { buttonStyles } from "@/components/ui/button";
 import { Stamp } from "@/components/ui/stamp";
 import { useToast } from "@/components/ui/toast";
-import { updateFloor, useFloorStore } from "@/lib/floor-store";
+import { friendlyError } from "@/lib/errors";
+import { selectGuest, updateFloor, useFloorStore } from "@/lib/floor-store";
+import { createGuest } from "@/lib/guest";
 import { seatsFromXray } from "@/lib/xray-seats";
 import { cn } from "@/lib/cn";
 import { reducedTransition, spring } from "@/lib/motion";
@@ -27,6 +29,7 @@ import { playSound } from "@/lib/sound";
 import { floorSoundEvents, type FloorSoundState } from "@/lib/sound-events";
 import { FloorCoach } from "./coach";
 import { Feed } from "./feed";
+import { HowToPlay, useFirstVisitGuide } from "./how-to-play";
 import { FloorHud, PhaseBanner } from "./hud";
 import { MempoolLanes } from "./mempool-lanes";
 import { OrderPanel } from "./order-panel";
@@ -48,6 +51,7 @@ export function Floor() {
   const seenAnnouncements = useRef(new Set<string>());
   const soundState = useRef<FloorSoundState | null>(null);
   useFloor(config, fixtureMode);
+  useFirstVisitGuide();
   const snapshot = useFloorStore((state) => state.snapshot);
   const status = useFloorStore((state) => state.status);
   const guest = useFloorStore((state) => state.guest);
@@ -69,6 +73,20 @@ export function Floor() {
   useEffect(() => {
     if (error) useToast.getState().add(error);
   }, [error]);
+  // `/table?join=1` (from the Desk or a link): take a guest seat once the table has loaded.
+  const autoJoin = params.get("join") === "1";
+  const autoJoined = useRef(false);
+  useEffect(() => {
+    if (!autoJoin || autoJoined.current || !snapshot) return;
+    autoJoined.current = true;
+    if (view?.mine) return;
+    updateFloor({ guide: false });
+    const { identity, wallet } = useFloorStore.getState();
+    if (identity !== "wallet" || !wallet) selectGuest(createGuest());
+    void import("@/lib/floor-actions")
+      .then(({ joinFloor }) => joinFloor(config))
+      .catch((cause: unknown) => useToast.getState().add(friendlyError(cause)));
+  }, [autoJoin, config, snapshot, view?.mine]);
   useEffect(() => {
     if (status === "offline" && joinRequested) updateFloor({ joinRequested: false });
   }, [status, joinRequested]);
@@ -147,7 +165,13 @@ export function Floor() {
         phase={view.phase}
         fixture={fixtureMode}
       />
-      <FloorCoach view={view} xrayHref={fixtureMode ? "/xray?fixture=1" : "/xray"} />
+      <FloorCoach
+        config={config}
+        view={view}
+        xrayHref={fixtureMode ? "/xray?fixture=1" : "/xray"}
+        onShowTrade={setMobileTab}
+      />
+      <HowToPlay config={config} view={view} />
 
       {(view.phase === "idle" || view.phase === "seeding") && (
         <div className="border-line bg-surface mb-3 flex items-center justify-between rounded-lg border px-4 py-3">

@@ -855,10 +855,22 @@ html.dark .sky-cloud {
   .coach-pulse {
     animation: coach-pulse 1.6s ease-in-out infinite;
   }
+  .spot-flash {
+    animation: spot-flash 0.9s ease-in-out 2;
+  }
 }
 @keyframes cloud-drift {
   to {
     transform: translateX(46px);
+  }
+}
+@keyframes spot-flash {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 transparent;
+  }
+  30% {
+    box-shadow: 0 0 0 4px var(--color-brand);
   }
 }
 @keyframes coach-pulse {

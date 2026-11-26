@@ -429,10 +429,11 @@ export function LeakBoard({
   return (
     <>
       <Panel
-        title="Capsule tray"
+        id="capsule-tray"
+        title="Capsules"
         action={
           <span className="micro-label hidden text-right sm:inline">
-            Secrets for sale · price falls until someone bids
+            Each one leaks a player&apos;s hidden order · price drops until someone bids
           </span>
         }
       >

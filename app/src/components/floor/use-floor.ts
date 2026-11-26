@@ -113,7 +113,7 @@ export function useFloor(config: InsiderConfig, fixtureMode: boolean) {
   }, [config, fixtureMode]);
 
   useEffect(() => {
-    const timer = setInterval(() => {
+    const keepAlive = () => {
       const state = useFloorStore.getState();
       if (
         (document.visibilityState === "visible" ||
@@ -129,7 +129,17 @@ export function useFloor(config: InsiderConfig, fixtureMode: boolean) {
             if (error instanceof Error && error.message.includes("Fast mode expired"))
               useToast.getState().add(error.message);
           });
-    }, 20_000);
-    return () => clearInterval(timer);
+    };
+    const timer = setInterval(keepAlive, 20_000);
+    // A seat not seen in the current round can be taken by a newcomer, so check in as soon as a
+    // new round starts instead of waiting for the next 20 s ping.
+    const unsubscribe = useFloorStore.subscribe((state, previous) => {
+      const round = state.snapshot?.table.roundId;
+      if (round !== undefined && round !== previous.snapshot?.table.roundId) keepAlive();
+    });
+    return () => {
+      clearInterval(timer);
+      unsubscribe();
+    };
   }, [config]);
 }

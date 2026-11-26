@@ -11,6 +11,32 @@ import { friendlyError } from "@/lib/errors";
 import { useDialogFocus } from "@/lib/dialog-focus";
 import { FastModeToggle, WalletPlayButton } from "./wallet";
 
+/**
+ * Seat-taking used by every "take a seat" button: `joinAsGuest` uses this browser's guest key (made
+ * on first use, free, no wallet); `joinFloor` claims a seat for whichever identity is active.
+ */
+export function useJoin(config: InsiderConfig) {
+  const [busy, setBusy] = useState(false);
+  const joinFloor = useCallback(
+    async () => (await import("@/lib/floor-actions")).joinFloor(config),
+    [config],
+  );
+  const joinAsGuest = useCallback(async () => {
+    setBusy(true);
+    try {
+      selectGuest(createGuest());
+      await joinFloor();
+      return true;
+    } catch (error) {
+      useToast.getState().add(friendlyError(error));
+      return false;
+    } finally {
+      setBusy(false);
+    }
+  }, [joinFloor]);
+  return { busy, joinAsGuest, joinFloor };
+}
+
 export function GuestControls({ config, view }: { config: InsiderConfig; view: TableView }) {
   const guest = useFloorStore((state) => state.guest);
   const identity = useFloorStore((state) => state.identity);
@@ -19,26 +45,12 @@ export function GuestControls({ config, view }: { config: InsiderConfig; view: T
   const tutorial = useFloorStore((state) => state.tutorial);
   const [settings, setSettings] = useState(false);
   const [importText, setImportText] = useState("");
-  const [busy, setBusy] = useState(false);
+  const { busy, joinAsGuest, joinFloor } = useJoin(config);
   const dialog = useDialogFocus(Boolean(tutorial && view.mine), () =>
     updateFloor({ tutorial: false }),
   );
   const fail = (error: unknown) => useToast.getState().add(friendlyError(error));
-  const joinFloor = useCallback(
-    async () => (await import("@/lib/floor-actions")).joinFloor(config),
-    [config],
-  );
-  const join = async () => {
-    setBusy(true);
-    try {
-      selectGuest(createGuest());
-      await joinFloor();
-    } catch (error) {
-      fail(error);
-    } finally {
-      setBusy(false);
-    }
-  };
+  const join = () => void joinAsGuest();
   useEffect(() => {
     if (!joinRequested || identity !== "wallet") return;
     updateFloor({ joinRequested: false });
@@ -58,8 +70,8 @@ export function GuestControls({ config, view }: { config: InsiderConfig; view: T
       <div className="relative flex items-center gap-2">
         {!view.mine && (
           <div className="flex flex-wrap items-center gap-2">
-            <Button size="sm" onClick={() => void join()} loading={busy}>
-              Play as guest
+            <Button size="sm" onClick={join} loading={busy}>
+              Take a free seat
             </Button>
             <WalletPlayButton size="sm" onReady={joinFloor} />
           </div>
@@ -68,7 +80,7 @@ export function GuestControls({ config, view }: { config: InsiderConfig; view: T
           <WalletPlayButton size="sm" compact onReady={joinFloor} />
         )}
         {view.mine && identity === "wallet" && (
-          <Button size="sm" variant="outline" onClick={() => void join()} loading={busy}>
+          <Button size="sm" variant="outline" onClick={join} loading={busy}>
             Play as guest
           </Button>
         )}
@@ -177,12 +189,12 @@ export function GuestControls({ config, view }: { config: InsiderConfig; view: T
             >
               <X className="size-4" />
             </button>
-            <span className="micro-label text-brand">Welcome to the floor</span>
+            <span className="micro-label text-brand">You&apos;re in</span>
             <h2 className="mt-2 text-xl font-medium">
-              You are seat {view.mine.index + 1} · {view.mine.name}
+              You are {view.mine.name}, seat {view.mine.index + 1}
             </h2>
             <p className="text-muted mt-2 text-sm">
-              1,000 chips.{" "}
+              You have 1,000 play chips.{" "}
               {identity === "wallet"
                 ? session
                   ? "Fast mode is active."
@@ -196,9 +208,21 @@ export function GuestControls({ config, view }: { config: InsiderConfig; view: T
             )}
             <div className="border-line mt-6 space-y-4 border-t pt-5">
               {[
-                ["01", "Send into the dark", "Orders wait in a sealed mempool."],
-                ["02", "Buy a look", "Leaks reveal a private piece of the market."],
-                ["03", "Jump the line", "Priority orders land faster, for a fee."],
+                [
+                  "01",
+                  "Pick Buy or Sell",
+                  "In the Action pad: Buy if you think the price goes up, Sell if down.",
+                ],
+                [
+                  "02",
+                  "Send it",
+                  "Your order stays hidden for a few seconds, then lands at the price of that moment.",
+                ],
+                [
+                  "03",
+                  "Grab a capsule",
+                  "Capsules (below the chart) leak other players' hidden orders. Open one and trade first.",
+                ],
               ].map(([n, title, text]) => (
                 <div key={n} className="flex gap-4">
                   <span className="text-brand font-mono text-xs">{n}</span>
@@ -210,7 +234,7 @@ export function GuestControls({ config, view }: { config: InsiderConfig; view: T
               ))}
             </div>
             <Button className="mt-7 w-full" onClick={() => updateFloor({ tutorial: false })}>
-              Enter the floor
+              Start trading
             </Button>
           </div>
         </div>

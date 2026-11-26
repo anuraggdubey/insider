@@ -17,9 +17,10 @@ const kindTone: Record<string, string> = {
 export function SeatRail({ view }: { view: TableView }) {
   return (
     <Panel
+      id="players"
       title="Players"
       action={
-        <span className="micro-label">
+        <span className="micro-label" title="Blue: bots · purple: AI analysts · green: people">
           {view.seats.filter((seat) => !seat.isFree).length}/{view.seats.length} seated
         </span>
       }
@@ -76,10 +77,10 @@ export function SeatRail({ view }: { view: TableView }) {
                 </div>
                 {seat.isFree && seat.kind === "human" ? (
                   <Link
-                    href="#join-seat"
+                    href="#action-pad"
                     className="text-brand text-[11px] font-extrabold underline-offset-4 hover:underline"
                   >
-                    + JOIN
+                    + Sit here
                   </Link>
                 ) : (
                   <div className="text-muted flex gap-2 font-mono text-[10px] font-bold">

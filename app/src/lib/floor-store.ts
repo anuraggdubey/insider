@@ -25,6 +25,8 @@ type FloorState = {
   pending: LocalOrder[];
   vaults: Record<number, LeakVaultAccount>;
   tutorial: boolean;
+  /** The "How to play" guide is open. */
+  guide: boolean;
   error: string | null;
   orderDraft: { side: "buy" | "sell"; size: number; id: number } | null;
 };
@@ -58,6 +60,7 @@ export const useFloorStore = create<FloorState>(() => ({
   pending: [],
   vaults: {},
   tutorial: false,
+  guide: false,
   error: null,
   orderDraft: null,
 }));

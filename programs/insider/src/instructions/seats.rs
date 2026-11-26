@@ -31,8 +31,9 @@ pub struct ClaimSeat<'info> {
     pub seat: Account<'info, Seat>,
 }
 
-/// A seat can be claimed when it is free, or when it is a bot seat whose bot has been idle for
-/// `SEAT_IDLE_TICKS`. AI seats (5-6) are protected: only a free one can be claimed.
+/// A seat can be claimed when it is free, or when its holder is idle and flat: a bot seat after
+/// `SEAT_IDLE_TICKS` without a ping this round, a human seat by [`human_seat_is_idle`]. AI seats
+/// (5-6) are protected: only a free one can be claimed.
 pub fn claim_seat(ctx: Context<ClaimSeat>, index: u8) -> Result<()> {
     require!((index as usize) < SEAT_COUNT, InsiderError::InvalidSeat);
     let tick = ctx.accounts.table.tick;
@@ -40,11 +41,15 @@ pub fn claim_seat(ctx: Context<ClaimSeat>, index: u8) -> Result<()> {
     let seat = &mut ctx.accounts.seat;
 
     if !seat.is_free() && seat.owner != owner {
-        let idle = tick.saturating_sub(seat.last_seen_tick) >= SEAT_IDLE_TICKS;
-        // Never hand a bot's open position or queued orders to a newcomer: resetting `chips` and
+        // Never hand an open position or queued orders to a newcomer: resetting `chips` and
         // `position` mid-round would erase them while orders still sit in the mempool.
         let flat = seat.position == 0 && seat.pending_count == 0;
-        let displaceable = seat.kind == SeatKind::Bot && idle && flat;
+        let idle = match seat.kind {
+            SeatKind::Bot => tick.saturating_sub(seat.last_seen_tick) >= SEAT_IDLE_TICKS,
+            SeatKind::Human => human_seat_is_idle(seat.last_seen_tick, tick),
+            SeatKind::Ai => false,
+        };
+        let displaceable = idle && flat;
         require!(displaceable, InsiderError::SeatTaken);
     }
 
@@ -63,6 +68,16 @@ pub fn claim_seat(ctx: Context<ClaimSeat>, index: u8) -> Result<()> {
     }
     seat.last_seen_tick = tick;
     Ok(())
+}
+
+/// A human seat's holder is idle when it has not pinged or traded for `SEAT_IDLE_TICKS` this round,
+/// or was last seen in an earlier round (the tick restarts at 0 every round, so a `last_seen_tick`
+/// above the current tick is from a past round). Without the second rule a human seat claimed once
+/// was held forever: a player who left was never idle again in later rounds, so the three human
+/// seats filled up and nobody new could sit down. Bot seats keep the plain rule, because a bot
+/// reclaims its seat as soon as it may and would otherwise bump a human at every new round.
+pub fn human_seat_is_idle(last_seen_tick: u16, tick: u16) -> bool {
+    last_seen_tick > tick || tick - last_seen_tick >= SEAT_IDLE_TICKS
 }
 
 #[derive(Accounts, Session)]
