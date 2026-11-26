@@ -6,10 +6,10 @@
 
 A real-time multiplayer game where you **own private information as an on-chain asset** — buy it, sell it, license it, or burn it — powered by **MagicBlock's Private Ephemeral Rollup** on Solana.
 
-## 🎮 [Play live: insiderz.vercel.app](https://insiderz.vercel.app) · 🎬 [Watch the demo video](https://drive.google.com/file/d/1zA6peELMkUwLChy4KaTXHdgomzYSZ4EI/view?usp=sharing)
+## 🎮 [Play live: insiderz.vercel.app](https://insiderz.vercel.app) · 🎬 [Watch the demo video](https://drive.google.com/file/d/198p5djLWvf-S7uouUm82lM5dZ9GqfXzv/view?usp=sharing)
 
 [![Play](https://img.shields.io/badge/Play-insiderz.vercel.app-14F195?style=for-the-badge)](https://insiderz.vercel.app)
-[![Demo](https://img.shields.io/badge/Watch-Demo%20Video-9945FF?style=for-the-badge)](https://drive.google.com/file/d/1zA6peELMkUwLChy4KaTXHdgomzYSZ4EI/view?usp=sharing)
+[![Demo](https://img.shields.io/badge/Watch-Demo%20Video-9945FF?style=for-the-badge)](https://drive.google.com/file/d/198p5djLWvf-S7uouUm82lM5dZ9GqfXzv/view?usp=sharing)
 [![Network](https://img.shields.io/badge/Solana-Devnet-black?style=for-the-badge)](https://explorer.solana.com/address/7mTtHsFMYnZRnhd3SRzhj8Nm1U2T3s33dnbJwa9zBErW?cluster=devnet)
 [![License](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)](LICENSE)
 
@@ -73,7 +73,7 @@ Free to play on Solana devnet. No wallet, deposit or real money needed — the A
 | Resource       | Link                                                                                                                            |
 | -------------- | ------------------------------------------------------------------------------------------------------------------------------- |
 | Live app       | [insiderz.vercel.app](https://insiderz.vercel.app)                                                                              |
-| Demo video     | [Google Drive](https://drive.google.com/file/d/1zA6peELMkUwLChy4KaTXHdgomzYSZ4EI/view?usp=sharing)                              |
+| Demo video     | [Google Drive](https://drive.google.com/file/d/198p5djLWvf-S7uouUm82lM5dZ9GqfXzv/view?usp=sharing)                              |
 | Services       | [insider-services.onrender.com/health](https://insider-services.onrender.com/health) (bots, AI analysts, operators)             |
 | Game program   | [`7mTtHsF…BErW`](https://explorer.solana.com/address/7mTtHsFMYnZRnhd3SRzhj8Nm1U2T3s33dnbJwa9zBErW?cluster=devnet)               |
 | Live table     | [`DjnqzKQ…A1k`](https://explorer.solana.com/address/DjnqzKQsUU1fmRztBAiUkPn8VwsnFYgMedcg1BPyA1k?cluster=devnet) (TEE-delegated) |
