@@ -78,12 +78,14 @@ pub fn advance_ticks(
 pub struct TickAccounts<'info> {
     #[account(mut)]
     pub table: Box<Account<'info, Table>>,
-    /// The account that scheduled the crank task. Any key may schedule (`rearm_ticks` is
-    /// permissionless); the signer below proves the call came from the scheduler.
-    /// CHECK: only used to derive the expected crank signer.
+    /// The account that scheduled the crank task, or any caller.
+    /// CHECK: unused. Kept so the account order stays stable for existing tasks and clients.
     pub scheduler: UncheckedAccount<'info>,
-    #[account(address = crank_signer_pda(&scheduler.key()))]
-    pub crank_signer: Signer<'info>,
+    /// Validator 2.0 (Hydra) rejects signer metas in scheduled instructions, so `tick` is
+    /// permissionless: it is clock-derived and idempotent, so any caller only advances the table to
+    /// where the rollup clock already says it is.
+    /// CHECK: unused. Kept so the account order stays stable for existing tasks and clients.
+    pub crank_signer: UncheckedAccount<'info>,
     #[account(mut, seeds = [MARKET_SEED, table.key().as_ref(), &[MARKET_FLOOR]], bump = market.load()?.bump)]
     pub market: AccountLoader<'info, Market>,
     #[account(mut, seeds = [MEMPOOL_SEED, table.key().as_ref()], bump = mempool.load()?.bump)]

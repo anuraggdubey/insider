@@ -40,6 +40,14 @@ export type Action =
   | "cup_record"
   | "cup_settle";
 
+/**
+ * True when a running round is behind the rollup clock (mirrors `derived_tick` in `table.rs`), so
+ * a `tick` call would advance it.
+ */
+export const tableBehind = (phase: Phase, tick: number, roundStartSlot: number, slot: number) =>
+  (phase === "live" || phase === "closing" || phase === "xray") &&
+  Math.floor(Math.max(0, slot - roundStartSlot) / SLOTS_PER_TICK) > tick;
+
 /** Mirrors `VRF_TIMEOUT_TICKS` and `ROUNDS_PER_EPOCH` in `constants.rs`. */
 export const VRF_TIMEOUT_TICKS = 10;
 export const ROUNDS_PER_EPOCH = 10;

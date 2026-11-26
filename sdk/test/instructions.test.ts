@@ -41,6 +41,9 @@ import {
   openLeak,
   ping,
   rearmTicks,
+  SLOTS_PER_TICK,
+  tableBehind,
+  tickTable,
   requestRoundSeed,
   resealLeaks,
   sendOrder,
@@ -253,6 +256,36 @@ describe("rearmTicks", () => {
     const future = ix.keys.find((key, i) => i >= 6 && key.pubkey.equals(p.future))!;
     expect(future.isWritable).toBe(false);
     expect(coder.decode(ix.data)?.name).toBe("rearmTicks");
+  });
+});
+
+describe("tickTable", () => {
+  it("needs no signature and lists the tick accounts in program order", () => {
+    const ix = tickTable(config, owner);
+    const keys = ix.keys.map((key) => key.pubkey.toBase58());
+    expect(ix.keys).toHaveLength(3 + 22);
+    expect(ix.keys.every((key) => !key.isSigner)).toBe(true);
+    expect(keys.slice(0, 3)).toEqual([p.table, owner, owner].map((k) => k.toBase58()));
+    expect(keys.slice(3)).toEqual(
+      [p.floor, p.mempool, p.future, p.board, p.xray, p.tape, ...p.leakVaults, ...p.seats].map(
+        (k) => k.toBase58(),
+      ),
+    );
+    expect(ix.keys[0]!.isWritable).toBe(true);
+    expect(ix.keys.find((key) => key.pubkey.equals(p.future))!.isWritable).toBe(false);
+    expect(coder.decode(ix.data)?.name).toBe("tick");
+  });
+});
+
+describe("tableBehind", () => {
+  it("is true only for a running round that the rollup clock has passed", () => {
+    expect(tableBehind("live", 10, 1_000, 1_000 + 11 * SLOTS_PER_TICK)).toBe(true);
+    expect(tableBehind("live", 11, 1_000, 1_000 + 11 * SLOTS_PER_TICK)).toBe(false);
+    expect(tableBehind("closing", 3, 0, 4 * SLOTS_PER_TICK)).toBe(true);
+    expect(tableBehind("xray", 3, 0, 4 * SLOTS_PER_TICK)).toBe(true);
+    expect(tableBehind("idle", 3, 0, 40 * SLOTS_PER_TICK)).toBe(false);
+    expect(tableBehind("seeding", 3, 0, 40 * SLOTS_PER_TICK)).toBe(false);
+    expect(tableBehind("live", 0, 5_000, 1_000)).toBe(false);
   });
 });
 

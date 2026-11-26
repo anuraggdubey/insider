@@ -41,6 +41,7 @@ import {
   nextAction,
   offerLicense,
   openLeak,
+  phaseOf,
   ping,
   rearmTicks,
   requestRoundSeed,
@@ -49,7 +50,9 @@ import {
   sendTx,
   settleCall,
   tableAccounts,
+  tableBehind,
   teeAuthUrl,
+  tickTable,
   tx,
 } from "@insider/sdk/node";
 
@@ -108,6 +111,25 @@ export class Bot {
     const { signature, ms } = await sendTx(connection, tx(...ix), [this.keypair]);
     this.log.info({ signature, ms }, what);
     return signature;
+  }
+
+  /**
+   * Sends `tick` when the round is behind the rollup clock. Validator 2.0 runs scheduled cranks
+   * only through a Hydra cranker, so the bots keep the table moving themselves. `tick` is
+   * idempotent, so a crank that does fire and a bot never double-step a tick.
+   */
+  async tickIfBehind(): Promise<boolean> {
+    const connection = await this.connection();
+    const [info, slot] = await Promise.all([
+      connection.getAccountInfo(this.accounts.table, "confirmed"),
+      connection.getSlot("confirmed"),
+    ]);
+    if (!info) return false;
+    const table = decodeTable(info.data);
+    const roundStart = Number(table.roundStartSlot.toString());
+    if (!tableBehind(phaseOf(table.phase), table.tick, roundStart, slot)) return false;
+    await sendTx(connection, tx(tickTable(this.config, this.me)), [this.keypair]);
+    return true;
   }
 
   /** Reads everything one decision needs in one round trip. */

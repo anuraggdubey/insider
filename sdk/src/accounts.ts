@@ -111,6 +111,8 @@ export async function fetchTable(
   );
 }
 
+const POLL_AFTER_MS = 1_500;
+
 export function subscribeTable(
   connection: Connection,
   config: InsiderConfig,
@@ -148,8 +150,14 @@ export function subscribeTable(
   const subscriptions = publicAddresses(config).map((address) =>
     connection.onAccountChange(address, schedule, "confirmed"),
   );
+  // Fallback for networks that block or drop WebSockets: poll over HTTP whenever the socket has
+  // been quiet for a while. A live table changes every tick, so silence means no socket.
+  const poll = setInterval(() => {
+    if (Date.now() - last >= POLL_AFTER_MS) schedule();
+  }, POLL_AFTER_MS);
   return () => {
     closed = true;
+    clearInterval(poll);
     if (timer) clearTimeout(timer);
     for (const id of subscriptions) void connection.removeAccountChangeListener(id).catch(() => {});
   };

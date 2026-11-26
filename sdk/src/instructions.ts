@@ -331,6 +331,39 @@ export function rearmTicks(
 }
 
 /**
+ * Rollup, anyone: advances the table to the tick the rollup clock has reached (idempotent, so
+ * early or duplicate calls change nothing). Built by hand because `scheduler` and `crank_signer`
+ * are no longer checked: any caller fills both slots.
+ */
+export function tickTable(config: InsiderConfig, caller: PublicKey) {
+  const p = addresses(config);
+  const engine = [
+    p.floor,
+    p.mempool,
+    p.future,
+    p.board,
+    p.xray,
+    p.tape,
+    ...p.leakVaults,
+    ...p.seats,
+  ];
+  return new TransactionInstruction({
+    programId: config.programId,
+    keys: [
+      { pubkey: p.table, isSigner: false, isWritable: true },
+      { pubkey: caller, isSigner: false, isWritable: false },
+      { pubkey: caller, isSigner: false, isWritable: false },
+      ...engine.map((pubkey) => ({
+        pubkey,
+        isSigner: false,
+        isWritable: !pubkey.equals(p.future),
+      })),
+    ],
+    data: coder.encode("tick", {}),
+  });
+}
+
+/**
  * Rollup, anyone: once the epoch is over and its last round is scored, commits `Season` to the base
  * layer and undelegates it. The operator then runs `open_epoch` on the base layer.
  */

@@ -586,13 +586,19 @@ fn tick_ix(table: Pubkey, scheduler: Pubkey, crank_signer: Pubkey) -> Instructio
 }
 
 #[test]
-fn tick_rejects_callers_that_are_not_the_crank() {
+fn tick_is_permissionless_and_idempotent() {
     let (mut svm, authority) = table_with_seats();
     let table = table_pda(&authority.pubkey());
-    let impostor = Keypair::new();
-    svm.airdrop(&impostor.pubkey(), 1_000_000_000).unwrap();
-    let ix = tick_ix(table, authority.pubkey(), impostor.pubkey());
-    assert!(send(&mut svm, &[&impostor], ix).is_err());
+    let caller = Keypair::new();
+    svm.airdrop(&caller.pubkey(), 1_000_000_000).unwrap();
+    let ix = tick_ix(table, caller.pubkey(), caller.pubkey());
+    send(&mut svm, &[&caller], ix.clone()).unwrap();
+    let first: Table = read(&svm, &table);
+    svm.expire_blockhash();
+    send(&mut svm, &[&caller], ix).unwrap();
+    let second: Table = read(&svm, &table);
+    assert_eq!(first.tick, second.tick);
+    assert_eq!(first.round_id, second.round_id);
 }
 
 #[test]

@@ -9,6 +9,8 @@ import { loadConfig } from "./config.js";
 import { loadAll } from "./keys.js";
 import { membersFor } from "./roster.js";
 
+const TICK_MS = 500;
+
 async function main() {
   const log = pino({ level: process.env.LOG_LEVEL || "info" });
   const config = loadConfig();
@@ -28,9 +30,37 @@ async function main() {
   process.on("SIGINT", () => (stopping = true));
   process.on("SIGTERM", () => (stopping = true));
 
-  await Promise.all(
-    members.map(async ({ member, keypair }, i) => {
-      const bot = new Bot(member, keypair, config.insider, log.child({ bot: member.id }));
+  const bots = members.map(
+    ({ member, keypair }) =>
+      new Bot(member, keypair, config.insider, log.child({ bot: member.id })),
+  );
+
+  // The tick crank: one call every TICK_MS, rotating through the bots so a failing key or login
+  // never stops the table. Logged only on failure; a tick every 500 ms would flood the log.
+  const ticker = async () => {
+    let turn = 0;
+    let failures = 0;
+    while (!stopping) {
+      const bot = bots[turn++ % bots.length]!;
+      try {
+        await bot.tickIfBehind();
+        failures = 0;
+      } catch (error) {
+        failures += 1;
+        if (failures === 1 || failures % 20 === 0)
+          log.warn(
+            { bot: bot.member.id, error: String(error).slice(0, 200), failures },
+            "tick failed",
+          );
+      }
+      await new Promise((resolve) => setTimeout(resolve, TICK_MS));
+    }
+  };
+
+  await Promise.all([
+    ticker(),
+    ...bots.map(async (bot, i) => {
+      const member = bot.member;
       // stagger the starts so the TEE logins and the first decisions do not collide
       await new Promise((resolve) => setTimeout(resolve, i * 700));
       let failures = 0;
@@ -48,7 +78,7 @@ async function main() {
         );
       }
     }),
-  );
+  ]);
 }
 
 main().catch((error) => {

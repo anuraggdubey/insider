@@ -87,7 +87,7 @@ fn schedule<'info>(
     let mut metas = vec![
         AccountMeta::new(table.key(), false),
         AccountMeta::new_readonly(payer.key(), false),
-        AccountMeta::new_readonly(crank_signer_pda(&payer.key()), true),
+        AccountMeta::new_readonly(crank_signer_pda(&payer.key()), false),
     ];
     for extra in extras {
         metas.push(AccountMeta {

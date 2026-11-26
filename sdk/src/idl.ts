@@ -4727,14 +4727,15 @@ export type Insider = {
         },
         {
           name: "scheduler";
-          docs: [
-            "The account that scheduled the crank task. Any key may schedule (`rearm_ticks` is",
-            "permissionless); the signer below proves the call came from the scheduler.",
-          ];
+          docs: ["The account that scheduled the crank task, or any caller."];
         },
         {
           name: "crankSigner";
-          signer: true;
+          docs: [
+            "Validator 2.0 (Hydra) rejects signer metas in scheduled instructions, so `tick` is",
+            "permissionless: it is clock-derived and idempotent, so any caller only advances the table to",
+            "where the rollup clock already says it is.",
+          ];
         },
         {
           name: "market";
