@@ -53,6 +53,7 @@ A real-time multiplayer game where you **own private information as an on-chain 
 - [Deployed addresses](#deployed-addresses)
 - [Run it locally](#run-it-locally)
 - [Repository layout](#repository-layout)
+- [Known limits](#known-limits)
 - [What's next](#whats-next)
 - [Team](#team)
 
@@ -308,6 +309,13 @@ docs/               Spec, build plan, gates, runbook, SDK guide, devnet proofs
 Further reading: [Technical spec](docs/TECHNICAL_SPEC.md) · [Project info](docs/PROJECT_INFO.md) · [Build plan](docs/STEPS.md)
 
 ---
+
+## Known limits
+
+- **Magic Action cut on purpose.** A post-commit action on `commit_epoch` would need a funded escrow per seat, and a failing action could stall the epoch cycle. The operator publishes to SOAR instead.
+- **Private payments take ~150 s on devnet.** Cup buy-ins and payouts use the scripted path; the browser flow falls back to the operator if the payment doesn't arrive in time.
+- **VRF callback (G10) not wired.** The VRF request lands but the on-chain callback is not consumed; the round seed is applied by the crank instead.
+- **The TEE is the trust anchor.** Privacy relies on MagicBlock's validator and its permission checks, not on client-side encryption.
 
 ## What's next
 
