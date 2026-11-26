@@ -4,7 +4,7 @@
 
 A multiplayer **game of hidden information** on Solana. Every round is a 100-second fight to learn what the others can't see. Moves wait in a sealed dark mempool inside MagicBlock's Private Ephemeral Rollup. Nobody can read them: not the other players, not the RPC, not us.
 
-**[Play it now: insiderz.vercel.app](https://insiderz.vercel.app)** · [How to play](#new-here-play-your-first-round) · Solana devnet · MagicBlock Private ER (TEE), VRF and cranks · 60-minute soak with 0 failed steps
+**[Play it now: insiderz.vercel.app](https://insiderz.vercel.app)** · [Demo video](https://drive.google.com/file/d/1zA6peELMkUwLChy4KaTXHdgomzYSZ4EI/view?usp=sharing) · [How to play](#new-here-play-your-first-round) · Solana devnet · MagicBlock Private ER (TEE), VRF and cranks · 60-minute soak with 0 failed steps
 
 Built by **Anurag Dubey** and **Misbah Ansari** for **Solana Blitz v10** (MagicBlock, theme: _Entertainment Finance_). The setting is a trading floor, but INSIDER is played like a game: rounds, scores, rivals and replays, with play-money chips. Everything below runs on **Solana devnet**; nothing here uses real funds.
 
@@ -12,7 +12,7 @@ Built by **Anurag Dubey** and **Misbah Ansari** for **Solana Blitz v10** (MagicB
 | ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | Live app           | [insiderz.vercel.app](https://insiderz.vercel.app) (Vercel)                                                                                                                                |
 | Services           | [insider-services.onrender.com/health](https://insider-services.onrender.com/health) (Render: bots, AI analysts, operator, cup operator)                                                   |
-| Demo video         | _added when recorded_                                                                                                                                                                      |
+| Demo video         | [Watch the demo (Google Drive)](https://drive.google.com/file/d/1zA6peELMkUwLChy4KaTXHdgomzYSZ4EI/view?usp=sharing)                                                                                                                                                                      |
 | Game program       | [`7mTtHsFMYnZRnhd3SRzhj8Nm1U2T3s33dnbJwa9zBErW`](https://explorer.solana.com/address/7mTtHsFMYnZRnhd3SRzhj8Nm1U2T3s33dnbJwa9zBErW?cluster=devnet) (devnet)                                 |
 | Live table         | [`DjnqzKQsUU1fmRztBAiUkPn8VwsnFYgMedcg1BPyA1k`](https://explorer.solana.com/address/DjnqzKQsUU1fmRztBAiUkPn8VwsnFYgMedcg1BPyA1k?cluster=devnet), delegated to the MagicBlock TEE validator |
 | Proof of live runs | [docs/proofs/README.md](docs/proofs/README.md) (every row is a devnet transaction) and the app's `/proof` page                                                                             |
